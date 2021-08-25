@@ -6,6 +6,9 @@ inputs:
     required: true
     description: 'input description here'
     default: 'default value if applicable'
+  endpoint:
+    required: true
+    description: 'URL to Azure App Configuration resource'
 runs:
   using: 'node12'
   main: 'dist/index.js'

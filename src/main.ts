@@ -1,8 +1,19 @@
+import * as appConfig from '@azure/app-configuration'
+import * as azureIdentity from '@azure/identity'
 import * as core from '@actions/core'
 import {wait} from './wait'
 
 async function run(): Promise<void> {
   try {
+    const endpoint: string = core.getInput('endpoint')
+
+    const credential = new azureIdentity.DefaultAzureCredential()
+    const client = new appConfig.AppConfigurationClient(endpoint, credential)
+
+    const setting = await client.getConfigurationSetting({key: 'hello'})
+
+    setting.value
+
     const ms: string = core.getInput('milliseconds')
     core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
 
