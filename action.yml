@@ -12,6 +12,10 @@ inputs:
     required: false
     description: 'Key filter'
 
+branding:
+  icon: 'download-cloud'
+  color: 'blue'
+  
 runs:
   using: 'node12'
   main: 'dist/index.js'
