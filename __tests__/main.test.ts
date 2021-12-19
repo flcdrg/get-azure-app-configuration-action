@@ -1,29 +1,63 @@
-import {wait} from '../src/wait'
-import * as process from 'process'
-import * as cp from 'child_process'
-import * as path from 'path'
-import {expect, test} from '@jest/globals'
+import { expect, test } from '@jest/globals';
+import * as core from '@actions/core';
+import * as main from '../src/main';
 
-test('throws invalid number', async () => {
-  const input = parseInt('foo', 10)
-  await expect(wait(input)).rejects.toThrow('milliseconds not a number')
-})
+// Inputs for mock @actions/core
+let inputs = {} as any;
 
-test('wait 500 ms', async () => {
-  const start = new Date()
-  await wait(500)
-  const end = new Date()
-  var delta = Math.abs(end.getTime() - start.getTime())
-  expect(delta).toBeGreaterThan(450)
-})
+describe('main', () => {
+  beforeAll(() => {
+    // Mock getInput
+    jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
+      return inputs[name];
+    });
 
-// shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-  process.env['INPUT_MILLISECONDS'] = '500'
-  const np = process.execPath
-  const ip = path.join(__dirname, '..', 'lib', 'main.js')
-  const options: cp.ExecFileSyncOptions = {
-    env: process.env
-  }
-  console.log(cp.execFileSync(np, [ip], options).toString())
-})
+    // Mock error/warning/info/debug
+    jest.spyOn(core, 'error').mockImplementation(jest.fn());
+    jest.spyOn(core, 'warning').mockImplementation(jest.fn());
+    jest.spyOn(core, 'info').mockImplementation(jest.fn());
+    jest.spyOn(core, 'debug').mockImplementation(jest.fn());
+
+    // Mock github context
+    // jest.spyOn(github.context, 'repo', 'get').mockImplementation(() => {
+    //   return {
+    //     owner: 'some-owner',
+    //     repo: 'some-repo'
+    //   }
+    // })
+    // github.context.ref = 'refs/heads/some-ref'
+    // github.context.sha = '1234567890123456789012345678901234567890'
+
+    // Mock ./fs-helper directoryExistsSync()
+    // jest
+    //   .spyOn(fsHelper, 'directoryExistsSync')
+    //   .mockImplementation((path: string) => path == gitHubWorkspace)
+
+    // // GitHub workspace
+    // process.env['GITHUB_WORKSPACE'] = gitHubWorkspace
+  });
+
+  beforeEach(() => {
+    // Reset inputs
+    inputs = {};
+  });
+
+  afterAll(() => {
+    // Restore GitHub workspace
+    // delete process.env['GITHUB_WORKSPACE']
+    // if (originalGitHubWorkspace) {
+    //   process.env['GITHUB_WORKSPACE'] = originalGitHubWorkspace
+    // }
+
+    // // Restore @actions/github context
+    // github.context.ref = originalContext.ref
+    // github.context.sha = originalContext.sha
+
+    // Restore
+    jest.restoreAllMocks();
+  });
+
+  it('thing', async () => {
+    //await main.run();
+  });
+});
