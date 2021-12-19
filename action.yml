@@ -1,4 +1,4 @@
-name: 'Azure App Configuration Pull'
+name: 'Get Azure App Configuration'
 description: 'Pull information from Azure App Configuration'
 author: 'David Gardiner'
 inputs:
