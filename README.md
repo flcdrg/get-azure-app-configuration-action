@@ -1,99 +1,38 @@
-# GitHub Action - Azure App Configuration Pull
+# GitHub Action - Get Azure App Configuration
 
 [![build-test](https://github.com/flcdrg/actions-azure-app-configuration-pull/actions/workflows/test.yml/badge.svg)](https://github.com/flcdrg/actions-azure-app-configuration-pull/actions/workflows/test.yml)
 
-A GitHub Action that allows settings to be pulled from an Azure App Configuration store
+A GitHub Action that allows settings to be pulled from an Azure App Configuration store.
 
-## Code in Main
+It is intended to be analogous to the [Azure Pipelines Azure App Configuration](https://marketplace.visualstudio.com/items?itemName=AzureAppConfiguration.azure-app-configuration-task) task.
 
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
+With the Get Azure App Configuration action, you can fetch key values from an [Azure App Configuration](https://docs.microsoft.com/en-us/rest/api/keyvault/about-keys--secrets-and-certificates) instance and consume in your GitHub Action workflows.
 
-Install the dependencies
+The definition of this GitHub Action is in [action.yml](https://github.com/flcdrg/actions-get-azure-app-configuration/blob/main/action.yml).
 
-```bash
-npm install
-```
+Values fetched will be set as [outputs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/metadata-syntax-for-github-actions#outputs) of the app configuration action instance and can be consumed in the subsequent actions in the workflow using the notation: `${{ steps.<Id-of-the-AppConfiguration-Action>.outputs.<Secret-Key> }}`. In addition, secrets are also set as environment variables. By default variables are **not** automatically masked if printed to the console or to logs.
 
-Build the typescript and package it for distribution
-
-```bash
-npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:  
-
-```bash
-npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder.
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-
-```bash
-npm run package
-git add dist
-git commit -a -m "prod dependencies"
-git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket:
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
+## Example
 
 ```yaml
-uses: ./
-with:
-  milliseconds: 1000
+- uses: Azure/login@v1
+  with:
+    creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+- uses: flcdrg/actions-get-azure-app-configuration@v1
+  id: get-app-configuration
+  with:
+    resourceGroup: ${{ secrets.RESOURCE_GROUP }}
+    appConfigurationName: ${{ secrets.APP_CONFIGURATION }}
+    keyFilter: 'key1'
+
+- run: echo ${{ steps.get-app-configuration.outputs.key1 }}
 ```
 
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
+## Other notes
 
-## Usage
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+```powershell
+az ad sp create-for-rbac --name "app-config-action" --role contributor `
+                            --scopes /subscriptions/{subscription-id}/resourceGroups`{resource-group} `
+                            --sdk-auth
+```

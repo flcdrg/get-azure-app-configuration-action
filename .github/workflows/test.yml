@@ -19,6 +19,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ./
+
+      - uses: Azure/login@v1
         with:
-          milliseconds: 1000
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  
+      - uses: ./
+        id: get-app-configuration
+        with:
+          resourceGroup: ${{ secrets.RESOURCE_GROUP }}
+          appConfigurationName: ${{ secrets.APP_CONFIGURATION }}
+          keyFilter: 'key1'
+
+      - run: exit 1
+        if: ${{ steps.get-app-configuration.outputs.key1 != 'value1' }}
+        name: Check result
+

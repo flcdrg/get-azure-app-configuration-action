@@ -1,11 +1,17 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Azure App Configuration Pull'
+description: 'Pull information from Azure App Configuration'
+author: 'David Gardiner'
 inputs:
-  milliseconds: # change this
+  resourceGroup:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'Resource Group that contains App Configuration resource'
+  appConfigurationName:
+    required: true
+    description: 'Name of App Configuration resource'
+  keyFilter:
+    required: false
+    description: 'Key filter'
+
 runs:
   using: 'node12'
   main: 'dist/index.js'
