@@ -1,12 +1,12 @@
 # GitHub Action - Get Azure App Configuration
 
-[![build-test](https://github.com/flcdrg/actions-azure-app-configuration-pull/actions/workflows/test.yml/badge.svg)](https://github.com/flcdrg/actions-azure-app-configuration-pull/actions/workflows/test.yml)
+[![build-test](https://github.com/flcdrg/actions-get-azure-app-configuration/actions/workflows/test.yml/badge.svg)](https://github.com/flcdrg/actions-get-azure-app-configuration/actions/workflows/test.yml)
 
 A GitHub Action that allows settings to be pulled from an Azure App Configuration store.
 
 It is intended to be analogous to the [Azure Pipelines Azure App Configuration](https://marketplace.visualstudio.com/items?itemName=AzureAppConfiguration.azure-app-configuration-task) task.
 
-With the Get Azure App Configuration action, you can fetch key values from an [Azure App Configuration](https://docs.microsoft.com/en-us/rest/api/keyvault/about-keys--secrets-and-certificates) instance and consume in your GitHub Action workflows.
+With the Get Azure App Configuration action, you can fetch key values from an [Azure App Configuration](https://azure.microsoft.com/services/app-configuration/?WT.mc_id=AZ-MVP-5001655) instance and consume in your GitHub Action workflows.
 
 The definition of this GitHub Action is in [action.yml](https://github.com/flcdrg/actions-get-azure-app-configuration/blob/main/action.yml).
 
