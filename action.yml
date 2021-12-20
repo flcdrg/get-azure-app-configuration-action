@@ -11,6 +11,9 @@ inputs:
   keyFilter:
     required: false
     description: 'Key filter'
+  labelFilter:
+    required: false
+    description: 'Label filter'
 
 branding:
   icon: 'download-cloud'
