@@ -11,6 +11,7 @@
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
+    "integration-test": "jest --config jest.integration.config.js",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
   "repository": {
@@ -39,6 +40,7 @@
     "eslint-plugin-github": "^4.3.6",
     "eslint-plugin-jest": "^26.1.5",
     "jest": "^27.5.1",
+    "jest-runner-groups": "^2.2.0",
     "js-yaml": "^4.1.0",
     "nerdbank-gitversioning": "^3.5.86-alpha",
     "prettier": "2.6.2",

@@ -1,0 +1,14 @@
+{
+    "$dollarkey": "dollarkey value",
+    "": {
+        "leadingdot": ".leadingdot value"
+    },
+    "coloned:key": "coloned:key value",
+    "dotted": {
+        "key": "dotted.key value"
+    },
+    "key1": "key1 value",
+    "key2": "key2 value",
+    "slash/separated/key": "slash/separated/key value",
+    "underscored_key": "underscored_key value"
+}

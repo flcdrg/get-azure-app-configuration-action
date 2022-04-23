@@ -32,6 +32,10 @@ jobs:
           echo "set-output name=NBGV_SemVer2::$NBGV_SemVer2"
           echo "::set-output name=NBGV_SemVer2::$NBGV_SemVer2"
 
+      - uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - run: |
           npm run all
   test: # make sure the action works on a clean machine without building
@@ -50,8 +54,10 @@ jobs:
           appConfigurationName: ${{ secrets.APP_CONFIGURATION }}
           keyFilter: 'key1'
 
-      - run: exit 1
-        if: ${{ steps.get-app-configuration.outputs.key1 != 'value1' }}
+      - run: |
+          echo ${{ steps.get-app-configuration.outputs.key1 }}
+          exit 1
+        if: ${{ steps.get-app-configuration.outputs.key1 != 'key1 value' }}
         name: Check result
 
   update_release_draft:

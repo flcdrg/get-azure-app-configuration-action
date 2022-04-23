@@ -29,6 +29,50 @@ Values fetched will be set as [outputs](https://help.github.com/en/actions/autom
 - run: echo ${{ steps.get-app-configuration.outputs.key1 }}
 ```
 
+## Inputs
+
+Various inputs are defined in [`action.yml`](action.yml) to let you configure this action:
+
+| Name | Description |
+| - | - |
+| `resourceGroup` | The name of the resource group that contains the App Configuration resource |
+| `appConfigurationName` | The name of the App Configuration resource |
+| `keyFilter` | See below |
+| `labelFilter` | See below |
+
+### keyFilter
+
+Filters for keys. There are two types of matching:
+
+1. Exact matching. Up to 5 key names are allowed, separated by commas (',')
+2. Wildcard matching. A single wildcard expression can be specified.
+
+| Value          | Matches                               |
+|----------------|---------------------------------------|
+| omitted or `*` | Matches any key                       |
+| `abc`          | Matches a key named abc               |
+| `abc*`         | Matches key names that start with abc |
+
+These characters are reserved and must be prefixed with backslash in order
+to be specified: `*` or `\` or `,`
+
+### labelFilter
+
+Filters for labels. There are two types of matching:
+
+1. Exact matching. Up to 5 labels are allowed, separated by commas (',')
+2. Wildcard matching. A single wildcard expression can be specified.
+
+| Value          | Matches                                           |
+|----------------|---------------------------------------------------|
+| omitted or `*` | Matches any key                                   |
+| `%00`          | Matches any key without a label                   |
+| `prod`         | Matches a key with label named prod               |
+| `prod*`        | Matches key with label names that start with prod |
+
+These characters are reserved and must be prefixed with backslash in order
+to be specified: `*` or `\` or `,`
+
 ## Other notes
 
 ```powershell

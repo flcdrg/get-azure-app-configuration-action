@@ -1,7 +1,7 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 3109:
+/***/ 5366:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -39,12 +39,76 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
+exports.getKeys = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const app_configuration_1 = __nccwpck_require__(732);
+const main_1 = __nccwpck_require__(3109);
+function getKeys(resourceGroup, appConfigurationName, filter) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const azPath = yield io.which('az', true);
+        const connectionString = yield (0, main_1.executeAzCliCommand)(azPath, `appconfig credential list -g ${resourceGroup} -n ${appConfigurationName} --query "([?name=='Primary Read Only'].connectionString)[0]"`);
+        core.setSecret(connectionString);
+        const client = new app_configuration_1.AppConfigurationClient(connectionString);
+        return client.listConfigurationSettings(filter);
+    });
+}
+exports.getKeys = getKeys;
+
+
+/***/ }),
+
+/***/ 3109:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.executeAzCliCommand = exports.run = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const exec = __importStar(__nccwpck_require__(1514));
+const appConfiguration_1 = __nccwpck_require__(5366);
 function run() {
+    var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const resourceGroup = core.getInput('resourceGroup', {
@@ -54,17 +118,24 @@ function run() {
                 required: true
             });
             const keyFilter = core.getInput('keyFilter');
-            const azPath = yield io.which('az', true);
-            const connectionString = yield executeAzCliCommand(azPath, `appconfig credential list -g ${resourceGroup} -n ${appConfigurationName} --query "([?name=='Primary Read Only'].connectionString)[0]"`);
-            core.setSecret(connectionString);
-            const client = new app_configuration_1.AppConfigurationClient(connectionString);
-            const response = yield client.getConfigurationSetting({ key: keyFilter });
-            if (response.statusCode < 400) {
-                core.exportVariable(response.key, response.value);
-                core.setOutput(response.key, response.value);
+            const labelFilter = core.getInput('labelFilter');
+            const keys = yield (0, appConfiguration_1.getKeys)(resourceGroup, appConfigurationName, {
+                keyFilter,
+                labelFilter
+            });
+            try {
+                for (var keys_1 = __asyncValues(keys), keys_1_1; keys_1_1 = yield keys_1.next(), !keys_1_1.done;) {
+                    const setting = keys_1_1.value;
+                    core.setOutput(setting.key, setting.value);
+                    core.exportVariable(setting.key, setting.value);
+                }
             }
-            else {
-                core.setFailed(`Could not get value for key '${keyFilter}', error status ${response.statusCode}`);
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (keys_1_1 && !keys_1_1.done && (_a = keys_1.return)) yield _a.call(keys_1);
+                }
+                finally { if (e_1) throw e_1.error; }
             }
         }
         catch (error) {
@@ -100,6 +171,7 @@ function executeAzCliCommand(azPath, command) {
         return stdout;
     });
 }
+exports.executeAzCliCommand = executeAzCliCommand;
 run();
 
 
