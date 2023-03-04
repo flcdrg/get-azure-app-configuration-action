@@ -1,7 +1,13 @@
 import * as core from '@actions/core';
-import * as exec from '@actions/exec';
 
 import { getKeys } from './appConfiguration';
+
+import { getKeyVaultSecret } from './kv';
+import {
+  isSecretReference,
+  parseSecretReference
+} from '@azure/app-configuration';
+import { parseKeyVaultSecretIdentifier } from '@azure/keyvault-secrets';
 
 export async function run(): Promise<void> {
   try {
@@ -21,40 +27,35 @@ export async function run(): Promise<void> {
     });
 
     for await (const setting of keys) {
-      core.setOutput(setting.key, setting.value);
-      core.exportVariable(setting.key, setting.value);
+      // https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/appconfiguration/app-configuration/samples-dev/secretReference.ts
+      if (isSecretReference(setting)) {
+        const parsedSecretReference = parseSecretReference(setting);
+
+        const { name: secretName, vaultUrl } = parseKeyVaultSecretIdentifier(
+          parsedSecretReference.value.secretId
+        );
+
+        const secretValue = await getKeyVaultSecret(vaultUrl, secretName);
+
+        core.debug(
+          `Exporting ${setting.key} from Key Vault with ${secretValue}`
+        );
+        core.setOutput(setting.key, secretValue);
+        core.exportVariable(setting.key, secretValue);
+      } else {
+        const settingValue = setting.value;
+        core.debug(
+          `Exporting ${setting.key} from App Configuration with ${settingValue}`
+        );
+        core.setOutput(setting.key, settingValue);
+        core.exportVariable(setting.key, setting.value);
+      }
     }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);
     }
   }
-}
-
-// From https://github.com/Azure/get-keyvault-secrets/blob/master/src/main.ts#L49
-export async function executeAzCliCommand(
-  azPath: string,
-  command: string
-): Promise<string> {
-  let stdout = '';
-  let stderr = '';
-  try {
-    core.debug(`"${azPath}" ${command}`);
-    await exec.exec(`"${azPath}" ${command}`, [], {
-      silent: true, // this will prevent printing access token to console output
-      listeners: {
-        stdout: (data: Buffer) => {
-          stdout += data.toString();
-        },
-        stderr: (data: Buffer) => {
-          stderr += data.toString();
-        }
-      }
-    });
-  } catch (error) {
-    throw new Error(stderr);
-  }
-  return stdout;
 }
 
 run();

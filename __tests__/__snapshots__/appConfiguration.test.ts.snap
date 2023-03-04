@@ -28,6 +28,21 @@ Object {
 }
 `;
 
+exports[`appConfiguration nulls 1`] = `
+Object {
+  "$dollarkey": "dollarkey value",
+  ".leadingdot": ".leadingdot value",
+  "coloned:key": "coloned:key value",
+  "dotted.key": "dotted.key value",
+  "key1": "key1 value",
+  "key2": "key2 value",
+  "key3": "key3 label3 value",
+  "ref kv secret 1": "{\\"uri\\":\\"https://kv-appconfig-test-aue.vault.azure.net/secrets/kv-secret-1\\"}",
+  "slash/separated/key": "slash/separated/key value",
+  "underscored_key": "underscored_key value",
+}
+`;
+
 exports[`appConfiguration single key1 1`] = `
 Object {
   "key1": "key1 value",

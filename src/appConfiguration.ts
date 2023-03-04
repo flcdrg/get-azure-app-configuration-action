@@ -9,7 +9,7 @@ import {
   ListConfigurationSettingsOptions,
   PageSettings
 } from '@azure/app-configuration';
-import { executeAzCliCommand } from './main';
+import { executeAzCliCommand } from './executeAzCliCommand';
 
 export async function getKeys(
   resourceGroup: string,
