@@ -17,7 +17,7 @@ import {
   PageSettings
 } from '@azure/app-configuration';
 import { PagedAsyncIterableIterator } from '@azure/core-paging';
-import * as getKeys from '../src/appConfiguration';
+import { getKeys } from '../src/appConfiguration';
 
 type StringDictionary = {
   [id: string]: string;
@@ -29,7 +29,7 @@ describe('appConfiguration', () => {
   const resource = process.env.RESOURCE ?? 'appcs-appconfig-test-australiaeast';
 
   it('all', async () => {
-    const keys = await getKeys.getKeys(resourceGroup, resource, {
+    const keys = await getKeys(resourceGroup, resource, {
       keyFilter: '',
       labelFilter: ''
     });
@@ -42,7 +42,7 @@ describe('appConfiguration', () => {
   });
 
   it('single key1', async () => {
-    const keys = await getKeys.getKeys(resourceGroup, resource, {
+    const keys = await getKeys(resourceGroup, resource, {
       keyFilter: 'key1'
     });
 
@@ -54,7 +54,7 @@ describe('appConfiguration', () => {
   });
 
   it('wildcard key*', async () => {
-    const keys = await getKeys.getKeys(resourceGroup, resource, {
+    const keys = await getKeys(resourceGroup, resource, {
       keyFilter: 'key*'
     });
 
@@ -66,7 +66,7 @@ describe('appConfiguration', () => {
   });
 
   it('multiple key1,key2', async () => {
-    const keys = await getKeys.getKeys(resourceGroup, resource, {
+    const keys = await getKeys(resourceGroup, resource, {
       keyFilter: 'key1,key2'
     });
 
@@ -78,7 +78,7 @@ describe('appConfiguration', () => {
   });
 
   it('single label2', async () => {
-    const keys = await getKeys.getKeys(resourceGroup, resource, {
+    const keys = await getKeys(resourceGroup, resource, {
       labelFilter: 'label2'
     });
 
@@ -90,7 +90,7 @@ describe('appConfiguration', () => {
   });
 
   it('wildcard label*', async () => {
-    const keys = await getKeys.getKeys(resourceGroup, resource, {
+    const keys = await getKeys(resourceGroup, resource, {
       labelFilter: 'label*'
     });
 
@@ -102,7 +102,7 @@ describe('appConfiguration', () => {
   });
 
   it('key3 and label3', async () => {
-    const keys = await getKeys.getKeys(resourceGroup, resource, {
+    const keys = await getKeys(resourceGroup, resource, {
       keyFilter: 'key3',
       labelFilter: 'label3'
     });
