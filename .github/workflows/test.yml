@@ -55,6 +55,7 @@ jobs:
           appConfigurationName: ${{ vars.APP_CONFIGURATION }}
           keyFilter: 'key1'
 
+      # This step only runs if value is not what was expected
       - run: |
           echo ${{ steps.get-app-configuration.outputs.key1 }}
           exit 1
