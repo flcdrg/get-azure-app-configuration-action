@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-node@v3.6.0
         with:
           node-version: 16.x
-                    
+
       - run: |
           npm ci
           npx nbgv cloud --all-vars
@@ -38,6 +38,7 @@ jobs:
 
       - run: |
           npm run all
+
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
@@ -46,12 +47,12 @@ jobs:
       - uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-  
+
       - uses: ./
         id: get-app-configuration
         with:
-          resourceGroup: ${{ secrets.RESOURCE_GROUP }}
-          appConfigurationName: ${{ secrets.APP_CONFIGURATION }}
+          resourceGroup: ${{ vars.RESOURCE_GROUP }}
+          appConfigurationName: ${{ vars.APP_CONFIGURATION }}
           keyFilter: 'key1'
 
       - run: |

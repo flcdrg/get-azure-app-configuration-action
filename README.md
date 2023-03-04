@@ -75,8 +75,16 @@ to be specified: `*` or `\` or `,`
 
 ## Other notes
 
+Create a new service principal with contributor access to a resource group.
+
 ```powershell
 az ad sp create-for-rbac --name "app-config-action" --role contributor `
-                            --scopes /subscriptions/{subscription-id}/resourceGroups`{resource-group} `
+                            --scopes /subscriptions/{subscription-id}/resourceGroups/`{resource-group} `
                             --sdk-auth
+```
+
+Find existing service principal
+
+```powershell
+az ad sp list --query "[?displayName == 'app-config-action']"
 ```
