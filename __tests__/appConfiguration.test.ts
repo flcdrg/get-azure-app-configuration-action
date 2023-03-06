@@ -41,6 +41,19 @@ describe('appConfiguration', () => {
     expect(result).toMatchSnapshot();
   });
 
+  it('no labels', async () => {
+    const keys = await getKeys(resourceGroup, resource, {
+      keyFilter: '*',
+      labelFilter: '\0'
+    });
+
+    const result: StringDictionary = {};
+
+    await copyToResult(keys, result);
+
+    expect(result).toMatchSnapshot();
+  });
+
   it('nulls', async () => {
     const keys = await getKeys(resourceGroup, resource, {
       keyFilter: undefined,

@@ -19,7 +19,7 @@ export async function run(): Promise<void> {
     });
 
     const keyFilter = core.getInput('keyFilter');
-    const labelFilter = core.getInput('labelFilter');
+    const labelFilter = core.getInput('labelFilter') || '\0'; // default to keys with no label
 
     const keys = await getKeys(resourceGroup, appConfigurationName, {
       keyFilter,
