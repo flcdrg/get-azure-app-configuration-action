@@ -249,7 +249,7 @@ function run() {
                 required: true
             });
             const keyFilter = core.getInput('keyFilter');
-            const labelFilter = core.getInput('labelFilter');
+            const labelFilter = core.getInput('labelFilter') || '\0'; // default to keys with no label
             const keys = yield (0, appConfiguration_1.getKeys)(resourceGroup, appConfigurationName, {
                 keyFilter,
                 labelFilter
