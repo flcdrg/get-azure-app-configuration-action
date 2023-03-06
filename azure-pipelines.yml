@@ -1,0 +1,22 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: AzureAppConfiguration@6
+  inputs:
+    azureSubscription: 'MSDN(b4b2e7e9-66e7-46b5-a56b-cce2b50011d4)'
+    AppConfigurationEndpoint: 'https://appcs-appconfig-test-australiaeast.azconfig.io'
+    KeyFilter: '*'
+    Label: ''
+    TrimKeyPrefix: ''
+
+- script: printenv
