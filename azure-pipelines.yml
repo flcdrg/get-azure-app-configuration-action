@@ -13,7 +13,7 @@ steps:
 
 - task: AzureAppConfiguration@6
   inputs:
-    azureSubscription: 'MSDN(b4b2e7e9-66e7-46b5-a56b-cce2b50011d4)'
+    azureSubscription: 'appconfig-test'
     AppConfigurationEndpoint: 'https://appcs-appconfig-test-australiaeast.azconfig.io'
     KeyFilter: '*'
     Label: ''
