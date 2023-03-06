@@ -69,7 +69,7 @@ jobs:
         with:
           resourceGroup: ${{ vars.RESOURCE_GROUP }}
           appConfigurationName: ${{ vars.APP_CONFIGURATION }}
-  
+
       - name: Dump steps context
         run: echo '${{ toJSON(steps) }}"''
         continue-on-error: true
@@ -79,6 +79,9 @@ jobs:
           echo ' ${{ toJSON(steps.get-app-configuration2.outputs['ref kv secret 1']) }} '
         name: Check result
         continue-on-error: true
+
+      - run: printenv
+        name: Dump environment
 
   update_release_draft:
     name: Update release draft
