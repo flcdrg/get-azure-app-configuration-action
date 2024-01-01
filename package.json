@@ -40,7 +40,7 @@
     "@vercel/ncc": "^0.38.1",
     "eslint": "^8.56.0",
     "eslint-plugin-github": "^4.10.1",
-    "eslint-plugin-jest": "^27.6.0",
+    "eslint-plugin-jest": "^27.6.1",
     "eslint-plugin-prettier": "^4.2.1",
     "jest": "^27.5.1",
     "jest-runner-groups": "^2.2.0",
