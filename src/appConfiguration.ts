@@ -1,4 +1,3 @@
-/* eslint-disable import/named */
 import { PagedAsyncIterableIterator } from '@azure/core-paging';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
