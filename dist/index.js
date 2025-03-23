@@ -3889,7 +3889,7 @@ var coreAuth = __nccwpck_require__(9645);
 var tslib = __nccwpck_require__(2350);
 var coreUtil = __nccwpck_require__(1333);
 var coreClient = __nccwpck_require__(9729);
-var coreHttpCompat = __nccwpck_require__(9592);
+var coreHttpCompat = __nccwpck_require__(6232);
 var coreLro = __nccwpck_require__(7094);
 var coreTracing = __nccwpck_require__(4175);
 
@@ -7237,467 +7237,6 @@ exports.secretReferenceContentType = secretReferenceContentType;
 
 /***/ }),
 
-/***/ 9592:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-var coreRestPipeline = __nccwpck_require__(8121);
-var coreClient = __nccwpck_require__(9729);
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-const disableKeepAlivePolicyName = "DisableKeepAlivePolicy";
-function createDisableKeepAlivePolicy() {
-    return {
-        name: disableKeepAlivePolicyName,
-        async sendRequest(request, next) {
-            request.disableKeepAlive = true;
-            return next(request);
-        },
-    };
-}
-/**
- * @internal
- */
-function pipelineContainsDisableKeepAlivePolicy(pipeline) {
-    return pipeline.getOrderedPolicies().some((policy) => policy.name === disableKeepAlivePolicyName);
-}
-
-// Copyright (c) Microsoft Corporation.
-// We use a custom symbol to cache a reference to the original request without
-// exposing it on the public interface.
-const originalRequestSymbol = Symbol("Original PipelineRequest");
-// Symbol.for() will return the same symbol if it's already been created
-// This particular one is used in core-client to handle the case of when a request is
-// cloned but we need to retrieve the OperationSpec and OperationArguments from the
-// original request.
-const originalClientRequestSymbol = Symbol.for("@azure/core-client original request");
-function toPipelineRequest(webResource, options = {}) {
-    const compatWebResource = webResource;
-    const request = compatWebResource[originalRequestSymbol];
-    const headers = coreRestPipeline.createHttpHeaders(webResource.headers.toJson({ preserveCase: true }));
-    if (request) {
-        request.headers = headers;
-        return request;
-    }
-    else {
-        const newRequest = coreRestPipeline.createPipelineRequest({
-            url: webResource.url,
-            method: webResource.method,
-            headers,
-            withCredentials: webResource.withCredentials,
-            timeout: webResource.timeout,
-            requestId: webResource.requestId,
-            abortSignal: webResource.abortSignal,
-            body: webResource.body,
-            formData: webResource.formData,
-            disableKeepAlive: !!webResource.keepAlive,
-            onDownloadProgress: webResource.onDownloadProgress,
-            onUploadProgress: webResource.onUploadProgress,
-            proxySettings: webResource.proxySettings,
-            streamResponseStatusCodes: webResource.streamResponseStatusCodes,
-        });
-        if (options.originalRequest) {
-            newRequest[originalClientRequestSymbol] =
-                options.originalRequest;
-        }
-        return newRequest;
-    }
-}
-function toWebResourceLike(request, options) {
-    var _a;
-    const originalRequest = (_a = options === null || options === void 0 ? void 0 : options.originalRequest) !== null && _a !== void 0 ? _a : request;
-    const webResource = {
-        url: request.url,
-        method: request.method,
-        headers: toHttpHeadersLike(request.headers),
-        withCredentials: request.withCredentials,
-        timeout: request.timeout,
-        requestId: request.headers.get("x-ms-client-request-id") || request.requestId,
-        abortSignal: request.abortSignal,
-        body: request.body,
-        formData: request.formData,
-        keepAlive: !!request.disableKeepAlive,
-        onDownloadProgress: request.onDownloadProgress,
-        onUploadProgress: request.onUploadProgress,
-        proxySettings: request.proxySettings,
-        streamResponseStatusCodes: request.streamResponseStatusCodes,
-        clone() {
-            throw new Error("Cannot clone a non-proxied WebResourceLike");
-        },
-        prepare() {
-            throw new Error("WebResourceLike.prepare() is not supported by @azure/core-http-compat");
-        },
-        validateRequestProperties() {
-            /** do nothing */
-        },
-    };
-    if (options === null || options === void 0 ? void 0 : options.createProxy) {
-        return new Proxy(webResource, {
-            get(target, prop, receiver) {
-                if (prop === originalRequestSymbol) {
-                    return request;
-                }
-                else if (prop === "clone") {
-                    return () => {
-                        return toWebResourceLike(toPipelineRequest(webResource, { originalRequest }), {
-                            createProxy: true,
-                            originalRequest,
-                        });
-                    };
-                }
-                return Reflect.get(target, prop, receiver);
-            },
-            set(target, prop, value, receiver) {
-                if (prop === "keepAlive") {
-                    request.disableKeepAlive = !value;
-                }
-                const passThroughProps = [
-                    "url",
-                    "method",
-                    "withCredentials",
-                    "timeout",
-                    "requestId",
-                    "abortSignal",
-                    "body",
-                    "formData",
-                    "onDownloadProgress",
-                    "onUploadProgress",
-                    "proxySettings",
-                    "streamResponseStatusCodes",
-                ];
-                if (typeof prop === "string" && passThroughProps.includes(prop)) {
-                    request[prop] = value;
-                }
-                return Reflect.set(target, prop, value, receiver);
-            },
-        });
-    }
-    else {
-        return webResource;
-    }
-}
-/**
- * Converts HttpHeaders from core-rest-pipeline to look like
- * HttpHeaders from core-http.
- * @param headers - HttpHeaders from core-rest-pipeline
- * @returns HttpHeaders as they looked in core-http
- */
-function toHttpHeadersLike(headers) {
-    return new HttpHeaders(headers.toJSON({ preserveCase: true }));
-}
-/**
- * A collection of HttpHeaders that can be sent with a HTTP request.
- */
-function getHeaderKey(headerName) {
-    return headerName.toLowerCase();
-}
-/**
- * A collection of HTTP header key/value pairs.
- */
-class HttpHeaders {
-    constructor(rawHeaders) {
-        this._headersMap = {};
-        if (rawHeaders) {
-            for (const headerName in rawHeaders) {
-                this.set(headerName, rawHeaders[headerName]);
-            }
-        }
-    }
-    /**
-     * Set a header in this collection with the provided name and value. The name is
-     * case-insensitive.
-     * @param headerName - The name of the header to set. This value is case-insensitive.
-     * @param headerValue - The value of the header to set.
-     */
-    set(headerName, headerValue) {
-        this._headersMap[getHeaderKey(headerName)] = {
-            name: headerName,
-            value: headerValue.toString(),
-        };
-    }
-    /**
-     * Get the header value for the provided header name, or undefined if no header exists in this
-     * collection with the provided name.
-     * @param headerName - The name of the header.
-     */
-    get(headerName) {
-        const header = this._headersMap[getHeaderKey(headerName)];
-        return !header ? undefined : header.value;
-    }
-    /**
-     * Get whether or not this header collection contains a header entry for the provided header name.
-     */
-    contains(headerName) {
-        return !!this._headersMap[getHeaderKey(headerName)];
-    }
-    /**
-     * Remove the header with the provided headerName. Return whether or not the header existed and
-     * was removed.
-     * @param headerName - The name of the header to remove.
-     */
-    remove(headerName) {
-        const result = this.contains(headerName);
-        delete this._headersMap[getHeaderKey(headerName)];
-        return result;
-    }
-    /**
-     * Get the headers that are contained this collection as an object.
-     */
-    rawHeaders() {
-        return this.toJson({ preserveCase: true });
-    }
-    /**
-     * Get the headers that are contained in this collection as an array.
-     */
-    headersArray() {
-        const headers = [];
-        for (const headerKey in this._headersMap) {
-            headers.push(this._headersMap[headerKey]);
-        }
-        return headers;
-    }
-    /**
-     * Get the header names that are contained in this collection.
-     */
-    headerNames() {
-        const headerNames = [];
-        const headers = this.headersArray();
-        for (let i = 0; i < headers.length; ++i) {
-            headerNames.push(headers[i].name);
-        }
-        return headerNames;
-    }
-    /**
-     * Get the header values that are contained in this collection.
-     */
-    headerValues() {
-        const headerValues = [];
-        const headers = this.headersArray();
-        for (let i = 0; i < headers.length; ++i) {
-            headerValues.push(headers[i].value);
-        }
-        return headerValues;
-    }
-    /**
-     * Get the JSON object representation of this HTTP header collection.
-     */
-    toJson(options = {}) {
-        const result = {};
-        if (options.preserveCase) {
-            for (const headerKey in this._headersMap) {
-                const header = this._headersMap[headerKey];
-                result[header.name] = header.value;
-            }
-        }
-        else {
-            for (const headerKey in this._headersMap) {
-                const header = this._headersMap[headerKey];
-                result[getHeaderKey(header.name)] = header.value;
-            }
-        }
-        return result;
-    }
-    /**
-     * Get the string representation of this HTTP header collection.
-     */
-    toString() {
-        return JSON.stringify(this.toJson({ preserveCase: true }));
-    }
-    /**
-     * Create a deep clone/copy of this HttpHeaders collection.
-     */
-    clone() {
-        const resultPreservingCasing = {};
-        for (const headerKey in this._headersMap) {
-            const header = this._headersMap[headerKey];
-            resultPreservingCasing[header.name] = header.value;
-        }
-        return new HttpHeaders(resultPreservingCasing);
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-const originalResponse = Symbol("Original FullOperationResponse");
-/**
- * A helper to convert response objects from the new pipeline back to the old one.
- * @param response - A response object from core-client.
- * @returns A response compatible with `HttpOperationResponse` from core-http.
- */
-function toCompatResponse(response, options) {
-    let request = toWebResourceLike(response.request);
-    let headers = toHttpHeadersLike(response.headers);
-    if (options === null || options === void 0 ? void 0 : options.createProxy) {
-        return new Proxy(response, {
-            get(target, prop, receiver) {
-                if (prop === "headers") {
-                    return headers;
-                }
-                else if (prop === "request") {
-                    return request;
-                }
-                else if (prop === originalResponse) {
-                    return response;
-                }
-                return Reflect.get(target, prop, receiver);
-            },
-            set(target, prop, value, receiver) {
-                if (prop === "headers") {
-                    headers = value;
-                }
-                else if (prop === "request") {
-                    request = value;
-                }
-                return Reflect.set(target, prop, value, receiver);
-            },
-        });
-    }
-    else {
-        return Object.assign(Object.assign({}, response), { request,
-            headers });
-    }
-}
-/**
- * A helper to convert back to a PipelineResponse
- * @param compatResponse - A response compatible with `HttpOperationResponse` from core-http.
- */
-function toPipelineResponse(compatResponse) {
-    const extendedCompatResponse = compatResponse;
-    const response = extendedCompatResponse[originalResponse];
-    const headers = coreRestPipeline.createHttpHeaders(compatResponse.headers.toJson({ preserveCase: true }));
-    if (response) {
-        response.headers = headers;
-        return response;
-    }
-    else {
-        return Object.assign(Object.assign({}, compatResponse), { headers, request: toPipelineRequest(compatResponse.request) });
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-/**
- * Client to provide compatability between core V1 & V2.
- */
-class ExtendedServiceClient extends coreClient.ServiceClient {
-    constructor(options) {
-        var _a, _b;
-        super(options);
-        if (((_a = options.keepAliveOptions) === null || _a === void 0 ? void 0 : _a.enable) === false &&
-            !pipelineContainsDisableKeepAlivePolicy(this.pipeline)) {
-            this.pipeline.addPolicy(createDisableKeepAlivePolicy());
-        }
-        if (((_b = options.redirectOptions) === null || _b === void 0 ? void 0 : _b.handleRedirects) === false) {
-            this.pipeline.removePolicy({
-                name: coreRestPipeline.redirectPolicyName,
-            });
-        }
-    }
-    /**
-     * Compatible send operation request function.
-     *
-     * @param operationArguments - Operation arguments
-     * @param operationSpec - Operation Spec
-     * @returns
-     */
-    async sendOperationRequest(operationArguments, operationSpec) {
-        var _a;
-        const userProvidedCallBack = (_a = operationArguments === null || operationArguments === void 0 ? void 0 : operationArguments.options) === null || _a === void 0 ? void 0 : _a.onResponse;
-        let lastResponse;
-        function onResponse(rawResponse, flatResponse, error) {
-            lastResponse = rawResponse;
-            if (userProvidedCallBack) {
-                userProvidedCallBack(rawResponse, flatResponse, error);
-            }
-        }
-        operationArguments.options = Object.assign(Object.assign({}, operationArguments.options), { onResponse });
-        const result = await super.sendOperationRequest(operationArguments, operationSpec);
-        if (lastResponse) {
-            Object.defineProperty(result, "_response", {
-                value: toCompatResponse(lastResponse),
-            });
-        }
-        return result;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-/**
- * An enum for compatibility with RequestPolicy
- */
-exports.HttpPipelineLogLevel = void 0;
-(function (HttpPipelineLogLevel) {
-    HttpPipelineLogLevel[HttpPipelineLogLevel["ERROR"] = 1] = "ERROR";
-    HttpPipelineLogLevel[HttpPipelineLogLevel["INFO"] = 3] = "INFO";
-    HttpPipelineLogLevel[HttpPipelineLogLevel["OFF"] = 0] = "OFF";
-    HttpPipelineLogLevel[HttpPipelineLogLevel["WARNING"] = 2] = "WARNING";
-})(exports.HttpPipelineLogLevel || (exports.HttpPipelineLogLevel = {}));
-const mockRequestPolicyOptions = {
-    log(_logLevel, _message) {
-        /* do nothing */
-    },
-    shouldLog(_logLevel) {
-        return false;
-    },
-};
-/**
- * The name of the RequestPolicyFactoryPolicy
- */
-const requestPolicyFactoryPolicyName = "RequestPolicyFactoryPolicy";
-/**
- * A policy that wraps policies written for core-http.
- * @param factories - An array of `RequestPolicyFactory` objects from a core-http pipeline
- */
-function createRequestPolicyFactoryPolicy(factories) {
-    const orderedFactories = factories.slice().reverse();
-    return {
-        name: requestPolicyFactoryPolicyName,
-        async sendRequest(request, next) {
-            let httpPipeline = {
-                async sendRequest(httpRequest) {
-                    const response = await next(toPipelineRequest(httpRequest));
-                    return toCompatResponse(response, { createProxy: true });
-                },
-            };
-            for (const factory of orderedFactories) {
-                httpPipeline = factory.create(httpPipeline, mockRequestPolicyOptions);
-            }
-            const webResourceLike = toWebResourceLike(request, { createProxy: true });
-            const response = await httpPipeline.sendRequest(webResourceLike);
-            return toPipelineResponse(response);
-        },
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-/**
- * Converts a RequestPolicy based HttpClient to a PipelineRequest based HttpClient.
- * @param requestPolicyClient - A HttpClient compatible with core-http
- * @returns A HttpClient compatible with core-rest-pipeline
- */
-function convertHttpClient(requestPolicyClient) {
-    return {
-        sendRequest: async (request) => {
-            const response = await requestPolicyClient.sendRequest(toWebResourceLike(request, { createProxy: true }));
-            return toPipelineResponse(response);
-        },
-    };
-}
-
-exports.ExtendedServiceClient = ExtendedServiceClient;
-exports.convertHttpClient = convertHttpClient;
-exports.createRequestPolicyFactoryPolicy = createRequestPolicyFactoryPolicy;
-exports.disableKeepAlivePolicyName = disableKeepAlivePolicyName;
-exports.requestPolicyFactoryPolicyName = requestPolicyFactoryPolicyName;
-exports.toHttpHeadersLike = toHttpHeadersLike;
-//# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
 /***/ 2350:
 /***/ ((module) => {
 
@@ -10389,30 +9928,144 @@ var coreClient = __nccwpck_require__(9729);
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-const disbaleKeepAlivePolicyName = "DisableKeepAlivePolicy";
+const disableKeepAlivePolicyName = "DisableKeepAlivePolicy";
 function createDisableKeepAlivePolicy() {
     return {
-        name: disbaleKeepAlivePolicyName,
+        name: disableKeepAlivePolicyName,
         async sendRequest(request, next) {
             request.disableKeepAlive = true;
             return next(request);
         },
     };
 }
+/**
+ * @internal
+ */
+function pipelineContainsDisableKeepAlivePolicy(pipeline) {
+    return pipeline.getOrderedPolicies().some((policy) => policy.name === disableKeepAlivePolicyName);
+}
 
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-function toWebResourceLike(request) {
-    return {
+// We use a custom symbol to cache a reference to the original request without
+// exposing it on the public interface.
+const originalRequestSymbol = Symbol("Original PipelineRequest");
+// Symbol.for() will return the same symbol if it's already been created
+// This particular one is used in core-client to handle the case of when a request is
+// cloned but we need to retrieve the OperationSpec and OperationArguments from the
+// original request.
+const originalClientRequestSymbol = Symbol.for("@azure/core-client original request");
+function toPipelineRequest(webResource, options = {}) {
+    const compatWebResource = webResource;
+    const request = compatWebResource[originalRequestSymbol];
+    const headers = coreRestPipeline.createHttpHeaders(webResource.headers.toJson({ preserveCase: true }));
+    if (request) {
+        request.headers = headers;
+        return request;
+    }
+    else {
+        const newRequest = coreRestPipeline.createPipelineRequest({
+            url: webResource.url,
+            method: webResource.method,
+            headers,
+            withCredentials: webResource.withCredentials,
+            timeout: webResource.timeout,
+            requestId: webResource.requestId,
+            abortSignal: webResource.abortSignal,
+            body: webResource.body,
+            formData: webResource.formData,
+            disableKeepAlive: !!webResource.keepAlive,
+            onDownloadProgress: webResource.onDownloadProgress,
+            onUploadProgress: webResource.onUploadProgress,
+            proxySettings: webResource.proxySettings,
+            streamResponseStatusCodes: webResource.streamResponseStatusCodes,
+        });
+        if (options.originalRequest) {
+            newRequest[originalClientRequestSymbol] =
+                options.originalRequest;
+        }
+        return newRequest;
+    }
+}
+function toWebResourceLike(request, options) {
+    var _a;
+    const originalRequest = (_a = options === null || options === void 0 ? void 0 : options.originalRequest) !== null && _a !== void 0 ? _a : request;
+    const webResource = {
         url: request.url,
         method: request.method,
-        headers: toHttpHeaderLike(request.headers),
+        headers: toHttpHeadersLike(request.headers),
         withCredentials: request.withCredentials,
         timeout: request.timeout,
-        requestId: request.headers.get("x-ms-client-request-id") || "",
+        requestId: request.headers.get("x-ms-client-request-id") || request.requestId,
+        abortSignal: request.abortSignal,
+        body: request.body,
+        formData: request.formData,
+        keepAlive: !!request.disableKeepAlive,
+        onDownloadProgress: request.onDownloadProgress,
+        onUploadProgress: request.onUploadProgress,
+        proxySettings: request.proxySettings,
+        streamResponseStatusCodes: request.streamResponseStatusCodes,
+        clone() {
+            throw new Error("Cannot clone a non-proxied WebResourceLike");
+        },
+        prepare() {
+            throw new Error("WebResourceLike.prepare() is not supported by @azure/core-http-compat");
+        },
+        validateRequestProperties() {
+            /** do nothing */
+        },
     };
+    if (options === null || options === void 0 ? void 0 : options.createProxy) {
+        return new Proxy(webResource, {
+            get(target, prop, receiver) {
+                if (prop === originalRequestSymbol) {
+                    return request;
+                }
+                else if (prop === "clone") {
+                    return () => {
+                        return toWebResourceLike(toPipelineRequest(webResource, { originalRequest }), {
+                            createProxy: true,
+                            originalRequest,
+                        });
+                    };
+                }
+                return Reflect.get(target, prop, receiver);
+            },
+            set(target, prop, value, receiver) {
+                if (prop === "keepAlive") {
+                    request.disableKeepAlive = !value;
+                }
+                const passThroughProps = [
+                    "url",
+                    "method",
+                    "withCredentials",
+                    "timeout",
+                    "requestId",
+                    "abortSignal",
+                    "body",
+                    "formData",
+                    "onDownloadProgress",
+                    "onUploadProgress",
+                    "proxySettings",
+                    "streamResponseStatusCodes",
+                ];
+                if (typeof prop === "string" && passThroughProps.includes(prop)) {
+                    request[prop] = value;
+                }
+                return Reflect.set(target, prop, value, receiver);
+            },
+        });
+    }
+    else {
+        return webResource;
+    }
 }
-function toHttpHeaderLike(headers) {
+/**
+ * Converts HttpHeaders from core-rest-pipeline to look like
+ * HttpHeaders from core-http.
+ * @param headers - HttpHeaders from core-rest-pipeline
+ * @returns HttpHeaders as they looked in core-http
+ */
+function toHttpHeadersLike(headers) {
     return new HttpHeaders(headers.toJSON({ preserveCase: true }));
 }
 /**
@@ -10547,6 +10200,63 @@ class HttpHeaders {
 }
 
 // Copyright (c) Microsoft Corporation.
+const originalResponse = Symbol("Original FullOperationResponse");
+/**
+ * A helper to convert response objects from the new pipeline back to the old one.
+ * @param response - A response object from core-client.
+ * @returns A response compatible with `HttpOperationResponse` from core-http.
+ */
+function toCompatResponse(response, options) {
+    let request = toWebResourceLike(response.request);
+    let headers = toHttpHeadersLike(response.headers);
+    if (options === null || options === void 0 ? void 0 : options.createProxy) {
+        return new Proxy(response, {
+            get(target, prop, receiver) {
+                if (prop === "headers") {
+                    return headers;
+                }
+                else if (prop === "request") {
+                    return request;
+                }
+                else if (prop === originalResponse) {
+                    return response;
+                }
+                return Reflect.get(target, prop, receiver);
+            },
+            set(target, prop, value, receiver) {
+                if (prop === "headers") {
+                    headers = value;
+                }
+                else if (prop === "request") {
+                    request = value;
+                }
+                return Reflect.set(target, prop, value, receiver);
+            },
+        });
+    }
+    else {
+        return Object.assign(Object.assign({}, response), { request,
+            headers });
+    }
+}
+/**
+ * A helper to convert back to a PipelineResponse
+ * @param compatResponse - A response compatible with `HttpOperationResponse` from core-http.
+ */
+function toPipelineResponse(compatResponse) {
+    const extendedCompatResponse = compatResponse;
+    const response = extendedCompatResponse[originalResponse];
+    const headers = coreRestPipeline.createHttpHeaders(compatResponse.headers.toJson({ preserveCase: true }));
+    if (response) {
+        response.headers = headers;
+        return response;
+    }
+    else {
+        return Object.assign(Object.assign({}, compatResponse), { headers, request: toPipelineRequest(compatResponse.request) });
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
 /**
  * Client to provide compatability between core V1 & V2.
  */
@@ -10554,7 +10264,8 @@ class ExtendedServiceClient extends coreClient.ServiceClient {
     constructor(options) {
         var _a, _b;
         super(options);
-        if (((_a = options.keepAliveOptions) === null || _a === void 0 ? void 0 : _a.enable) === false) {
+        if (((_a = options.keepAliveOptions) === null || _a === void 0 ? void 0 : _a.enable) === false &&
+            !pipelineContainsDisableKeepAlivePolicy(this.pipeline)) {
             this.pipeline.addPolicy(createDisableKeepAlivePolicy());
         }
         if (((_b = options.redirectOptions) === null || _b === void 0 ? void 0 : _b.handleRedirects) === false) {
@@ -10584,15 +10295,82 @@ class ExtendedServiceClient extends coreClient.ServiceClient {
         const result = await super.sendOperationRequest(operationArguments, operationSpec);
         if (lastResponse) {
             Object.defineProperty(result, "_response", {
-                value: Object.assign(Object.assign({}, lastResponse), { request: toWebResourceLike(lastResponse.request), headers: toHttpHeaderLike(lastResponse.headers) }),
+                value: toCompatResponse(lastResponse),
             });
         }
         return result;
     }
 }
 
+// Copyright (c) Microsoft Corporation.
+/**
+ * An enum for compatibility with RequestPolicy
+ */
+exports.HttpPipelineLogLevel = void 0;
+(function (HttpPipelineLogLevel) {
+    HttpPipelineLogLevel[HttpPipelineLogLevel["ERROR"] = 1] = "ERROR";
+    HttpPipelineLogLevel[HttpPipelineLogLevel["INFO"] = 3] = "INFO";
+    HttpPipelineLogLevel[HttpPipelineLogLevel["OFF"] = 0] = "OFF";
+    HttpPipelineLogLevel[HttpPipelineLogLevel["WARNING"] = 2] = "WARNING";
+})(exports.HttpPipelineLogLevel || (exports.HttpPipelineLogLevel = {}));
+const mockRequestPolicyOptions = {
+    log(_logLevel, _message) {
+        /* do nothing */
+    },
+    shouldLog(_logLevel) {
+        return false;
+    },
+};
+/**
+ * The name of the RequestPolicyFactoryPolicy
+ */
+const requestPolicyFactoryPolicyName = "RequestPolicyFactoryPolicy";
+/**
+ * A policy that wraps policies written for core-http.
+ * @param factories - An array of `RequestPolicyFactory` objects from a core-http pipeline
+ */
+function createRequestPolicyFactoryPolicy(factories) {
+    const orderedFactories = factories.slice().reverse();
+    return {
+        name: requestPolicyFactoryPolicyName,
+        async sendRequest(request, next) {
+            let httpPipeline = {
+                async sendRequest(httpRequest) {
+                    const response = await next(toPipelineRequest(httpRequest));
+                    return toCompatResponse(response, { createProxy: true });
+                },
+            };
+            for (const factory of orderedFactories) {
+                httpPipeline = factory.create(httpPipeline, mockRequestPolicyOptions);
+            }
+            const webResourceLike = toWebResourceLike(request, { createProxy: true });
+            const response = await httpPipeline.sendRequest(webResourceLike);
+            return toPipelineResponse(response);
+        },
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+/**
+ * Converts a RequestPolicy based HttpClient to a PipelineRequest based HttpClient.
+ * @param requestPolicyClient - A HttpClient compatible with core-http
+ * @returns A HttpClient compatible with core-rest-pipeline
+ */
+function convertHttpClient(requestPolicyClient) {
+    return {
+        sendRequest: async (request) => {
+            const response = await requestPolicyClient.sendRequest(toWebResourceLike(request, { createProxy: true }));
+            return toPipelineResponse(response);
+        },
+    };
+}
+
 exports.ExtendedServiceClient = ExtendedServiceClient;
-exports.disbaleKeepAlivePolicyName = disbaleKeepAlivePolicyName;
+exports.convertHttpClient = convertHttpClient;
+exports.createRequestPolicyFactoryPolicy = createRequestPolicyFactoryPolicy;
+exports.disableKeepAlivePolicyName = disableKeepAlivePolicyName;
+exports.requestPolicyFactoryPolicyName = requestPolicyFactoryPolicyName;
+exports.toHttpHeadersLike = toHttpHeadersLike;
 //# sourceMappingURL=index.js.map
 
 
@@ -16038,7 +15816,7 @@ function credentialLogger(title, log = logger$n) {
 /**
  * Current version of the `@azure/identity` package.
  */
-const SDK_VERSION = `3.4.1`;
+const SDK_VERSION = `3.4.2`;
 /**
  * The default client ID for authentication
  * @internal
@@ -20078,15 +19856,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var tslib = __nccwpck_require__(9286);
 var coreRestPipeline = __nccwpck_require__(8121);
 var logger$1 = __nccwpck_require__(3233);
-__nccwpck_require__(4559);
 var coreClient = __nccwpck_require__(9729);
 var coreHttpCompat = __nccwpck_require__(6232);
 var coreLro = __nccwpck_require__(7094);
 var coreUtil = __nccwpck_require__(1333);
 var coreTracing = __nccwpck_require__(4175);
 
-function _interopNamespace(e) {
-    if (e && e.__esModule) return e;
+function _interopNamespaceDefault(e) {
     var n = Object.create(null);
     if (e) {
         Object.keys(e).forEach(function (k) {
@@ -20099,15 +19875,16 @@ function _interopNamespace(e) {
             }
         });
     }
-    n["default"] = e;
+    n.default = e;
     return Object.freeze(n);
 }
 
-var coreRestPipeline__namespace = /*#__PURE__*/_interopNamespace(coreRestPipeline);
-var coreClient__namespace = /*#__PURE__*/_interopNamespace(coreClient);
-var coreHttpCompat__namespace = /*#__PURE__*/_interopNamespace(coreHttpCompat);
+var coreRestPipeline__namespace = /*#__PURE__*/_interopNamespaceDefault(coreRestPipeline);
+var coreClient__namespace = /*#__PURE__*/_interopNamespaceDefault(coreClient);
+var coreHttpCompat__namespace = /*#__PURE__*/_interopNamespaceDefault(coreHttpCompat);
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 /**
  * The \@azure/logger configuration for this package.
  */
@@ -20120,12 +19897,12 @@ const logger = logger$1.createClientLogger("keyvault-secrets");
  * Code generated by Microsoft (R) AutoRest Code Generator.
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
-/** Known values of {@link ApiVersion74} that the service accepts. */
-var KnownApiVersion74;
-(function (KnownApiVersion74) {
-    /** Api Version '7.4' */
-    KnownApiVersion74["Seven4"] = "7.4";
-})(KnownApiVersion74 || (KnownApiVersion74 = {}));
+/** Known values of {@link ApiVersion75} that the service accepts. */
+var KnownApiVersion75;
+(function (KnownApiVersion75) {
+    /** Api Version '7.5' */
+    KnownApiVersion75["Seven5"] = "7.5";
+})(KnownApiVersion75 || (KnownApiVersion75 = {}));
 /** Known values of {@link DeletionRecoveryLevel} that the service accepts. */
 exports.KnownDeletionRecoveryLevel = void 0;
 (function (KnownDeletionRecoveryLevel) {
@@ -20564,21 +20341,21 @@ const DeletedSecretItem = {
 
 var Mappers = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    SecretSetParameters: SecretSetParameters,
     Attributes: Attributes,
-    SecretBundle: SecretBundle,
-    KeyVaultError: KeyVaultError,
-    ErrorModel: ErrorModel,
-    SecretUpdateParameters: SecretUpdateParameters,
-    SecretListResult: SecretListResult,
-    SecretItem: SecretItem,
-    DeletedSecretListResult: DeletedSecretListResult,
     BackupSecretResult: BackupSecretResult,
-    SecretRestoreParameters: SecretRestoreParameters,
-    SecretProperties: SecretProperties,
-    SecretAttributes: SecretAttributes,
     DeletedSecretBundle: DeletedSecretBundle,
-    DeletedSecretItem: DeletedSecretItem
+    DeletedSecretItem: DeletedSecretItem,
+    DeletedSecretListResult: DeletedSecretListResult,
+    ErrorModel: ErrorModel,
+    KeyVaultError: KeyVaultError,
+    SecretAttributes: SecretAttributes,
+    SecretBundle: SecretBundle,
+    SecretItem: SecretItem,
+    SecretListResult: SecretListResult,
+    SecretProperties: SecretProperties,
+    SecretRestoreParameters: SecretRestoreParameters,
+    SecretSetParameters: SecretSetParameters,
+    SecretUpdateParameters: SecretUpdateParameters
 });
 
 /*
@@ -20715,7 +20492,7 @@ class KeyVaultClient extends coreHttpCompat__namespace.ExtendedServiceClient {
         const defaults = {
             requestContentType: "application/json; charset=utf-8"
         };
-        const packageDetails = `azsdk-js-keyvault-secrets/4.7.0`;
+        const packageDetails = `azsdk-js-keyvault-secrets/4.8.0`;
         const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix
             ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
             : `${packageDetails}`;
@@ -21221,6 +20998,7 @@ function parseWWWAuthenticateHeader(headerValue) {
 }
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 function verifyChallengeResource(scope, request) {
     let scopeAsUrl;
     try {
@@ -21361,6 +21139,7 @@ function parseKeyVaultIdentifier(collection, identifier) {
 }
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 /**
  * Common properties and methods of the Key Vault Secret Pollers.
  */
@@ -21416,6 +21195,7 @@ class KeyVaultSecretPollOperation {
 }
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 /**
  * Parses the given Key Vault Secret Id. An example is:
  *
@@ -21439,6 +21219,7 @@ function parseKeyVaultSecretIdentifier(id) {
 }
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 /**
  * @internal
  * Shapes the exposed {@link KeyVaultKey} based on either a received secret bundle or deleted secret bundle.
@@ -21497,9 +21278,10 @@ function getSecretFromSecretBundle(bundle) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-const SDK_VERSION = "4.7.0";
+const SDK_VERSION = "4.8.0";
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 const tracingClient = coreTracing.createTracingClient({
     namespace: "Microsoft.KeyVault",
     packageName: "@azure/keyvault-secrets",
@@ -21507,6 +21289,7 @@ const tracingClient = coreTracing.createTracingClient({
 });
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 /**
  * An interface representing a delete secret's poll operation
  */
@@ -21577,6 +21360,7 @@ class DeleteSecretPollOperation extends KeyVaultSecretPollOperation {
 }
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 /**
  * Class that creates a poller that waits until a secret finishes being deleted.
  */
@@ -21594,6 +21378,7 @@ class DeleteSecretPoller extends KeyVaultSecretPoller {
 }
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 /**
  * An interface representing a delete secret's poll operation
  */
@@ -21669,6 +21454,7 @@ class RecoverDeletedSecretPollOperation extends KeyVaultSecretPollOperation {
 }
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 /**
  * Class that deletes a poller that waits until a secret finishes being deleted
  */
@@ -21690,9 +21476,11 @@ class RecoverDeletedSecretPoller extends KeyVaultSecretPoller {
 /**
  * The latest supported KeyVault service API version
  */
-const LATEST_API_VERSION = "7.4";
+const LATEST_API_VERSION = "7.5";
 
 // Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+/// <reference lib="esnext.asynciterable" />
 /**
  * The SecretClient provides methods to manage {@link KeyVaultSecret} in
  * the Azure Key Vault. The client supports creating, retrieving, updating,
@@ -22002,11 +21790,13 @@ class SecretClient {
      */
     listPropertiesOfSecretVersionsAll(secretName, options = {}) {
         return tslib.__asyncGenerator(this, arguments, function* listPropertiesOfSecretVersionsAll_1() {
-            var e_1, _a;
+            var _a, e_1, _b, _c;
             const f = {};
             try {
-                for (var _b = tslib.__asyncValues(this.listPropertiesOfSecretVersionsPage(secretName, f, options)), _c; _c = yield tslib.__await(_b.next()), !_c.done;) {
-                    const page = _c.value;
+                for (var _d = true, _e = tslib.__asyncValues(this.listPropertiesOfSecretVersionsPage(secretName, f, options)), _f; _f = yield tslib.__await(_e.next()), _a = _f.done, !_a; _d = true) {
+                    _c = _f.value;
+                    _d = false;
+                    const page = _c;
                     for (const item of page) {
                         yield yield tslib.__await(item);
                     }
@@ -22015,7 +21805,7 @@ class SecretClient {
             catch (e_1_1) { e_1 = { error: e_1_1 }; }
             finally {
                 try {
-                    if (_c && !_c.done && (_a = _b.return)) yield tslib.__await(_a.call(_b));
+                    if (!_d && !_a && (_b = _e.return)) yield tslib.__await(_b.call(_e));
                 }
                 finally { if (e_1) throw e_1.error; }
             }
@@ -22081,11 +21871,13 @@ class SecretClient {
      */
     listPropertiesOfSecretsAll(options = {}) {
         return tslib.__asyncGenerator(this, arguments, function* listPropertiesOfSecretsAll_1() {
-            var e_2, _a;
+            var _a, e_2, _b, _c;
             const f = {};
             try {
-                for (var _b = tslib.__asyncValues(this.listPropertiesOfSecretsPage(f, options)), _c; _c = yield tslib.__await(_b.next()), !_c.done;) {
-                    const page = _c.value;
+                for (var _d = true, _e = tslib.__asyncValues(this.listPropertiesOfSecretsPage(f, options)), _f; _f = yield tslib.__await(_e.next()), _a = _f.done, !_a; _d = true) {
+                    _c = _f.value;
+                    _d = false;
+                    const page = _c;
                     for (const item of page) {
                         yield yield tslib.__await(item);
                     }
@@ -22094,7 +21886,7 @@ class SecretClient {
             catch (e_2_1) { e_2 = { error: e_2_1 }; }
             finally {
                 try {
-                    if (_c && !_c.done && (_a = _b.return)) yield tslib.__await(_a.call(_b));
+                    if (!_d && !_a && (_b = _e.return)) yield tslib.__await(_b.call(_e));
                 }
                 finally { if (e_2) throw e_2.error; }
             }
@@ -22160,11 +21952,13 @@ class SecretClient {
      */
     listDeletedSecretsAll(options = {}) {
         return tslib.__asyncGenerator(this, arguments, function* listDeletedSecretsAll_1() {
-            var e_3, _a;
+            var _a, e_3, _b, _c;
             const f = {};
             try {
-                for (var _b = tslib.__asyncValues(this.listDeletedSecretsPage(f, options)), _c; _c = yield tslib.__await(_b.next()), !_c.done;) {
-                    const page = _c.value;
+                for (var _d = true, _e = tslib.__asyncValues(this.listDeletedSecretsPage(f, options)), _f; _f = yield tslib.__await(_e.next()), _a = _f.done, !_a; _d = true) {
+                    _c = _f.value;
+                    _d = false;
+                    const page = _c;
                     for (const item of page) {
                         yield yield tslib.__await(item);
                     }
@@ -22173,7 +21967,7 @@ class SecretClient {
             catch (e_3_1) { e_3 = { error: e_3_1 }; }
             finally {
                 try {
-                    if (_c && !_c.done && (_a = _b.return)) yield tslib.__await(_a.call(_b));
+                    if (!_d && !_a && (_b = _e.return)) yield tslib.__await(_b.call(_e));
                 }
                 finally { if (e_3) throw e_3.error; }
             }
