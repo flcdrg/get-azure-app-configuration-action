@@ -1,7 +1,7 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 5366:
+/***/ 2213:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -50,10 +50,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getKeys = getKeys;
-const core = __importStar(__nccwpck_require__(2186));
-const io = __importStar(__nccwpck_require__(7436));
-const app_configuration_1 = __nccwpck_require__(910);
-const executeAzCliCommand_1 = __nccwpck_require__(9493);
+const core = __importStar(__nccwpck_require__(7484));
+const io = __importStar(__nccwpck_require__(4994));
+const app_configuration_1 = __nccwpck_require__(7717);
+const executeAzCliCommand_1 = __nccwpck_require__(4703);
 function getKeys(resourceGroup, appConfigurationName, filter) {
     return __awaiter(this, void 0, void 0, function* () {
         const azPath = yield io.which('az', true);
@@ -67,7 +67,7 @@ function getKeys(resourceGroup, appConfigurationName, filter) {
 
 /***/ }),
 
-/***/ 9493:
+/***/ 4703:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -116,8 +116,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.executeAzCliCommand = executeAzCliCommand;
-const core = __importStar(__nccwpck_require__(2186));
-const exec = __importStar(__nccwpck_require__(9990));
+const core = __importStar(__nccwpck_require__(7484));
+const exec = __importStar(__nccwpck_require__(5236));
 // From https://github.com/Azure/get-keyvault-secrets/blob/master/src/main.ts#L49
 function executeAzCliCommand(azPath, command) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -148,7 +148,7 @@ function executeAzCliCommand(azPath, command) {
 
 /***/ }),
 
-/***/ 8116:
+/***/ 8127:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -197,9 +197,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getKeyVaultSecret = getKeyVaultSecret;
-const keyvault_secrets_1 = __nccwpck_require__(181);
-const identity_1 = __nccwpck_require__(8154);
-const core = __importStar(__nccwpck_require__(2186));
+const keyvault_secrets_1 = __nccwpck_require__(3602);
+const identity_1 = __nccwpck_require__(5261);
+const core = __importStar(__nccwpck_require__(7484));
 function getKeyVaultSecret(vaultUrl, secretName) {
     return __awaiter(this, void 0, void 0, function* () {
         const credentials = new identity_1.DefaultAzureCredential();
@@ -215,7 +215,7 @@ function getKeyVaultSecret(vaultUrl, secretName) {
 
 /***/ }),
 
-/***/ 3109:
+/***/ 5915:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -271,11 +271,11 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
-const core = __importStar(__nccwpck_require__(2186));
-const appConfiguration_1 = __nccwpck_require__(5366);
-const kv_1 = __nccwpck_require__(8116);
-const app_configuration_1 = __nccwpck_require__(910);
-const keyvault_secrets_1 = __nccwpck_require__(181);
+const core = __importStar(__nccwpck_require__(7484));
+const appConfiguration_1 = __nccwpck_require__(2213);
+const kv_1 = __nccwpck_require__(8127);
+const app_configuration_1 = __nccwpck_require__(7717);
+const keyvault_secrets_1 = __nccwpck_require__(3602);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, e_1, _b, _c;
@@ -334,14 +334,18 @@ run();
 
 /***/ }),
 
-/***/ 7351:
+/***/ 4914:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -354,14 +358,14 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issue = exports.issueCommand = void 0;
-const os = __importStar(__nccwpck_require__(2037));
-const utils_1 = __nccwpck_require__(5278);
+const os = __importStar(__nccwpck_require__(857));
+const utils_1 = __nccwpck_require__(302);
 /**
  * Commands
  *
@@ -416,13 +420,13 @@ class Command {
     }
 }
 function escapeData(s) {
-    return utils_1.toCommandValue(s)
+    return (0, utils_1.toCommandValue)(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A');
 }
 function escapeProperty(s) {
-    return utils_1.toCommandValue(s)
+    return (0, utils_1.toCommandValue)(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
@@ -433,14 +437,18 @@ function escapeProperty(s) {
 
 /***/ }),
 
-/***/ 2186:
+/***/ 7484:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -453,7 +461,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -467,13 +475,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
-const command_1 = __nccwpck_require__(7351);
-const file_command_1 = __nccwpck_require__(717);
-const utils_1 = __nccwpck_require__(5278);
-const os = __importStar(__nccwpck_require__(2037));
-const path = __importStar(__nccwpck_require__(1017));
-const oidc_utils_1 = __nccwpck_require__(8041);
+exports.platform = exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = exports.markdownSummary = exports.summary = exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
+const command_1 = __nccwpck_require__(4914);
+const file_command_1 = __nccwpck_require__(4753);
+const utils_1 = __nccwpck_require__(302);
+const os = __importStar(__nccwpck_require__(857));
+const path = __importStar(__nccwpck_require__(6928));
+const oidc_utils_1 = __nccwpck_require__(5306);
 /**
  * The code to exit an action
  */
@@ -487,7 +495,7 @@ var ExitCode;
      * A code indicating that the action was a failure
      */
     ExitCode[ExitCode["Failure"] = 1] = "Failure";
-})(ExitCode = exports.ExitCode || (exports.ExitCode = {}));
+})(ExitCode || (exports.ExitCode = ExitCode = {}));
 //-----------------------------------------------------------------------
 // Variables
 //-----------------------------------------------------------------------
@@ -498,13 +506,13 @@ var ExitCode;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function exportVariable(name, val) {
-    const convertedVal = utils_1.toCommandValue(val);
+    const convertedVal = (0, utils_1.toCommandValue)(val);
     process.env[name] = convertedVal;
     const filePath = process.env['GITHUB_ENV'] || '';
     if (filePath) {
-        return file_command_1.issueFileCommand('ENV', file_command_1.prepareKeyValueMessage(name, val));
+        return (0, file_command_1.issueFileCommand)('ENV', (0, file_command_1.prepareKeyValueMessage)(name, val));
     }
-    command_1.issueCommand('set-env', { name }, convertedVal);
+    (0, command_1.issueCommand)('set-env', { name }, convertedVal);
 }
 exports.exportVariable = exportVariable;
 /**
@@ -512,7 +520,7 @@ exports.exportVariable = exportVariable;
  * @param secret value of the secret
  */
 function setSecret(secret) {
-    command_1.issueCommand('add-mask', {}, secret);
+    (0, command_1.issueCommand)('add-mask', {}, secret);
 }
 exports.setSecret = setSecret;
 /**
@@ -522,10 +530,10 @@ exports.setSecret = setSecret;
 function addPath(inputPath) {
     const filePath = process.env['GITHUB_PATH'] || '';
     if (filePath) {
-        file_command_1.issueFileCommand('PATH', inputPath);
+        (0, file_command_1.issueFileCommand)('PATH', inputPath);
     }
     else {
-        command_1.issueCommand('add-path', {}, inputPath);
+        (0, command_1.issueCommand)('add-path', {}, inputPath);
     }
     process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
 }
@@ -600,10 +608,10 @@ exports.getBooleanInput = getBooleanInput;
 function setOutput(name, value) {
     const filePath = process.env['GITHUB_OUTPUT'] || '';
     if (filePath) {
-        return file_command_1.issueFileCommand('OUTPUT', file_command_1.prepareKeyValueMessage(name, value));
+        return (0, file_command_1.issueFileCommand)('OUTPUT', (0, file_command_1.prepareKeyValueMessage)(name, value));
     }
     process.stdout.write(os.EOL);
-    command_1.issueCommand('set-output', { name }, utils_1.toCommandValue(value));
+    (0, command_1.issueCommand)('set-output', { name }, (0, utils_1.toCommandValue)(value));
 }
 exports.setOutput = setOutput;
 /**
@@ -612,7 +620,7 @@ exports.setOutput = setOutput;
  *
  */
 function setCommandEcho(enabled) {
-    command_1.issue('echo', enabled ? 'on' : 'off');
+    (0, command_1.issue)('echo', enabled ? 'on' : 'off');
 }
 exports.setCommandEcho = setCommandEcho;
 //-----------------------------------------------------------------------
@@ -643,7 +651,7 @@ exports.isDebug = isDebug;
  * @param message debug message
  */
 function debug(message) {
-    command_1.issueCommand('debug', {}, message);
+    (0, command_1.issueCommand)('debug', {}, message);
 }
 exports.debug = debug;
 /**
@@ -652,7 +660,7 @@ exports.debug = debug;
  * @param properties optional properties to add to the annotation.
  */
 function error(message, properties = {}) {
-    command_1.issueCommand('error', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+    (0, command_1.issueCommand)('error', (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
 }
 exports.error = error;
 /**
@@ -661,7 +669,7 @@ exports.error = error;
  * @param properties optional properties to add to the annotation.
  */
 function warning(message, properties = {}) {
-    command_1.issueCommand('warning', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+    (0, command_1.issueCommand)('warning', (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
 }
 exports.warning = warning;
 /**
@@ -670,7 +678,7 @@ exports.warning = warning;
  * @param properties optional properties to add to the annotation.
  */
 function notice(message, properties = {}) {
-    command_1.issueCommand('notice', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+    (0, command_1.issueCommand)('notice', (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
 }
 exports.notice = notice;
 /**
@@ -689,14 +697,14 @@ exports.info = info;
  * @param name The name of the output group
  */
 function startGroup(name) {
-    command_1.issue('group', name);
+    (0, command_1.issue)('group', name);
 }
 exports.startGroup = startGroup;
 /**
  * End an output group.
  */
 function endGroup() {
-    command_1.issue('endgroup');
+    (0, command_1.issue)('endgroup');
 }
 exports.endGroup = endGroup;
 /**
@@ -734,9 +742,9 @@ exports.group = group;
 function saveState(name, value) {
     const filePath = process.env['GITHUB_STATE'] || '';
     if (filePath) {
-        return file_command_1.issueFileCommand('STATE', file_command_1.prepareKeyValueMessage(name, value));
+        return (0, file_command_1.issueFileCommand)('STATE', (0, file_command_1.prepareKeyValueMessage)(name, value));
     }
-    command_1.issueCommand('save-state', { name }, utils_1.toCommandValue(value));
+    (0, command_1.issueCommand)('save-state', { name }, (0, utils_1.toCommandValue)(value));
 }
 exports.saveState = saveState;
 /**
@@ -758,25 +766,29 @@ exports.getIDToken = getIDToken;
 /**
  * Summary exports
  */
-var summary_1 = __nccwpck_require__(1327);
+var summary_1 = __nccwpck_require__(1847);
 Object.defineProperty(exports, "summary", ({ enumerable: true, get: function () { return summary_1.summary; } }));
 /**
  * @deprecated use core.summary
  */
-var summary_2 = __nccwpck_require__(1327);
+var summary_2 = __nccwpck_require__(1847);
 Object.defineProperty(exports, "markdownSummary", ({ enumerable: true, get: function () { return summary_2.markdownSummary; } }));
 /**
  * Path exports
  */
-var path_utils_1 = __nccwpck_require__(2981);
+var path_utils_1 = __nccwpck_require__(1976);
 Object.defineProperty(exports, "toPosixPath", ({ enumerable: true, get: function () { return path_utils_1.toPosixPath; } }));
 Object.defineProperty(exports, "toWin32Path", ({ enumerable: true, get: function () { return path_utils_1.toWin32Path; } }));
 Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: function () { return path_utils_1.toPlatformPath; } }));
+/**
+ * Platform utilities exports
+ */
+exports.platform = __importStar(__nccwpck_require__(8968));
 //# sourceMappingURL=core.js.map
 
 /***/ }),
 
-/***/ 717:
+/***/ 4753:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -784,7 +796,11 @@ Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: funct
 // For internal use, subject to change.
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -797,7 +813,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -805,10 +821,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const fs = __importStar(__nccwpck_require__(7147));
-const os = __importStar(__nccwpck_require__(2037));
-const uuid_1 = __nccwpck_require__(5840);
-const utils_1 = __nccwpck_require__(5278);
+const crypto = __importStar(__nccwpck_require__(6982));
+const fs = __importStar(__nccwpck_require__(9896));
+const os = __importStar(__nccwpck_require__(857));
+const utils_1 = __nccwpck_require__(302);
 function issueFileCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -817,14 +833,14 @@ function issueFileCommand(command, message) {
     if (!fs.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
     }
-    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+    fs.appendFileSync(filePath, `${(0, utils_1.toCommandValue)(message)}${os.EOL}`, {
         encoding: 'utf8'
     });
 }
 exports.issueFileCommand = issueFileCommand;
 function prepareKeyValueMessage(key, value) {
-    const delimiter = `ghadelimiter_${uuid_1.v4()}`;
-    const convertedValue = utils_1.toCommandValue(value);
+    const delimiter = `ghadelimiter_${crypto.randomUUID()}`;
+    const convertedValue = (0, utils_1.toCommandValue)(value);
     // These should realistically never happen, but just in case someone finds a
     // way to exploit uuid generation let's not allow keys or values that contain
     // the delimiter.
@@ -841,7 +857,7 @@ exports.prepareKeyValueMessage = prepareKeyValueMessage;
 
 /***/ }),
 
-/***/ 8041:
+/***/ 5306:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -857,9 +873,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OidcClient = void 0;
-const http_client_1 = __nccwpck_require__(6255);
-const auth_1 = __nccwpck_require__(5526);
-const core_1 = __nccwpck_require__(2186);
+const http_client_1 = __nccwpck_require__(4844);
+const auth_1 = __nccwpck_require__(4552);
+const core_1 = __nccwpck_require__(7484);
 class OidcClient {
     static createHttpClient(allowRetry = true, maxRetry = 10) {
         const requestOptions = {
@@ -909,9 +925,9 @@ class OidcClient {
                     const encodedAudience = encodeURIComponent(audience);
                     id_token_url = `${id_token_url}&audience=${encodedAudience}`;
                 }
-                core_1.debug(`ID token url is ${id_token_url}`);
+                (0, core_1.debug)(`ID token url is ${id_token_url}`);
                 const id_token = yield OidcClient.getCall(id_token_url);
-                core_1.setSecret(id_token);
+                (0, core_1.setSecret)(id_token);
                 return id_token;
             }
             catch (error) {
@@ -925,14 +941,18 @@ exports.OidcClient = OidcClient;
 
 /***/ }),
 
-/***/ 2981:
+/***/ 1976:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -945,13 +965,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = void 0;
-const path = __importStar(__nccwpck_require__(1017));
+const path = __importStar(__nccwpck_require__(6928));
 /**
  * toPosixPath converts the given path to the posix form. On Windows, \\ will be
  * replaced with /.
@@ -990,7 +1010,108 @@ exports.toPlatformPath = toPlatformPath;
 
 /***/ }),
 
-/***/ 1327:
+/***/ 8968:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getDetails = exports.isLinux = exports.isMacOS = exports.isWindows = exports.arch = exports.platform = void 0;
+const os_1 = __importDefault(__nccwpck_require__(857));
+const exec = __importStar(__nccwpck_require__(5236));
+const getWindowsInfo = () => __awaiter(void 0, void 0, void 0, function* () {
+    const { stdout: version } = yield exec.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Version"', undefined, {
+        silent: true
+    });
+    const { stdout: name } = yield exec.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Caption"', undefined, {
+        silent: true
+    });
+    return {
+        name: name.trim(),
+        version: version.trim()
+    };
+});
+const getMacOsInfo = () => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
+    const { stdout } = yield exec.getExecOutput('sw_vers', undefined, {
+        silent: true
+    });
+    const version = (_b = (_a = stdout.match(/ProductVersion:\s*(.+)/)) === null || _a === void 0 ? void 0 : _a[1]) !== null && _b !== void 0 ? _b : '';
+    const name = (_d = (_c = stdout.match(/ProductName:\s*(.+)/)) === null || _c === void 0 ? void 0 : _c[1]) !== null && _d !== void 0 ? _d : '';
+    return {
+        name,
+        version
+    };
+});
+const getLinuxInfo = () => __awaiter(void 0, void 0, void 0, function* () {
+    const { stdout } = yield exec.getExecOutput('lsb_release', ['-i', '-r', '-s'], {
+        silent: true
+    });
+    const [name, version] = stdout.trim().split('\n');
+    return {
+        name,
+        version
+    };
+});
+exports.platform = os_1.default.platform();
+exports.arch = os_1.default.arch();
+exports.isWindows = exports.platform === 'win32';
+exports.isMacOS = exports.platform === 'darwin';
+exports.isLinux = exports.platform === 'linux';
+function getDetails() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return Object.assign(Object.assign({}, (yield (exports.isWindows
+            ? getWindowsInfo()
+            : exports.isMacOS
+                ? getMacOsInfo()
+                : getLinuxInfo()))), { platform: exports.platform,
+            arch: exports.arch,
+            isWindows: exports.isWindows,
+            isMacOS: exports.isMacOS,
+            isLinux: exports.isLinux });
+    });
+}
+exports.getDetails = getDetails;
+//# sourceMappingURL=platform.js.map
+
+/***/ }),
+
+/***/ 1847:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1006,8 +1127,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
-const os_1 = __nccwpck_require__(2037);
-const fs_1 = __nccwpck_require__(7147);
+const os_1 = __nccwpck_require__(857);
+const fs_1 = __nccwpck_require__(9896);
 const { access, appendFile, writeFile } = fs_1.promises;
 exports.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
 exports.SUMMARY_DOCS_URL = 'https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary';
@@ -1280,7 +1401,7 @@ exports.summary = _summary;
 
 /***/ }),
 
-/***/ 5278:
+/***/ 302:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -1327,7 +1448,7 @@ exports.toCommandProperties = toCommandProperties;
 
 /***/ }),
 
-/***/ 9990:
+/***/ 5236:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1362,8 +1483,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getExecOutput = exports.exec = void 0;
-const string_decoder_1 = __nccwpck_require__(1576);
-const tr = __importStar(__nccwpck_require__(8159));
+const string_decoder_1 = __nccwpck_require__(3193);
+const tr = __importStar(__nccwpck_require__(6665));
 /**
  * Exec a command.
  * Output will be streamed to the live console.
@@ -1437,7 +1558,7 @@ exports.getExecOutput = getExecOutput;
 
 /***/ }),
 
-/***/ 8159:
+/***/ 6665:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1472,13 +1593,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.argStringToArray = exports.ToolRunner = void 0;
-const os = __importStar(__nccwpck_require__(2037));
-const events = __importStar(__nccwpck_require__(2361));
-const child = __importStar(__nccwpck_require__(2081));
-const path = __importStar(__nccwpck_require__(1017));
-const io = __importStar(__nccwpck_require__(7436));
-const ioUtil = __importStar(__nccwpck_require__(1962));
-const timers_1 = __nccwpck_require__(9512);
+const os = __importStar(__nccwpck_require__(857));
+const events = __importStar(__nccwpck_require__(4434));
+const child = __importStar(__nccwpck_require__(5317));
+const path = __importStar(__nccwpck_require__(6928));
+const io = __importStar(__nccwpck_require__(4994));
+const ioUtil = __importStar(__nccwpck_require__(5207));
+const timers_1 = __nccwpck_require__(3557);
 /* eslint-disable @typescript-eslint/unbound-method */
 const IS_WINDOWS = process.platform === 'win32';
 /*
@@ -2062,7 +2183,7 @@ class ExecState extends events.EventEmitter {
 
 /***/ }),
 
-/***/ 5526:
+/***/ 4552:
 /***/ (function(__unused_webpack_module, exports) {
 
 "use strict";
@@ -2150,7 +2271,7 @@ exports.PersonalAccessTokenCredentialHandler = PersonalAccessTokenCredentialHand
 
 /***/ }),
 
-/***/ 6255:
+/***/ 4844:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -2186,10 +2307,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HttpClient = exports.isHttps = exports.HttpClientResponse = exports.HttpClientError = exports.getProxyUrl = exports.MediaTypes = exports.Headers = exports.HttpCodes = void 0;
-const http = __importStar(__nccwpck_require__(3685));
-const https = __importStar(__nccwpck_require__(5687));
-const pm = __importStar(__nccwpck_require__(9835));
-const tunnel = __importStar(__nccwpck_require__(4294));
+const http = __importStar(__nccwpck_require__(8611));
+const https = __importStar(__nccwpck_require__(5692));
+const pm = __importStar(__nccwpck_require__(4988));
+const tunnel = __importStar(__nccwpck_require__(770));
 var HttpCodes;
 (function (HttpCodes) {
     HttpCodes[HttpCodes["OK"] = 200] = "OK";
@@ -2762,7 +2883,7 @@ const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCa
 
 /***/ }),
 
-/***/ 9835:
+/***/ 4988:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -2830,7 +2951,7 @@ exports.checkBypass = checkBypass;
 
 /***/ }),
 
-/***/ 1962:
+/***/ 5207:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -2866,8 +2987,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
-const fs = __importStar(__nccwpck_require__(7147));
-const path = __importStar(__nccwpck_require__(1017));
+const fs = __importStar(__nccwpck_require__(9896));
+const path = __importStar(__nccwpck_require__(6928));
 _a = fs.promises
 // export const {open} = 'fs'
 , exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
@@ -3020,7 +3141,7 @@ exports.getCmdPath = getCmdPath;
 
 /***/ }),
 
-/***/ 7436:
+/***/ 4994:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -3055,9 +3176,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
-const assert_1 = __nccwpck_require__(9491);
-const path = __importStar(__nccwpck_require__(1017));
-const ioUtil = __importStar(__nccwpck_require__(1962));
+const assert_1 = __nccwpck_require__(2613);
+const path = __importStar(__nccwpck_require__(6928));
+const ioUtil = __importStar(__nccwpck_require__(5207));
 /**
  * Copies a file or folder.
  * Based off of shelljs - https://github.com/shelljs/shelljs/blob/9237f66c52e5daa40458f94f9565e18e8132f5a6/src/cp.js
@@ -3326,7 +3447,7 @@ function copyFile(srcFile, destFile, force) {
 
 /***/ }),
 
-/***/ 2557:
+/***/ 8110:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -3334,7 +3455,7 @@ function copyFile(srcFile, destFile, force) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var tslib = __nccwpck_require__(9268);
+var tslib = __nccwpck_require__(1860);
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
@@ -3593,1236 +3714,7 @@ exports.AbortSignal = AbortSignal;
 
 /***/ }),
 
-/***/ 9268:
-/***/ ((module) => {
-
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global global, define, System, Reflect, Promise */
-var __extends;
-var __assign;
-var __rest;
-var __decorate;
-var __param;
-var __metadata;
-var __awaiter;
-var __generator;
-var __exportStar;
-var __values;
-var __read;
-var __spread;
-var __spreadArrays;
-var __spreadArray;
-var __await;
-var __asyncGenerator;
-var __asyncDelegator;
-var __asyncValues;
-var __makeTemplateObject;
-var __importStar;
-var __importDefault;
-var __classPrivateFieldGet;
-var __classPrivateFieldSet;
-var __createBinding;
-(function (factory) {
-    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
-    if (typeof define === "function" && define.amd) {
-        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
-    }
-    else if ( true && typeof module.exports === "object") {
-        factory(createExporter(root, createExporter(module.exports)));
-    }
-    else {
-        factory(createExporter(root));
-    }
-    function createExporter(exports, previous) {
-        if (exports !== root) {
-            if (typeof Object.create === "function") {
-                Object.defineProperty(exports, "__esModule", { value: true });
-            }
-            else {
-                exports.__esModule = true;
-            }
-        }
-        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
-    }
-})
-(function (exporter) {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-
-    __extends = function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-
-    __rest = function (s, e) {
-        var t = {};
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-            t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === "function")
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                    t[p[i]] = s[p[i]];
-            }
-        return t;
-    };
-
-    __decorate = function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-
-    __param = function (paramIndex, decorator) {
-        return function (target, key) { decorator(target, key, paramIndex); }
-    };
-
-    __metadata = function (metadataKey, metadataValue) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-    };
-
-    __awaiter = function (thisArg, _arguments, P, generator) {
-        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    };
-
-    __generator = function (thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    };
-
-    __exportStar = function(m, o) {
-        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
-    };
-
-    __createBinding = Object.create ? (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-    }) : (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        o[k2] = m[k];
-    });
-
-    __values = function (o) {
-        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-        if (m) return m.call(o);
-        if (o && typeof o.length === "number") return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    };
-
-    __read = function (o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    };
-
-    /** @deprecated */
-    __spread = function () {
-        for (var ar = [], i = 0; i < arguments.length; i++)
-            ar = ar.concat(__read(arguments[i]));
-        return ar;
-    };
-
-    /** @deprecated */
-    __spreadArrays = function () {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
-    };
-
-    __spreadArray = function (to, from, pack) {
-        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-            if (ar || !(i in from)) {
-                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-                ar[i] = from[i];
-            }
-        }
-        return to.concat(ar || Array.prototype.slice.call(from));
-    };
-
-    __await = function (v) {
-        return this instanceof __await ? (this.v = v, this) : new __await(v);
-    };
-
-    __asyncGenerator = function (thisArg, _arguments, generator) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
-        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);  }
-        function fulfill(value) { resume("next", value); }
-        function reject(value) { resume("throw", value); }
-        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
-    };
-
-    __asyncDelegator = function (o) {
-        var i, p;
-        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; } : f; }
-    };
-
-    __asyncValues = function (o) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var m = o[Symbol.asyncIterator], i;
-        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-    };
-
-    __makeTemplateObject = function (cooked, raw) {
-        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-        return cooked;
-    };
-
-    var __setModuleDefault = Object.create ? (function(o, v) {
-        Object.defineProperty(o, "default", { enumerable: true, value: v });
-    }) : function(o, v) {
-        o["default"] = v;
-    };
-
-    __importStar = function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-
-    __importDefault = function (mod) {
-        return (mod && mod.__esModule) ? mod : { "default": mod };
-    };
-
-    __classPrivateFieldGet = function (receiver, state, kind, f) {
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-    };
-
-    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
-        if (kind === "m") throw new TypeError("Private method is not writable");
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-    };
-
-    exporter("__extends", __extends);
-    exporter("__assign", __assign);
-    exporter("__rest", __rest);
-    exporter("__decorate", __decorate);
-    exporter("__param", __param);
-    exporter("__metadata", __metadata);
-    exporter("__awaiter", __awaiter);
-    exporter("__generator", __generator);
-    exporter("__exportStar", __exportStar);
-    exporter("__createBinding", __createBinding);
-    exporter("__values", __values);
-    exporter("__read", __read);
-    exporter("__spread", __spread);
-    exporter("__spreadArrays", __spreadArrays);
-    exporter("__spreadArray", __spreadArray);
-    exporter("__await", __await);
-    exporter("__asyncGenerator", __asyncGenerator);
-    exporter("__asyncDelegator", __asyncDelegator);
-    exporter("__asyncValues", __asyncValues);
-    exporter("__makeTemplateObject", __makeTemplateObject);
-    exporter("__importStar", __importStar);
-    exporter("__importDefault", __importDefault);
-    exporter("__classPrivateFieldGet", __classPrivateFieldGet);
-    exporter("__classPrivateFieldSet", __classPrivateFieldSet);
-});
-
-
-/***/ }),
-
-/***/ 2350:
-/***/ ((module) => {
-
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global global, define, Symbol, Reflect, Promise, SuppressedError, Iterator */
-var __extends;
-var __assign;
-var __rest;
-var __decorate;
-var __param;
-var __esDecorate;
-var __runInitializers;
-var __propKey;
-var __setFunctionName;
-var __metadata;
-var __awaiter;
-var __generator;
-var __exportStar;
-var __values;
-var __read;
-var __spread;
-var __spreadArrays;
-var __spreadArray;
-var __await;
-var __asyncGenerator;
-var __asyncDelegator;
-var __asyncValues;
-var __makeTemplateObject;
-var __importStar;
-var __importDefault;
-var __classPrivateFieldGet;
-var __classPrivateFieldSet;
-var __classPrivateFieldIn;
-var __createBinding;
-var __addDisposableResource;
-var __disposeResources;
-var __rewriteRelativeImportExtension;
-(function (factory) {
-    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
-    if (typeof define === "function" && define.amd) {
-        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
-    }
-    else if ( true && typeof module.exports === "object") {
-        factory(createExporter(root, createExporter(module.exports)));
-    }
-    else {
-        factory(createExporter(root));
-    }
-    function createExporter(exports, previous) {
-        if (exports !== root) {
-            if (typeof Object.create === "function") {
-                Object.defineProperty(exports, "__esModule", { value: true });
-            }
-            else {
-                exports.__esModule = true;
-            }
-        }
-        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
-    }
-})
-(function (exporter) {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-
-    __extends = function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-
-    __rest = function (s, e) {
-        var t = {};
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-            t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === "function")
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                    t[p[i]] = s[p[i]];
-            }
-        return t;
-    };
-
-    __decorate = function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-
-    __param = function (paramIndex, decorator) {
-        return function (target, key) { decorator(target, key, paramIndex); }
-    };
-
-    __esDecorate = function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-        function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-        var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-        var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-        var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-        var _, done = false;
-        for (var i = decorators.length - 1; i >= 0; i--) {
-            var context = {};
-            for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-            for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-            context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-            var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-            if (kind === "accessor") {
-                if (result === void 0) continue;
-                if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-                if (_ = accept(result.get)) descriptor.get = _;
-                if (_ = accept(result.set)) descriptor.set = _;
-                if (_ = accept(result.init)) initializers.unshift(_);
-            }
-            else if (_ = accept(result)) {
-                if (kind === "field") initializers.unshift(_);
-                else descriptor[key] = _;
-            }
-        }
-        if (target) Object.defineProperty(target, contextIn.name, descriptor);
-        done = true;
-    };
-
-    __runInitializers = function (thisArg, initializers, value) {
-        var useValue = arguments.length > 2;
-        for (var i = 0; i < initializers.length; i++) {
-            value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-        }
-        return useValue ? value : void 0;
-    };
-
-    __propKey = function (x) {
-        return typeof x === "symbol" ? x : "".concat(x);
-    };
-
-    __setFunctionName = function (f, name, prefix) {
-        if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
-    };
-
-    __metadata = function (metadataKey, metadataValue) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-    };
-
-    __awaiter = function (thisArg, _arguments, P, generator) {
-        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    };
-
-    __generator = function (thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-        return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (g && (g = 0, op[0] && (_ = 0)), _) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    };
-
-    __exportStar = function(m, o) {
-        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
-    };
-
-    __createBinding = Object.create ? (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        var desc = Object.getOwnPropertyDescriptor(m, k);
-        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-            desc = { enumerable: true, get: function() { return m[k]; } };
-        }
-        Object.defineProperty(o, k2, desc);
-    }) : (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        o[k2] = m[k];
-    });
-
-    __values = function (o) {
-        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-        if (m) return m.call(o);
-        if (o && typeof o.length === "number") return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    };
-
-    __read = function (o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    };
-
-    /** @deprecated */
-    __spread = function () {
-        for (var ar = [], i = 0; i < arguments.length; i++)
-            ar = ar.concat(__read(arguments[i]));
-        return ar;
-    };
-
-    /** @deprecated */
-    __spreadArrays = function () {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
-    };
-
-    __spreadArray = function (to, from, pack) {
-        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-            if (ar || !(i in from)) {
-                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-                ar[i] = from[i];
-            }
-        }
-        return to.concat(ar || Array.prototype.slice.call(from));
-    };
-
-    __await = function (v) {
-        return this instanceof __await ? (this.v = v, this) : new __await(v);
-    };
-
-    __asyncGenerator = function (thisArg, _arguments, generator) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
-        function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
-        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
-        function fulfill(value) { resume("next", value); }
-        function reject(value) { resume("throw", value); }
-        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
-    };
-
-    __asyncDelegator = function (o) {
-        var i, p;
-        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
-    };
-
-    __asyncValues = function (o) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var m = o[Symbol.asyncIterator], i;
-        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-    };
-
-    __makeTemplateObject = function (cooked, raw) {
-        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-        return cooked;
-    };
-
-    var __setModuleDefault = Object.create ? (function(o, v) {
-        Object.defineProperty(o, "default", { enumerable: true, value: v });
-    }) : function(o, v) {
-        o["default"] = v;
-    };
-
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-
-    __importStar = function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-
-    __importDefault = function (mod) {
-        return (mod && mod.__esModule) ? mod : { "default": mod };
-    };
-
-    __classPrivateFieldGet = function (receiver, state, kind, f) {
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-    };
-
-    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
-        if (kind === "m") throw new TypeError("Private method is not writable");
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-    };
-
-    __classPrivateFieldIn = function (state, receiver) {
-        if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function")) throw new TypeError("Cannot use 'in' operator on non-object");
-        return typeof state === "function" ? receiver === state : state.has(receiver);
-    };
-
-    __addDisposableResource = function (env, value, async) {
-        if (value !== null && value !== void 0) {
-            if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-            var dispose, inner;
-            if (async) {
-                if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-                dispose = value[Symbol.asyncDispose];
-            }
-            if (dispose === void 0) {
-                if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-                dispose = value[Symbol.dispose];
-                if (async) inner = dispose;
-            }
-            if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
-            if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
-            env.stack.push({ value: value, dispose: dispose, async: async });
-        }
-        else if (async) {
-            env.stack.push({ async: true });
-        }
-        return value;
-    };
-
-    var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-        var e = new Error(message);
-        return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-    };
-
-    __disposeResources = function (env) {
-        function fail(e) {
-            env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
-            env.hasError = true;
-        }
-        var r, s = 0;
-        function next() {
-            while (r = env.stack.pop()) {
-                try {
-                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
-                    if (r.dispose) {
-                        var result = r.dispose.call(r.value);
-                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
-                    }
-                    else s |= 1;
-                }
-                catch (e) {
-                    fail(e);
-                }
-            }
-            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
-            if (env.hasError) throw env.error;
-        }
-        return next();
-    };
-
-    __rewriteRelativeImportExtension = function (path, preserveJsx) {
-        if (typeof path === "string" && /^\.\.?\//.test(path)) {
-            return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function (m, tsx, d, ext, cm) {
-                return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : (d + ext + "." + cm.toLowerCase() + "js");
-            });
-        }
-        return path;
-    };
-
-    exporter("__extends", __extends);
-    exporter("__assign", __assign);
-    exporter("__rest", __rest);
-    exporter("__decorate", __decorate);
-    exporter("__param", __param);
-    exporter("__esDecorate", __esDecorate);
-    exporter("__runInitializers", __runInitializers);
-    exporter("__propKey", __propKey);
-    exporter("__setFunctionName", __setFunctionName);
-    exporter("__metadata", __metadata);
-    exporter("__awaiter", __awaiter);
-    exporter("__generator", __generator);
-    exporter("__exportStar", __exportStar);
-    exporter("__createBinding", __createBinding);
-    exporter("__values", __values);
-    exporter("__read", __read);
-    exporter("__spread", __spread);
-    exporter("__spreadArrays", __spreadArrays);
-    exporter("__spreadArray", __spreadArray);
-    exporter("__await", __await);
-    exporter("__asyncGenerator", __asyncGenerator);
-    exporter("__asyncDelegator", __asyncDelegator);
-    exporter("__asyncValues", __asyncValues);
-    exporter("__makeTemplateObject", __makeTemplateObject);
-    exporter("__importStar", __importStar);
-    exporter("__importDefault", __importDefault);
-    exporter("__classPrivateFieldGet", __classPrivateFieldGet);
-    exporter("__classPrivateFieldSet", __classPrivateFieldSet);
-    exporter("__classPrivateFieldIn", __classPrivateFieldIn);
-    exporter("__addDisposableResource", __addDisposableResource);
-    exporter("__disposeResources", __disposeResources);
-    exporter("__rewriteRelativeImportExtension", __rewriteRelativeImportExtension);
-});
-
-0 && (0);
-
-
-/***/ }),
-
-/***/ 8714:
-/***/ ((module) => {
-
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global global, define, Symbol, Reflect, Promise, SuppressedError, Iterator */
-var __extends;
-var __assign;
-var __rest;
-var __decorate;
-var __param;
-var __esDecorate;
-var __runInitializers;
-var __propKey;
-var __setFunctionName;
-var __metadata;
-var __awaiter;
-var __generator;
-var __exportStar;
-var __values;
-var __read;
-var __spread;
-var __spreadArrays;
-var __spreadArray;
-var __await;
-var __asyncGenerator;
-var __asyncDelegator;
-var __asyncValues;
-var __makeTemplateObject;
-var __importStar;
-var __importDefault;
-var __classPrivateFieldGet;
-var __classPrivateFieldSet;
-var __classPrivateFieldIn;
-var __createBinding;
-var __addDisposableResource;
-var __disposeResources;
-var __rewriteRelativeImportExtension;
-(function (factory) {
-    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
-    if (typeof define === "function" && define.amd) {
-        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
-    }
-    else if ( true && typeof module.exports === "object") {
-        factory(createExporter(root, createExporter(module.exports)));
-    }
-    else {
-        factory(createExporter(root));
-    }
-    function createExporter(exports, previous) {
-        if (exports !== root) {
-            if (typeof Object.create === "function") {
-                Object.defineProperty(exports, "__esModule", { value: true });
-            }
-            else {
-                exports.__esModule = true;
-            }
-        }
-        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
-    }
-})
-(function (exporter) {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-
-    __extends = function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-
-    __rest = function (s, e) {
-        var t = {};
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-            t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === "function")
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                    t[p[i]] = s[p[i]];
-            }
-        return t;
-    };
-
-    __decorate = function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-
-    __param = function (paramIndex, decorator) {
-        return function (target, key) { decorator(target, key, paramIndex); }
-    };
-
-    __esDecorate = function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-        function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-        var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-        var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-        var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-        var _, done = false;
-        for (var i = decorators.length - 1; i >= 0; i--) {
-            var context = {};
-            for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-            for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-            context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-            var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-            if (kind === "accessor") {
-                if (result === void 0) continue;
-                if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-                if (_ = accept(result.get)) descriptor.get = _;
-                if (_ = accept(result.set)) descriptor.set = _;
-                if (_ = accept(result.init)) initializers.unshift(_);
-            }
-            else if (_ = accept(result)) {
-                if (kind === "field") initializers.unshift(_);
-                else descriptor[key] = _;
-            }
-        }
-        if (target) Object.defineProperty(target, contextIn.name, descriptor);
-        done = true;
-    };
-
-    __runInitializers = function (thisArg, initializers, value) {
-        var useValue = arguments.length > 2;
-        for (var i = 0; i < initializers.length; i++) {
-            value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-        }
-        return useValue ? value : void 0;
-    };
-
-    __propKey = function (x) {
-        return typeof x === "symbol" ? x : "".concat(x);
-    };
-
-    __setFunctionName = function (f, name, prefix) {
-        if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
-    };
-
-    __metadata = function (metadataKey, metadataValue) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-    };
-
-    __awaiter = function (thisArg, _arguments, P, generator) {
-        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    };
-
-    __generator = function (thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-        return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (g && (g = 0, op[0] && (_ = 0)), _) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    };
-
-    __exportStar = function(m, o) {
-        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
-    };
-
-    __createBinding = Object.create ? (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        var desc = Object.getOwnPropertyDescriptor(m, k);
-        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-            desc = { enumerable: true, get: function() { return m[k]; } };
-        }
-        Object.defineProperty(o, k2, desc);
-    }) : (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        o[k2] = m[k];
-    });
-
-    __values = function (o) {
-        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-        if (m) return m.call(o);
-        if (o && typeof o.length === "number") return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    };
-
-    __read = function (o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    };
-
-    /** @deprecated */
-    __spread = function () {
-        for (var ar = [], i = 0; i < arguments.length; i++)
-            ar = ar.concat(__read(arguments[i]));
-        return ar;
-    };
-
-    /** @deprecated */
-    __spreadArrays = function () {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
-    };
-
-    __spreadArray = function (to, from, pack) {
-        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-            if (ar || !(i in from)) {
-                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-                ar[i] = from[i];
-            }
-        }
-        return to.concat(ar || Array.prototype.slice.call(from));
-    };
-
-    __await = function (v) {
-        return this instanceof __await ? (this.v = v, this) : new __await(v);
-    };
-
-    __asyncGenerator = function (thisArg, _arguments, generator) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
-        function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
-        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
-        function fulfill(value) { resume("next", value); }
-        function reject(value) { resume("throw", value); }
-        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
-    };
-
-    __asyncDelegator = function (o) {
-        var i, p;
-        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
-    };
-
-    __asyncValues = function (o) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var m = o[Symbol.asyncIterator], i;
-        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-    };
-
-    __makeTemplateObject = function (cooked, raw) {
-        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-        return cooked;
-    };
-
-    var __setModuleDefault = Object.create ? (function(o, v) {
-        Object.defineProperty(o, "default", { enumerable: true, value: v });
-    }) : function(o, v) {
-        o["default"] = v;
-    };
-
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-
-    __importStar = function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-
-    __importDefault = function (mod) {
-        return (mod && mod.__esModule) ? mod : { "default": mod };
-    };
-
-    __classPrivateFieldGet = function (receiver, state, kind, f) {
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-    };
-
-    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
-        if (kind === "m") throw new TypeError("Private method is not writable");
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-    };
-
-    __classPrivateFieldIn = function (state, receiver) {
-        if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function")) throw new TypeError("Cannot use 'in' operator on non-object");
-        return typeof state === "function" ? receiver === state : state.has(receiver);
-    };
-
-    __addDisposableResource = function (env, value, async) {
-        if (value !== null && value !== void 0) {
-            if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-            var dispose, inner;
-            if (async) {
-                if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-                dispose = value[Symbol.asyncDispose];
-            }
-            if (dispose === void 0) {
-                if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-                dispose = value[Symbol.dispose];
-                if (async) inner = dispose;
-            }
-            if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
-            if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
-            env.stack.push({ value: value, dispose: dispose, async: async });
-        }
-        else if (async) {
-            env.stack.push({ async: true });
-        }
-        return value;
-    };
-
-    var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-        var e = new Error(message);
-        return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-    };
-
-    __disposeResources = function (env) {
-        function fail(e) {
-            env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
-            env.hasError = true;
-        }
-        var r, s = 0;
-        function next() {
-            while (r = env.stack.pop()) {
-                try {
-                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
-                    if (r.dispose) {
-                        var result = r.dispose.call(r.value);
-                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
-                    }
-                    else s |= 1;
-                }
-                catch (e) {
-                    fail(e);
-                }
-            }
-            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
-            if (env.hasError) throw env.error;
-        }
-        return next();
-    };
-
-    __rewriteRelativeImportExtension = function (path, preserveJsx) {
-        if (typeof path === "string" && /^\.\.?\//.test(path)) {
-            return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function (m, tsx, d, ext, cm) {
-                return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : (d + ext + "." + cm.toLowerCase() + "js");
-            });
-        }
-        return path;
-    };
-
-    exporter("__extends", __extends);
-    exporter("__assign", __assign);
-    exporter("__rest", __rest);
-    exporter("__decorate", __decorate);
-    exporter("__param", __param);
-    exporter("__esDecorate", __esDecorate);
-    exporter("__runInitializers", __runInitializers);
-    exporter("__propKey", __propKey);
-    exporter("__setFunctionName", __setFunctionName);
-    exporter("__metadata", __metadata);
-    exporter("__awaiter", __awaiter);
-    exporter("__generator", __generator);
-    exporter("__exportStar", __exportStar);
-    exporter("__createBinding", __createBinding);
-    exporter("__values", __values);
-    exporter("__read", __read);
-    exporter("__spread", __spread);
-    exporter("__spreadArrays", __spreadArrays);
-    exporter("__spreadArray", __spreadArray);
-    exporter("__await", __await);
-    exporter("__asyncGenerator", __asyncGenerator);
-    exporter("__asyncDelegator", __asyncDelegator);
-    exporter("__asyncValues", __asyncValues);
-    exporter("__makeTemplateObject", __makeTemplateObject);
-    exporter("__importStar", __importStar);
-    exporter("__importDefault", __importDefault);
-    exporter("__classPrivateFieldGet", __classPrivateFieldGet);
-    exporter("__classPrivateFieldSet", __classPrivateFieldSet);
-    exporter("__classPrivateFieldIn", __classPrivateFieldIn);
-    exporter("__addDisposableResource", __addDisposableResource);
-    exporter("__disposeResources", __disposeResources);
-    exporter("__rewriteRelativeImportExtension", __rewriteRelativeImportExtension);
-});
-
-0 && (0);
-
-
-/***/ }),
-
-/***/ 6232:
+/***/ 1504:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4830,8 +3722,8 @@ var __rewriteRelativeImportExtension;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var coreRestPipeline = __nccwpck_require__(9146);
-var coreClient = __nccwpck_require__(7611);
+var coreRestPipeline = __nccwpck_require__(778);
+var coreClient = __nccwpck_require__(160);
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
@@ -5283,7 +4175,7 @@ exports.toHttpHeadersLike = toHttpHeadersLike;
 
 /***/ }),
 
-/***/ 7094:
+/***/ 5862:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -5291,8 +4183,8 @@ exports.toHttpHeadersLike = toHttpHeadersLike;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var logger$1 = __nccwpck_require__(3233);
-var abortController = __nccwpck_require__(2557);
+var logger$1 = __nccwpck_require__(6515);
+var abortController = __nccwpck_require__(8110);
 
 // Copyright (c) Microsoft Corporation.
 /**
@@ -6462,7 +5354,7 @@ exports.createHttpPoller = createHttpPoller;
 
 /***/ }),
 
-/***/ 4559:
+/***/ 9851:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -6470,7 +5362,7 @@ exports.createHttpPoller = createHttpPoller;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var tslib = __nccwpck_require__(6429);
+var tslib = __nccwpck_require__(1860);
 
 // Copyright (c) Microsoft Corporation.
 /**
@@ -6574,320 +5466,7 @@ exports.getPagedAsyncIterator = getPagedAsyncIterator;
 
 /***/ }),
 
-/***/ 6429:
-/***/ ((module) => {
-
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global global, define, System, Reflect, Promise */
-var __extends;
-var __assign;
-var __rest;
-var __decorate;
-var __param;
-var __metadata;
-var __awaiter;
-var __generator;
-var __exportStar;
-var __values;
-var __read;
-var __spread;
-var __spreadArrays;
-var __spreadArray;
-var __await;
-var __asyncGenerator;
-var __asyncDelegator;
-var __asyncValues;
-var __makeTemplateObject;
-var __importStar;
-var __importDefault;
-var __classPrivateFieldGet;
-var __classPrivateFieldSet;
-var __createBinding;
-(function (factory) {
-    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
-    if (typeof define === "function" && define.amd) {
-        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
-    }
-    else if ( true && typeof module.exports === "object") {
-        factory(createExporter(root, createExporter(module.exports)));
-    }
-    else {
-        factory(createExporter(root));
-    }
-    function createExporter(exports, previous) {
-        if (exports !== root) {
-            if (typeof Object.create === "function") {
-                Object.defineProperty(exports, "__esModule", { value: true });
-            }
-            else {
-                exports.__esModule = true;
-            }
-        }
-        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
-    }
-})
-(function (exporter) {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-
-    __extends = function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-
-    __rest = function (s, e) {
-        var t = {};
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-            t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === "function")
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                    t[p[i]] = s[p[i]];
-            }
-        return t;
-    };
-
-    __decorate = function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-
-    __param = function (paramIndex, decorator) {
-        return function (target, key) { decorator(target, key, paramIndex); }
-    };
-
-    __metadata = function (metadataKey, metadataValue) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-    };
-
-    __awaiter = function (thisArg, _arguments, P, generator) {
-        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    };
-
-    __generator = function (thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    };
-
-    __exportStar = function(m, o) {
-        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
-    };
-
-    __createBinding = Object.create ? (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-    }) : (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        o[k2] = m[k];
-    });
-
-    __values = function (o) {
-        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-        if (m) return m.call(o);
-        if (o && typeof o.length === "number") return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    };
-
-    __read = function (o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    };
-
-    /** @deprecated */
-    __spread = function () {
-        for (var ar = [], i = 0; i < arguments.length; i++)
-            ar = ar.concat(__read(arguments[i]));
-        return ar;
-    };
-
-    /** @deprecated */
-    __spreadArrays = function () {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
-    };
-
-    __spreadArray = function (to, from, pack) {
-        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-            if (ar || !(i in from)) {
-                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-                ar[i] = from[i];
-            }
-        }
-        return to.concat(ar || Array.prototype.slice.call(from));
-    };
-
-    __await = function (v) {
-        return this instanceof __await ? (this.v = v, this) : new __await(v);
-    };
-
-    __asyncGenerator = function (thisArg, _arguments, generator) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
-        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);  }
-        function fulfill(value) { resume("next", value); }
-        function reject(value) { resume("throw", value); }
-        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
-    };
-
-    __asyncDelegator = function (o) {
-        var i, p;
-        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; } : f; }
-    };
-
-    __asyncValues = function (o) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var m = o[Symbol.asyncIterator], i;
-        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-    };
-
-    __makeTemplateObject = function (cooked, raw) {
-        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-        return cooked;
-    };
-
-    var __setModuleDefault = Object.create ? (function(o, v) {
-        Object.defineProperty(o, "default", { enumerable: true, value: v });
-    }) : function(o, v) {
-        o["default"] = v;
-    };
-
-    __importStar = function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-
-    __importDefault = function (mod) {
-        return (mod && mod.__esModule) ? mod : { "default": mod };
-    };
-
-    __classPrivateFieldGet = function (receiver, state, kind, f) {
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-    };
-
-    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
-        if (kind === "m") throw new TypeError("Private method is not writable");
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-    };
-
-    exporter("__extends", __extends);
-    exporter("__assign", __assign);
-    exporter("__rest", __rest);
-    exporter("__decorate", __decorate);
-    exporter("__param", __param);
-    exporter("__metadata", __metadata);
-    exporter("__awaiter", __awaiter);
-    exporter("__generator", __generator);
-    exporter("__exportStar", __exportStar);
-    exporter("__createBinding", __createBinding);
-    exporter("__values", __values);
-    exporter("__read", __read);
-    exporter("__spread", __spread);
-    exporter("__spreadArrays", __spreadArrays);
-    exporter("__spreadArray", __spreadArray);
-    exporter("__await", __await);
-    exporter("__asyncGenerator", __asyncGenerator);
-    exporter("__asyncDelegator", __asyncDelegator);
-    exporter("__asyncValues", __asyncValues);
-    exporter("__makeTemplateObject", __makeTemplateObject);
-    exporter("__importStar", __importStar);
-    exporter("__importDefault", __importDefault);
-    exporter("__classPrivateFieldGet", __classPrivateFieldGet);
-    exporter("__classPrivateFieldSet", __classPrivateFieldSet);
-});
-
-
-/***/ }),
-
-/***/ 6473:
+/***/ 5292:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6917,8 +5496,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.req = exports.json = exports.toBuffer = void 0;
-const http = __importStar(__nccwpck_require__(3685));
-const https = __importStar(__nccwpck_require__(5687));
+const http = __importStar(__nccwpck_require__(8611));
+const https = __importStar(__nccwpck_require__(5692));
 async function toBuffer(stream) {
     let length = 0;
     const chunks = [];
@@ -6960,7 +5539,7 @@ exports.req = req;
 
 /***/ }),
 
-/***/ 3925:
+/***/ 3649:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6993,10 +5572,10 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Agent = void 0;
-const net = __importStar(__nccwpck_require__(1808));
-const http = __importStar(__nccwpck_require__(3685));
-const https_1 = __nccwpck_require__(5687);
-__exportStar(__nccwpck_require__(6473), exports);
+const net = __importStar(__nccwpck_require__(9278));
+const http = __importStar(__nccwpck_require__(8611));
+const https_1 = __nccwpck_require__(5692);
+__exportStar(__nccwpck_require__(5292), exports);
 const INTERNAL = Symbol('AgentBaseInternalState');
 class Agent extends http.Agent {
     constructor(opts) {
@@ -7147,7 +5726,7 @@ exports.Agent = Agent;
 
 /***/ }),
 
-/***/ 4654:
+/***/ 3513:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -7180,12 +5759,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HttpProxyAgent = void 0;
-const net = __importStar(__nccwpck_require__(1808));
-const tls = __importStar(__nccwpck_require__(4404));
-const debug_1 = __importDefault(__nccwpck_require__(8237));
-const events_1 = __nccwpck_require__(2361);
-const agent_base_1 = __nccwpck_require__(3925);
-const url_1 = __nccwpck_require__(7310);
+const net = __importStar(__nccwpck_require__(9278));
+const tls = __importStar(__nccwpck_require__(4756));
+const debug_1 = __importDefault(__nccwpck_require__(2830));
+const events_1 = __nccwpck_require__(4434);
+const agent_base_1 = __nccwpck_require__(3649);
+const url_1 = __nccwpck_require__(7016);
 const debug = (0, debug_1.default)('http-proxy-agent');
 /**
  * The `HttpProxyAgent` implements an HTTP Agent subclass that connects
@@ -7302,7 +5881,7 @@ function omit(obj, ...keys) {
 
 /***/ }),
 
-/***/ 4941:
+/***/ 2348:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -7335,13 +5914,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HttpsProxyAgent = void 0;
-const net = __importStar(__nccwpck_require__(1808));
-const tls = __importStar(__nccwpck_require__(4404));
-const assert_1 = __importDefault(__nccwpck_require__(9491));
-const debug_1 = __importDefault(__nccwpck_require__(8237));
-const agent_base_1 = __nccwpck_require__(3925);
-const url_1 = __nccwpck_require__(7310);
-const parse_proxy_response_1 = __nccwpck_require__(8726);
+const net = __importStar(__nccwpck_require__(9278));
+const tls = __importStar(__nccwpck_require__(4756));
+const assert_1 = __importDefault(__nccwpck_require__(2613));
+const debug_1 = __importDefault(__nccwpck_require__(2830));
+const agent_base_1 = __nccwpck_require__(3649);
+const url_1 = __nccwpck_require__(7016);
+const parse_proxy_response_1 = __nccwpck_require__(2264);
 const debug = (0, debug_1.default)('https-proxy-agent');
 const setServernameFromNonIpHost = (options) => {
     if (options.servername === undefined &&
@@ -7489,7 +6068,7 @@ function omit(obj, ...keys) {
 
 /***/ }),
 
-/***/ 8726:
+/***/ 2264:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -7499,7 +6078,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseProxyResponse = void 0;
-const debug_1 = __importDefault(__nccwpck_require__(8237));
+const debug_1 = __importDefault(__nccwpck_require__(2830));
 const debug = (0, debug_1.default)('https-proxy-agent:parse-proxy-response');
 function parseProxyResponse(socket) {
     return new Promise((resolve, reject) => {
@@ -7597,465 +6176,7 @@ exports.parseProxyResponse = parseProxyResponse;
 
 /***/ }),
 
-/***/ 9045:
-/***/ ((module) => {
-
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global global, define, Symbol, Reflect, Promise, SuppressedError, Iterator */
-var __extends;
-var __assign;
-var __rest;
-var __decorate;
-var __param;
-var __esDecorate;
-var __runInitializers;
-var __propKey;
-var __setFunctionName;
-var __metadata;
-var __awaiter;
-var __generator;
-var __exportStar;
-var __values;
-var __read;
-var __spread;
-var __spreadArrays;
-var __spreadArray;
-var __await;
-var __asyncGenerator;
-var __asyncDelegator;
-var __asyncValues;
-var __makeTemplateObject;
-var __importStar;
-var __importDefault;
-var __classPrivateFieldGet;
-var __classPrivateFieldSet;
-var __classPrivateFieldIn;
-var __createBinding;
-var __addDisposableResource;
-var __disposeResources;
-var __rewriteRelativeImportExtension;
-(function (factory) {
-    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
-    if (typeof define === "function" && define.amd) {
-        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
-    }
-    else if ( true && typeof module.exports === "object") {
-        factory(createExporter(root, createExporter(module.exports)));
-    }
-    else {
-        factory(createExporter(root));
-    }
-    function createExporter(exports, previous) {
-        if (exports !== root) {
-            if (typeof Object.create === "function") {
-                Object.defineProperty(exports, "__esModule", { value: true });
-            }
-            else {
-                exports.__esModule = true;
-            }
-        }
-        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
-    }
-})
-(function (exporter) {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-
-    __extends = function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-
-    __rest = function (s, e) {
-        var t = {};
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-            t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === "function")
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                    t[p[i]] = s[p[i]];
-            }
-        return t;
-    };
-
-    __decorate = function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-
-    __param = function (paramIndex, decorator) {
-        return function (target, key) { decorator(target, key, paramIndex); }
-    };
-
-    __esDecorate = function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-        function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-        var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-        var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-        var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-        var _, done = false;
-        for (var i = decorators.length - 1; i >= 0; i--) {
-            var context = {};
-            for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-            for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-            context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-            var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-            if (kind === "accessor") {
-                if (result === void 0) continue;
-                if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-                if (_ = accept(result.get)) descriptor.get = _;
-                if (_ = accept(result.set)) descriptor.set = _;
-                if (_ = accept(result.init)) initializers.unshift(_);
-            }
-            else if (_ = accept(result)) {
-                if (kind === "field") initializers.unshift(_);
-                else descriptor[key] = _;
-            }
-        }
-        if (target) Object.defineProperty(target, contextIn.name, descriptor);
-        done = true;
-    };
-
-    __runInitializers = function (thisArg, initializers, value) {
-        var useValue = arguments.length > 2;
-        for (var i = 0; i < initializers.length; i++) {
-            value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-        }
-        return useValue ? value : void 0;
-    };
-
-    __propKey = function (x) {
-        return typeof x === "symbol" ? x : "".concat(x);
-    };
-
-    __setFunctionName = function (f, name, prefix) {
-        if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
-    };
-
-    __metadata = function (metadataKey, metadataValue) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-    };
-
-    __awaiter = function (thisArg, _arguments, P, generator) {
-        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    };
-
-    __generator = function (thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-        return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (g && (g = 0, op[0] && (_ = 0)), _) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    };
-
-    __exportStar = function(m, o) {
-        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
-    };
-
-    __createBinding = Object.create ? (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        var desc = Object.getOwnPropertyDescriptor(m, k);
-        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-            desc = { enumerable: true, get: function() { return m[k]; } };
-        }
-        Object.defineProperty(o, k2, desc);
-    }) : (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        o[k2] = m[k];
-    });
-
-    __values = function (o) {
-        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-        if (m) return m.call(o);
-        if (o && typeof o.length === "number") return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    };
-
-    __read = function (o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    };
-
-    /** @deprecated */
-    __spread = function () {
-        for (var ar = [], i = 0; i < arguments.length; i++)
-            ar = ar.concat(__read(arguments[i]));
-        return ar;
-    };
-
-    /** @deprecated */
-    __spreadArrays = function () {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
-    };
-
-    __spreadArray = function (to, from, pack) {
-        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-            if (ar || !(i in from)) {
-                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-                ar[i] = from[i];
-            }
-        }
-        return to.concat(ar || Array.prototype.slice.call(from));
-    };
-
-    __await = function (v) {
-        return this instanceof __await ? (this.v = v, this) : new __await(v);
-    };
-
-    __asyncGenerator = function (thisArg, _arguments, generator) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
-        function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
-        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
-        function fulfill(value) { resume("next", value); }
-        function reject(value) { resume("throw", value); }
-        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
-    };
-
-    __asyncDelegator = function (o) {
-        var i, p;
-        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
-    };
-
-    __asyncValues = function (o) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var m = o[Symbol.asyncIterator], i;
-        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-    };
-
-    __makeTemplateObject = function (cooked, raw) {
-        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-        return cooked;
-    };
-
-    var __setModuleDefault = Object.create ? (function(o, v) {
-        Object.defineProperty(o, "default", { enumerable: true, value: v });
-    }) : function(o, v) {
-        o["default"] = v;
-    };
-
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-
-    __importStar = function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-
-    __importDefault = function (mod) {
-        return (mod && mod.__esModule) ? mod : { "default": mod };
-    };
-
-    __classPrivateFieldGet = function (receiver, state, kind, f) {
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-    };
-
-    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
-        if (kind === "m") throw new TypeError("Private method is not writable");
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-    };
-
-    __classPrivateFieldIn = function (state, receiver) {
-        if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function")) throw new TypeError("Cannot use 'in' operator on non-object");
-        return typeof state === "function" ? receiver === state : state.has(receiver);
-    };
-
-    __addDisposableResource = function (env, value, async) {
-        if (value !== null && value !== void 0) {
-            if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-            var dispose, inner;
-            if (async) {
-                if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-                dispose = value[Symbol.asyncDispose];
-            }
-            if (dispose === void 0) {
-                if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-                dispose = value[Symbol.dispose];
-                if (async) inner = dispose;
-            }
-            if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
-            if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
-            env.stack.push({ value: value, dispose: dispose, async: async });
-        }
-        else if (async) {
-            env.stack.push({ async: true });
-        }
-        return value;
-    };
-
-    var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-        var e = new Error(message);
-        return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-    };
-
-    __disposeResources = function (env) {
-        function fail(e) {
-            env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
-            env.hasError = true;
-        }
-        var r, s = 0;
-        function next() {
-            while (r = env.stack.pop()) {
-                try {
-                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
-                    if (r.dispose) {
-                        var result = r.dispose.call(r.value);
-                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
-                    }
-                    else s |= 1;
-                }
-                catch (e) {
-                    fail(e);
-                }
-            }
-            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
-            if (env.hasError) throw env.error;
-        }
-        return next();
-    };
-
-    __rewriteRelativeImportExtension = function (path, preserveJsx) {
-        if (typeof path === "string" && /^\.\.?\//.test(path)) {
-            return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function (m, tsx, d, ext, cm) {
-                return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : (d + ext + "." + cm.toLowerCase() + "js");
-            });
-        }
-        return path;
-    };
-
-    exporter("__extends", __extends);
-    exporter("__assign", __assign);
-    exporter("__rest", __rest);
-    exporter("__decorate", __decorate);
-    exporter("__param", __param);
-    exporter("__esDecorate", __esDecorate);
-    exporter("__runInitializers", __runInitializers);
-    exporter("__propKey", __propKey);
-    exporter("__setFunctionName", __setFunctionName);
-    exporter("__metadata", __metadata);
-    exporter("__awaiter", __awaiter);
-    exporter("__generator", __generator);
-    exporter("__exportStar", __exportStar);
-    exporter("__createBinding", __createBinding);
-    exporter("__values", __values);
-    exporter("__read", __read);
-    exporter("__spread", __spread);
-    exporter("__spreadArrays", __spreadArrays);
-    exporter("__spreadArray", __spreadArray);
-    exporter("__await", __await);
-    exporter("__asyncGenerator", __asyncGenerator);
-    exporter("__asyncDelegator", __asyncDelegator);
-    exporter("__asyncValues", __asyncValues);
-    exporter("__makeTemplateObject", __makeTemplateObject);
-    exporter("__importStar", __importStar);
-    exporter("__importDefault", __importDefault);
-    exporter("__classPrivateFieldGet", __classPrivateFieldGet);
-    exporter("__classPrivateFieldSet", __classPrivateFieldSet);
-    exporter("__classPrivateFieldIn", __classPrivateFieldIn);
-    exporter("__addDisposableResource", __addDisposableResource);
-    exporter("__disposeResources", __disposeResources);
-    exporter("__rewriteRelativeImportExtension", __rewriteRelativeImportExtension);
-});
-
-0 && (0);
-
-
-/***/ }),
-
-/***/ 4175:
+/***/ 5553:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -8247,3231 +6368,14 @@ exports.useInstrumenter = useInstrumenter;
 
 /***/ }),
 
-/***/ 2369:
-/***/ ((module) => {
-
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global global, define, Symbol, Reflect, Promise, SuppressedError, Iterator */
-var __extends;
-var __assign;
-var __rest;
-var __decorate;
-var __param;
-var __esDecorate;
-var __runInitializers;
-var __propKey;
-var __setFunctionName;
-var __metadata;
-var __awaiter;
-var __generator;
-var __exportStar;
-var __values;
-var __read;
-var __spread;
-var __spreadArrays;
-var __spreadArray;
-var __await;
-var __asyncGenerator;
-var __asyncDelegator;
-var __asyncValues;
-var __makeTemplateObject;
-var __importStar;
-var __importDefault;
-var __classPrivateFieldGet;
-var __classPrivateFieldSet;
-var __classPrivateFieldIn;
-var __createBinding;
-var __addDisposableResource;
-var __disposeResources;
-var __rewriteRelativeImportExtension;
-(function (factory) {
-    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
-    if (typeof define === "function" && define.amd) {
-        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
-    }
-    else if ( true && typeof module.exports === "object") {
-        factory(createExporter(root, createExporter(module.exports)));
-    }
-    else {
-        factory(createExporter(root));
-    }
-    function createExporter(exports, previous) {
-        if (exports !== root) {
-            if (typeof Object.create === "function") {
-                Object.defineProperty(exports, "__esModule", { value: true });
-            }
-            else {
-                exports.__esModule = true;
-            }
-        }
-        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
-    }
-})
-(function (exporter) {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-
-    __extends = function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-
-    __rest = function (s, e) {
-        var t = {};
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-            t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === "function")
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                    t[p[i]] = s[p[i]];
-            }
-        return t;
-    };
-
-    __decorate = function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-
-    __param = function (paramIndex, decorator) {
-        return function (target, key) { decorator(target, key, paramIndex); }
-    };
-
-    __esDecorate = function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-        function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-        var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-        var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-        var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-        var _, done = false;
-        for (var i = decorators.length - 1; i >= 0; i--) {
-            var context = {};
-            for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-            for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-            context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-            var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-            if (kind === "accessor") {
-                if (result === void 0) continue;
-                if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-                if (_ = accept(result.get)) descriptor.get = _;
-                if (_ = accept(result.set)) descriptor.set = _;
-                if (_ = accept(result.init)) initializers.unshift(_);
-            }
-            else if (_ = accept(result)) {
-                if (kind === "field") initializers.unshift(_);
-                else descriptor[key] = _;
-            }
-        }
-        if (target) Object.defineProperty(target, contextIn.name, descriptor);
-        done = true;
-    };
-
-    __runInitializers = function (thisArg, initializers, value) {
-        var useValue = arguments.length > 2;
-        for (var i = 0; i < initializers.length; i++) {
-            value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-        }
-        return useValue ? value : void 0;
-    };
-
-    __propKey = function (x) {
-        return typeof x === "symbol" ? x : "".concat(x);
-    };
-
-    __setFunctionName = function (f, name, prefix) {
-        if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
-    };
-
-    __metadata = function (metadataKey, metadataValue) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-    };
-
-    __awaiter = function (thisArg, _arguments, P, generator) {
-        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    };
-
-    __generator = function (thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-        return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (g && (g = 0, op[0] && (_ = 0)), _) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    };
-
-    __exportStar = function(m, o) {
-        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
-    };
-
-    __createBinding = Object.create ? (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        var desc = Object.getOwnPropertyDescriptor(m, k);
-        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-            desc = { enumerable: true, get: function() { return m[k]; } };
-        }
-        Object.defineProperty(o, k2, desc);
-    }) : (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        o[k2] = m[k];
-    });
-
-    __values = function (o) {
-        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-        if (m) return m.call(o);
-        if (o && typeof o.length === "number") return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    };
-
-    __read = function (o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    };
-
-    /** @deprecated */
-    __spread = function () {
-        for (var ar = [], i = 0; i < arguments.length; i++)
-            ar = ar.concat(__read(arguments[i]));
-        return ar;
-    };
-
-    /** @deprecated */
-    __spreadArrays = function () {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
-    };
-
-    __spreadArray = function (to, from, pack) {
-        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-            if (ar || !(i in from)) {
-                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-                ar[i] = from[i];
-            }
-        }
-        return to.concat(ar || Array.prototype.slice.call(from));
-    };
-
-    __await = function (v) {
-        return this instanceof __await ? (this.v = v, this) : new __await(v);
-    };
-
-    __asyncGenerator = function (thisArg, _arguments, generator) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
-        function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
-        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
-        function fulfill(value) { resume("next", value); }
-        function reject(value) { resume("throw", value); }
-        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
-    };
-
-    __asyncDelegator = function (o) {
-        var i, p;
-        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
-    };
-
-    __asyncValues = function (o) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var m = o[Symbol.asyncIterator], i;
-        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-    };
-
-    __makeTemplateObject = function (cooked, raw) {
-        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-        return cooked;
-    };
-
-    var __setModuleDefault = Object.create ? (function(o, v) {
-        Object.defineProperty(o, "default", { enumerable: true, value: v });
-    }) : function(o, v) {
-        o["default"] = v;
-    };
-
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-
-    __importStar = function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-
-    __importDefault = function (mod) {
-        return (mod && mod.__esModule) ? mod : { "default": mod };
-    };
-
-    __classPrivateFieldGet = function (receiver, state, kind, f) {
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-    };
-
-    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
-        if (kind === "m") throw new TypeError("Private method is not writable");
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-    };
-
-    __classPrivateFieldIn = function (state, receiver) {
-        if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function")) throw new TypeError("Cannot use 'in' operator on non-object");
-        return typeof state === "function" ? receiver === state : state.has(receiver);
-    };
-
-    __addDisposableResource = function (env, value, async) {
-        if (value !== null && value !== void 0) {
-            if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-            var dispose, inner;
-            if (async) {
-                if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-                dispose = value[Symbol.asyncDispose];
-            }
-            if (dispose === void 0) {
-                if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-                dispose = value[Symbol.dispose];
-                if (async) inner = dispose;
-            }
-            if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
-            if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
-            env.stack.push({ value: value, dispose: dispose, async: async });
-        }
-        else if (async) {
-            env.stack.push({ async: true });
-        }
-        return value;
-    };
-
-    var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-        var e = new Error(message);
-        return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-    };
-
-    __disposeResources = function (env) {
-        function fail(e) {
-            env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
-            env.hasError = true;
-        }
-        var r, s = 0;
-        function next() {
-            while (r = env.stack.pop()) {
-                try {
-                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
-                    if (r.dispose) {
-                        var result = r.dispose.call(r.value);
-                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
-                    }
-                    else s |= 1;
-                }
-                catch (e) {
-                    fail(e);
-                }
-            }
-            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
-            if (env.hasError) throw env.error;
-        }
-        return next();
-    };
-
-    __rewriteRelativeImportExtension = function (path, preserveJsx) {
-        if (typeof path === "string" && /^\.\.?\//.test(path)) {
-            return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function (m, tsx, d, ext, cm) {
-                return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : (d + ext + "." + cm.toLowerCase() + "js");
-            });
-        }
-        return path;
-    };
-
-    exporter("__extends", __extends);
-    exporter("__assign", __assign);
-    exporter("__rest", __rest);
-    exporter("__decorate", __decorate);
-    exporter("__param", __param);
-    exporter("__esDecorate", __esDecorate);
-    exporter("__runInitializers", __runInitializers);
-    exporter("__propKey", __propKey);
-    exporter("__setFunctionName", __setFunctionName);
-    exporter("__metadata", __metadata);
-    exporter("__awaiter", __awaiter);
-    exporter("__generator", __generator);
-    exporter("__exportStar", __exportStar);
-    exporter("__createBinding", __createBinding);
-    exporter("__values", __values);
-    exporter("__read", __read);
-    exporter("__spread", __spread);
-    exporter("__spreadArrays", __spreadArrays);
-    exporter("__spreadArray", __spreadArray);
-    exporter("__await", __await);
-    exporter("__asyncGenerator", __asyncGenerator);
-    exporter("__asyncDelegator", __asyncDelegator);
-    exporter("__asyncValues", __asyncValues);
-    exporter("__makeTemplateObject", __makeTemplateObject);
-    exporter("__importStar", __importStar);
-    exporter("__importDefault", __importDefault);
-    exporter("__classPrivateFieldGet", __classPrivateFieldGet);
-    exporter("__classPrivateFieldSet", __classPrivateFieldSet);
-    exporter("__classPrivateFieldIn", __classPrivateFieldIn);
-    exporter("__addDisposableResource", __addDisposableResource);
-    exporter("__disposeResources", __disposeResources);
-    exporter("__rewriteRelativeImportExtension", __rewriteRelativeImportExtension);
-});
-
-0 && (0);
-
-
-/***/ }),
-
-/***/ 181:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-var tslib = __nccwpck_require__(9286);
-var coreRestPipeline = __nccwpck_require__(9146);
-var logger$1 = __nccwpck_require__(3233);
-var coreClient = __nccwpck_require__(7611);
-var coreHttpCompat = __nccwpck_require__(6232);
-var coreLro = __nccwpck_require__(7094);
-var coreUtil = __nccwpck_require__(637);
-var coreTracing = __nccwpck_require__(4175);
-
-function _interopNamespaceDefault(e) {
-    var n = Object.create(null);
-    if (e) {
-        Object.keys(e).forEach(function (k) {
-            if (k !== 'default') {
-                var d = Object.getOwnPropertyDescriptor(e, k);
-                Object.defineProperty(n, k, d.get ? d : {
-                    enumerable: true,
-                    get: function () { return e[k]; }
-                });
-            }
-        });
-    }
-    n.default = e;
-    return Object.freeze(n);
-}
-
-var coreRestPipeline__namespace = /*#__PURE__*/_interopNamespaceDefault(coreRestPipeline);
-var coreClient__namespace = /*#__PURE__*/_interopNamespaceDefault(coreClient);
-var coreHttpCompat__namespace = /*#__PURE__*/_interopNamespaceDefault(coreHttpCompat);
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * The \@azure/logger configuration for this package.
- */
-const logger = logger$1.createClientLogger("keyvault-secrets");
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-/** Known values of {@link ApiVersion75} that the service accepts. */
-var KnownApiVersion75;
-(function (KnownApiVersion75) {
-    /** Api Version '7.5' */
-    KnownApiVersion75["Seven5"] = "7.5";
-})(KnownApiVersion75 || (KnownApiVersion75 = {}));
-/** Known values of {@link DeletionRecoveryLevel} that the service accepts. */
-exports.KnownDeletionRecoveryLevel = void 0;
-(function (KnownDeletionRecoveryLevel) {
-    /** Denotes a vault state in which deletion is an irreversible operation, without the possibility for recovery. This level corresponds to no protection being available against a Delete operation; the data is irretrievably lost upon accepting a Delete operation at the entity level or higher (vault, resource group, subscription etc.) */
-    KnownDeletionRecoveryLevel["Purgeable"] = "Purgeable";
-    /** Denotes a vault state in which deletion is recoverable, and which also permits immediate and permanent deletion (i.e. purge). This level guarantees the recoverability of the deleted entity during the retention interval (90 days), unless a Purge operation is requested, or the subscription is cancelled. System wil permanently delete it after 90 days, if not recovered */
-    KnownDeletionRecoveryLevel["RecoverablePurgeable"] = "Recoverable+Purgeable";
-    /** Denotes a vault state in which deletion is recoverable without the possibility for immediate and permanent deletion (i.e. purge). This level guarantees the recoverability of the deleted entity during the retention interval(90 days) and while the subscription is still available. System wil permanently delete it after 90 days, if not recovered */
-    KnownDeletionRecoveryLevel["Recoverable"] = "Recoverable";
-    /** Denotes a vault and subscription state in which deletion is recoverable within retention interval (90 days), immediate and permanent deletion (i.e. purge) is not permitted, and in which the subscription itself  cannot be permanently canceled. System wil permanently delete it after 90 days, if not recovered */
-    KnownDeletionRecoveryLevel["RecoverableProtectedSubscription"] = "Recoverable+ProtectedSubscription";
-    /** Denotes a vault state in which deletion is recoverable, and which also permits immediate and permanent deletion (i.e. purge when 7<= SoftDeleteRetentionInDays < 90). This level guarantees the recoverability of the deleted entity during the retention interval, unless a Purge operation is requested, or the subscription is cancelled. */
-    KnownDeletionRecoveryLevel["CustomizedRecoverablePurgeable"] = "CustomizedRecoverable+Purgeable";
-    /** Denotes a vault state in which deletion is recoverable without the possibility for immediate and permanent deletion (i.e. purge when 7<= SoftDeleteRetentionInDays < 90).This level guarantees the recoverability of the deleted entity during the retention interval and while the subscription is still available. */
-    KnownDeletionRecoveryLevel["CustomizedRecoverable"] = "CustomizedRecoverable";
-    /** Denotes a vault and subscription state in which deletion is recoverable, immediate and permanent deletion (i.e. purge) is not permitted, and in which the subscription itself cannot be permanently canceled when 7<= SoftDeleteRetentionInDays < 90. This level guarantees the recoverability of the deleted entity during the retention interval, and also reflects the fact that the subscription itself cannot be cancelled. */
-    KnownDeletionRecoveryLevel["CustomizedRecoverableProtectedSubscription"] = "CustomizedRecoverable+ProtectedSubscription";
-})(exports.KnownDeletionRecoveryLevel || (exports.KnownDeletionRecoveryLevel = {}));
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-const SecretSetParameters = {
-    type: {
-        name: "Composite",
-        className: "SecretSetParameters",
-        modelProperties: {
-            value: {
-                serializedName: "value",
-                required: true,
-                type: {
-                    name: "String"
-                }
-            },
-            tags: {
-                serializedName: "tags",
-                type: {
-                    name: "Dictionary",
-                    value: { type: { name: "String" } }
-                }
-            },
-            contentType: {
-                serializedName: "contentType",
-                type: {
-                    name: "String"
-                }
-            },
-            secretAttributes: {
-                serializedName: "attributes",
-                type: {
-                    name: "Composite",
-                    className: "SecretAttributes"
-                }
-            }
-        }
-    }
-};
-const Attributes = {
-    type: {
-        name: "Composite",
-        className: "Attributes",
-        modelProperties: {
-            enabled: {
-                serializedName: "enabled",
-                type: {
-                    name: "Boolean"
-                }
-            },
-            notBefore: {
-                serializedName: "nbf",
-                type: {
-                    name: "UnixTime"
-                }
-            },
-            expires: {
-                serializedName: "exp",
-                type: {
-                    name: "UnixTime"
-                }
-            },
-            created: {
-                serializedName: "created",
-                readOnly: true,
-                type: {
-                    name: "UnixTime"
-                }
-            },
-            updated: {
-                serializedName: "updated",
-                readOnly: true,
-                type: {
-                    name: "UnixTime"
-                }
-            }
-        }
-    }
-};
-const SecretBundle = {
-    type: {
-        name: "Composite",
-        className: "SecretBundle",
-        modelProperties: {
-            value: {
-                serializedName: "value",
-                type: {
-                    name: "String"
-                }
-            },
-            id: {
-                serializedName: "id",
-                type: {
-                    name: "String"
-                }
-            },
-            contentType: {
-                serializedName: "contentType",
-                type: {
-                    name: "String"
-                }
-            },
-            attributes: {
-                serializedName: "attributes",
-                type: {
-                    name: "Composite",
-                    className: "SecretAttributes"
-                }
-            },
-            tags: {
-                serializedName: "tags",
-                type: {
-                    name: "Dictionary",
-                    value: { type: { name: "String" } }
-                }
-            },
-            kid: {
-                serializedName: "kid",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            },
-            managed: {
-                serializedName: "managed",
-                readOnly: true,
-                type: {
-                    name: "Boolean"
-                }
-            }
-        }
-    }
-};
-const KeyVaultError = {
-    type: {
-        name: "Composite",
-        className: "KeyVaultError",
-        modelProperties: {
-            error: {
-                serializedName: "error",
-                type: {
-                    name: "Composite",
-                    className: "ErrorModel"
-                }
-            }
-        }
-    }
-};
-const ErrorModel = {
-    type: {
-        name: "Composite",
-        className: "ErrorModel",
-        modelProperties: {
-            code: {
-                serializedName: "code",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            },
-            message: {
-                serializedName: "message",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            },
-            innerError: {
-                serializedName: "innererror",
-                type: {
-                    name: "Composite",
-                    className: "ErrorModel"
-                }
-            }
-        }
-    }
-};
-const SecretUpdateParameters = {
-    type: {
-        name: "Composite",
-        className: "SecretUpdateParameters",
-        modelProperties: {
-            contentType: {
-                serializedName: "contentType",
-                type: {
-                    name: "String"
-                }
-            },
-            secretAttributes: {
-                serializedName: "attributes",
-                type: {
-                    name: "Composite",
-                    className: "SecretAttributes"
-                }
-            },
-            tags: {
-                serializedName: "tags",
-                type: {
-                    name: "Dictionary",
-                    value: { type: { name: "String" } }
-                }
-            }
-        }
-    }
-};
-const SecretListResult = {
-    type: {
-        name: "Composite",
-        className: "SecretListResult",
-        modelProperties: {
-            value: {
-                serializedName: "value",
-                readOnly: true,
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "SecretItem"
-                        }
-                    }
-                }
-            },
-            nextLink: {
-                serializedName: "nextLink",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const SecretItem = {
-    type: {
-        name: "Composite",
-        className: "SecretItem",
-        modelProperties: {
-            id: {
-                serializedName: "id",
-                type: {
-                    name: "String"
-                }
-            },
-            attributes: {
-                serializedName: "attributes",
-                type: {
-                    name: "Composite",
-                    className: "SecretAttributes"
-                }
-            },
-            tags: {
-                serializedName: "tags",
-                type: {
-                    name: "Dictionary",
-                    value: { type: { name: "String" } }
-                }
-            },
-            contentType: {
-                serializedName: "contentType",
-                type: {
-                    name: "String"
-                }
-            },
-            managed: {
-                serializedName: "managed",
-                readOnly: true,
-                type: {
-                    name: "Boolean"
-                }
-            }
-        }
-    }
-};
-const DeletedSecretListResult = {
-    type: {
-        name: "Composite",
-        className: "DeletedSecretListResult",
-        modelProperties: {
-            value: {
-                serializedName: "value",
-                readOnly: true,
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "DeletedSecretItem"
-                        }
-                    }
-                }
-            },
-            nextLink: {
-                serializedName: "nextLink",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const BackupSecretResult = {
-    type: {
-        name: "Composite",
-        className: "BackupSecretResult",
-        modelProperties: {
-            value: {
-                serializedName: "value",
-                readOnly: true,
-                type: {
-                    name: "Base64Url"
-                }
-            }
-        }
-    }
-};
-const SecretRestoreParameters = {
-    type: {
-        name: "Composite",
-        className: "SecretRestoreParameters",
-        modelProperties: {
-            secretBundleBackup: {
-                serializedName: "value",
-                required: true,
-                type: {
-                    name: "Base64Url"
-                }
-            }
-        }
-    }
-};
-const SecretProperties = {
-    type: {
-        name: "Composite",
-        className: "SecretProperties",
-        modelProperties: {
-            contentType: {
-                serializedName: "contentType",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const SecretAttributes = {
-    type: {
-        name: "Composite",
-        className: "SecretAttributes",
-        modelProperties: Object.assign(Object.assign({}, Attributes.type.modelProperties), { recoverableDays: {
-                serializedName: "recoverableDays",
-                readOnly: true,
-                type: {
-                    name: "Number"
-                }
-            }, recoveryLevel: {
-                serializedName: "recoveryLevel",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            } })
-    }
-};
-const DeletedSecretBundle = {
-    type: {
-        name: "Composite",
-        className: "DeletedSecretBundle",
-        modelProperties: Object.assign(Object.assign({}, SecretBundle.type.modelProperties), { recoveryId: {
-                serializedName: "recoveryId",
-                type: {
-                    name: "String"
-                }
-            }, scheduledPurgeDate: {
-                serializedName: "scheduledPurgeDate",
-                readOnly: true,
-                type: {
-                    name: "UnixTime"
-                }
-            }, deletedDate: {
-                serializedName: "deletedDate",
-                readOnly: true,
-                type: {
-                    name: "UnixTime"
-                }
-            } })
-    }
-};
-const DeletedSecretItem = {
-    type: {
-        name: "Composite",
-        className: "DeletedSecretItem",
-        modelProperties: Object.assign(Object.assign({}, SecretItem.type.modelProperties), { recoveryId: {
-                serializedName: "recoveryId",
-                type: {
-                    name: "String"
-                }
-            }, scheduledPurgeDate: {
-                serializedName: "scheduledPurgeDate",
-                readOnly: true,
-                type: {
-                    name: "UnixTime"
-                }
-            }, deletedDate: {
-                serializedName: "deletedDate",
-                readOnly: true,
-                type: {
-                    name: "UnixTime"
-                }
-            } })
-    }
-};
-
-var Mappers = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    Attributes: Attributes,
-    BackupSecretResult: BackupSecretResult,
-    DeletedSecretBundle: DeletedSecretBundle,
-    DeletedSecretItem: DeletedSecretItem,
-    DeletedSecretListResult: DeletedSecretListResult,
-    ErrorModel: ErrorModel,
-    KeyVaultError: KeyVaultError,
-    SecretAttributes: SecretAttributes,
-    SecretBundle: SecretBundle,
-    SecretItem: SecretItem,
-    SecretListResult: SecretListResult,
-    SecretProperties: SecretProperties,
-    SecretRestoreParameters: SecretRestoreParameters,
-    SecretSetParameters: SecretSetParameters,
-    SecretUpdateParameters: SecretUpdateParameters
-});
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-const contentType = {
-    parameterPath: ["options", "contentType"],
-    mapper: {
-        defaultValue: "application/json",
-        isConstant: true,
-        serializedName: "Content-Type",
-        type: {
-            name: "String"
-        }
-    }
-};
-const accept = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String"
-        }
-    }
-};
-const vaultBaseUrl = {
-    parameterPath: "vaultBaseUrl",
-    mapper: {
-        serializedName: "vaultBaseUrl",
-        required: true,
-        type: {
-            name: "String"
-        }
-    },
-    skipEncoding: true
-};
-const secretName = {
-    parameterPath: "secretName",
-    mapper: {
-        constraints: {
-            Pattern: new RegExp("^[0-9a-zA-Z-]+$")
-        },
-        serializedName: "secret-name",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
-const apiVersion = {
-    parameterPath: "apiVersion",
-    mapper: {
-        serializedName: "api-version",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
-const secretName1 = {
-    parameterPath: "secretName",
-    mapper: {
-        serializedName: "secret-name",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
-const secretVersion = {
-    parameterPath: "secretVersion",
-    mapper: {
-        serializedName: "secret-version",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
-const maxresults = {
-    parameterPath: ["options", "maxresults"],
-    mapper: {
-        constraints: {
-            InclusiveMaximum: 25,
-            InclusiveMinimum: 1
-        },
-        serializedName: "maxresults",
-        type: {
-            name: "Number"
-        }
-    }
-};
-const nextLink = {
-    parameterPath: "nextLink",
-    mapper: {
-        serializedName: "nextLink",
-        required: true,
-        type: {
-            name: "String"
-        }
-    },
-    skipEncoding: true
-};
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-/** @internal */
-class KeyVaultClient extends coreHttpCompat__namespace.ExtendedServiceClient {
-    /**
-     * Initializes a new instance of the KeyVaultClient class.
-     * @param apiVersion Api Version
-     * @param options The parameter options
-     */
-    constructor(apiVersion, options) {
-        var _a, _b;
-        if (apiVersion === undefined) {
-            throw new Error("'apiVersion' cannot be null");
-        }
-        // Initializing default values for options
-        if (!options) {
-            options = {};
-        }
-        const defaults = {
-            requestContentType: "application/json; charset=utf-8"
-        };
-        const packageDetails = `azsdk-js-keyvault-secrets/4.8.0`;
-        const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix
-            ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
-            : `${packageDetails}`;
-        const optionsWithDefaults = Object.assign(Object.assign(Object.assign({}, defaults), options), { userAgentOptions: {
-                userAgentPrefix
-            }, baseUri: (_b = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri) !== null && _b !== void 0 ? _b : "{vaultBaseUrl}" });
-        super(optionsWithDefaults);
-        if ((options === null || options === void 0 ? void 0 : options.pipeline) && options.pipeline.getOrderedPolicies().length > 0) {
-            const pipelinePolicies = options.pipeline.getOrderedPolicies();
-            const bearerTokenAuthenticationPolicyFound = pipelinePolicies.some((pipelinePolicy) => pipelinePolicy.name ===
-                coreRestPipeline__namespace.bearerTokenAuthenticationPolicyName);
-            if (!bearerTokenAuthenticationPolicyFound) {
-                this.pipeline.removePolicy({
-                    name: coreRestPipeline__namespace.bearerTokenAuthenticationPolicyName
-                });
-                this.pipeline.addPolicy(coreRestPipeline__namespace.bearerTokenAuthenticationPolicy({
-                    scopes: `${optionsWithDefaults.baseUri}/.default`,
-                    challengeCallbacks: {
-                        authorizeRequestOnChallenge: coreClient__namespace.authorizeRequestOnClaimChallenge
-                    }
-                }));
-            }
-        }
-        // Parameter assignments
-        this.apiVersion = apiVersion;
-    }
-    /**
-     *  The SET operation adds a secret to the Azure Key Vault. If the named secret already exists, Azure
-     * Key Vault creates a new version of that secret. This operation requires the secrets/set permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the secret. The value you provide may be copied globally for the
-     *                   purpose of running the service. The value provided should not include personally identifiable or
-     *                   sensitive information.
-     * @param value The value of the secret.
-     * @param options The options parameters.
-     */
-    setSecret(vaultBaseUrl, secretName, value, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, value, options }, setSecretOperationSpec);
-    }
-    /**
-     * The DELETE operation applies to any secret stored in Azure Key Vault. DELETE cannot be applied to an
-     * individual version of a secret. This operation requires the secrets/delete permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the secret.
-     * @param options The options parameters.
-     */
-    deleteSecret(vaultBaseUrl, secretName, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, deleteSecretOperationSpec);
-    }
-    /**
-     * The UPDATE operation changes specified attributes of an existing stored secret. Attributes that are
-     * not specified in the request are left unchanged. The value of a secret itself cannot be changed.
-     * This operation requires the secrets/set permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the secret.
-     * @param secretVersion The version of the secret.
-     * @param options The options parameters.
-     */
-    updateSecret(vaultBaseUrl, secretName, secretVersion, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, secretVersion, options }, updateSecretOperationSpec);
-    }
-    /**
-     * The GET operation is applicable to any secret stored in Azure Key Vault. This operation requires the
-     * secrets/get permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the secret.
-     * @param secretVersion The version of the secret. This URI fragment is optional. If not specified, the
-     *                      latest version of the secret is returned.
-     * @param options The options parameters.
-     */
-    getSecret(vaultBaseUrl, secretName, secretVersion, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, secretVersion, options }, getSecretOperationSpec);
-    }
-    /**
-     * The Get Secrets operation is applicable to the entire vault. However, only the base secret
-     * identifier and its attributes are provided in the response. Individual secret versions are not
-     * listed in the response. This operation requires the secrets/list permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param options The options parameters.
-     */
-    getSecrets(vaultBaseUrl, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, options }, getSecretsOperationSpec);
-    }
-    /**
-     * The full secret identifier and attributes are provided in the response. No values are returned for
-     * the secrets. This operations requires the secrets/list permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the secret.
-     * @param options The options parameters.
-     */
-    getSecretVersions(vaultBaseUrl, secretName, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, getSecretVersionsOperationSpec);
-    }
-    /**
-     * The Get Deleted Secrets operation returns the secrets that have been deleted for a vault enabled for
-     * soft-delete. This operation requires the secrets/list permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param options The options parameters.
-     */
-    getDeletedSecrets(vaultBaseUrl, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, options }, getDeletedSecretsOperationSpec);
-    }
-    /**
-     * The Get Deleted Secret operation returns the specified deleted secret along with its attributes.
-     * This operation requires the secrets/get permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the secret.
-     * @param options The options parameters.
-     */
-    getDeletedSecret(vaultBaseUrl, secretName, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, getDeletedSecretOperationSpec);
-    }
-    /**
-     * The purge deleted secret operation removes the secret permanently, without the possibility of
-     * recovery. This operation can only be enabled on a soft-delete enabled vault. This operation requires
-     * the secrets/purge permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the secret.
-     * @param options The options parameters.
-     */
-    purgeDeletedSecret(vaultBaseUrl, secretName, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, purgeDeletedSecretOperationSpec);
-    }
-    /**
-     * Recovers the deleted secret in the specified vault. This operation can only be performed on a
-     * soft-delete enabled vault. This operation requires the secrets/recover permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the deleted secret.
-     * @param options The options parameters.
-     */
-    recoverDeletedSecret(vaultBaseUrl, secretName, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, recoverDeletedSecretOperationSpec);
-    }
-    /**
-     * Requests that a backup of the specified secret be downloaded to the client. All versions of the
-     * secret will be downloaded. This operation requires the secrets/backup permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the secret.
-     * @param options The options parameters.
-     */
-    backupSecret(vaultBaseUrl, secretName, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, backupSecretOperationSpec);
-    }
-    /**
-     * Restores a backed up secret, and all its versions, to a vault. This operation requires the
-     * secrets/restore permission.
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretBundleBackup The backup blob associated with a secret bundle.
-     * @param options The options parameters.
-     */
-    restoreSecret(vaultBaseUrl, secretBundleBackup, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretBundleBackup, options }, restoreSecretOperationSpec);
-    }
-    /**
-     * GetSecretsNext
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param nextLink The nextLink from the previous successful call to the GetSecrets method.
-     * @param options The options parameters.
-     */
-    getSecretsNext(vaultBaseUrl, nextLink, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, nextLink, options }, getSecretsNextOperationSpec);
-    }
-    /**
-     * GetSecretVersionsNext
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param secretName The name of the secret.
-     * @param nextLink The nextLink from the previous successful call to the GetSecretVersions method.
-     * @param options The options parameters.
-     */
-    getSecretVersionsNext(vaultBaseUrl, secretName, nextLink, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, secretName, nextLink, options }, getSecretVersionsNextOperationSpec);
-    }
-    /**
-     * GetDeletedSecretsNext
-     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
-     * @param nextLink The nextLink from the previous successful call to the GetDeletedSecrets method.
-     * @param options The options parameters.
-     */
-    getDeletedSecretsNext(vaultBaseUrl, nextLink, options) {
-        return this.sendOperationRequest({ vaultBaseUrl, nextLink, options }, getDeletedSecretsNextOperationSpec);
-    }
-}
-// Operation Specifications
-const serializer = coreClient__namespace.createSerializer(Mappers, /* isXml */ false);
-const setSecretOperationSpec = {
-    path: "/secrets/{secret-name}",
-    httpMethod: "PUT",
-    responses: {
-        200: {
-            bodyMapper: SecretBundle
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    requestBody: {
-        parameterPath: {
-            value: ["value"],
-            tags: ["options", "tags"],
-            contentType: ["options", "contentType"],
-            secretAttributes: ["options", "secretAttributes"]
-        },
-        mapper: Object.assign(Object.assign({}, SecretSetParameters), { required: true })
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [vaultBaseUrl, secretName],
-    headerParameters: [contentType, accept],
-    mediaType: "json",
-    serializer
-};
-const deleteSecretOperationSpec = {
-    path: "/secrets/{secret-name}",
-    httpMethod: "DELETE",
-    responses: {
-        200: {
-            bodyMapper: DeletedSecretBundle
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [vaultBaseUrl, secretName1],
-    headerParameters: [accept],
-    serializer
-};
-const updateSecretOperationSpec = {
-    path: "/secrets/{secret-name}/{secret-version}",
-    httpMethod: "PATCH",
-    responses: {
-        200: {
-            bodyMapper: SecretBundle
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    requestBody: {
-        parameterPath: {
-            contentType: ["options", "contentType"],
-            secretAttributes: ["options", "secretAttributes"],
-            tags: ["options", "tags"]
-        },
-        mapper: Object.assign(Object.assign({}, SecretUpdateParameters), { required: true })
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [
-        vaultBaseUrl,
-        secretName1,
-        secretVersion
-    ],
-    headerParameters: [contentType, accept],
-    mediaType: "json",
-    serializer
-};
-const getSecretOperationSpec = {
-    path: "/secrets/{secret-name}/{secret-version}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: SecretBundle
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [
-        vaultBaseUrl,
-        secretName1,
-        secretVersion
-    ],
-    headerParameters: [accept],
-    serializer
-};
-const getSecretsOperationSpec = {
-    path: "/secrets",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: SecretListResult
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion, maxresults],
-    urlParameters: [vaultBaseUrl],
-    headerParameters: [accept],
-    serializer
-};
-const getSecretVersionsOperationSpec = {
-    path: "/secrets/{secret-name}/versions",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: SecretListResult
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion, maxresults],
-    urlParameters: [vaultBaseUrl, secretName1],
-    headerParameters: [accept],
-    serializer
-};
-const getDeletedSecretsOperationSpec = {
-    path: "/deletedsecrets",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: DeletedSecretListResult
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion, maxresults],
-    urlParameters: [vaultBaseUrl],
-    headerParameters: [accept],
-    serializer
-};
-const getDeletedSecretOperationSpec = {
-    path: "/deletedsecrets/{secret-name}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: DeletedSecretBundle
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [vaultBaseUrl, secretName1],
-    headerParameters: [accept],
-    serializer
-};
-const purgeDeletedSecretOperationSpec = {
-    path: "/deletedsecrets/{secret-name}",
-    httpMethod: "DELETE",
-    responses: {
-        204: {},
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [vaultBaseUrl, secretName1],
-    headerParameters: [accept],
-    serializer
-};
-const recoverDeletedSecretOperationSpec = {
-    path: "/deletedsecrets/{secret-name}/recover",
-    httpMethod: "POST",
-    responses: {
-        200: {
-            bodyMapper: SecretBundle
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [vaultBaseUrl, secretName1],
-    headerParameters: [accept],
-    serializer
-};
-const backupSecretOperationSpec = {
-    path: "/secrets/{secret-name}/backup",
-    httpMethod: "POST",
-    responses: {
-        200: {
-            bodyMapper: BackupSecretResult
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [vaultBaseUrl, secretName1],
-    headerParameters: [accept],
-    serializer
-};
-const restoreSecretOperationSpec = {
-    path: "/secrets/restore",
-    httpMethod: "POST",
-    responses: {
-        200: {
-            bodyMapper: SecretBundle
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    requestBody: {
-        parameterPath: { secretBundleBackup: ["secretBundleBackup"] },
-        mapper: Object.assign(Object.assign({}, SecretRestoreParameters), { required: true })
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [vaultBaseUrl],
-    headerParameters: [contentType, accept],
-    mediaType: "json",
-    serializer
-};
-const getSecretsNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: SecretListResult
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion, maxresults],
-    urlParameters: [vaultBaseUrl, nextLink],
-    headerParameters: [accept],
-    serializer
-};
-const getSecretVersionsNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: SecretListResult
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion, maxresults],
-    urlParameters: [
-        vaultBaseUrl,
-        secretName1,
-        nextLink
-    ],
-    headerParameters: [accept],
-    serializer
-};
-const getDeletedSecretsNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: DeletedSecretListResult
-        },
-        default: {
-            bodyMapper: KeyVaultError
-        }
-    },
-    queryParameters: [apiVersion, maxresults],
-    urlParameters: [vaultBaseUrl, nextLink],
-    headerParameters: [accept],
-    serializer
-};
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-const validWWWAuthenticateProperties = [
-    "authorization",
-    "authorization_url",
-    "resource",
-    "scope",
-    "tenantId",
-];
-/**
- * Parses an WWW-Authenticate response header.
- * This transforms a string value like:
- * `Bearer authorization="https://some.url/tenantId", resource="https://some.url"`
- * into an object like:
- * `{ authorization: "https://some.url/tenantId", resource: "https://some.url" }`
- * @param headerValue - String value in the WWW-Authenticate header
- */
-function parseWWWAuthenticateHeader(headerValue) {
-    const pairDelimiter = /,? +/;
-    const parsed = headerValue.split(pairDelimiter).reduce((kvPairs, p) => {
-        if (p.match(/\w="/)) {
-            // 'sampleKey="sample_value"' -> [sampleKey, "sample_value"] -> { sampleKey: sample_value }
-            const [key, value] = p.split("=");
-            if (validWWWAuthenticateProperties.includes(key)) {
-                // The values will be wrapped in quotes, which need to be stripped out.
-                return Object.assign(Object.assign({}, kvPairs), { [key]: value.slice(1, -1) });
-            }
-        }
-        return kvPairs;
-    }, {});
-    // Finally, we pull the tenantId from the authorization header to support multi-tenant authentication.
-    if (parsed.authorization) {
-        try {
-            const tenantId = new URL(parsed.authorization).pathname.substring(1);
-            if (tenantId) {
-                parsed.tenantId = tenantId;
-            }
-        }
-        catch (_) {
-            throw new Error(`The challenge authorization URI '${parsed.authorization}' is invalid.`);
-        }
-    }
-    return parsed;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-function verifyChallengeResource(scope, request) {
-    let scopeAsUrl;
-    try {
-        scopeAsUrl = new URL(scope);
-    }
-    catch (e) {
-        throw new Error(`The challenge contains invalid scope '${scope}'`);
-    }
-    const requestUrl = new URL(request.url);
-    if (!requestUrl.hostname.endsWith(`.${scopeAsUrl.hostname}`)) {
-        throw new Error(`The challenge resource '${scopeAsUrl.hostname}' does not match the requested domain. Set disableChallengeResourceVerification to true in your client options to disable. See https://aka.ms/azsdk/blog/vault-uri for more information.`);
-    }
-}
-/**
- * Creates challenge callback handlers to manage CAE lifecycle in Azure Key Vault.
- *
- * Key Vault supports other authentication schemes, but we ensure challenge authentication
- * is used by first sending a copy of the request, without authorization or content.
- *
- * when the challenge is received, it will be authenticated and used to send the original
- * request with authorization.
- *
- * Following the first request of a client, follow-up requests will get the cached token
- * if possible.
- *
- */
-function createKeyVaultChallengeCallbacks(options = {}) {
-    const { disableChallengeResourceVerification } = options;
-    let challengeState = { status: "none" };
-    function requestToOptions(request) {
-        return {
-            abortSignal: request.abortSignal,
-            requestOptions: {
-                timeout: request.timeout > 0 ? request.timeout : undefined,
-            },
-            tracingOptions: request.tracingOptions,
-        };
-    }
-    async function authorizeRequest({ request, getAccessToken, }) {
-        const requestOptions = requestToOptions(request);
-        switch (challengeState.status) {
-            case "none":
-                challengeState = {
-                    status: "started",
-                    originalBody: request.body,
-                };
-                request.body = null;
-                break;
-            case "started":
-                break; // Retry, we should not overwrite the original body
-            case "complete": {
-                const token = await getAccessToken(challengeState.scopes, requestOptions);
-                if (token) {
-                    request.headers.set("authorization", `Bearer ${token.token}`);
-                }
-                break;
-            }
-        }
-        return Promise.resolve();
-    }
-    async function authorizeRequestOnChallenge({ request, response, getAccessToken, }) {
-        if (request.body === null && challengeState.status === "started") {
-            // Reset the original body before doing anything else.
-            // Note: If successful status will be "complete", otherwise "none" will
-            // restart the process.
-            request.body = challengeState.originalBody;
-        }
-        const getTokenOptions = requestToOptions(request);
-        const challenge = response.headers.get("WWW-Authenticate");
-        if (!challenge) {
-            throw new Error("Missing challenge.");
-        }
-        const parsedChallenge = parseWWWAuthenticateHeader(challenge) || {};
-        const scope = parsedChallenge.resource
-            ? parsedChallenge.resource + "/.default"
-            : parsedChallenge.scope;
-        if (!scope) {
-            throw new Error("Missing scope.");
-        }
-        if (!disableChallengeResourceVerification) {
-            verifyChallengeResource(scope, request);
-        }
-        const accessToken = await getAccessToken([scope], Object.assign(Object.assign({}, getTokenOptions), { tenantId: parsedChallenge.tenantId }));
-        if (!accessToken) {
-            return false;
-        }
-        request.headers.set("Authorization", `Bearer ${accessToken.token}`);
-        challengeState = {
-            status: "complete",
-            scopes: [scope],
-        };
-        return true;
-    }
-    return {
-        authorizeRequest,
-        authorizeRequestOnChallenge,
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Parses a Key Vault identifier into its components.
- *
- * @param collection - The collection of the Key Vault identifier.
- * @param identifier - The Key Vault identifier to be parsed.
- */
-function parseKeyVaultIdentifier(collection, identifier) {
-    if (typeof collection !== "string" || !(collection = collection.trim())) {
-        throw new Error("Invalid collection argument");
-    }
-    if (typeof identifier !== "string" || !(identifier = identifier.trim())) {
-        throw new Error("Invalid identifier argument");
-    }
-    let baseUri;
-    try {
-        baseUri = new URL(identifier);
-    }
-    catch (e) {
-        throw new Error(`Invalid ${collection} identifier: ${identifier}. Not a valid URI`);
-    }
-    // Path is of the form '/collection/name[/version]'
-    const segments = (baseUri.pathname || "").split("/");
-    if (segments.length !== 3 && segments.length !== 4) {
-        throw new Error(`Invalid ${collection} identifier: ${identifier}. Bad number of segments: ${segments.length}`);
-    }
-    if (collection !== segments[1]) {
-        throw new Error(`Invalid ${collection} identifier: ${identifier}. segment [1] should be "${collection}", found "${segments[1]}"`);
-    }
-    const vaultUrl = `${baseUri.protocol}//${baseUri.host}`;
-    const name = segments[2];
-    const version = segments.length === 4 ? segments[3] : undefined;
-    return {
-        vaultUrl,
-        name,
-        version,
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Common properties and methods of the Key Vault Secret Pollers.
- */
-class KeyVaultSecretPoller extends coreLro.Poller {
-    constructor() {
-        super(...arguments);
-        /**
-         * Defines how much time the poller is going to wait before making a new request to the service.
-         */
-        this.intervalInMs = 2000;
-    }
-    /**
-     * The method used by the poller to wait before attempting to update its operation.
-     */
-    async delay() {
-        return coreUtil.delay(this.intervalInMs);
-    }
-}
-/**
- * Common properties and methods of the Key Vault Secret Poller operations.
- */
-// eslint-disable-next-next no-use-before-define
-class KeyVaultSecretPollOperation {
-    constructor(state, options = {}) {
-        this.state = state;
-        this.cancelMessage = "";
-        if (options.cancelMessage) {
-            this.cancelMessage = options.cancelMessage;
-        }
-    }
-    /**
-     * Meant to reach to the service and update the Poller operation.
-     * @param options - The optional parameters, which is only an abortSignal from \@azure/abort-controller
-     */
-    async update() {
-        throw new Error("Operation not supported.");
-    }
-    /**
-     * Meant to reach to the service and cancel the Poller operation.
-     * @param options - The optional parameters, which is only an abortSignal from \@azure/abort-controller
-     */
-    async cancel() {
-        throw new Error(this.cancelMessage);
-    }
-    /**
-     * Serializes the Poller operation.
-     */
-    toString() {
-        return JSON.stringify({
-            state: this.state,
-        });
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Parses the given Key Vault Secret Id. An example is:
- *
- *   https://<keyvault-name>.vault.azure.net/secrets/<secret-name>/<unique-version-id>
- *
- * On parsing the above Id, this function returns:
- *```ts
- *   {
- *      sourceId: "https://<keyvault-name>.vault.azure.net/secrets/<secret-name>/<unique-version-id>",
- *      vaultUrl: "https://<keyvault-name>.vault.azure.net",
- *      version: "<unique-version-id>",
- *      name: "<secret-name>"
- *   }
- *```
- * @param id - The Id of the Key Vault Secret.
- */
-function parseKeyVaultSecretIdentifier(id) {
-    const urlParts = id.split("/");
-    const collection = urlParts[3];
-    return Object.assign({ sourceId: id }, parseKeyVaultIdentifier(collection, id));
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * @internal
- * Shapes the exposed {@link KeyVaultKey} based on either a received secret bundle or deleted secret bundle.
- */
-function getSecretFromSecretBundle(bundle) {
-    const secretBundle = bundle;
-    const deletedSecretBundle = bundle;
-    const parsedId = parseKeyVaultSecretIdentifier(secretBundle.id);
-    const attributes = secretBundle.attributes;
-    delete secretBundle.attributes;
-    const resultObject = {
-        value: secretBundle.value,
-        name: parsedId.name,
-        properties: {
-            expiresOn: attributes === null || attributes === void 0 ? void 0 : attributes.expires,
-            createdOn: attributes === null || attributes === void 0 ? void 0 : attributes.created,
-            updatedOn: attributes === null || attributes === void 0 ? void 0 : attributes.updated,
-            enabled: attributes === null || attributes === void 0 ? void 0 : attributes.enabled,
-            notBefore: attributes === null || attributes === void 0 ? void 0 : attributes.notBefore,
-            recoverableDays: attributes === null || attributes === void 0 ? void 0 : attributes.recoverableDays,
-            recoveryLevel: attributes === null || attributes === void 0 ? void 0 : attributes.recoveryLevel,
-            id: secretBundle.id,
-            contentType: secretBundle.contentType,
-            tags: secretBundle.tags,
-            managed: secretBundle.managed,
-            vaultUrl: parsedId.vaultUrl,
-            version: parsedId.version,
-            name: parsedId.name,
-            certificateKeyId: secretBundle.kid,
-        },
-    };
-    if (deletedSecretBundle.recoveryId) {
-        resultObject.properties.recoveryId = deletedSecretBundle.recoveryId;
-        resultObject.properties.scheduledPurgeDate = deletedSecretBundle.scheduledPurgeDate;
-        resultObject.properties.deletedOn = deletedSecretBundle.deletedDate;
-        resultObject.recoveryId = deletedSecretBundle.recoveryId;
-        resultObject.scheduledPurgeDate = deletedSecretBundle.scheduledPurgeDate;
-        resultObject.deletedOn = deletedSecretBundle.deletedDate;
-    }
-    if (attributes) {
-        if (attributes.vaultUrl) {
-            delete resultObject.properties.vaultUrl;
-        }
-        if (attributes.expires) {
-            delete resultObject.properties.expires;
-        }
-        if (attributes.created) {
-            delete resultObject.properties.created;
-        }
-        if (attributes.updated) {
-            delete resultObject.properties.updated;
-        }
-    }
-    return resultObject;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-const SDK_VERSION = "4.8.0";
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-const tracingClient = coreTracing.createTracingClient({
-    namespace: "Microsoft.KeyVault",
-    packageName: "@azure/keyvault-secrets",
-    packageVersion: SDK_VERSION,
-});
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * An interface representing a delete secret's poll operation
- */
-class DeleteSecretPollOperation extends KeyVaultSecretPollOperation {
-    constructor(state, vaultUrl, client, operationOptions = {}) {
-        super(state, { cancelMessage: "Canceling the deletion of a secret is not supported." });
-        this.state = state;
-        this.vaultUrl = vaultUrl;
-        this.client = client;
-        this.operationOptions = operationOptions;
-    }
-    /**
-     * Sends a delete request for the given Key Vault Key's name to the Key Vault service.
-     * Since the Key Vault Key won't be immediately deleted, we have {@link beginDeleteKey}.
-     */
-    deleteSecret(name, options = {}) {
-        return tracingClient.withSpan("DeleteSecretPoller.deleteSecret", options, async (updatedOptions) => {
-            const response = await this.client.deleteSecret(this.vaultUrl, name, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * The getDeletedSecret method returns the specified deleted secret along with its properties.
-     * This operation requires the secrets/get permission.
-     */
-    getDeletedSecret(name, options = {}) {
-        return tracingClient.withSpan("DeleteSecretPoller.getDeletedSecret", options, async (updatedOptions) => {
-            const response = await this.client.getDeletedSecret(this.vaultUrl, name, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * Reaches to the service and updates the delete secret's poll operation.
-     */
-    async update(options = {}) {
-        const state = this.state;
-        const { name } = state;
-        if (options.abortSignal) {
-            this.operationOptions.abortSignal = options.abortSignal;
-        }
-        if (!state.isStarted) {
-            const deletedSecret = await this.deleteSecret(name, this.operationOptions);
-            state.isStarted = true;
-            state.result = deletedSecret;
-            if (!deletedSecret.properties.recoveryId) {
-                state.isCompleted = true;
-            }
-        }
-        if (!state.isCompleted) {
-            try {
-                state.result = await this.getDeletedSecret(name, this.operationOptions);
-                state.isCompleted = true;
-            }
-            catch (error) {
-                if (error.statusCode === 403) {
-                    // At this point, the resource exists but the user doesn't have access to it.
-                    state.isCompleted = true;
-                }
-                else if (error.statusCode !== 404) {
-                    state.error = error;
-                    state.isCompleted = true;
-                    throw error;
-                }
-            }
-        }
-        return this;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Class that creates a poller that waits until a secret finishes being deleted.
- */
-class DeleteSecretPoller extends KeyVaultSecretPoller {
-    constructor(options) {
-        const { vaultUrl, client, name, operationOptions, intervalInMs = 2000, resumeFrom } = options;
-        let state;
-        if (resumeFrom) {
-            state = JSON.parse(resumeFrom).state;
-        }
-        const operation = new DeleteSecretPollOperation(Object.assign(Object.assign({}, state), { name }), vaultUrl, client, operationOptions);
-        super(operation);
-        this.intervalInMs = intervalInMs;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * An interface representing a delete secret's poll operation
- */
-class RecoverDeletedSecretPollOperation extends KeyVaultSecretPollOperation {
-    constructor(state, vaultUrl, client, options = {}) {
-        super(state, { cancelMessage: "Canceling the recovery of a deleted secret is not supported." });
-        this.state = state;
-        this.vaultUrl = vaultUrl;
-        this.client = client;
-        this.options = options;
-    }
-    /**
-     * The getSecret method returns the specified secret along with its properties.
-     * This operation requires the secrets/get permission.
-     */
-    getSecret(name, options = {}) {
-        return tracingClient.withSpan("RecoverDeletedSecretPoller.getSecret", options, async (updatedOptions) => {
-            const response = await this.client.getSecret(this.vaultUrl, name, options && options.version ? options.version : "", updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * The recoverDeletedSecret method recovers the specified deleted secret along with its properties.
-     * This operation requires the secrets/recover permission.
-     */
-    recoverDeletedSecret(name, options = {}) {
-        return tracingClient.withSpan("RecoverDeletedSecretPoller.recoverDeletedSecret", options, async (updatedOptions) => {
-            const response = await this.client.recoverDeletedSecret(this.vaultUrl, name, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * Reaches to the service and updates the delete secret's poll operation.
-     */
-    async update(options = {}) {
-        const state = this.state;
-        const { name } = state;
-        if (options.abortSignal) {
-            this.options.abortSignal = options.abortSignal;
-        }
-        if (!state.isStarted) {
-            try {
-                state.result = (await this.getSecret(name, this.options)).properties;
-                state.isCompleted = true;
-            }
-            catch (_a) {
-                // Nothing to do here.
-            }
-            if (!state.isCompleted) {
-                state.result = (await this.recoverDeletedSecret(name, this.options)).properties;
-                state.isStarted = true;
-            }
-        }
-        if (!state.isCompleted) {
-            try {
-                state.result = (await this.getSecret(name, this.options)).properties;
-                state.isCompleted = true;
-            }
-            catch (error) {
-                if (error.statusCode === 403) {
-                    // At this point, the resource exists but the user doesn't have access to it.
-                    state.isCompleted = true;
-                }
-                else if (error.statusCode !== 404) {
-                    state.error = error;
-                    state.isCompleted = true;
-                    throw error;
-                }
-            }
-        }
-        return this;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Class that deletes a poller that waits until a secret finishes being deleted
- */
-class RecoverDeletedSecretPoller extends KeyVaultSecretPoller {
-    constructor(options) {
-        const { vaultUrl, client, name, operationOptions, intervalInMs = 2000, resumeFrom } = options;
-        let state;
-        if (resumeFrom) {
-            state = JSON.parse(resumeFrom).state;
-        }
-        const operation = new RecoverDeletedSecretPollOperation(Object.assign(Object.assign({}, state), { name }), vaultUrl, client, operationOptions);
-        super(operation);
-        this.intervalInMs = intervalInMs;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * The latest supported KeyVault service API version
- */
-const LATEST_API_VERSION = "7.5";
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/// <reference lib="esnext.asynciterable" />
-/**
- * The SecretClient provides methods to manage {@link KeyVaultSecret} in
- * the Azure Key Vault. The client supports creating, retrieving, updating,
- * deleting, purging, backing up, restoring and listing KeyVaultSecrets. The
- * client also supports listing {@link DeletedSecret} for a soft-delete enabled Azure
- * Key Vault.
- */
-class SecretClient {
-    /**
-     * Creates an instance of SecretClient.
-     *
-     * Example usage:
-     * ```ts
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     * import { DefaultAzureCredential } from "@azure/identity";
-     *
-     * let vaultUrl = `https://<MY KEYVAULT HERE>.vault.azure.net`;
-     * let credentials = new DefaultAzureCredential();
-     *
-     * let client = new SecretClient(vaultUrl, credentials);
-     * ```
-     * @param vaultUrl - The base URL to the vault. You should validate that this URL references a valid Key Vault resource. See https://aka.ms/azsdk/blog/vault-uri for details.
-     * @param credential - An object that implements the `TokenCredential` interface used to authenticate requests to the service. Use the \@azure/identity package to create a credential that suits your needs.
-     * @param pipelineOptions - Pipeline options used to configure Key Vault API requests.
-     *                          Omit this parameter to use the default pipeline configuration.
-     */
-    constructor(vaultUrl, credential, pipelineOptions = {}) {
-        this.vaultUrl = vaultUrl;
-        const authPolicy = coreRestPipeline.bearerTokenAuthenticationPolicy({
-            credential,
-            scopes: [],
-            challengeCallbacks: createKeyVaultChallengeCallbacks(pipelineOptions),
-        });
-        const internalPipelineOptions = Object.assign(Object.assign({}, pipelineOptions), { loggingOptions: {
-                logger: logger.info,
-                allowedHeaderNames: [
-                    "x-ms-keyvault-region",
-                    "x-ms-keyvault-network-info",
-                    "x-ms-keyvault-service-version",
-                ],
-            } });
-        this.client = new KeyVaultClient(pipelineOptions.serviceVersion || LATEST_API_VERSION, internalPipelineOptions);
-        this.client.pipeline.addPolicy(authPolicy);
-    }
-    /**
-     * The setSecret method adds a secret or secret version to the Azure Key Vault. If the named secret
-     * already exists, Azure Key Vault creates a new version of that secret.
-     * This operation requires the secrets/set permission.
-     *
-     * Example usage:
-     * ```ts
-     * let client = new SecretClient(url, credentials);
-     * await client.setSecret("MySecretName", "ABC123");
-     * ```
-     * Adds a secret in a specified key vault.
-     * @param secretName - The name of the secret.
-     * @param value - The value of the secret.
-     * @param options - The optional parameters.
-     */
-    setSecret(secretName, value, options = {}) {
-        let unflattenedOptions = {};
-        if (options) {
-            const { enabled, notBefore, expiresOn: expires } = options, remainingOptions = tslib.__rest(options, ["enabled", "notBefore", "expiresOn"]);
-            unflattenedOptions = Object.assign(Object.assign({}, remainingOptions), { secretAttributes: {
-                    enabled,
-                    notBefore,
-                    expires,
-                } });
-        }
-        return tracingClient.withSpan("SecretClient.setSecret", unflattenedOptions, async (updatedOptions) => {
-            const response = await this.client.setSecret(this.vaultUrl, secretName, value, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * Deletes a secret stored in Azure Key Vault.
-     * This function returns a Long Running Operation poller that allows you to wait indefinitely until the secret is deleted.
-     *
-     * This operation requires the secrets/delete permission.
-     *
-     * Example usage:
-     * ```ts
-     * const client = new SecretClient(url, credentials);
-     * await client.setSecret("MySecretName", "ABC123");
-     *
-     * const deletePoller = await client.beginDeleteSecret("MySecretName");
-     *
-     * // Serializing the poller
-     * const serialized = deletePoller.toString();
-     *
-     * // A new poller can be created with:
-     * // const newPoller = await client.beginDeleteSecret("MySecretName", { resumeFrom: serialized });
-     *
-     * // Waiting until it's done
-     * const deletedSecret = await deletePoller.pollUntilDone();
-     * console.log(deletedSecret);
-     * ```
-     * Deletes a secret from a specified key vault.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    async beginDeleteSecret(name, options = {}) {
-        const poller = new DeleteSecretPoller(Object.assign(Object.assign({ name, client: this.client, vaultUrl: this.vaultUrl }, options), { operationOptions: options }));
-        // This will initialize the poller's operation (the deletion of the secret).
-        await poller.poll();
-        return poller;
-    }
-    /**
-     * The updateSecret method changes specified attributes of an existing stored secret. Properties that
-     * are not specified in the request are left unchanged. The value of a secret itself cannot be
-     * changed. This operation requires the secrets/set permission.
-     *
-     * Example usage:
-     * ```ts
-     * let secretName = "MySecretName";
-     * let client = new SecretClient(url, credentials);
-     * let secret = await client.getSecret(secretName);
-     * await client.updateSecretProperties(secretName, secret.properties.version, { enabled: false });
-     * ```
-     * Updates the attributes associated with a specified secret in a given key vault.
-     * @param secretName - The name of the secret.
-     * @param secretVersion - The version of the secret.
-     * @param options - The optional parameters.
-     */
-    async updateSecretProperties(secretName, secretVersion, options = {}) {
-        let unflattenedOptions = {};
-        if (options) {
-            const { enabled, notBefore, expiresOn: expires } = options, remainingOptions = tslib.__rest(options, ["enabled", "notBefore", "expiresOn"]);
-            unflattenedOptions = Object.assign(Object.assign({}, remainingOptions), { secretAttributes: {
-                    enabled,
-                    notBefore,
-                    expires,
-                } });
-        }
-        return tracingClient.withSpan("SecretClient.updateSecretProperties", unflattenedOptions, async (updatedOptions) => {
-            const response = await this.client.updateSecret(this.vaultUrl, secretName, secretVersion, updatedOptions);
-            return getSecretFromSecretBundle(response).properties;
-        });
-    }
-    /**
-     * The getSecret method is applicable to any secret stored in Azure Key Vault. This operation requires
-     * the secrets/get permission.
-     *
-     * Example usage:
-     * ```ts
-     * let client = new SecretClient(url, credentials);
-     * let secret = await client.getSecret("MySecretName");
-     * ```
-     * Get a specified secret from a given key vault.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    getSecret(secretName, options = {}) {
-        return tracingClient.withSpan("SecretClient.getSecret", options, async (updatedOptions) => {
-            const response = await this.client.getSecret(this.vaultUrl, secretName, options && options.version ? options.version : "", updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * The getDeletedSecret method returns the specified deleted secret along with its attributes.
-     * This operation requires the secrets/get permission.
-     *
-     * Example usage:
-     * ```ts
-     * let client = new SecretClient(url, credentials);
-     * await client.getDeletedSecret("MyDeletedSecret");
-     * ```
-     * Gets the specified deleted secret.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    getDeletedSecret(secretName, options = {}) {
-        return tracingClient.withSpan("SecretClient.getDeletedSecret", options, async (updatedOptions) => {
-            const response = await this.client.getDeletedSecret(this.vaultUrl, secretName, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * The purge deleted secret operation removes the secret permanently, without the possibility of
-     * recovery. This operation can only be enabled on a soft-delete enabled vault. This operation
-     * requires the secrets/purge permission.
-     *
-     * Example usage:
-     * ```ts
-     * const client = new SecretClient(url, credentials);
-     * const deletePoller = await client.beginDeleteSecret("MySecretName");
-     * await deletePoller.pollUntilDone();
-     * await client.purgeDeletedSecret("MySecretName");
-     * ```
-     * Permanently deletes the specified secret.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    purgeDeletedSecret(secretName, options = {}) {
-        return tracingClient.withSpan("SecretClient.purgeDeletedSecret", options, async (updatedOptions) => {
-            await this.client.purgeDeletedSecret(this.vaultUrl, secretName, updatedOptions);
-        });
-    }
-    /**
-     * Recovers the deleted secret in the specified vault.
-     * This function returns a Long Running Operation poller that allows you to wait indefinitely until the secret is recovered.
-     *
-     * This operation requires the secrets/recover permission.
-     *
-     * Example usage:
-     * ```ts
-     * const client = new SecretClient(url, credentials);
-     * await client.setSecret("MySecretName", "ABC123");
-     *
-     * const deletePoller = await client.beginDeleteSecret("MySecretName");
-     * await deletePoller.pollUntilDone();
-     *
-     * const recoverPoller = await client.beginRecoverDeletedSecret("MySecretName");
-     *
-     * // Serializing the poller
-     * const serialized = recoverPoller.toString();
-     *
-     * // A new poller can be created with:
-     * // const newPoller = await client.beginRecoverDeletedSecret("MySecretName", { resumeFrom: serialized });
-     *
-     * // Waiting until it's done
-     * const deletedSecret = await recoverPoller.pollUntilDone();
-     * console.log(deletedSecret);
-     * ```
-     * Recovers the deleted secret to the latest version.
-     * @param secretName - The name of the deleted secret.
-     * @param options - The optional parameters.
-     */
-    async beginRecoverDeletedSecret(name, options = {}) {
-        const poller = new RecoverDeletedSecretPoller(Object.assign(Object.assign({ name, client: this.client, vaultUrl: this.vaultUrl }, options), { operationOptions: options }));
-        // This will initialize the poller's operation (the recovery of the deleted secret).
-        await poller.poll();
-        return poller;
-    }
-    /**
-     * Requests that a backup of the specified secret be downloaded to the client. All versions of the
-     * secret will be downloaded. This operation requires the secrets/backup permission.
-     *
-     * Example usage:
-     * ```ts
-     * let client = new SecretClient(url, credentials);
-     * let backupResult = await client.backupSecret("MySecretName");
-     * ```
-     * Backs up the specified secret.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    backupSecret(secretName, options = {}) {
-        return tracingClient.withSpan("SecretClient.backupSecret", options, async (updatedOptions) => {
-            const response = await this.client.backupSecret(this.vaultUrl, secretName, updatedOptions);
-            return response.value;
-        });
-    }
-    /**
-     * Restores a backed up secret, and all its versions, to a vault. This operation requires the
-     * secrets/restore permission.
-     *
-     * Example usage:
-     * ```ts
-     * let client = new SecretClient(url, credentials);
-     * let mySecretBundle = await client.backupSecret("MySecretName");
-     * // ...
-     * await client.restoreSecretBackup(mySecretBundle);
-     * ```
-     * Restores a backed up secret to a vault.
-     * @param secretBundleBackup - The backup blob associated with a secret bundle.
-     * @param options - The optional parameters.
-     */
-    restoreSecretBackup(secretBundleBackup, options = {}) {
-        return tracingClient.withSpan("SecretClient.restoreSecretBackup", options, async (updatedOptions) => {
-            const response = await this.client.restoreSecret(this.vaultUrl, secretBundleBackup, updatedOptions);
-            return getSecretFromSecretBundle(response).properties;
-        });
-    }
-    /**
-     * Deals with the pagination of {@link listPropertiesOfSecretVersions}.
-     * @param name - The name of the KeyVault Secret.
-     * @param continuationState - An object that indicates the position of the paginated request.
-     * @param options - Optional parameters for the underlying HTTP request.
-     */
-    listPropertiesOfSecretVersionsPage(secretName, continuationState, options = {}) {
-        return tslib.__asyncGenerator(this, arguments, function* listPropertiesOfSecretVersionsPage_1() {
-            if (continuationState.continuationToken == null) {
-                const optionsComplete = Object.assign({ maxresults: continuationState.maxPageSize }, options);
-                const currentSetResponse = yield tslib.__await(tracingClient.withSpan("SecretClient.listPropertiesOfSecretVersionsPage", optionsComplete, (updatedOptions) => this.client.getSecretVersions(this.vaultUrl, secretName, updatedOptions)));
-                continuationState.continuationToken = currentSetResponse.nextLink;
-                if (currentSetResponse.value) {
-                    yield yield tslib.__await(currentSetResponse.value.map((bundle) => getSecretFromSecretBundle(bundle).properties));
-                }
-            }
-            while (continuationState.continuationToken) {
-                const currentSetResponse = yield tslib.__await(tracingClient.withSpan("SecretClient.listPropertiesOfSecretVersionsPage", options, (updatedOptions) => this.client.getSecretVersionsNext(this.vaultUrl, secretName, continuationState.continuationToken, updatedOptions)));
-                continuationState.continuationToken = currentSetResponse.nextLink;
-                if (currentSetResponse.value) {
-                    yield yield tslib.__await(currentSetResponse.value.map((bundle) => getSecretFromSecretBundle(bundle).properties));
-                }
-                else {
-                    break;
-                }
-            }
-        });
-    }
-    /**
-     * Deals with the iteration of all the available results of {@link listPropertiesOfSecretVersions}.
-     * @param name - The name of the KeyVault Secret.
-     * @param options - Optional parameters for the underlying HTTP request.
-     */
-    listPropertiesOfSecretVersionsAll(secretName, options = {}) {
-        return tslib.__asyncGenerator(this, arguments, function* listPropertiesOfSecretVersionsAll_1() {
-            var _a, e_1, _b, _c;
-            const f = {};
-            try {
-                for (var _d = true, _e = tslib.__asyncValues(this.listPropertiesOfSecretVersionsPage(secretName, f, options)), _f; _f = yield tslib.__await(_e.next()), _a = _f.done, !_a; _d = true) {
-                    _c = _f.value;
-                    _d = false;
-                    const page = _c;
-                    for (const item of page) {
-                        yield yield tslib.__await(item);
-                    }
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (!_d && !_a && (_b = _e.return)) yield tslib.__await(_b.call(_e));
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-        });
-    }
-    /**
-     * Iterates all versions of the given secret in the vault. The full secret identifier and attributes are provided
-     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
-     *
-     * Example usage:
-     * ```ts
-     * let client = new SecretClient(url, credentials);
-     * for await (const secretProperties of client.listPropertiesOfSecretVersions("MySecretName")) {
-     *   const secret = await client.getSecret(secretProperties.name);
-     *   console.log("secret version: ", secret);
-     * }
-     * ```
-     * @param secretName - Name of the secret to fetch versions for.
-     * @param options - The optional parameters.
-     */
-    listPropertiesOfSecretVersions(secretName, options = {}) {
-        const iter = this.listPropertiesOfSecretVersionsAll(secretName, options);
-        return {
-            next() {
-                return iter.next();
-            },
-            [Symbol.asyncIterator]() {
-                return this;
-            },
-            byPage: (settings = {}) => this.listPropertiesOfSecretVersionsPage(secretName, settings, options),
-        };
-    }
-    /**
-     * Deals with the pagination of {@link listPropertiesOfSecrets}.
-     * @param continuationState - An object that indicates the position of the paginated request.
-     * @param options - Optional parameters for the underlying HTTP request.
-     */
-    listPropertiesOfSecretsPage(continuationState, options = {}) {
-        return tslib.__asyncGenerator(this, arguments, function* listPropertiesOfSecretsPage_1() {
-            if (continuationState.continuationToken == null) {
-                const optionsComplete = Object.assign({ maxresults: continuationState.maxPageSize }, options);
-                const currentSetResponse = yield tslib.__await(tracingClient.withSpan("SecretClient.listPropertiesOfSecretsPage", optionsComplete, (updatedOptions) => this.client.getSecrets(this.vaultUrl, updatedOptions)));
-                continuationState.continuationToken = currentSetResponse.nextLink;
-                if (currentSetResponse.value) {
-                    yield yield tslib.__await(currentSetResponse.value.map((bundle) => getSecretFromSecretBundle(bundle).properties));
-                }
-            }
-            while (continuationState.continuationToken) {
-                const currentSetResponse = yield tslib.__await(tracingClient.withSpan("SecretClient.listPropertiesOfSecretsPage", options, (updatedOptions) => this.client.getSecretsNext(this.vaultUrl, continuationState.continuationToken, updatedOptions)));
-                continuationState.continuationToken = currentSetResponse.nextLink;
-                if (currentSetResponse.value) {
-                    yield yield tslib.__await(currentSetResponse.value.map((bundle) => getSecretFromSecretBundle(bundle).properties));
-                }
-                else {
-                    break;
-                }
-            }
-        });
-    }
-    /**
-     * Deals with the iteration of all the available results of {@link listPropertiesOfSecrets}.
-     * @param options - Optional parameters for the underlying HTTP request.
-     */
-    listPropertiesOfSecretsAll(options = {}) {
-        return tslib.__asyncGenerator(this, arguments, function* listPropertiesOfSecretsAll_1() {
-            var _a, e_2, _b, _c;
-            const f = {};
-            try {
-                for (var _d = true, _e = tslib.__asyncValues(this.listPropertiesOfSecretsPage(f, options)), _f; _f = yield tslib.__await(_e.next()), _a = _f.done, !_a; _d = true) {
-                    _c = _f.value;
-                    _d = false;
-                    const page = _c;
-                    for (const item of page) {
-                        yield yield tslib.__await(item);
-                    }
-                }
-            }
-            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-            finally {
-                try {
-                    if (!_d && !_a && (_b = _e.return)) yield tslib.__await(_b.call(_e));
-                }
-                finally { if (e_2) throw e_2.error; }
-            }
-        });
-    }
-    /**
-     * Iterates the latest version of all secrets in the vault.  The full secret identifier and attributes are provided
-     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
-     *
-     * Example usage:
-     * ```ts
-     * let client = new SecretClient(url, credentials);
-     * for await (const secretProperties of client.listPropertiesOfSecrets()) {
-     *   const secret = await client.getSecret(secretProperties.name);
-     *   console.log("secret: ", secret);
-     * }
-     * ```
-     * List all secrets in the vault.
-     * @param options - The optional parameters.
-     */
-    listPropertiesOfSecrets(options = {}) {
-        const iter = this.listPropertiesOfSecretsAll(options);
-        return {
-            next() {
-                return iter.next();
-            },
-            [Symbol.asyncIterator]() {
-                return this;
-            },
-            byPage: (settings = {}) => this.listPropertiesOfSecretsPage(settings, options),
-        };
-    }
-    /**
-     * Deals with the pagination of {@link listDeletedSecrets}.
-     * @param continuationState - An object that indicates the position of the paginated request.
-     * @param options - Optional parameters for the underlying HTTP request.
-     */
-    listDeletedSecretsPage(continuationState, options = {}) {
-        return tslib.__asyncGenerator(this, arguments, function* listDeletedSecretsPage_1() {
-            if (continuationState.continuationToken == null) {
-                const optionsComplete = Object.assign({ maxresults: continuationState.maxPageSize }, options);
-                const currentSetResponse = yield tslib.__await(tracingClient.withSpan("SecretClient.listDeletedSecretsPage", optionsComplete, (updatedOptions) => this.client.getDeletedSecrets(this.vaultUrl, updatedOptions)));
-                continuationState.continuationToken = currentSetResponse.nextLink;
-                if (currentSetResponse.value) {
-                    yield yield tslib.__await(currentSetResponse.value.map((bundle) => getSecretFromSecretBundle(bundle)));
-                }
-            }
-            while (continuationState.continuationToken) {
-                const currentSetResponse = yield tslib.__await(tracingClient.withSpan("SecretClient.lisDeletedSecretsPage", options, (updatedOptions) => this.client.getDeletedSecretsNext(this.vaultUrl, continuationState.continuationToken, updatedOptions)));
-                continuationState.continuationToken = currentSetResponse.nextLink;
-                if (currentSetResponse.value) {
-                    yield yield tslib.__await(currentSetResponse.value.map((bundle) => getSecretFromSecretBundle(bundle)));
-                }
-                else {
-                    break;
-                }
-            }
-        });
-    }
-    /**
-     * Deals with the iteration of all the available results of {@link listDeletedSecrets}.
-     * @param options - Optional parameters for the underlying HTTP request.
-     */
-    listDeletedSecretsAll(options = {}) {
-        return tslib.__asyncGenerator(this, arguments, function* listDeletedSecretsAll_1() {
-            var _a, e_3, _b, _c;
-            const f = {};
-            try {
-                for (var _d = true, _e = tslib.__asyncValues(this.listDeletedSecretsPage(f, options)), _f; _f = yield tslib.__await(_e.next()), _a = _f.done, !_a; _d = true) {
-                    _c = _f.value;
-                    _d = false;
-                    const page = _c;
-                    for (const item of page) {
-                        yield yield tslib.__await(item);
-                    }
-                }
-            }
-            catch (e_3_1) { e_3 = { error: e_3_1 }; }
-            finally {
-                try {
-                    if (!_d && !_a && (_b = _e.return)) yield tslib.__await(_b.call(_e));
-                }
-                finally { if (e_3) throw e_3.error; }
-            }
-        });
-    }
-    /**
-     * Iterates the deleted secrets in the vault.  The full secret identifier and attributes are provided
-     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
-     *
-     * Example usage:
-     * ```ts
-     * let client = new SecretClient(url, credentials);
-     * for await (const deletedSecret of client.listDeletedSecrets()) {
-     *   console.log("deleted secret: ", deletedSecret);
-     * }
-     * ```
-     * List all secrets in the vault.
-     * @param options - The optional parameters.
-     */
-    listDeletedSecrets(options = {}) {
-        const iter = this.listDeletedSecretsAll(options);
-        return {
-            next() {
-                return iter.next();
-            },
-            [Symbol.asyncIterator]() {
-                return this;
-            },
-            byPage: (settings = {}) => this.listDeletedSecretsPage(settings, options),
-        };
-    }
-}
-
-exports.SecretClient = SecretClient;
-exports.logger = logger;
-exports.parseKeyVaultSecretIdentifier = parseKeyVaultSecretIdentifier;
-//# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
-/***/ 9286:
-/***/ ((module) => {
-
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global global, define, System, Reflect, Promise */
-var __extends;
-var __assign;
-var __rest;
-var __decorate;
-var __param;
-var __esDecorate;
-var __runInitializers;
-var __propKey;
-var __setFunctionName;
-var __metadata;
-var __awaiter;
-var __generator;
-var __exportStar;
-var __values;
-var __read;
-var __spread;
-var __spreadArrays;
-var __spreadArray;
-var __await;
-var __asyncGenerator;
-var __asyncDelegator;
-var __asyncValues;
-var __makeTemplateObject;
-var __importStar;
-var __importDefault;
-var __classPrivateFieldGet;
-var __classPrivateFieldSet;
-var __classPrivateFieldIn;
-var __createBinding;
-(function (factory) {
-    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
-    if (typeof define === "function" && define.amd) {
-        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
-    }
-    else if ( true && typeof module.exports === "object") {
-        factory(createExporter(root, createExporter(module.exports)));
-    }
-    else {
-        factory(createExporter(root));
-    }
-    function createExporter(exports, previous) {
-        if (exports !== root) {
-            if (typeof Object.create === "function") {
-                Object.defineProperty(exports, "__esModule", { value: true });
-            }
-            else {
-                exports.__esModule = true;
-            }
-        }
-        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
-    }
-})
-(function (exporter) {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-
-    __extends = function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-
-    __rest = function (s, e) {
-        var t = {};
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-            t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === "function")
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                    t[p[i]] = s[p[i]];
-            }
-        return t;
-    };
-
-    __decorate = function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-
-    __param = function (paramIndex, decorator) {
-        return function (target, key) { decorator(target, key, paramIndex); }
-    };
-
-    __esDecorate = function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-        function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-        var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-        var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-        var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-        var _, done = false;
-        for (var i = decorators.length - 1; i >= 0; i--) {
-            var context = {};
-            for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-            for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-            context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-            var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-            if (kind === "accessor") {
-                if (result === void 0) continue;
-                if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-                if (_ = accept(result.get)) descriptor.get = _;
-                if (_ = accept(result.set)) descriptor.set = _;
-                if (_ = accept(result.init)) initializers.push(_);
-            }
-            else if (_ = accept(result)) {
-                if (kind === "field") initializers.push(_);
-                else descriptor[key] = _;
-            }
-        }
-        if (target) Object.defineProperty(target, contextIn.name, descriptor);
-        done = true;
-    };
-
-    __runInitializers = function (thisArg, initializers, value) {
-        var useValue = arguments.length > 2;
-        for (var i = 0; i < initializers.length; i++) {
-            value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-        }
-        return useValue ? value : void 0;
-    };
-
-    __propKey = function (x) {
-        return typeof x === "symbol" ? x : "".concat(x);
-    };
-
-    __setFunctionName = function (f, name, prefix) {
-        if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
-    };
-
-    __metadata = function (metadataKey, metadataValue) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-    };
-
-    __awaiter = function (thisArg, _arguments, P, generator) {
-        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    };
-
-    __generator = function (thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (g && (g = 0, op[0] && (_ = 0)), _) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    };
-
-    __exportStar = function(m, o) {
-        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
-    };
-
-    __createBinding = Object.create ? (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        var desc = Object.getOwnPropertyDescriptor(m, k);
-        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-            desc = { enumerable: true, get: function() { return m[k]; } };
-        }
-        Object.defineProperty(o, k2, desc);
-    }) : (function(o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        o[k2] = m[k];
-    });
-
-    __values = function (o) {
-        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-        if (m) return m.call(o);
-        if (o && typeof o.length === "number") return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    };
-
-    __read = function (o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    };
-
-    /** @deprecated */
-    __spread = function () {
-        for (var ar = [], i = 0; i < arguments.length; i++)
-            ar = ar.concat(__read(arguments[i]));
-        return ar;
-    };
-
-    /** @deprecated */
-    __spreadArrays = function () {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
-    };
-
-    __spreadArray = function (to, from, pack) {
-        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-            if (ar || !(i in from)) {
-                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-                ar[i] = from[i];
-            }
-        }
-        return to.concat(ar || Array.prototype.slice.call(from));
-    };
-
-    __await = function (v) {
-        return this instanceof __await ? (this.v = v, this) : new __await(v);
-    };
-
-    __asyncGenerator = function (thisArg, _arguments, generator) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
-        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);  }
-        function fulfill(value) { resume("next", value); }
-        function reject(value) { resume("throw", value); }
-        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
-    };
-
-    __asyncDelegator = function (o) {
-        var i, p;
-        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
-    };
-
-    __asyncValues = function (o) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var m = o[Symbol.asyncIterator], i;
-        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-    };
-
-    __makeTemplateObject = function (cooked, raw) {
-        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-        return cooked;
-    };
-
-    var __setModuleDefault = Object.create ? (function(o, v) {
-        Object.defineProperty(o, "default", { enumerable: true, value: v });
-    }) : function(o, v) {
-        o["default"] = v;
-    };
-
-    __importStar = function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-
-    __importDefault = function (mod) {
-        return (mod && mod.__esModule) ? mod : { "default": mod };
-    };
-
-    __classPrivateFieldGet = function (receiver, state, kind, f) {
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-    };
-
-    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
-        if (kind === "m") throw new TypeError("Private method is not writable");
-        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-    };
-
-    __classPrivateFieldIn = function (state, receiver) {
-        if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function")) throw new TypeError("Cannot use 'in' operator on non-object");
-        return typeof state === "function" ? receiver === state : state.has(receiver);
-    };
-
-    exporter("__extends", __extends);
-    exporter("__assign", __assign);
-    exporter("__rest", __rest);
-    exporter("__decorate", __decorate);
-    exporter("__param", __param);
-    exporter("__esDecorate", __esDecorate);
-    exporter("__runInitializers", __runInitializers);
-    exporter("__propKey", __propKey);
-    exporter("__setFunctionName", __setFunctionName);
-    exporter("__metadata", __metadata);
-    exporter("__awaiter", __awaiter);
-    exporter("__generator", __generator);
-    exporter("__exportStar", __exportStar);
-    exporter("__createBinding", __createBinding);
-    exporter("__values", __values);
-    exporter("__read", __read);
-    exporter("__spread", __spread);
-    exporter("__spreadArrays", __spreadArrays);
-    exporter("__spreadArray", __spreadArray);
-    exporter("__await", __await);
-    exporter("__asyncGenerator", __asyncGenerator);
-    exporter("__asyncDelegator", __asyncDelegator);
-    exporter("__asyncValues", __asyncValues);
-    exporter("__makeTemplateObject", __makeTemplateObject);
-    exporter("__importStar", __importStar);
-    exporter("__importDefault", __importDefault);
-    exporter("__classPrivateFieldGet", __classPrivateFieldGet);
-    exporter("__classPrivateFieldSet", __classPrivateFieldSet);
-    exporter("__classPrivateFieldIn", __classPrivateFieldIn);
-});
-
-
-/***/ }),
-
-/***/ 3233:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var util = _interopDefault(__nccwpck_require__(3837));
-var os = __nccwpck_require__(2037);
-
-// Copyright (c) Microsoft Corporation.
-function log(message, ...args) {
-    process.stderr.write(`${util.format(message, ...args)}${os.EOL}`);
-}
-
-// Copyright (c) Microsoft Corporation.
-const debugEnvVariable = (typeof process !== "undefined" && process.env && process.env.DEBUG) || undefined;
-let enabledString;
-let enabledNamespaces = [];
-let skippedNamespaces = [];
-const debuggers = [];
-if (debugEnvVariable) {
-    enable(debugEnvVariable);
-}
-const debugObj = Object.assign((namespace) => {
-    return createDebugger(namespace);
-}, {
-    enable,
-    enabled,
-    disable,
-    log
-});
-function enable(namespaces) {
-    enabledString = namespaces;
-    enabledNamespaces = [];
-    skippedNamespaces = [];
-    const wildcard = /\*/g;
-    const namespaceList = namespaces.split(",").map((ns) => ns.trim().replace(wildcard, ".*?"));
-    for (const ns of namespaceList) {
-        if (ns.startsWith("-")) {
-            skippedNamespaces.push(new RegExp(`^${ns.substr(1)}$`));
-        }
-        else {
-            enabledNamespaces.push(new RegExp(`^${ns}$`));
-        }
-    }
-    for (const instance of debuggers) {
-        instance.enabled = enabled(instance.namespace);
-    }
-}
-function enabled(namespace) {
-    if (namespace.endsWith("*")) {
-        return true;
-    }
-    for (const skipped of skippedNamespaces) {
-        if (skipped.test(namespace)) {
-            return false;
-        }
-    }
-    for (const enabledNamespace of enabledNamespaces) {
-        if (enabledNamespace.test(namespace)) {
-            return true;
-        }
-    }
-    return false;
-}
-function disable() {
-    const result = enabledString || "";
-    enable("");
-    return result;
-}
-function createDebugger(namespace) {
-    const newDebugger = Object.assign(debug, {
-        enabled: enabled(namespace),
-        destroy,
-        log: debugObj.log,
-        namespace,
-        extend
-    });
-    function debug(...args) {
-        if (!newDebugger.enabled) {
-            return;
-        }
-        if (args.length > 0) {
-            args[0] = `${namespace} ${args[0]}`;
-        }
-        newDebugger.log(...args);
-    }
-    debuggers.push(newDebugger);
-    return newDebugger;
-}
-function destroy() {
-    const index = debuggers.indexOf(this);
-    if (index >= 0) {
-        debuggers.splice(index, 1);
-        return true;
-    }
-    return false;
-}
-function extend(namespace) {
-    const newDebugger = createDebugger(`${this.namespace}:${namespace}`);
-    newDebugger.log = this.log;
-    return newDebugger;
-}
-
-// Copyright (c) Microsoft Corporation.
-const registeredLoggers = new Set();
-const logLevelFromEnv = (typeof process !== "undefined" && process.env && process.env.AZURE_LOG_LEVEL) || undefined;
-let azureLogLevel;
-/**
- * The AzureLogger provides a mechanism for overriding where logs are output to.
- * By default, logs are sent to stderr.
- * Override the `log` method to redirect logs to another location.
- */
-const AzureLogger = debugObj("azure");
-AzureLogger.log = (...args) => {
-    debugObj.log(...args);
-};
-const AZURE_LOG_LEVELS = ["verbose", "info", "warning", "error"];
-if (logLevelFromEnv) {
-    // avoid calling setLogLevel because we don't want a mis-set environment variable to crash
-    if (isAzureLogLevel(logLevelFromEnv)) {
-        setLogLevel(logLevelFromEnv);
-    }
-    else {
-        console.error(`AZURE_LOG_LEVEL set to unknown log level '${logLevelFromEnv}'; logging is not enabled. Acceptable values: ${AZURE_LOG_LEVELS.join(", ")}.`);
-    }
-}
-/**
- * Immediately enables logging at the specified log level.
- * @param level - The log level to enable for logging.
- * Options from most verbose to least verbose are:
- * - verbose
- * - info
- * - warning
- * - error
- */
-function setLogLevel(level) {
-    if (level && !isAzureLogLevel(level)) {
-        throw new Error(`Unknown log level '${level}'. Acceptable values: ${AZURE_LOG_LEVELS.join(",")}`);
-    }
-    azureLogLevel = level;
-    const enabledNamespaces = [];
-    for (const logger of registeredLoggers) {
-        if (shouldEnable(logger)) {
-            enabledNamespaces.push(logger.namespace);
-        }
-    }
-    debugObj.enable(enabledNamespaces.join(","));
-}
-/**
- * Retrieves the currently specified log level.
- */
-function getLogLevel() {
-    return azureLogLevel;
-}
-const levelMap = {
-    verbose: 400,
-    info: 300,
-    warning: 200,
-    error: 100
-};
-/**
- * Creates a logger for use by the Azure SDKs that inherits from `AzureLogger`.
- * @param namespace - The name of the SDK package.
- * @hidden
- */
-function createClientLogger(namespace) {
-    const clientRootLogger = AzureLogger.extend(namespace);
-    patchLogMethod(AzureLogger, clientRootLogger);
-    return {
-        error: createLogger(clientRootLogger, "error"),
-        warning: createLogger(clientRootLogger, "warning"),
-        info: createLogger(clientRootLogger, "info"),
-        verbose: createLogger(clientRootLogger, "verbose")
-    };
-}
-function patchLogMethod(parent, child) {
-    child.log = (...args) => {
-        parent.log(...args);
-    };
-}
-function createLogger(parent, level) {
-    const logger = Object.assign(parent.extend(level), {
-        level
-    });
-    patchLogMethod(parent, logger);
-    if (shouldEnable(logger)) {
-        const enabledNamespaces = debugObj.disable();
-        debugObj.enable(enabledNamespaces + "," + logger.namespace);
-    }
-    registeredLoggers.add(logger);
-    return logger;
-}
-function shouldEnable(logger) {
-    if (azureLogLevel && levelMap[logger.level] <= levelMap[azureLogLevel]) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-function isAzureLogLevel(logLevel) {
-    return AZURE_LOG_LEVELS.includes(logLevel);
-}
-
-exports.AzureLogger = AzureLogger;
-exports.createClientLogger = createClientLogger;
-exports.getLogLevel = getLogLevel;
-exports.setLogLevel = setLogLevel;
-//# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
-/***/ 9239:
+/***/ 7351:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 /*jshint node:true */
 
-var Buffer = (__nccwpck_require__(4300).Buffer); // browserify
-var SlowBuffer = (__nccwpck_require__(4300).SlowBuffer);
+var Buffer = (__nccwpck_require__(181).Buffer); // browserify
+var SlowBuffer = (__nccwpck_require__(181).SlowBuffer);
 
 module.exports = bufferEq;
 
@@ -11513,7 +6417,7 @@ bufferEq.restore = function() {
 
 /***/ }),
 
-/***/ 8222:
+/***/ 6110:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 /* eslint-env browser */
@@ -11770,7 +6674,7 @@ function localstorage() {
 	}
 }
 
-module.exports = __nccwpck_require__(6243)(exports);
+module.exports = __nccwpck_require__(897)(exports);
 
 const {formatters} = module.exports;
 
@@ -11789,7 +6693,7 @@ formatters.j = function (v) {
 
 /***/ }),
 
-/***/ 6243:
+/***/ 897:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 
@@ -11805,7 +6709,7 @@ function setup(env) {
 	createDebug.disable = disable;
 	createDebug.enable = enable;
 	createDebug.enabled = enabled;
-	createDebug.humanize = __nccwpck_require__(900);
+	createDebug.humanize = __nccwpck_require__(744);
 	createDebug.destroy = destroy;
 
 	Object.keys(env).forEach(key => {
@@ -12070,7 +6974,7 @@ module.exports = setup;
 
 /***/ }),
 
-/***/ 8237:
+/***/ 2830:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 /**
@@ -12079,23 +6983,23 @@ module.exports = setup;
  */
 
 if (typeof process === 'undefined' || process.type === 'renderer' || process.browser === true || process.__nwjs) {
-	module.exports = __nccwpck_require__(8222);
+	module.exports = __nccwpck_require__(6110);
 } else {
-	module.exports = __nccwpck_require__(4874);
+	module.exports = __nccwpck_require__(5108);
 }
 
 
 /***/ }),
 
-/***/ 4874:
+/***/ 5108:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 /**
  * Module dependencies.
  */
 
-const tty = __nccwpck_require__(6224);
-const util = __nccwpck_require__(3837);
+const tty = __nccwpck_require__(2018);
+const util = __nccwpck_require__(9023);
 
 /**
  * This is the Node.js implementation of `debug()`.
@@ -12121,7 +7025,7 @@ exports.colors = [6, 2, 3, 4, 5, 1];
 try {
 	// Optional dependency (as in, doesn't need to be installed, NOT like optionalDependencies in package.json)
 	// eslint-disable-next-line import/no-extraneous-dependencies
-	const supportsColor = __nccwpck_require__(9318);
+	const supportsColor = __nccwpck_require__(1450);
 
 	if (supportsColor && (supportsColor.stderr || supportsColor).level >= 2) {
 		exports.colors = [
@@ -12329,7 +7233,7 @@ function init(debug) {
 	}
 }
 
-module.exports = __nccwpck_require__(6243)(exports);
+module.exports = __nccwpck_require__(897)(exports);
 
 const {formatters} = module.exports;
 
@@ -12357,15 +7261,15 @@ formatters.O = function (v) {
 
 /***/ }),
 
-/***/ 1728:
+/***/ 325:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var Buffer = (__nccwpck_require__(1867).Buffer);
+var Buffer = (__nccwpck_require__(3058).Buffer);
 
-var getParamBytesForAlg = __nccwpck_require__(8417);
+var getParamBytesForAlg = __nccwpck_require__(5028);
 
 var MAX_OCTET = 0x80,
 	CLASS_UNIVERSAL = 0,
@@ -12552,7 +7456,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 8417:
+/***/ 5028:
 /***/ ((module) => {
 
 "use strict";
@@ -12583,7 +7487,7 @@ module.exports = getParamBytesForAlg;
 
 /***/ }),
 
-/***/ 1621:
+/***/ 3813:
 /***/ ((module) => {
 
 "use strict";
@@ -12599,10 +7503,10 @@ module.exports = (flag, argv = process.argv) => {
 
 /***/ }),
 
-/***/ 3359:
+/***/ 2047:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var jws = __nccwpck_require__(2597);
+var jws = __nccwpck_require__(4707);
 
 module.exports = function (jwt, options) {
   options = options || {};
@@ -12636,22 +7540,22 @@ module.exports = function (jwt, options) {
 
 /***/ }),
 
-/***/ 7486:
+/***/ 9653:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 module.exports = {
-  decode: __nccwpck_require__(3359),
-  verify: __nccwpck_require__(2327),
-  sign: __nccwpck_require__(2022),
-  JsonWebTokenError: __nccwpck_require__(405),
-  NotBeforeError: __nccwpck_require__(4383),
-  TokenExpiredError: __nccwpck_require__(6637),
+  decode: __nccwpck_require__(2047),
+  verify: __nccwpck_require__(772),
+  sign: __nccwpck_require__(4912),
+  JsonWebTokenError: __nccwpck_require__(6248),
+  NotBeforeError: __nccwpck_require__(1269),
+  TokenExpiredError: __nccwpck_require__(1241),
 };
 
 
 /***/ }),
 
-/***/ 405:
+/***/ 6248:
 /***/ ((module) => {
 
 var JsonWebTokenError = function (message, error) {
@@ -12672,10 +7576,10 @@ module.exports = JsonWebTokenError;
 
 /***/ }),
 
-/***/ 4383:
+/***/ 1269:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var JsonWebTokenError = __nccwpck_require__(405);
+var JsonWebTokenError = __nccwpck_require__(6248);
 
 var NotBeforeError = function (message, date) {
   JsonWebTokenError.call(this, message);
@@ -12691,10 +7595,10 @@ module.exports = NotBeforeError;
 
 /***/ }),
 
-/***/ 6637:
+/***/ 1241:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var JsonWebTokenError = __nccwpck_require__(405);
+var JsonWebTokenError = __nccwpck_require__(6248);
 
 var TokenExpiredError = function (message, expiredAt) {
   JsonWebTokenError.call(this, message);
@@ -12710,40 +7614,40 @@ module.exports = TokenExpiredError;
 
 /***/ }),
 
-/***/ 7622:
+/***/ 1136:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const semver = __nccwpck_require__(3998);
+const semver = __nccwpck_require__(9749);
 
 module.exports = semver.satisfies(process.version, '>=15.7.0');
 
 
 /***/ }),
 
-/***/ 9085:
+/***/ 3948:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var semver = __nccwpck_require__(3998);
+var semver = __nccwpck_require__(9749);
 
 module.exports = semver.satisfies(process.version, '^6.12.0 || >=8.0.0');
 
 
 /***/ }),
 
-/***/ 5170:
+/***/ 5318:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const semver = __nccwpck_require__(3998);
+const semver = __nccwpck_require__(9749);
 
 module.exports = semver.satisfies(process.version, '>=16.9.0');
 
 
 /***/ }),
 
-/***/ 6098:
+/***/ 6688:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var ms = __nccwpck_require__(900);
+var ms = __nccwpck_require__(744);
 
 module.exports = function (time, iat) {
   var timestamp = iat || Math.floor(Date.now() / 1000);
@@ -12764,11 +7668,11 @@ module.exports = function (time, iat) {
 
 /***/ }),
 
-/***/ 7596:
+/***/ 1006:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const ASYMMETRIC_KEY_DETAILS_SUPPORTED = __nccwpck_require__(7622);
-const RSA_PSS_KEY_DETAILS_SUPPORTED = __nccwpck_require__(5170);
+const ASYMMETRIC_KEY_DETAILS_SUPPORTED = __nccwpck_require__(1136);
+const RSA_PSS_KEY_DETAILS_SUPPORTED = __nccwpck_require__(5318);
 
 const allowedAlgorithmsForKeys = {
   'ec': ['ES256', 'ES384', 'ES512'],
@@ -12837,14 +7741,14 @@ module.exports = function(algorithm, key) {
 
 /***/ }),
 
-/***/ 2321:
+/***/ 4165:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var bufferEqual = __nccwpck_require__(9239);
-var Buffer = (__nccwpck_require__(1867).Buffer);
-var crypto = __nccwpck_require__(6113);
-var formatEcdsa = __nccwpck_require__(1728);
-var util = __nccwpck_require__(3837);
+var bufferEqual = __nccwpck_require__(7351);
+var Buffer = (__nccwpck_require__(3058).Buffer);
+var crypto = __nccwpck_require__(6982);
+var formatEcdsa = __nccwpck_require__(325);
+var util = __nccwpck_require__(9023);
 
 var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512" and "none".'
 var MSG_INVALID_SECRET = 'secret must be a string or buffer';
@@ -13096,12 +8000,12 @@ module.exports = function jwa(algorithm) {
 
 /***/ }),
 
-/***/ 2597:
+/***/ 4707:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 /*global exports*/
-var SignStream = __nccwpck_require__(5070);
-var VerifyStream = __nccwpck_require__(3974);
+var SignStream = __nccwpck_require__(571);
+var VerifyStream = __nccwpck_require__(5919);
 
 var ALGORITHMS = [
   'HS256', 'HS384', 'HS512',
@@ -13125,13 +8029,13 @@ exports.createVerify = function createVerify(opts) {
 
 /***/ }),
 
-/***/ 704:
+/***/ 4004:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 /*global module, process*/
-var Buffer = (__nccwpck_require__(1867).Buffer);
-var Stream = __nccwpck_require__(2781);
-var util = __nccwpck_require__(3837);
+var Buffer = (__nccwpck_require__(3058).Buffer);
+var Stream = __nccwpck_require__(2203);
+var util = __nccwpck_require__(9023);
 
 function DataStream(data) {
   this.buffer = null;
@@ -13187,16 +8091,16 @@ module.exports = DataStream;
 
 /***/ }),
 
-/***/ 5070:
+/***/ 571:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 /*global module*/
-var Buffer = (__nccwpck_require__(1867).Buffer);
-var DataStream = __nccwpck_require__(704);
-var jwa = __nccwpck_require__(2321);
-var Stream = __nccwpck_require__(2781);
-var toString = __nccwpck_require__(6206);
-var util = __nccwpck_require__(3837);
+var Buffer = (__nccwpck_require__(3058).Buffer);
+var DataStream = __nccwpck_require__(4004);
+var jwa = __nccwpck_require__(4165);
+var Stream = __nccwpck_require__(2203);
+var toString = __nccwpck_require__(1811);
+var util = __nccwpck_require__(9023);
 
 function base64url(string, encoding) {
   return Buffer
@@ -13272,11 +8176,11 @@ module.exports = SignStream;
 
 /***/ }),
 
-/***/ 6206:
+/***/ 1811:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 /*global module*/
-var Buffer = (__nccwpck_require__(4300).Buffer);
+var Buffer = (__nccwpck_require__(181).Buffer);
 
 module.exports = function toString(obj) {
   if (typeof obj === 'string')
@@ -13289,16 +8193,16 @@ module.exports = function toString(obj) {
 
 /***/ }),
 
-/***/ 3974:
+/***/ 5919:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 /*global module*/
-var Buffer = (__nccwpck_require__(1867).Buffer);
-var DataStream = __nccwpck_require__(704);
-var jwa = __nccwpck_require__(2321);
-var Stream = __nccwpck_require__(2781);
-var toString = __nccwpck_require__(6206);
-var util = __nccwpck_require__(3837);
+var Buffer = (__nccwpck_require__(3058).Buffer);
+var DataStream = __nccwpck_require__(4004);
+var jwa = __nccwpck_require__(4165);
+var Stream = __nccwpck_require__(2203);
+var toString = __nccwpck_require__(1811);
+var util = __nccwpck_require__(9023);
 var JWS_REGEX = /^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/;
 
 function isObject(thing) {
@@ -13416,7 +8320,7 @@ module.exports = VerifyStream;
 
 /***/ }),
 
-/***/ 4644:
+/***/ 8448:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const ANY = Symbol('SemVer ANY')
@@ -13554,17 +8458,17 @@ class Comparator {
 
 module.exports = Comparator
 
-const parseOptions = __nccwpck_require__(5185)
-const { safeRe: re, t } = __nccwpck_require__(3682)
-const cmp = __nccwpck_require__(3621)
-const debug = __nccwpck_require__(2935)
-const SemVer = __nccwpck_require__(3402)
-const Range = __nccwpck_require__(4502)
+const parseOptions = __nccwpck_require__(6555)
+const { safeRe: re, t } = __nccwpck_require__(3481)
+const cmp = __nccwpck_require__(4255)
+const debug = __nccwpck_require__(7384)
+const SemVer = __nccwpck_require__(5412)
+const Range = __nccwpck_require__(4967)
 
 
 /***/ }),
 
-/***/ 4502:
+/***/ 4967:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const SPACE_CHARACTERS = /\s+/g
@@ -13781,21 +8685,21 @@ class Range {
 
 module.exports = Range
 
-const LRU = __nccwpck_require__(4990)
+const LRU = __nccwpck_require__(1290)
 const cache = new LRU()
 
-const parseOptions = __nccwpck_require__(5185)
-const Comparator = __nccwpck_require__(4644)
-const debug = __nccwpck_require__(2935)
-const SemVer = __nccwpck_require__(3402)
+const parseOptions = __nccwpck_require__(6555)
+const Comparator = __nccwpck_require__(8448)
+const debug = __nccwpck_require__(7384)
+const SemVer = __nccwpck_require__(5412)
 const {
   safeRe: re,
   t,
   comparatorTrimReplace,
   tildeTrimReplace,
   caretTrimReplace,
-} = __nccwpck_require__(3682)
-const { FLAG_INCLUDE_PRERELEASE, FLAG_LOOSE } = __nccwpck_require__(7344)
+} = __nccwpck_require__(3481)
+const { FLAG_INCLUDE_PRERELEASE, FLAG_LOOSE } = __nccwpck_require__(5994)
 
 const isNullSet = c => c.value === '<0.0.0-0'
 const isAny = c => c.value === ''
@@ -14125,15 +9029,15 @@ const testSet = (set, version, options) => {
 
 /***/ }),
 
-/***/ 3402:
+/***/ 5412:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const debug = __nccwpck_require__(2935)
-const { MAX_LENGTH, MAX_SAFE_INTEGER } = __nccwpck_require__(7344)
-const { safeRe: re, safeSrc: src, t } = __nccwpck_require__(3682)
+const debug = __nccwpck_require__(7384)
+const { MAX_LENGTH, MAX_SAFE_INTEGER } = __nccwpck_require__(5994)
+const { safeRe: re, safeSrc: src, t } = __nccwpck_require__(3481)
 
-const parseOptions = __nccwpck_require__(5185)
-const { compareIdentifiers } = __nccwpck_require__(2179)
+const parseOptions = __nccwpck_require__(6555)
+const { compareIdentifiers } = __nccwpck_require__(3523)
 class SemVer {
   constructor (version, options) {
     options = parseOptions(options)
@@ -14450,10 +9354,10 @@ module.exports = SemVer
 
 /***/ }),
 
-/***/ 8751:
+/***/ 3830:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const parse = __nccwpck_require__(3371)
+const parse = __nccwpck_require__(4547)
 const clean = (version, options) => {
   const s = parse(version.trim().replace(/^[=v]+/, ''), options)
   return s ? s.version : null
@@ -14463,15 +9367,15 @@ module.exports = clean
 
 /***/ }),
 
-/***/ 3621:
+/***/ 4255:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const eq = __nccwpck_require__(9792)
-const neq = __nccwpck_require__(658)
-const gt = __nccwpck_require__(7040)
-const gte = __nccwpck_require__(7445)
-const lt = __nccwpck_require__(6054)
-const lte = __nccwpck_require__(9387)
+const eq = __nccwpck_require__(6081)
+const neq = __nccwpck_require__(4527)
+const gt = __nccwpck_require__(8460)
+const gte = __nccwpck_require__(3577)
+const lt = __nccwpck_require__(8467)
+const lte = __nccwpck_require__(640)
 
 const cmp = (a, op, b, loose) => {
   switch (op) {
@@ -14522,12 +9426,12 @@ module.exports = cmp
 
 /***/ }),
 
-/***/ 5766:
+/***/ 746:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
-const parse = __nccwpck_require__(3371)
-const { safeRe: re, t } = __nccwpck_require__(3682)
+const SemVer = __nccwpck_require__(5412)
+const parse = __nccwpck_require__(4547)
+const { safeRe: re, t } = __nccwpck_require__(3481)
 
 const coerce = (version, options) => {
   if (version instanceof SemVer) {
@@ -14589,10 +9493,10 @@ module.exports = coerce
 
 /***/ }),
 
-/***/ 4800:
+/***/ 5581:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
+const SemVer = __nccwpck_require__(5412)
 const compareBuild = (a, b, loose) => {
   const versionA = new SemVer(a, loose)
   const versionB = new SemVer(b, loose)
@@ -14603,20 +9507,20 @@ module.exports = compareBuild
 
 /***/ }),
 
-/***/ 4626:
+/***/ 1651:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compare = __nccwpck_require__(4343)
+const compare = __nccwpck_require__(6176)
 const compareLoose = (a, b) => compare(a, b, true)
 module.exports = compareLoose
 
 
 /***/ }),
 
-/***/ 4343:
+/***/ 6176:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
+const SemVer = __nccwpck_require__(5412)
 const compare = (a, b, loose) =>
   new SemVer(a, loose).compare(new SemVer(b, loose))
 
@@ -14625,10 +9529,10 @@ module.exports = compare
 
 /***/ }),
 
-/***/ 4836:
+/***/ 8632:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const parse = __nccwpck_require__(3371)
+const parse = __nccwpck_require__(4547)
 
 const diff = (version1, version2) => {
   const v1 = parse(version1, null, true)
@@ -14690,40 +9594,40 @@ module.exports = diff
 
 /***/ }),
 
-/***/ 9792:
+/***/ 6081:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compare = __nccwpck_require__(4343)
+const compare = __nccwpck_require__(6176)
 const eq = (a, b, loose) => compare(a, b, loose) === 0
 module.exports = eq
 
 
 /***/ }),
 
-/***/ 7040:
+/***/ 8460:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compare = __nccwpck_require__(4343)
+const compare = __nccwpck_require__(6176)
 const gt = (a, b, loose) => compare(a, b, loose) > 0
 module.exports = gt
 
 
 /***/ }),
 
-/***/ 7445:
+/***/ 3577:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compare = __nccwpck_require__(4343)
+const compare = __nccwpck_require__(6176)
 const gte = (a, b, loose) => compare(a, b, loose) >= 0
 module.exports = gte
 
 
 /***/ }),
 
-/***/ 8877:
+/***/ 9343:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
+const SemVer = __nccwpck_require__(5412)
 
 const inc = (version, release, options, identifier, identifierBase) => {
   if (typeof (options) === 'string') {
@@ -14746,60 +9650,60 @@ module.exports = inc
 
 /***/ }),
 
-/***/ 6054:
+/***/ 8467:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compare = __nccwpck_require__(4343)
+const compare = __nccwpck_require__(6176)
 const lt = (a, b, loose) => compare(a, b, loose) < 0
 module.exports = lt
 
 
 /***/ }),
 
-/***/ 9387:
+/***/ 640:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compare = __nccwpck_require__(4343)
+const compare = __nccwpck_require__(6176)
 const lte = (a, b, loose) => compare(a, b, loose) <= 0
 module.exports = lte
 
 
 /***/ }),
 
-/***/ 7269:
+/***/ 2186:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
+const SemVer = __nccwpck_require__(5412)
 const major = (a, loose) => new SemVer(a, loose).major
 module.exports = major
 
 
 /***/ }),
 
-/***/ 9725:
+/***/ 3566:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
+const SemVer = __nccwpck_require__(5412)
 const minor = (a, loose) => new SemVer(a, loose).minor
 module.exports = minor
 
 
 /***/ }),
 
-/***/ 658:
+/***/ 4527:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compare = __nccwpck_require__(4343)
+const compare = __nccwpck_require__(6176)
 const neq = (a, b, loose) => compare(a, b, loose) !== 0
 module.exports = neq
 
 
 /***/ }),
 
-/***/ 3371:
+/***/ 4547:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
+const SemVer = __nccwpck_require__(5412)
 const parse = (version, options, throwErrors = false) => {
   if (version instanceof SemVer) {
     return version
@@ -14819,20 +9723,20 @@ module.exports = parse
 
 /***/ }),
 
-/***/ 8691:
+/***/ 3021:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
+const SemVer = __nccwpck_require__(5412)
 const patch = (a, loose) => new SemVer(a, loose).patch
 module.exports = patch
 
 
 /***/ }),
 
-/***/ 7892:
+/***/ 6577:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const parse = __nccwpck_require__(3371)
+const parse = __nccwpck_require__(4547)
 const prerelease = (version, options) => {
   const parsed = parse(version, options)
   return (parsed && parsed.prerelease.length) ? parsed.prerelease : null
@@ -14842,30 +9746,30 @@ module.exports = prerelease
 
 /***/ }),
 
-/***/ 8227:
+/***/ 8594:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compare = __nccwpck_require__(4343)
+const compare = __nccwpck_require__(6176)
 const rcompare = (a, b, loose) => compare(b, a, loose)
 module.exports = rcompare
 
 
 /***/ }),
 
-/***/ 4590:
+/***/ 565:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compareBuild = __nccwpck_require__(4800)
+const compareBuild = __nccwpck_require__(5581)
 const rsort = (list, loose) => list.sort((a, b) => compareBuild(b, a, loose))
 module.exports = rsort
 
 
 /***/ }),
 
-/***/ 5056:
+/***/ 6278:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const Range = __nccwpck_require__(4502)
+const Range = __nccwpck_require__(4967)
 const satisfies = (version, range, options) => {
   try {
     range = new Range(range, options)
@@ -14879,20 +9783,20 @@ module.exports = satisfies
 
 /***/ }),
 
-/***/ 2340:
+/***/ 8215:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const compareBuild = __nccwpck_require__(4800)
+const compareBuild = __nccwpck_require__(5581)
 const sort = (list, loose) => list.sort((a, b) => compareBuild(a, b, loose))
 module.exports = sort
 
 
 /***/ }),
 
-/***/ 5715:
+/***/ 6569:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const parse = __nccwpck_require__(3371)
+const parse = __nccwpck_require__(4547)
 const valid = (version, options) => {
   const v = parse(version, options)
   return v ? v.version : null
@@ -14902,51 +9806,51 @@ module.exports = valid
 
 /***/ }),
 
-/***/ 3998:
+/***/ 9749:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 // just pre-load all the stuff that index.js lazily exports
-const internalRe = __nccwpck_require__(3682)
-const constants = __nccwpck_require__(7344)
-const SemVer = __nccwpck_require__(3402)
-const identifiers = __nccwpck_require__(2179)
-const parse = __nccwpck_require__(3371)
-const valid = __nccwpck_require__(5715)
-const clean = __nccwpck_require__(8751)
-const inc = __nccwpck_require__(8877)
-const diff = __nccwpck_require__(4836)
-const major = __nccwpck_require__(7269)
-const minor = __nccwpck_require__(9725)
-const patch = __nccwpck_require__(8691)
-const prerelease = __nccwpck_require__(7892)
-const compare = __nccwpck_require__(4343)
-const rcompare = __nccwpck_require__(8227)
-const compareLoose = __nccwpck_require__(4626)
-const compareBuild = __nccwpck_require__(4800)
-const sort = __nccwpck_require__(2340)
-const rsort = __nccwpck_require__(4590)
-const gt = __nccwpck_require__(7040)
-const lt = __nccwpck_require__(6054)
-const eq = __nccwpck_require__(9792)
-const neq = __nccwpck_require__(658)
-const gte = __nccwpck_require__(7445)
-const lte = __nccwpck_require__(9387)
-const cmp = __nccwpck_require__(3621)
-const coerce = __nccwpck_require__(5766)
-const Comparator = __nccwpck_require__(4644)
-const Range = __nccwpck_require__(4502)
-const satisfies = __nccwpck_require__(5056)
-const toComparators = __nccwpck_require__(4676)
-const maxSatisfying = __nccwpck_require__(5471)
-const minSatisfying = __nccwpck_require__(5356)
-const minVersion = __nccwpck_require__(7825)
-const validRange = __nccwpck_require__(6895)
-const outside = __nccwpck_require__(8629)
-const gtr = __nccwpck_require__(8360)
-const ltr = __nccwpck_require__(3270)
-const intersects = __nccwpck_require__(1373)
-const simplifyRange = __nccwpck_require__(4336)
-const subset = __nccwpck_require__(4979)
+const internalRe = __nccwpck_require__(3481)
+const constants = __nccwpck_require__(5994)
+const SemVer = __nccwpck_require__(5412)
+const identifiers = __nccwpck_require__(3523)
+const parse = __nccwpck_require__(4547)
+const valid = __nccwpck_require__(6569)
+const clean = __nccwpck_require__(3830)
+const inc = __nccwpck_require__(9343)
+const diff = __nccwpck_require__(8632)
+const major = __nccwpck_require__(2186)
+const minor = __nccwpck_require__(3566)
+const patch = __nccwpck_require__(3021)
+const prerelease = __nccwpck_require__(6577)
+const compare = __nccwpck_require__(6176)
+const rcompare = __nccwpck_require__(8594)
+const compareLoose = __nccwpck_require__(1651)
+const compareBuild = __nccwpck_require__(5581)
+const sort = __nccwpck_require__(8215)
+const rsort = __nccwpck_require__(565)
+const gt = __nccwpck_require__(8460)
+const lt = __nccwpck_require__(8467)
+const eq = __nccwpck_require__(6081)
+const neq = __nccwpck_require__(4527)
+const gte = __nccwpck_require__(3577)
+const lte = __nccwpck_require__(640)
+const cmp = __nccwpck_require__(4255)
+const coerce = __nccwpck_require__(746)
+const Comparator = __nccwpck_require__(8448)
+const Range = __nccwpck_require__(4967)
+const satisfies = __nccwpck_require__(6278)
+const toComparators = __nccwpck_require__(6959)
+const maxSatisfying = __nccwpck_require__(8380)
+const minSatisfying = __nccwpck_require__(1742)
+const minVersion = __nccwpck_require__(125)
+const validRange = __nccwpck_require__(1634)
+const outside = __nccwpck_require__(7203)
+const gtr = __nccwpck_require__(9331)
+const ltr = __nccwpck_require__(7022)
+const intersects = __nccwpck_require__(1868)
+const simplifyRange = __nccwpck_require__(3629)
+const subset = __nccwpck_require__(3384)
 module.exports = {
   parse,
   valid,
@@ -14998,7 +9902,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7344:
+/***/ 5994:
 /***/ ((module) => {
 
 // Note: this is the semver.org version of the spec that it implements
@@ -15040,7 +9944,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2935:
+/***/ 7384:
 /***/ ((module) => {
 
 const debug = (
@@ -15056,7 +9960,7 @@ module.exports = debug
 
 /***/ }),
 
-/***/ 2179:
+/***/ 3523:
 /***/ ((module) => {
 
 const numeric = /^[0-9]+$/
@@ -15086,7 +9990,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4990:
+/***/ 1290:
 /***/ ((module) => {
 
 class LRUCache {
@@ -15133,7 +10037,7 @@ module.exports = LRUCache
 
 /***/ }),
 
-/***/ 5185:
+/***/ 6555:
 /***/ ((module) => {
 
 // parse out just the options we care about
@@ -15155,15 +10059,15 @@ module.exports = parseOptions
 
 /***/ }),
 
-/***/ 3682:
+/***/ 3481:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 const {
   MAX_SAFE_COMPONENT_LENGTH,
   MAX_SAFE_BUILD_LENGTH,
   MAX_LENGTH,
-} = __nccwpck_require__(7344)
-const debug = __nccwpck_require__(2935)
+} = __nccwpck_require__(5994)
+const debug = __nccwpck_require__(7384)
 exports = module.exports = {}
 
 // The actual regexps go on exports.re
@@ -15381,21 +10285,21 @@ createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$')
 
 /***/ }),
 
-/***/ 8360:
+/***/ 9331:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 // Determine if version is greater than all the versions possible in the range.
-const outside = __nccwpck_require__(8629)
+const outside = __nccwpck_require__(7203)
 const gtr = (version, range, options) => outside(version, range, '>', options)
 module.exports = gtr
 
 
 /***/ }),
 
-/***/ 1373:
+/***/ 1868:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const Range = __nccwpck_require__(4502)
+const Range = __nccwpck_require__(4967)
 const intersects = (r1, r2, options) => {
   r1 = new Range(r1, options)
   r2 = new Range(r2, options)
@@ -15406,10 +10310,10 @@ module.exports = intersects
 
 /***/ }),
 
-/***/ 3270:
+/***/ 7022:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const outside = __nccwpck_require__(8629)
+const outside = __nccwpck_require__(7203)
 // Determine if version is less than all the versions possible in the range
 const ltr = (version, range, options) => outside(version, range, '<', options)
 module.exports = ltr
@@ -15417,11 +10321,11 @@ module.exports = ltr
 
 /***/ }),
 
-/***/ 5471:
+/***/ 8380:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
-const Range = __nccwpck_require__(4502)
+const SemVer = __nccwpck_require__(5412)
+const Range = __nccwpck_require__(4967)
 
 const maxSatisfying = (versions, range, options) => {
   let max = null
@@ -15449,11 +10353,11 @@ module.exports = maxSatisfying
 
 /***/ }),
 
-/***/ 5356:
+/***/ 1742:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
-const Range = __nccwpck_require__(4502)
+const SemVer = __nccwpck_require__(5412)
+const Range = __nccwpck_require__(4967)
 const minSatisfying = (versions, range, options) => {
   let min = null
   let minSV = null
@@ -15480,12 +10384,12 @@ module.exports = minSatisfying
 
 /***/ }),
 
-/***/ 7825:
+/***/ 125:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
-const Range = __nccwpck_require__(4502)
-const gt = __nccwpck_require__(7040)
+const SemVer = __nccwpck_require__(5412)
+const Range = __nccwpck_require__(4967)
+const gt = __nccwpck_require__(8460)
 
 const minVersion = (range, loose) => {
   range = new Range(range, loose)
@@ -15548,18 +10452,18 @@ module.exports = minVersion
 
 /***/ }),
 
-/***/ 8629:
+/***/ 7203:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const SemVer = __nccwpck_require__(3402)
-const Comparator = __nccwpck_require__(4644)
+const SemVer = __nccwpck_require__(5412)
+const Comparator = __nccwpck_require__(8448)
 const { ANY } = Comparator
-const Range = __nccwpck_require__(4502)
-const satisfies = __nccwpck_require__(5056)
-const gt = __nccwpck_require__(7040)
-const lt = __nccwpck_require__(6054)
-const lte = __nccwpck_require__(9387)
-const gte = __nccwpck_require__(7445)
+const Range = __nccwpck_require__(4967)
+const satisfies = __nccwpck_require__(6278)
+const gt = __nccwpck_require__(8460)
+const lt = __nccwpck_require__(8467)
+const lte = __nccwpck_require__(640)
+const gte = __nccwpck_require__(3577)
 
 const outside = (version, range, hilo, options) => {
   version = new SemVer(version, options)
@@ -15635,14 +10539,14 @@ module.exports = outside
 
 /***/ }),
 
-/***/ 4336:
+/***/ 3629:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 // given a set of versions and a range, create a "simplified" range
 // that includes the same versions that the original range does
 // If the original range is shorter than the simplified one, return that.
-const satisfies = __nccwpck_require__(5056)
-const compare = __nccwpck_require__(4343)
+const satisfies = __nccwpck_require__(6278)
+const compare = __nccwpck_require__(6176)
 module.exports = (versions, range, options) => {
   const set = []
   let first = null
@@ -15689,14 +10593,14 @@ module.exports = (versions, range, options) => {
 
 /***/ }),
 
-/***/ 4979:
+/***/ 3384:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const Range = __nccwpck_require__(4502)
-const Comparator = __nccwpck_require__(4644)
+const Range = __nccwpck_require__(4967)
+const Comparator = __nccwpck_require__(8448)
 const { ANY } = Comparator
-const satisfies = __nccwpck_require__(5056)
-const compare = __nccwpck_require__(4343)
+const satisfies = __nccwpck_require__(6278)
+const compare = __nccwpck_require__(6176)
 
 // Complex range `r1 || r2 || ...` is a subset of `R1 || R2 || ...` iff:
 // - Every simple range `r1, r2, ...` is a null set, OR
@@ -15943,10 +10847,10 @@ module.exports = subset
 
 /***/ }),
 
-/***/ 4676:
+/***/ 6959:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const Range = __nccwpck_require__(4502)
+const Range = __nccwpck_require__(4967)
 
 // Mostly just for testing and legacy API reasons
 const toComparators = (range, options) =>
@@ -15958,10 +10862,10 @@ module.exports = toComparators
 
 /***/ }),
 
-/***/ 6895:
+/***/ 1634:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const Range = __nccwpck_require__(4502)
+const Range = __nccwpck_require__(4967)
 const validRange = (range, options) => {
   try {
     // Return '*' instead of '' so that truthiness works.
@@ -15976,21 +10880,21 @@ module.exports = validRange
 
 /***/ }),
 
-/***/ 2022:
+/***/ 4912:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const timespan = __nccwpck_require__(6098);
-const PS_SUPPORTED = __nccwpck_require__(9085);
-const validateAsymmetricKey = __nccwpck_require__(7596);
-const jws = __nccwpck_require__(2597);
-const includes = __nccwpck_require__(7931);
-const isBoolean = __nccwpck_require__(3272);
-const isInteger = __nccwpck_require__(1441);
-const isNumber = __nccwpck_require__(298);
-const isPlainObject = __nccwpck_require__(5723);
-const isString = __nccwpck_require__(5180);
-const once = __nccwpck_require__(4499);
-const { KeyObject, createSecretKey, createPrivateKey } = __nccwpck_require__(6113)
+const timespan = __nccwpck_require__(6688);
+const PS_SUPPORTED = __nccwpck_require__(3948);
+const validateAsymmetricKey = __nccwpck_require__(1006);
+const jws = __nccwpck_require__(4707);
+const includes = __nccwpck_require__(3867);
+const isBoolean = __nccwpck_require__(1999);
+const isInteger = __nccwpck_require__(9841);
+const isNumber = __nccwpck_require__(116);
+const isPlainObject = __nccwpck_require__(9888);
+const isString = __nccwpck_require__(6172);
+const once = __nccwpck_require__(2192);
+const { KeyObject, createSecretKey, createPrivateKey } = __nccwpck_require__(6982)
 
 const SUPPORTED_ALGS = ['RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'HS256', 'HS384', 'HS512', 'none'];
 if (PS_SUPPORTED) {
@@ -16236,18 +11140,18 @@ module.exports = function (payload, secretOrPrivateKey, options, callback) {
 
 /***/ }),
 
-/***/ 2327:
+/***/ 772:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const JsonWebTokenError = __nccwpck_require__(405);
-const NotBeforeError = __nccwpck_require__(4383);
-const TokenExpiredError = __nccwpck_require__(6637);
-const decode = __nccwpck_require__(3359);
-const timespan = __nccwpck_require__(6098);
-const validateAsymmetricKey = __nccwpck_require__(7596);
-const PS_SUPPORTED = __nccwpck_require__(9085);
-const jws = __nccwpck_require__(2597);
-const {KeyObject, createSecretKey, createPublicKey} = __nccwpck_require__(6113);
+const JsonWebTokenError = __nccwpck_require__(6248);
+const NotBeforeError = __nccwpck_require__(1269);
+const TokenExpiredError = __nccwpck_require__(1241);
+const decode = __nccwpck_require__(2047);
+const timespan = __nccwpck_require__(6688);
+const validateAsymmetricKey = __nccwpck_require__(1006);
+const PS_SUPPORTED = __nccwpck_require__(3948);
+const jws = __nccwpck_require__(4707);
+const {KeyObject, createSecretKey, createPublicKey} = __nccwpck_require__(6982);
 
 const PUB_KEY_ALGS = ['RS256', 'RS384', 'RS512'];
 const EC_KEY_ALGS = ['ES256', 'ES384', 'ES512'];
@@ -16506,7 +11410,7 @@ module.exports = function (jwtString, secretOrPublicKey, options, callback) {
 
 /***/ }),
 
-/***/ 7931:
+/***/ 3867:
 /***/ ((module) => {
 
 /**
@@ -17258,7 +12162,7 @@ module.exports = includes;
 
 /***/ }),
 
-/***/ 3272:
+/***/ 1999:
 /***/ ((module) => {
 
 /**
@@ -17335,7 +12239,7 @@ module.exports = isBoolean;
 
 /***/ }),
 
-/***/ 1441:
+/***/ 9841:
 /***/ ((module) => {
 
 /**
@@ -17607,7 +12511,7 @@ module.exports = isInteger;
 
 /***/ }),
 
-/***/ 298:
+/***/ 116:
 /***/ ((module) => {
 
 /**
@@ -17693,7 +12597,7 @@ module.exports = isNumber;
 
 /***/ }),
 
-/***/ 5723:
+/***/ 9888:
 /***/ ((module) => {
 
 /**
@@ -17839,7 +12743,7 @@ module.exports = isPlainObject;
 
 /***/ }),
 
-/***/ 5180:
+/***/ 6172:
 /***/ ((module) => {
 
 /**
@@ -17941,7 +12845,7 @@ module.exports = isString;
 
 /***/ }),
 
-/***/ 4499:
+/***/ 2192:
 /***/ ((module) => {
 
 /**
@@ -18242,7 +13146,7 @@ module.exports = once;
 
 /***/ }),
 
-/***/ 900:
+/***/ 744:
 /***/ ((module) => {
 
 /**
@@ -18411,11 +13315,11 @@ function plural(ms, msAbs, n, name) {
 
 /***/ }),
 
-/***/ 1867:
+/***/ 3058:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 /* eslint-disable node/no-deprecated-api */
-var buffer = __nccwpck_require__(4300)
+var buffer = __nccwpck_require__(181)
 var Buffer = buffer.Buffer
 
 // alternative to using Object.keys for old browsers
@@ -18480,14 +13384,14 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 /***/ }),
 
-/***/ 9318:
+/***/ 1450:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
-const os = __nccwpck_require__(2037);
-const tty = __nccwpck_require__(6224);
-const hasFlag = __nccwpck_require__(1621);
+const os = __nccwpck_require__(857);
+const tty = __nccwpck_require__(2018);
+const hasFlag = __nccwpck_require__(3813);
 
 const {env} = process;
 
@@ -18623,27 +13527,485 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4294:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ 1860:
+/***/ ((module) => {
 
-module.exports = __nccwpck_require__(4219);
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+/* global global, define, Symbol, Reflect, Promise, SuppressedError, Iterator */
+var __extends;
+var __assign;
+var __rest;
+var __decorate;
+var __param;
+var __esDecorate;
+var __runInitializers;
+var __propKey;
+var __setFunctionName;
+var __metadata;
+var __awaiter;
+var __generator;
+var __exportStar;
+var __values;
+var __read;
+var __spread;
+var __spreadArrays;
+var __spreadArray;
+var __await;
+var __asyncGenerator;
+var __asyncDelegator;
+var __asyncValues;
+var __makeTemplateObject;
+var __importStar;
+var __importDefault;
+var __classPrivateFieldGet;
+var __classPrivateFieldSet;
+var __classPrivateFieldIn;
+var __createBinding;
+var __addDisposableResource;
+var __disposeResources;
+var __rewriteRelativeImportExtension;
+(function (factory) {
+    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
+    if (typeof define === "function" && define.amd) {
+        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
+    }
+    else if ( true && typeof module.exports === "object") {
+        factory(createExporter(root, createExporter(module.exports)));
+    }
+    else {
+        factory(createExporter(root));
+    }
+    function createExporter(exports, previous) {
+        if (exports !== root) {
+            if (typeof Object.create === "function") {
+                Object.defineProperty(exports, "__esModule", { value: true });
+            }
+            else {
+                exports.__esModule = true;
+            }
+        }
+        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
+    }
+})
+(function (exporter) {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+
+    __extends = function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+
+    __assign = Object.assign || function (t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+
+    __rest = function (s, e) {
+        var t = {};
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+            t[p] = s[p];
+        if (s != null && typeof Object.getOwnPropertySymbols === "function")
+            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                    t[p[i]] = s[p[i]];
+            }
+        return t;
+    };
+
+    __decorate = function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+
+    __param = function (paramIndex, decorator) {
+        return function (target, key) { decorator(target, key, paramIndex); }
+    };
+
+    __esDecorate = function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+        function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+        var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+        var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+        var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+        var _, done = false;
+        for (var i = decorators.length - 1; i >= 0; i--) {
+            var context = {};
+            for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+            for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+            context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+            var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+            if (kind === "accessor") {
+                if (result === void 0) continue;
+                if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+                if (_ = accept(result.get)) descriptor.get = _;
+                if (_ = accept(result.set)) descriptor.set = _;
+                if (_ = accept(result.init)) initializers.unshift(_);
+            }
+            else if (_ = accept(result)) {
+                if (kind === "field") initializers.unshift(_);
+                else descriptor[key] = _;
+            }
+        }
+        if (target) Object.defineProperty(target, contextIn.name, descriptor);
+        done = true;
+    };
+
+    __runInitializers = function (thisArg, initializers, value) {
+        var useValue = arguments.length > 2;
+        for (var i = 0; i < initializers.length; i++) {
+            value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+        }
+        return useValue ? value : void 0;
+    };
+
+    __propKey = function (x) {
+        return typeof x === "symbol" ? x : "".concat(x);
+    };
+
+    __setFunctionName = function (f, name, prefix) {
+        if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+    };
+
+    __metadata = function (metadataKey, metadataValue) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
+    };
+
+    __awaiter = function (thisArg, _arguments, P, generator) {
+        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
+
+    __generator = function (thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+        return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (g && (g = 0, op[0] && (_ = 0)), _) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
+    };
+
+    __exportStar = function(m, o) {
+        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
+    };
+
+    __createBinding = Object.create ? (function(o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+            desc = { enumerable: true, get: function() { return m[k]; } };
+        }
+        Object.defineProperty(o, k2, desc);
+    }) : (function(o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        o[k2] = m[k];
+    });
+
+    __values = function (o) {
+        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+        if (m) return m.call(o);
+        if (o && typeof o.length === "number") return {
+            next: function () {
+                if (o && i >= o.length) o = void 0;
+                return { value: o && o[i++], done: !o };
+            }
+        };
+        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+    };
+
+    __read = function (o, n) {
+        var m = typeof Symbol === "function" && o[Symbol.iterator];
+        if (!m) return o;
+        var i = m.call(o), r, ar = [], e;
+        try {
+            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+        }
+        catch (error) { e = { error: error }; }
+        finally {
+            try {
+                if (r && !r.done && (m = i["return"])) m.call(i);
+            }
+            finally { if (e) throw e.error; }
+        }
+        return ar;
+    };
+
+    /** @deprecated */
+    __spread = function () {
+        for (var ar = [], i = 0; i < arguments.length; i++)
+            ar = ar.concat(__read(arguments[i]));
+        return ar;
+    };
+
+    /** @deprecated */
+    __spreadArrays = function () {
+        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+        for (var r = Array(s), k = 0, i = 0; i < il; i++)
+            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+                r[k] = a[j];
+        return r;
+    };
+
+    __spreadArray = function (to, from, pack) {
+        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+            if (ar || !(i in from)) {
+                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+                ar[i] = from[i];
+            }
+        }
+        return to.concat(ar || Array.prototype.slice.call(from));
+    };
+
+    __await = function (v) {
+        return this instanceof __await ? (this.v = v, this) : new __await(v);
+    };
+
+    __asyncGenerator = function (thisArg, _arguments, generator) {
+        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+        var g = generator.apply(thisArg, _arguments || []), i, q = [];
+        return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+        function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
+        function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
+        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
+        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
+        function fulfill(value) { resume("next", value); }
+        function reject(value) { resume("throw", value); }
+        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
+    };
+
+    __asyncDelegator = function (o) {
+        var i, p;
+        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
+        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
+    };
+
+    __asyncValues = function (o) {
+        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+        var m = o[Symbol.asyncIterator], i;
+        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+    };
+
+    __makeTemplateObject = function (cooked, raw) {
+        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
+        return cooked;
+    };
+
+    var __setModuleDefault = Object.create ? (function(o, v) {
+        Object.defineProperty(o, "default", { enumerable: true, value: v });
+    }) : function(o, v) {
+        o["default"] = v;
+    };
+
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+
+    __importStar = function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+
+    __importDefault = function (mod) {
+        return (mod && mod.__esModule) ? mod : { "default": mod };
+    };
+
+    __classPrivateFieldGet = function (receiver, state, kind, f) {
+        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+    };
+
+    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
+        if (kind === "m") throw new TypeError("Private method is not writable");
+        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+    };
+
+    __classPrivateFieldIn = function (state, receiver) {
+        if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function")) throw new TypeError("Cannot use 'in' operator on non-object");
+        return typeof state === "function" ? receiver === state : state.has(receiver);
+    };
+
+    __addDisposableResource = function (env, value, async) {
+        if (value !== null && value !== void 0) {
+            if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
+            var dispose, inner;
+            if (async) {
+                if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
+                dispose = value[Symbol.asyncDispose];
+            }
+            if (dispose === void 0) {
+                if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
+                dispose = value[Symbol.dispose];
+                if (async) inner = dispose;
+            }
+            if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+            if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
+            env.stack.push({ value: value, dispose: dispose, async: async });
+        }
+        else if (async) {
+            env.stack.push({ async: true });
+        }
+        return value;
+    };
+
+    var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+        var e = new Error(message);
+        return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+    };
+
+    __disposeResources = function (env) {
+        function fail(e) {
+            env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
+            env.hasError = true;
+        }
+        var r, s = 0;
+        function next() {
+            while (r = env.stack.pop()) {
+                try {
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
+                }
+                catch (e) {
+                    fail(e);
+                }
+            }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
+            if (env.hasError) throw env.error;
+        }
+        return next();
+    };
+
+    __rewriteRelativeImportExtension = function (path, preserveJsx) {
+        if (typeof path === "string" && /^\.\.?\//.test(path)) {
+            return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function (m, tsx, d, ext, cm) {
+                return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : (d + ext + "." + cm.toLowerCase() + "js");
+            });
+        }
+        return path;
+    };
+
+    exporter("__extends", __extends);
+    exporter("__assign", __assign);
+    exporter("__rest", __rest);
+    exporter("__decorate", __decorate);
+    exporter("__param", __param);
+    exporter("__esDecorate", __esDecorate);
+    exporter("__runInitializers", __runInitializers);
+    exporter("__propKey", __propKey);
+    exporter("__setFunctionName", __setFunctionName);
+    exporter("__metadata", __metadata);
+    exporter("__awaiter", __awaiter);
+    exporter("__generator", __generator);
+    exporter("__exportStar", __exportStar);
+    exporter("__createBinding", __createBinding);
+    exporter("__values", __values);
+    exporter("__read", __read);
+    exporter("__spread", __spread);
+    exporter("__spreadArrays", __spreadArrays);
+    exporter("__spreadArray", __spreadArray);
+    exporter("__await", __await);
+    exporter("__asyncGenerator", __asyncGenerator);
+    exporter("__asyncDelegator", __asyncDelegator);
+    exporter("__asyncValues", __asyncValues);
+    exporter("__makeTemplateObject", __makeTemplateObject);
+    exporter("__importStar", __importStar);
+    exporter("__importDefault", __importDefault);
+    exporter("__classPrivateFieldGet", __classPrivateFieldGet);
+    exporter("__classPrivateFieldSet", __classPrivateFieldSet);
+    exporter("__classPrivateFieldIn", __classPrivateFieldIn);
+    exporter("__addDisposableResource", __addDisposableResource);
+    exporter("__disposeResources", __disposeResources);
+    exporter("__rewriteRelativeImportExtension", __rewriteRelativeImportExtension);
+});
+
+0 && (0);
 
 
 /***/ }),
 
-/***/ 4219:
+/***/ 770:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+module.exports = __nccwpck_require__(218);
+
+
+/***/ }),
+
+/***/ 218:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var net = __nccwpck_require__(1808);
-var tls = __nccwpck_require__(4404);
-var http = __nccwpck_require__(3685);
-var https = __nccwpck_require__(5687);
-var events = __nccwpck_require__(2361);
-var assert = __nccwpck_require__(9491);
-var util = __nccwpck_require__(3837);
+var net = __nccwpck_require__(9278);
+var tls = __nccwpck_require__(4756);
+var http = __nccwpck_require__(8611);
+var https = __nccwpck_require__(5692);
+var events = __nccwpck_require__(4434);
+var assert = __nccwpck_require__(2613);
+var util = __nccwpck_require__(9023);
 
 
 exports.httpOverHttp = httpOverHttp;
@@ -18903,7 +14265,7 @@ exports.debug = debug; // for test
 
 /***/ }),
 
-/***/ 5840:
+/***/ 2048:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18967,29 +14329,29 @@ Object.defineProperty(exports, "parse", ({
   }
 }));
 
-var _v = _interopRequireDefault(__nccwpck_require__(8628));
+var _v = _interopRequireDefault(__nccwpck_require__(6415));
 
-var _v2 = _interopRequireDefault(__nccwpck_require__(6409));
+var _v2 = _interopRequireDefault(__nccwpck_require__(1697));
 
-var _v3 = _interopRequireDefault(__nccwpck_require__(5122));
+var _v3 = _interopRequireDefault(__nccwpck_require__(4676));
 
-var _v4 = _interopRequireDefault(__nccwpck_require__(9120));
+var _v4 = _interopRequireDefault(__nccwpck_require__(9771));
 
-var _nil = _interopRequireDefault(__nccwpck_require__(5332));
+var _nil = _interopRequireDefault(__nccwpck_require__(7723));
 
-var _version = _interopRequireDefault(__nccwpck_require__(1595));
+var _version = _interopRequireDefault(__nccwpck_require__(5868));
 
-var _validate = _interopRequireDefault(__nccwpck_require__(6900));
+var _validate = _interopRequireDefault(__nccwpck_require__(6200));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(8950));
+var _stringify = _interopRequireDefault(__nccwpck_require__(7597));
 
-var _parse = _interopRequireDefault(__nccwpck_require__(2746));
+var _parse = _interopRequireDefault(__nccwpck_require__(7267));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
 
-/***/ 4569:
+/***/ 216:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19000,7 +14362,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _crypto = _interopRequireDefault(__nccwpck_require__(6113));
+var _crypto = _interopRequireDefault(__nccwpck_require__(6982));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19019,7 +14381,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 5332:
+/***/ 7723:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -19034,7 +14396,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 2746:
+/***/ 7267:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19045,7 +14407,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _validate = _interopRequireDefault(__nccwpck_require__(6900));
+var _validate = _interopRequireDefault(__nccwpck_require__(6200));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19086,7 +14448,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 814:
+/***/ 7879:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -19101,7 +14463,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 807:
+/***/ 2973:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19112,7 +14474,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = rng;
 
-var _crypto = _interopRequireDefault(__nccwpck_require__(6113));
+var _crypto = _interopRequireDefault(__nccwpck_require__(6982));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19132,7 +14494,7 @@ function rng() {
 
 /***/ }),
 
-/***/ 5274:
+/***/ 507:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19143,7 +14505,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _crypto = _interopRequireDefault(__nccwpck_require__(6113));
+var _crypto = _interopRequireDefault(__nccwpck_require__(6982));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19162,7 +14524,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 8950:
+/***/ 7597:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19173,7 +14535,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _validate = _interopRequireDefault(__nccwpck_require__(6900));
+var _validate = _interopRequireDefault(__nccwpck_require__(6200));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19208,7 +14570,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 8628:
+/***/ 6415:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19219,9 +14581,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _rng = _interopRequireDefault(__nccwpck_require__(807));
+var _rng = _interopRequireDefault(__nccwpck_require__(2973));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(8950));
+var _stringify = _interopRequireDefault(__nccwpck_require__(7597));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19322,7 +14684,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 6409:
+/***/ 1697:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19333,9 +14695,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _v = _interopRequireDefault(__nccwpck_require__(5998));
+var _v = _interopRequireDefault(__nccwpck_require__(2930));
 
-var _md = _interopRequireDefault(__nccwpck_require__(4569));
+var _md = _interopRequireDefault(__nccwpck_require__(216));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19345,7 +14707,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 5998:
+/***/ 2930:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19357,9 +14719,9 @@ Object.defineProperty(exports, "__esModule", ({
 exports["default"] = _default;
 exports.URL = exports.DNS = void 0;
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(8950));
+var _stringify = _interopRequireDefault(__nccwpck_require__(7597));
 
-var _parse = _interopRequireDefault(__nccwpck_require__(2746));
+var _parse = _interopRequireDefault(__nccwpck_require__(7267));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19430,7 +14792,7 @@ function _default(name, version, hashfunc) {
 
 /***/ }),
 
-/***/ 5122:
+/***/ 4676:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19441,9 +14803,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _rng = _interopRequireDefault(__nccwpck_require__(807));
+var _rng = _interopRequireDefault(__nccwpck_require__(2973));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(8950));
+var _stringify = _interopRequireDefault(__nccwpck_require__(7597));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19474,7 +14836,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 9120:
+/***/ 9771:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19485,9 +14847,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _v = _interopRequireDefault(__nccwpck_require__(5998));
+var _v = _interopRequireDefault(__nccwpck_require__(2930));
 
-var _sha = _interopRequireDefault(__nccwpck_require__(5274));
+var _sha = _interopRequireDefault(__nccwpck_require__(507));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19497,7 +14859,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 6900:
+/***/ 6200:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19508,7 +14870,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _regex = _interopRequireDefault(__nccwpck_require__(814));
+var _regex = _interopRequireDefault(__nccwpck_require__(7879));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19521,7 +14883,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 1595:
+/***/ 5868:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19532,7 +14894,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _validate = _interopRequireDefault(__nccwpck_require__(6900));
+var _validate = _interopRequireDefault(__nccwpck_require__(6200));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19549,7 +14911,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 9491:
+/***/ 2613:
 /***/ ((module) => {
 
 "use strict";
@@ -19557,7 +14919,7 @@ module.exports = require("assert");
 
 /***/ }),
 
-/***/ 4300:
+/***/ 181:
 /***/ ((module) => {
 
 "use strict";
@@ -19565,7 +14927,7 @@ module.exports = require("buffer");
 
 /***/ }),
 
-/***/ 2081:
+/***/ 5317:
 /***/ ((module) => {
 
 "use strict";
@@ -19573,7 +14935,7 @@ module.exports = require("child_process");
 
 /***/ }),
 
-/***/ 6113:
+/***/ 6982:
 /***/ ((module) => {
 
 "use strict";
@@ -19581,7 +14943,7 @@ module.exports = require("crypto");
 
 /***/ }),
 
-/***/ 2361:
+/***/ 4434:
 /***/ ((module) => {
 
 "use strict";
@@ -19589,7 +14951,7 @@ module.exports = require("events");
 
 /***/ }),
 
-/***/ 7147:
+/***/ 9896:
 /***/ ((module) => {
 
 "use strict";
@@ -19597,7 +14959,7 @@ module.exports = require("fs");
 
 /***/ }),
 
-/***/ 3685:
+/***/ 8611:
 /***/ ((module) => {
 
 "use strict";
@@ -19605,7 +14967,7 @@ module.exports = require("http");
 
 /***/ }),
 
-/***/ 5687:
+/***/ 5692:
 /***/ ((module) => {
 
 "use strict";
@@ -19613,7 +14975,7 @@ module.exports = require("https");
 
 /***/ }),
 
-/***/ 1808:
+/***/ 9278:
 /***/ ((module) => {
 
 "use strict";
@@ -19621,7 +14983,7 @@ module.exports = require("net");
 
 /***/ }),
 
-/***/ 2254:
+/***/ 4573:
 /***/ ((module) => {
 
 "use strict";
@@ -19629,7 +14991,7 @@ module.exports = require("node:buffer");
 
 /***/ }),
 
-/***/ 7718:
+/***/ 1421:
 /***/ ((module) => {
 
 "use strict";
@@ -19637,7 +14999,7 @@ module.exports = require("node:child_process");
 
 /***/ }),
 
-/***/ 6005:
+/***/ 7598:
 /***/ ((module) => {
 
 "use strict";
@@ -19645,7 +15007,7 @@ module.exports = require("node:crypto");
 
 /***/ }),
 
-/***/ 7561:
+/***/ 3024:
 /***/ ((module) => {
 
 "use strict";
@@ -19653,7 +15015,7 @@ module.exports = require("node:fs");
 
 /***/ }),
 
-/***/ 3977:
+/***/ 1455:
 /***/ ((module) => {
 
 "use strict";
@@ -19661,7 +15023,7 @@ module.exports = require("node:fs/promises");
 
 /***/ }),
 
-/***/ 8849:
+/***/ 7067:
 /***/ ((module) => {
 
 "use strict";
@@ -19669,7 +15031,7 @@ module.exports = require("node:http");
 
 /***/ }),
 
-/***/ 2286:
+/***/ 4708:
 /***/ ((module) => {
 
 "use strict";
@@ -19677,7 +15039,7 @@ module.exports = require("node:https");
 
 /***/ }),
 
-/***/ 612:
+/***/ 8161:
 /***/ ((module) => {
 
 "use strict";
@@ -19685,7 +15047,7 @@ module.exports = require("node:os");
 
 /***/ }),
 
-/***/ 9411:
+/***/ 6760:
 /***/ ((module) => {
 
 "use strict";
@@ -19693,7 +15055,7 @@ module.exports = require("node:path");
 
 /***/ }),
 
-/***/ 7742:
+/***/ 1708:
 /***/ ((module) => {
 
 "use strict";
@@ -19701,7 +15063,7 @@ module.exports = require("node:process");
 
 /***/ }),
 
-/***/ 4492:
+/***/ 7075:
 /***/ ((module) => {
 
 "use strict";
@@ -19709,7 +15071,7 @@ module.exports = require("node:stream");
 
 /***/ }),
 
-/***/ 1041:
+/***/ 3136:
 /***/ ((module) => {
 
 "use strict";
@@ -19717,7 +15079,7 @@ module.exports = require("node:url");
 
 /***/ }),
 
-/***/ 7261:
+/***/ 7975:
 /***/ ((module) => {
 
 "use strict";
@@ -19725,7 +15087,7 @@ module.exports = require("node:util");
 
 /***/ }),
 
-/***/ 5628:
+/***/ 8522:
 /***/ ((module) => {
 
 "use strict";
@@ -19733,7 +15095,7 @@ module.exports = require("node:zlib");
 
 /***/ }),
 
-/***/ 2037:
+/***/ 857:
 /***/ ((module) => {
 
 "use strict";
@@ -19741,7 +15103,7 @@ module.exports = require("os");
 
 /***/ }),
 
-/***/ 1017:
+/***/ 6928:
 /***/ ((module) => {
 
 "use strict";
@@ -19749,7 +15111,7 @@ module.exports = require("path");
 
 /***/ }),
 
-/***/ 2781:
+/***/ 2203:
 /***/ ((module) => {
 
 "use strict";
@@ -19757,7 +15119,7 @@ module.exports = require("stream");
 
 /***/ }),
 
-/***/ 1576:
+/***/ 3193:
 /***/ ((module) => {
 
 "use strict";
@@ -19765,7 +15127,7 @@ module.exports = require("string_decoder");
 
 /***/ }),
 
-/***/ 9512:
+/***/ 3557:
 /***/ ((module) => {
 
 "use strict";
@@ -19773,7 +15135,7 @@ module.exports = require("timers");
 
 /***/ }),
 
-/***/ 4404:
+/***/ 4756:
 /***/ ((module) => {
 
 "use strict";
@@ -19781,7 +15143,7 @@ module.exports = require("tls");
 
 /***/ }),
 
-/***/ 6224:
+/***/ 2018:
 /***/ ((module) => {
 
 "use strict";
@@ -19789,7 +15151,7 @@ module.exports = require("tty");
 
 /***/ }),
 
-/***/ 7310:
+/***/ 7016:
 /***/ ((module) => {
 
 "use strict";
@@ -19797,7 +15159,7 @@ module.exports = require("url");
 
 /***/ }),
 
-/***/ 3837:
+/***/ 9023:
 /***/ ((module) => {
 
 "use strict";
@@ -19805,7 +15167,7 @@ module.exports = require("util");
 
 /***/ }),
 
-/***/ 528:
+/***/ 353:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19814,8 +15176,8 @@ module.exports = require("util");
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.appConfigKeyCredentialPolicy = appConfigKeyCredentialPolicy;
-const core_util_1 = __nccwpck_require__(637);
-const logger_js_1 = __nccwpck_require__(6226);
+const core_util_1 = __nccwpck_require__(7779);
+const logger_js_1 = __nccwpck_require__(4541);
 /**
  * Create an HTTP pipeline policy to authenticate a request
  * using an `AzureKeyCredential` for AppConfig.
@@ -19849,7 +15211,7 @@ function appConfigKeyCredentialPolicy(credential, secret) {
 
 /***/ }),
 
-/***/ 113:
+/***/ 2949:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -19858,16 +15220,16 @@ function appConfigKeyCredentialPolicy(credential, secret) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppConfigurationClient = void 0;
-const core_paging_1 = __nccwpck_require__(4559);
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
-const synctokenpolicy_js_1 = __nccwpck_require__(1594);
-const core_auth_1 = __nccwpck_require__(8834);
-const helpers_js_1 = __nccwpck_require__(1232);
-const appConfiguration_js_1 = __nccwpck_require__(3205);
-const appConfigCredential_js_1 = __nccwpck_require__(528);
-const tracing_js_1 = __nccwpck_require__(5327);
-const logger_js_1 = __nccwpck_require__(6226);
-const constants_js_1 = __nccwpck_require__(1820);
+const core_paging_1 = __nccwpck_require__(9851);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
+const synctokenpolicy_js_1 = __nccwpck_require__(9865);
+const core_auth_1 = __nccwpck_require__(417);
+const helpers_js_1 = __nccwpck_require__(4070);
+const appConfiguration_js_1 = __nccwpck_require__(3376);
+const appConfigCredential_js_1 = __nccwpck_require__(353);
+const tracing_js_1 = __nccwpck_require__(2625);
+const logger_js_1 = __nccwpck_require__(4541);
+const constants_js_1 = __nccwpck_require__(7837);
 const ConnectionStringRegex = /Endpoint=(.*);Id=(.*);Secret=(.*)/;
 const deserializationContentTypes = {
     json: [
@@ -20327,7 +15689,7 @@ exports.AppConfigurationClient = AppConfigurationClient;
 
 /***/ }),
 
-/***/ 6901:
+/***/ 3165:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -20338,7 +15700,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FeatureFlagHelper = exports.featureFlagContentType = exports.featureFlagPrefix = void 0;
 exports.parseFeatureFlag = parseFeatureFlag;
 exports.isFeatureFlag = isFeatureFlag;
-const logger_js_1 = __nccwpck_require__(6226);
+const logger_js_1 = __nccwpck_require__(4541);
 /**
  * The prefix for feature flags.
  */
@@ -20413,7 +15775,7 @@ function isFeatureFlag(setting) {
 
 /***/ }),
 
-/***/ 3205:
+/***/ 3376:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -20427,13 +15789,13 @@ function isFeatureFlag(setting) {
 */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppConfiguration = void 0;
-const tslib_1 = __nccwpck_require__(2350);
-const coreClient = tslib_1.__importStar(__nccwpck_require__(7611));
-const coreHttpCompat = tslib_1.__importStar(__nccwpck_require__(6232));
-const core_lro_1 = __nccwpck_require__(7094);
-const lroImpl_js_1 = __nccwpck_require__(12);
-const Parameters = tslib_1.__importStar(__nccwpck_require__(4505));
-const Mappers = tslib_1.__importStar(__nccwpck_require__(286));
+const tslib_1 = __nccwpck_require__(1860);
+const coreClient = tslib_1.__importStar(__nccwpck_require__(160));
+const coreHttpCompat = tslib_1.__importStar(__nccwpck_require__(1504));
+const core_lro_1 = __nccwpck_require__(5862);
+const lroImpl_js_1 = __nccwpck_require__(3411);
+const Parameters = tslib_1.__importStar(__nccwpck_require__(2253));
+const Mappers = tslib_1.__importStar(__nccwpck_require__(6751));
 /** @internal */
 class AppConfiguration extends coreHttpCompat.ExtendedServiceClient {
     /**
@@ -21324,7 +16686,7 @@ const getRevisionsNextOperationSpec = {
 
 /***/ }),
 
-/***/ 4231:
+/***/ 7346:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -21338,15 +16700,15 @@ const getRevisionsNextOperationSpec = {
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppConfiguration = void 0;
-const tslib_1 = __nccwpck_require__(2350);
-tslib_1.__exportStar(__nccwpck_require__(8741), exports);
-var appConfiguration_js_1 = __nccwpck_require__(3205);
+const tslib_1 = __nccwpck_require__(1860);
+tslib_1.__exportStar(__nccwpck_require__(4713), exports);
+var appConfiguration_js_1 = __nccwpck_require__(3376);
 Object.defineProperty(exports, "AppConfiguration", ({ enumerable: true, get: function () { return appConfiguration_js_1.AppConfiguration; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 12:
+/***/ 3411:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -21360,7 +16722,7 @@ Object.defineProperty(exports, "AppConfiguration", ({ enumerable: true, get: fun
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createLroSpec = createLroSpec;
-const tslib_1 = __nccwpck_require__(2350);
+const tslib_1 = __nccwpck_require__(1860);
 function createLroSpec(inputs) {
     const { args, spec, sendOperationFn } = inputs;
     return {
@@ -21377,7 +16739,7 @@ function createLroSpec(inputs) {
 
 /***/ }),
 
-/***/ 8741:
+/***/ 4713:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -21485,7 +16847,7 @@ var KnownLabelFields;
 
 /***/ }),
 
-/***/ 286:
+/***/ 6751:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -22460,7 +17822,7 @@ exports.AppConfigurationGetRevisionsNextHeaders = {
 
 /***/ }),
 
-/***/ 4505:
+/***/ 2253:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -22474,7 +17836,7 @@ exports.AppConfigurationGetRevisionsNextHeaders = {
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.nextLink = exports.snapshot1 = exports.accept6 = exports.select2 = exports.accept5 = exports.entity2 = exports.contentType2 = exports.name2 = exports.entity1 = exports.contentType1 = exports.name1 = exports.accept4 = exports.status = exports.select1 = exports.accept3 = exports.entity = exports.contentType = exports.key1 = exports.accept2 = exports.tags = exports.ifNoneMatch = exports.ifMatch = exports.snapshot = exports.select = exports.label = exports.key = exports.accept1 = exports.acceptDatetime = exports.after = exports.apiVersion = exports.syncToken = exports.name = exports.endpoint = exports.accept = void 0;
-const mappers_js_1 = __nccwpck_require__(286);
+const mappers_js_1 = __nccwpck_require__(6751);
 exports.accept = {
     parameterPath: "accept",
     mapper: {
@@ -22835,7 +18197,7 @@ exports.nextLink = {
 
 /***/ }),
 
-/***/ 910:
+/***/ 7717:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -22844,16 +18206,16 @@ exports.nextLink = {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.secretReferenceContentType = exports.parseSecretReference = exports.isSecretReference = exports.parseFeatureFlag = exports.isFeatureFlag = exports.featureFlagPrefix = exports.featureFlagContentType = exports.AppConfigurationClient = void 0;
-const tslib_1 = __nccwpck_require__(2350);
-var appConfigurationClient_js_1 = __nccwpck_require__(113);
+const tslib_1 = __nccwpck_require__(1860);
+var appConfigurationClient_js_1 = __nccwpck_require__(2949);
 Object.defineProperty(exports, "AppConfigurationClient", ({ enumerable: true, get: function () { return appConfigurationClient_js_1.AppConfigurationClient; } }));
-var featureFlag_js_1 = __nccwpck_require__(6901);
+var featureFlag_js_1 = __nccwpck_require__(3165);
 Object.defineProperty(exports, "featureFlagContentType", ({ enumerable: true, get: function () { return featureFlag_js_1.featureFlagContentType; } }));
 Object.defineProperty(exports, "featureFlagPrefix", ({ enumerable: true, get: function () { return featureFlag_js_1.featureFlagPrefix; } }));
 Object.defineProperty(exports, "isFeatureFlag", ({ enumerable: true, get: function () { return featureFlag_js_1.isFeatureFlag; } }));
 Object.defineProperty(exports, "parseFeatureFlag", ({ enumerable: true, get: function () { return featureFlag_js_1.parseFeatureFlag; } }));
-tslib_1.__exportStar(__nccwpck_require__(266), exports);
-var secretReference_js_1 = __nccwpck_require__(5994);
+tslib_1.__exportStar(__nccwpck_require__(6399), exports);
+var secretReference_js_1 = __nccwpck_require__(8312);
 Object.defineProperty(exports, "isSecretReference", ({ enumerable: true, get: function () { return secretReference_js_1.isSecretReference; } }));
 Object.defineProperty(exports, "parseSecretReference", ({ enumerable: true, get: function () { return secretReference_js_1.parseSecretReference; } }));
 Object.defineProperty(exports, "secretReferenceContentType", ({ enumerable: true, get: function () { return secretReference_js_1.secretReferenceContentType; } }));
@@ -22861,7 +18223,7 @@ Object.defineProperty(exports, "secretReferenceContentType", ({ enumerable: true
 
 /***/ }),
 
-/***/ 1820:
+/***/ 7837:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -22882,7 +18244,7 @@ exports.appConfigurationApiVersion = "2023-11-01";
 
 /***/ }),
 
-/***/ 1232:
+/***/ 4070:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -22909,11 +18271,11 @@ exports.formatFieldsForSelect = formatFieldsForSelect;
 exports.errorMessageForUnexpectedSetting = errorMessageForUnexpectedSetting;
 exports.assertResponse = assertResponse;
 exports.hasUnderscoreResponse = hasUnderscoreResponse;
-const tslib_1 = __nccwpck_require__(2350);
-const featureFlag_js_1 = __nccwpck_require__(6901);
-const secretReference_js_1 = __nccwpck_require__(5994);
-const core_util_1 = __nccwpck_require__(637);
-const logger_js_1 = __nccwpck_require__(6226);
+const tslib_1 = __nccwpck_require__(1860);
+const featureFlag_js_1 = __nccwpck_require__(3165);
+const secretReference_js_1 = __nccwpck_require__(8312);
+const core_util_1 = __nccwpck_require__(7779);
+const logger_js_1 = __nccwpck_require__(4541);
 /**
  * Formats the etag so it can be used with a If-Match/If-None-Match header
  * @internal
@@ -23228,7 +18590,7 @@ function hasUnderscoreResponse(result) {
 
 /***/ }),
 
-/***/ 1594:
+/***/ 9865:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -23239,7 +18601,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SyncTokens = exports.SyncTokenHeaderName = void 0;
 exports.syncTokenPolicy = syncTokenPolicy;
 exports.parseSyncToken = parseSyncToken;
-const logger_js_1 = __nccwpck_require__(6226);
+const logger_js_1 = __nccwpck_require__(4541);
 /**
  * The sync token header, as described here:
  * https://docs.microsoft.com/azure/azure-app-configuration/rest-api-consistency
@@ -23358,7 +18720,7 @@ function parseSyncToken(syncToken) {
 
 /***/ }),
 
-/***/ 5327:
+/***/ 2625:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -23367,8 +18729,8 @@ function parseSyncToken(syncToken) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.tracingClient = void 0;
-const core_tracing_1 = __nccwpck_require__(4175);
-const constants_js_1 = __nccwpck_require__(1820);
+const core_tracing_1 = __nccwpck_require__(5553);
+const constants_js_1 = __nccwpck_require__(7837);
 /** @internal */
 exports.tracingClient = (0, core_tracing_1.createTracingClient)({
     namespace: "Microsoft.AppConfiguration",
@@ -23379,7 +18741,7 @@ exports.tracingClient = (0, core_tracing_1.createTracingClient)({
 
 /***/ }),
 
-/***/ 6226:
+/***/ 4541:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -23388,7 +18750,7 @@ exports.tracingClient = (0, core_tracing_1.createTracingClient)({
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.logger = void 0;
-const logger_1 = __nccwpck_require__(3233);
+const logger_1 = __nccwpck_require__(6515);
 /**
  * The `@azure/logger` configuration for this package.
  * @internal
@@ -23398,7 +18760,7 @@ exports.logger = (0, logger_1.createClientLogger)("app-config");
 
 /***/ }),
 
-/***/ 266:
+/***/ 6399:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -23407,14 +18769,14 @@ exports.logger = (0, logger_1.createClientLogger)("app-config");
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.KnownConfigurationSnapshotStatus = exports.KnownSnapshotComposition = void 0;
-var index_js_1 = __nccwpck_require__(4231);
+var index_js_1 = __nccwpck_require__(7346);
 Object.defineProperty(exports, "KnownSnapshotComposition", ({ enumerable: true, get: function () { return index_js_1.KnownSnapshotComposition; } }));
 Object.defineProperty(exports, "KnownConfigurationSnapshotStatus", ({ enumerable: true, get: function () { return index_js_1.KnownConfigurationSnapshotStatus; } }));
 //# sourceMappingURL=models.js.map
 
 /***/ }),
 
-/***/ 5994:
+/***/ 8312:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -23425,7 +18787,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SecretReferenceHelper = exports.secretReferenceContentType = void 0;
 exports.parseSecretReference = parseSecretReference;
 exports.isSecretReference = isSecretReference;
-const logger_js_1 = __nccwpck_require__(6226);
+const logger_js_1 = __nccwpck_require__(4541);
 /**
  * content-type for the secret reference.
  */
@@ -23477,7 +18839,7 @@ function isSecretReference(setting) {
 
 /***/ }),
 
-/***/ 1875:
+/***/ 198:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -23526,7 +18888,7 @@ exports.AzureKeyCredential = AzureKeyCredential;
 
 /***/ }),
 
-/***/ 1377:
+/***/ 1295:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -23536,7 +18898,7 @@ exports.AzureKeyCredential = AzureKeyCredential;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AzureNamedKeyCredential = void 0;
 exports.isNamedKeyCredential = isNamedKeyCredential;
-const core_util_1 = __nccwpck_require__(637);
+const core_util_1 = __nccwpck_require__(7779);
 /**
  * A static name/key-based credential that supports updating
  * the underlying name and key values.
@@ -23600,7 +18962,7 @@ function isNamedKeyCredential(credential) {
 
 /***/ }),
 
-/***/ 7182:
+/***/ 6608:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -23610,7 +18972,7 @@ function isNamedKeyCredential(credential) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AzureSASCredential = void 0;
 exports.isSASCredential = isSASCredential;
-const core_util_1 = __nccwpck_require__(637);
+const core_util_1 = __nccwpck_require__(7779);
 /**
  * A static-signature-based credential that supports updating
  * the underlying signature value.
@@ -23662,30 +19024,30 @@ function isSASCredential(credential) {
 
 /***/ }),
 
-/***/ 8834:
+/***/ 417:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isTokenCredential = exports.isSASCredential = exports.AzureSASCredential = exports.isNamedKeyCredential = exports.AzureNamedKeyCredential = exports.isKeyCredential = exports.AzureKeyCredential = void 0;
-var azureKeyCredential_js_1 = __nccwpck_require__(1875);
+var azureKeyCredential_js_1 = __nccwpck_require__(198);
 Object.defineProperty(exports, "AzureKeyCredential", ({ enumerable: true, get: function () { return azureKeyCredential_js_1.AzureKeyCredential; } }));
-var keyCredential_js_1 = __nccwpck_require__(9122);
+var keyCredential_js_1 = __nccwpck_require__(9155);
 Object.defineProperty(exports, "isKeyCredential", ({ enumerable: true, get: function () { return keyCredential_js_1.isKeyCredential; } }));
-var azureNamedKeyCredential_js_1 = __nccwpck_require__(1377);
+var azureNamedKeyCredential_js_1 = __nccwpck_require__(1295);
 Object.defineProperty(exports, "AzureNamedKeyCredential", ({ enumerable: true, get: function () { return azureNamedKeyCredential_js_1.AzureNamedKeyCredential; } }));
 Object.defineProperty(exports, "isNamedKeyCredential", ({ enumerable: true, get: function () { return azureNamedKeyCredential_js_1.isNamedKeyCredential; } }));
-var azureSASCredential_js_1 = __nccwpck_require__(7182);
+var azureSASCredential_js_1 = __nccwpck_require__(6608);
 Object.defineProperty(exports, "AzureSASCredential", ({ enumerable: true, get: function () { return azureSASCredential_js_1.AzureSASCredential; } }));
 Object.defineProperty(exports, "isSASCredential", ({ enumerable: true, get: function () { return azureSASCredential_js_1.isSASCredential; } }));
-var tokenCredential_js_1 = __nccwpck_require__(9162);
+var tokenCredential_js_1 = __nccwpck_require__(6881);
 Object.defineProperty(exports, "isTokenCredential", ({ enumerable: true, get: function () { return tokenCredential_js_1.isTokenCredential; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 9122:
+/***/ 9155:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -23694,7 +19056,7 @@ Object.defineProperty(exports, "isTokenCredential", ({ enumerable: true, get: fu
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isKeyCredential = isKeyCredential;
-const core_util_1 = __nccwpck_require__(637);
+const core_util_1 = __nccwpck_require__(7779);
 /**
  * Tests an object to determine whether it implements KeyCredential.
  *
@@ -23707,7 +19069,7 @@ function isKeyCredential(credential) {
 
 /***/ }),
 
-/***/ 9162:
+/***/ 6881:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -23754,7 +19116,7 @@ function isTokenCredential(credential) {
 
 /***/ }),
 
-/***/ 4873:
+/***/ 7698:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -23764,8 +19126,8 @@ function isTokenCredential(credential) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseCAEChallenge = parseCAEChallenge;
 exports.authorizeRequestOnClaimChallenge = authorizeRequestOnClaimChallenge;
-const log_js_1 = __nccwpck_require__(3776);
-const base64_js_1 = __nccwpck_require__(3442);
+const log_js_1 = __nccwpck_require__(9994);
+const base64_js_1 = __nccwpck_require__(741);
 /**
  * Converts: `Bearer a="b", c="d", Bearer d="e", f="g"`.
  * Into: `[ { a: 'b', c: 'd' }, { d: 'e', f: 'g' } ]`.
@@ -23838,7 +19200,7 @@ async function authorizeRequestOnClaimChallenge(onChallengeOptions) {
 
 /***/ }),
 
-/***/ 6576:
+/***/ 7454:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -23963,7 +19325,7 @@ function requestToOptions(request) {
 
 /***/ }),
 
-/***/ 3442:
+/***/ 741:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -24012,7 +19374,7 @@ function decodeStringToString(value) {
 
 /***/ }),
 
-/***/ 5315:
+/***/ 111:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24022,10 +19384,10 @@ function decodeStringToString(value) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deserializationPolicyName = void 0;
 exports.deserializationPolicy = deserializationPolicy;
-const interfaces_js_1 = __nccwpck_require__(8153);
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
-const serializer_js_1 = __nccwpck_require__(3566);
-const operationHelpers_js_1 = __nccwpck_require__(2074);
+const interfaces_js_1 = __nccwpck_require__(6058);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
+const serializer_js_1 = __nccwpck_require__(1530);
+const operationHelpers_js_1 = __nccwpck_require__(9688);
 const defaultJsonContentTypes = ["application/json", "text/json"];
 const defaultXmlContentTypes = ["application/xml", "application/atom+xml"];
 /**
@@ -24256,7 +19618,7 @@ async function parse(jsonContentTypes, xmlContentTypes, operationResponse, opts,
 
 /***/ }),
 
-/***/ 308:
+/***/ 6323:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24265,7 +19627,7 @@ async function parse(jsonContentTypes, xmlContentTypes, operationResponse, opts,
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getCachedDefaultHttpClient = getCachedDefaultHttpClient;
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
 let cachedHttpClient;
 function getCachedDefaultHttpClient() {
     if (!cachedHttpClient) {
@@ -24277,7 +19639,7 @@ function getCachedDefaultHttpClient() {
 
 /***/ }),
 
-/***/ 7611:
+/***/ 160:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24286,31 +19648,31 @@ function getCachedDefaultHttpClient() {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.authorizeRequestOnTenantChallenge = exports.authorizeRequestOnClaimChallenge = exports.serializationPolicyName = exports.serializationPolicy = exports.deserializationPolicyName = exports.deserializationPolicy = exports.XML_CHARKEY = exports.XML_ATTRKEY = exports.createClientPipeline = exports.ServiceClient = exports.MapperTypeNames = exports.createSerializer = void 0;
-var serializer_js_1 = __nccwpck_require__(3566);
+var serializer_js_1 = __nccwpck_require__(1530);
 Object.defineProperty(exports, "createSerializer", ({ enumerable: true, get: function () { return serializer_js_1.createSerializer; } }));
 Object.defineProperty(exports, "MapperTypeNames", ({ enumerable: true, get: function () { return serializer_js_1.MapperTypeNames; } }));
-var serviceClient_js_1 = __nccwpck_require__(8927);
+var serviceClient_js_1 = __nccwpck_require__(9544);
 Object.defineProperty(exports, "ServiceClient", ({ enumerable: true, get: function () { return serviceClient_js_1.ServiceClient; } }));
-var pipeline_js_1 = __nccwpck_require__(3924);
+var pipeline_js_1 = __nccwpck_require__(4136);
 Object.defineProperty(exports, "createClientPipeline", ({ enumerable: true, get: function () { return pipeline_js_1.createClientPipeline; } }));
-var interfaces_js_1 = __nccwpck_require__(8153);
+var interfaces_js_1 = __nccwpck_require__(6058);
 Object.defineProperty(exports, "XML_ATTRKEY", ({ enumerable: true, get: function () { return interfaces_js_1.XML_ATTRKEY; } }));
 Object.defineProperty(exports, "XML_CHARKEY", ({ enumerable: true, get: function () { return interfaces_js_1.XML_CHARKEY; } }));
-var deserializationPolicy_js_1 = __nccwpck_require__(5315);
+var deserializationPolicy_js_1 = __nccwpck_require__(111);
 Object.defineProperty(exports, "deserializationPolicy", ({ enumerable: true, get: function () { return deserializationPolicy_js_1.deserializationPolicy; } }));
 Object.defineProperty(exports, "deserializationPolicyName", ({ enumerable: true, get: function () { return deserializationPolicy_js_1.deserializationPolicyName; } }));
-var serializationPolicy_js_1 = __nccwpck_require__(6625);
+var serializationPolicy_js_1 = __nccwpck_require__(6234);
 Object.defineProperty(exports, "serializationPolicy", ({ enumerable: true, get: function () { return serializationPolicy_js_1.serializationPolicy; } }));
 Object.defineProperty(exports, "serializationPolicyName", ({ enumerable: true, get: function () { return serializationPolicy_js_1.serializationPolicyName; } }));
-var authorizeRequestOnClaimChallenge_js_1 = __nccwpck_require__(4873);
+var authorizeRequestOnClaimChallenge_js_1 = __nccwpck_require__(7698);
 Object.defineProperty(exports, "authorizeRequestOnClaimChallenge", ({ enumerable: true, get: function () { return authorizeRequestOnClaimChallenge_js_1.authorizeRequestOnClaimChallenge; } }));
-var authorizeRequestOnTenantChallenge_js_1 = __nccwpck_require__(6576);
+var authorizeRequestOnTenantChallenge_js_1 = __nccwpck_require__(7454);
 Object.defineProperty(exports, "authorizeRequestOnTenantChallenge", ({ enumerable: true, get: function () { return authorizeRequestOnTenantChallenge_js_1.authorizeRequestOnTenantChallenge; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 1459:
+/***/ 2066:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24320,7 +19682,7 @@ Object.defineProperty(exports, "authorizeRequestOnTenantChallenge", ({ enumerabl
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getStreamingResponseStatusCodes = getStreamingResponseStatusCodes;
 exports.getPathStringFromParameter = getPathStringFromParameter;
-const serializer_js_1 = __nccwpck_require__(3566);
+const serializer_js_1 = __nccwpck_require__(1530);
 /**
  * Gets the list of status codes for streaming responses.
  * @internal
@@ -24360,7 +19722,7 @@ function getPathStringFromParameter(parameter) {
 
 /***/ }),
 
-/***/ 8153:
+/***/ 6058:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -24381,7 +19743,7 @@ exports.XML_CHARKEY = "_";
 
 /***/ }),
 
-/***/ 3776:
+/***/ 9994:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24390,13 +19752,13 @@ exports.XML_CHARKEY = "_";
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.logger = void 0;
-const logger_1 = __nccwpck_require__(3233);
+const logger_1 = __nccwpck_require__(6515);
 exports.logger = (0, logger_1.createClientLogger)("core-client");
 //# sourceMappingURL=log.js.map
 
 /***/ }),
 
-/***/ 2074:
+/***/ 9688:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24406,7 +19768,7 @@ exports.logger = (0, logger_1.createClientLogger)("core-client");
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getOperationArgumentValueFromParameter = getOperationArgumentValueFromParameter;
 exports.getOperationRequestInfo = getOperationRequestInfo;
-const state_js_1 = __nccwpck_require__(5429);
+const state_js_1 = __nccwpck_require__(3345);
 /**
  * @internal
  * Retrieves the value to use for a given operation argument
@@ -24501,7 +19863,7 @@ function getOperationRequestInfo(request) {
 
 /***/ }),
 
-/***/ 3924:
+/***/ 4136:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24510,9 +19872,9 @@ function getOperationRequestInfo(request) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createClientPipeline = createClientPipeline;
-const deserializationPolicy_js_1 = __nccwpck_require__(5315);
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
-const serializationPolicy_js_1 = __nccwpck_require__(6625);
+const deserializationPolicy_js_1 = __nccwpck_require__(111);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
+const serializationPolicy_js_1 = __nccwpck_require__(6234);
 /**
  * Creates a new Pipeline for use with a Service Client.
  * Adds in deserializationPolicy by default.
@@ -24537,7 +19899,7 @@ function createClientPipeline(options = {}) {
 
 /***/ }),
 
-/***/ 6625:
+/***/ 6234:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24549,10 +19911,10 @@ exports.serializationPolicyName = void 0;
 exports.serializationPolicy = serializationPolicy;
 exports.serializeHeaders = serializeHeaders;
 exports.serializeRequestBody = serializeRequestBody;
-const interfaces_js_1 = __nccwpck_require__(8153);
-const operationHelpers_js_1 = __nccwpck_require__(2074);
-const serializer_js_1 = __nccwpck_require__(3566);
-const interfaceHelpers_js_1 = __nccwpck_require__(1459);
+const interfaces_js_1 = __nccwpck_require__(6058);
+const operationHelpers_js_1 = __nccwpck_require__(9688);
+const serializer_js_1 = __nccwpck_require__(1530);
+const interfaceHelpers_js_1 = __nccwpck_require__(2066);
 /**
  * The programmatic identifier of the serializationPolicy.
  */
@@ -24703,7 +20065,7 @@ function prepareXMLRootList(obj, elementName, xmlNamespaceKey, xmlNamespace) {
 
 /***/ }),
 
-/***/ 3566:
+/***/ 1530:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24713,10 +20075,10 @@ function prepareXMLRootList(obj, elementName, xmlNamespaceKey, xmlNamespace) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MapperTypeNames = void 0;
 exports.createSerializer = createSerializer;
-const tslib_1 = __nccwpck_require__(8714);
-const base64 = tslib_1.__importStar(__nccwpck_require__(3442));
-const interfaces_js_1 = __nccwpck_require__(8153);
-const utils_js_1 = __nccwpck_require__(5363);
+const tslib_1 = __nccwpck_require__(1860);
+const base64 = tslib_1.__importStar(__nccwpck_require__(741));
+const interfaces_js_1 = __nccwpck_require__(6058);
+const utils_js_1 = __nccwpck_require__(1193);
 class SerializerImpl {
     constructor(modelMappers = {}, isXML = false) {
         this.modelMappers = modelMappers;
@@ -25637,7 +20999,7 @@ exports.MapperTypeNames = {
 
 /***/ }),
 
-/***/ 8927:
+/***/ 9544:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -25646,14 +21008,14 @@ exports.MapperTypeNames = {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ServiceClient = void 0;
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
-const pipeline_js_1 = __nccwpck_require__(3924);
-const utils_js_1 = __nccwpck_require__(5363);
-const httpClientCache_js_1 = __nccwpck_require__(308);
-const operationHelpers_js_1 = __nccwpck_require__(2074);
-const urlHelpers_js_1 = __nccwpck_require__(8258);
-const interfaceHelpers_js_1 = __nccwpck_require__(1459);
-const log_js_1 = __nccwpck_require__(3776);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
+const pipeline_js_1 = __nccwpck_require__(4136);
+const utils_js_1 = __nccwpck_require__(1193);
+const httpClientCache_js_1 = __nccwpck_require__(6323);
+const operationHelpers_js_1 = __nccwpck_require__(9688);
+const urlHelpers_js_1 = __nccwpck_require__(1752);
+const interfaceHelpers_js_1 = __nccwpck_require__(2066);
+const log_js_1 = __nccwpck_require__(9994);
 /**
  * Initializes a new instance of the ServiceClient.
  */
@@ -25796,7 +21158,7 @@ function getCredentialScopes(options) {
 
 /***/ }),
 
-/***/ 5429:
+/***/ 3345:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -25815,7 +21177,7 @@ exports.state = {
 
 /***/ }),
 
-/***/ 8258:
+/***/ 1752:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -25825,8 +21187,8 @@ exports.state = {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRequestUrl = getRequestUrl;
 exports.appendQueryParams = appendQueryParams;
-const operationHelpers_js_1 = __nccwpck_require__(2074);
-const interfaceHelpers_js_1 = __nccwpck_require__(1459);
+const operationHelpers_js_1 = __nccwpck_require__(9688);
+const interfaceHelpers_js_1 = __nccwpck_require__(2066);
 const CollectionFormatToDelimiterMap = {
     CSV: ",",
     SSV: " ",
@@ -26061,7 +21423,7 @@ function appendQueryParams(url, queryParams, sequenceParams, noOverwrite = false
 
 /***/ }),
 
-/***/ 5363:
+/***/ 1193:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -26189,7 +21551,7 @@ function flattenResponse(fullResponse, responseSpec) {
 
 /***/ }),
 
-/***/ 3171:
+/***/ 6427:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -26204,7 +21566,7 @@ exports.DEFAULT_RETRY_POLICY_COUNT = 3;
 
 /***/ }),
 
-/***/ 1060:
+/***/ 862:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -26213,20 +21575,20 @@ exports.DEFAULT_RETRY_POLICY_COUNT = 3;
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createPipelineFromOptions = createPipelineFromOptions;
-const logPolicy_js_1 = __nccwpck_require__(6821);
-const pipeline_js_1 = __nccwpck_require__(3906);
-const redirectPolicy_js_1 = __nccwpck_require__(8526);
-const userAgentPolicy_js_1 = __nccwpck_require__(8935);
-const multipartPolicy_js_1 = __nccwpck_require__(9042);
-const decompressResponsePolicy_js_1 = __nccwpck_require__(7618);
-const defaultRetryPolicy_js_1 = __nccwpck_require__(8549);
-const formDataPolicy_js_1 = __nccwpck_require__(6501);
-const core_util_1 = __nccwpck_require__(637);
-const proxyPolicy_js_1 = __nccwpck_require__(4761);
-const setClientRequestIdPolicy_js_1 = __nccwpck_require__(3860);
-const agentPolicy_js_1 = __nccwpck_require__(5093);
-const tlsPolicy_js_1 = __nccwpck_require__(8446);
-const tracingPolicy_js_1 = __nccwpck_require__(606);
+const logPolicy_js_1 = __nccwpck_require__(3253);
+const pipeline_js_1 = __nccwpck_require__(9590);
+const redirectPolicy_js_1 = __nccwpck_require__(4087);
+const userAgentPolicy_js_1 = __nccwpck_require__(2799);
+const multipartPolicy_js_1 = __nccwpck_require__(5807);
+const decompressResponsePolicy_js_1 = __nccwpck_require__(9295);
+const defaultRetryPolicy_js_1 = __nccwpck_require__(8170);
+const formDataPolicy_js_1 = __nccwpck_require__(5497);
+const core_util_1 = __nccwpck_require__(7779);
+const proxyPolicy_js_1 = __nccwpck_require__(2815);
+const setClientRequestIdPolicy_js_1 = __nccwpck_require__(5686);
+const agentPolicy_js_1 = __nccwpck_require__(8554);
+const tlsPolicy_js_1 = __nccwpck_require__(5798);
+const tracingPolicy_js_1 = __nccwpck_require__(3237);
 /**
  * Create a new pipeline with a default set of customizable policies.
  * @param options - Options to configure a custom pipeline.
@@ -26267,7 +21629,7 @@ function createPipelineFromOptions(options) {
 
 /***/ }),
 
-/***/ 8609:
+/***/ 7960:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -26276,7 +21638,7 @@ function createPipelineFromOptions(options) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createDefaultHttpClient = createDefaultHttpClient;
-const nodeHttpClient_js_1 = __nccwpck_require__(9463);
+const nodeHttpClient_js_1 = __nccwpck_require__(195);
 /**
  * Create the correct HttpClient for the current environment.
  */
@@ -26287,7 +21649,7 @@ function createDefaultHttpClient() {
 
 /***/ }),
 
-/***/ 118:
+/***/ 192:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -26386,7 +21748,7 @@ function createHttpHeaders(rawHeaders) {
 
 /***/ }),
 
-/***/ 9146:
+/***/ 778:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -26395,83 +21757,83 @@ function createHttpHeaders(rawHeaders) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createFileFromStream = exports.createFile = exports.agentPolicyName = exports.agentPolicy = exports.auxiliaryAuthenticationHeaderPolicyName = exports.auxiliaryAuthenticationHeaderPolicy = exports.ndJsonPolicyName = exports.ndJsonPolicy = exports.bearerTokenAuthenticationPolicyName = exports.bearerTokenAuthenticationPolicy = exports.formDataPolicyName = exports.formDataPolicy = exports.tlsPolicyName = exports.tlsPolicy = exports.userAgentPolicyName = exports.userAgentPolicy = exports.defaultRetryPolicy = exports.tracingPolicyName = exports.tracingPolicy = exports.retryPolicy = exports.throttlingRetryPolicyName = exports.throttlingRetryPolicy = exports.systemErrorRetryPolicyName = exports.systemErrorRetryPolicy = exports.redirectPolicyName = exports.redirectPolicy = exports.getDefaultProxySettings = exports.proxyPolicyName = exports.proxyPolicy = exports.multipartPolicyName = exports.multipartPolicy = exports.logPolicyName = exports.logPolicy = exports.setClientRequestIdPolicyName = exports.setClientRequestIdPolicy = exports.exponentialRetryPolicyName = exports.exponentialRetryPolicy = exports.decompressResponsePolicyName = exports.decompressResponsePolicy = exports.isRestError = exports.RestError = exports.createPipelineRequest = exports.createHttpHeaders = exports.createDefaultHttpClient = exports.createPipelineFromOptions = exports.createEmptyPipeline = void 0;
-var pipeline_js_1 = __nccwpck_require__(3906);
+var pipeline_js_1 = __nccwpck_require__(9590);
 Object.defineProperty(exports, "createEmptyPipeline", ({ enumerable: true, get: function () { return pipeline_js_1.createEmptyPipeline; } }));
-var createPipelineFromOptions_js_1 = __nccwpck_require__(1060);
+var createPipelineFromOptions_js_1 = __nccwpck_require__(862);
 Object.defineProperty(exports, "createPipelineFromOptions", ({ enumerable: true, get: function () { return createPipelineFromOptions_js_1.createPipelineFromOptions; } }));
-var defaultHttpClient_js_1 = __nccwpck_require__(8609);
+var defaultHttpClient_js_1 = __nccwpck_require__(7960);
 Object.defineProperty(exports, "createDefaultHttpClient", ({ enumerable: true, get: function () { return defaultHttpClient_js_1.createDefaultHttpClient; } }));
-var httpHeaders_js_1 = __nccwpck_require__(118);
+var httpHeaders_js_1 = __nccwpck_require__(192);
 Object.defineProperty(exports, "createHttpHeaders", ({ enumerable: true, get: function () { return httpHeaders_js_1.createHttpHeaders; } }));
-var pipelineRequest_js_1 = __nccwpck_require__(3536);
+var pipelineRequest_js_1 = __nccwpck_require__(5709);
 Object.defineProperty(exports, "createPipelineRequest", ({ enumerable: true, get: function () { return pipelineRequest_js_1.createPipelineRequest; } }));
-var restError_js_1 = __nccwpck_require__(1036);
+var restError_js_1 = __nccwpck_require__(8666);
 Object.defineProperty(exports, "RestError", ({ enumerable: true, get: function () { return restError_js_1.RestError; } }));
 Object.defineProperty(exports, "isRestError", ({ enumerable: true, get: function () { return restError_js_1.isRestError; } }));
-var decompressResponsePolicy_js_1 = __nccwpck_require__(7618);
+var decompressResponsePolicy_js_1 = __nccwpck_require__(9295);
 Object.defineProperty(exports, "decompressResponsePolicy", ({ enumerable: true, get: function () { return decompressResponsePolicy_js_1.decompressResponsePolicy; } }));
 Object.defineProperty(exports, "decompressResponsePolicyName", ({ enumerable: true, get: function () { return decompressResponsePolicy_js_1.decompressResponsePolicyName; } }));
-var exponentialRetryPolicy_js_1 = __nccwpck_require__(1598);
+var exponentialRetryPolicy_js_1 = __nccwpck_require__(6708);
 Object.defineProperty(exports, "exponentialRetryPolicy", ({ enumerable: true, get: function () { return exponentialRetryPolicy_js_1.exponentialRetryPolicy; } }));
 Object.defineProperty(exports, "exponentialRetryPolicyName", ({ enumerable: true, get: function () { return exponentialRetryPolicy_js_1.exponentialRetryPolicyName; } }));
-var setClientRequestIdPolicy_js_1 = __nccwpck_require__(3860);
+var setClientRequestIdPolicy_js_1 = __nccwpck_require__(5686);
 Object.defineProperty(exports, "setClientRequestIdPolicy", ({ enumerable: true, get: function () { return setClientRequestIdPolicy_js_1.setClientRequestIdPolicy; } }));
 Object.defineProperty(exports, "setClientRequestIdPolicyName", ({ enumerable: true, get: function () { return setClientRequestIdPolicy_js_1.setClientRequestIdPolicyName; } }));
-var logPolicy_js_1 = __nccwpck_require__(6821);
+var logPolicy_js_1 = __nccwpck_require__(3253);
 Object.defineProperty(exports, "logPolicy", ({ enumerable: true, get: function () { return logPolicy_js_1.logPolicy; } }));
 Object.defineProperty(exports, "logPolicyName", ({ enumerable: true, get: function () { return logPolicy_js_1.logPolicyName; } }));
-var multipartPolicy_js_1 = __nccwpck_require__(9042);
+var multipartPolicy_js_1 = __nccwpck_require__(5807);
 Object.defineProperty(exports, "multipartPolicy", ({ enumerable: true, get: function () { return multipartPolicy_js_1.multipartPolicy; } }));
 Object.defineProperty(exports, "multipartPolicyName", ({ enumerable: true, get: function () { return multipartPolicy_js_1.multipartPolicyName; } }));
-var proxyPolicy_js_1 = __nccwpck_require__(4761);
+var proxyPolicy_js_1 = __nccwpck_require__(2815);
 Object.defineProperty(exports, "proxyPolicy", ({ enumerable: true, get: function () { return proxyPolicy_js_1.proxyPolicy; } }));
 Object.defineProperty(exports, "proxyPolicyName", ({ enumerable: true, get: function () { return proxyPolicy_js_1.proxyPolicyName; } }));
 Object.defineProperty(exports, "getDefaultProxySettings", ({ enumerable: true, get: function () { return proxyPolicy_js_1.getDefaultProxySettings; } }));
-var redirectPolicy_js_1 = __nccwpck_require__(8526);
+var redirectPolicy_js_1 = __nccwpck_require__(4087);
 Object.defineProperty(exports, "redirectPolicy", ({ enumerable: true, get: function () { return redirectPolicy_js_1.redirectPolicy; } }));
 Object.defineProperty(exports, "redirectPolicyName", ({ enumerable: true, get: function () { return redirectPolicy_js_1.redirectPolicyName; } }));
-var systemErrorRetryPolicy_js_1 = __nccwpck_require__(2470);
+var systemErrorRetryPolicy_js_1 = __nccwpck_require__(6518);
 Object.defineProperty(exports, "systemErrorRetryPolicy", ({ enumerable: true, get: function () { return systemErrorRetryPolicy_js_1.systemErrorRetryPolicy; } }));
 Object.defineProperty(exports, "systemErrorRetryPolicyName", ({ enumerable: true, get: function () { return systemErrorRetryPolicy_js_1.systemErrorRetryPolicyName; } }));
-var throttlingRetryPolicy_js_1 = __nccwpck_require__(4802);
+var throttlingRetryPolicy_js_1 = __nccwpck_require__(7540);
 Object.defineProperty(exports, "throttlingRetryPolicy", ({ enumerable: true, get: function () { return throttlingRetryPolicy_js_1.throttlingRetryPolicy; } }));
 Object.defineProperty(exports, "throttlingRetryPolicyName", ({ enumerable: true, get: function () { return throttlingRetryPolicy_js_1.throttlingRetryPolicyName; } }));
-var retryPolicy_js_1 = __nccwpck_require__(9700);
+var retryPolicy_js_1 = __nccwpck_require__(6085);
 Object.defineProperty(exports, "retryPolicy", ({ enumerable: true, get: function () { return retryPolicy_js_1.retryPolicy; } }));
-var tracingPolicy_js_1 = __nccwpck_require__(606);
+var tracingPolicy_js_1 = __nccwpck_require__(3237);
 Object.defineProperty(exports, "tracingPolicy", ({ enumerable: true, get: function () { return tracingPolicy_js_1.tracingPolicy; } }));
 Object.defineProperty(exports, "tracingPolicyName", ({ enumerable: true, get: function () { return tracingPolicy_js_1.tracingPolicyName; } }));
-var defaultRetryPolicy_js_1 = __nccwpck_require__(8549);
+var defaultRetryPolicy_js_1 = __nccwpck_require__(8170);
 Object.defineProperty(exports, "defaultRetryPolicy", ({ enumerable: true, get: function () { return defaultRetryPolicy_js_1.defaultRetryPolicy; } }));
-var userAgentPolicy_js_1 = __nccwpck_require__(8935);
+var userAgentPolicy_js_1 = __nccwpck_require__(2799);
 Object.defineProperty(exports, "userAgentPolicy", ({ enumerable: true, get: function () { return userAgentPolicy_js_1.userAgentPolicy; } }));
 Object.defineProperty(exports, "userAgentPolicyName", ({ enumerable: true, get: function () { return userAgentPolicy_js_1.userAgentPolicyName; } }));
-var tlsPolicy_js_1 = __nccwpck_require__(8446);
+var tlsPolicy_js_1 = __nccwpck_require__(5798);
 Object.defineProperty(exports, "tlsPolicy", ({ enumerable: true, get: function () { return tlsPolicy_js_1.tlsPolicy; } }));
 Object.defineProperty(exports, "tlsPolicyName", ({ enumerable: true, get: function () { return tlsPolicy_js_1.tlsPolicyName; } }));
-var formDataPolicy_js_1 = __nccwpck_require__(6501);
+var formDataPolicy_js_1 = __nccwpck_require__(5497);
 Object.defineProperty(exports, "formDataPolicy", ({ enumerable: true, get: function () { return formDataPolicy_js_1.formDataPolicy; } }));
 Object.defineProperty(exports, "formDataPolicyName", ({ enumerable: true, get: function () { return formDataPolicy_js_1.formDataPolicyName; } }));
-var bearerTokenAuthenticationPolicy_js_1 = __nccwpck_require__(1319);
+var bearerTokenAuthenticationPolicy_js_1 = __nccwpck_require__(6925);
 Object.defineProperty(exports, "bearerTokenAuthenticationPolicy", ({ enumerable: true, get: function () { return bearerTokenAuthenticationPolicy_js_1.bearerTokenAuthenticationPolicy; } }));
 Object.defineProperty(exports, "bearerTokenAuthenticationPolicyName", ({ enumerable: true, get: function () { return bearerTokenAuthenticationPolicy_js_1.bearerTokenAuthenticationPolicyName; } }));
-var ndJsonPolicy_js_1 = __nccwpck_require__(2032);
+var ndJsonPolicy_js_1 = __nccwpck_require__(6827);
 Object.defineProperty(exports, "ndJsonPolicy", ({ enumerable: true, get: function () { return ndJsonPolicy_js_1.ndJsonPolicy; } }));
 Object.defineProperty(exports, "ndJsonPolicyName", ({ enumerable: true, get: function () { return ndJsonPolicy_js_1.ndJsonPolicyName; } }));
-var auxiliaryAuthenticationHeaderPolicy_js_1 = __nccwpck_require__(8152);
+var auxiliaryAuthenticationHeaderPolicy_js_1 = __nccwpck_require__(2262);
 Object.defineProperty(exports, "auxiliaryAuthenticationHeaderPolicy", ({ enumerable: true, get: function () { return auxiliaryAuthenticationHeaderPolicy_js_1.auxiliaryAuthenticationHeaderPolicy; } }));
 Object.defineProperty(exports, "auxiliaryAuthenticationHeaderPolicyName", ({ enumerable: true, get: function () { return auxiliaryAuthenticationHeaderPolicy_js_1.auxiliaryAuthenticationHeaderPolicyName; } }));
-var agentPolicy_js_1 = __nccwpck_require__(5093);
+var agentPolicy_js_1 = __nccwpck_require__(8554);
 Object.defineProperty(exports, "agentPolicy", ({ enumerable: true, get: function () { return agentPolicy_js_1.agentPolicy; } }));
 Object.defineProperty(exports, "agentPolicyName", ({ enumerable: true, get: function () { return agentPolicy_js_1.agentPolicyName; } }));
-var file_js_1 = __nccwpck_require__(3224);
+var file_js_1 = __nccwpck_require__(7073);
 Object.defineProperty(exports, "createFile", ({ enumerable: true, get: function () { return file_js_1.createFile; } }));
 Object.defineProperty(exports, "createFileFromStream", ({ enumerable: true, get: function () { return file_js_1.createFileFromStream; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 648:
+/***/ 544:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -26480,13 +21842,13 @@ Object.defineProperty(exports, "createFileFromStream", ({ enumerable: true, get:
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.logger = void 0;
-const logger_1 = __nccwpck_require__(3233);
+const logger_1 = __nccwpck_require__(6515);
 exports.logger = (0, logger_1.createClientLogger)("core-rest-pipeline");
 //# sourceMappingURL=log.js.map
 
 /***/ }),
 
-/***/ 9463:
+/***/ 195:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -26496,16 +21858,16 @@ exports.logger = (0, logger_1.createClientLogger)("core-rest-pipeline");
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getBodyLength = getBodyLength;
 exports.createNodeHttpClient = createNodeHttpClient;
-const tslib_1 = __nccwpck_require__(9045);
-const http = tslib_1.__importStar(__nccwpck_require__(8849));
-const https = tslib_1.__importStar(__nccwpck_require__(2286));
-const zlib = tslib_1.__importStar(__nccwpck_require__(5628));
-const node_stream_1 = __nccwpck_require__(4492);
-const abort_controller_1 = __nccwpck_require__(1514);
-const httpHeaders_js_1 = __nccwpck_require__(118);
-const restError_js_1 = __nccwpck_require__(1036);
-const log_js_1 = __nccwpck_require__(648);
-const sanitizer_js_1 = __nccwpck_require__(4472);
+const tslib_1 = __nccwpck_require__(1860);
+const http = tslib_1.__importStar(__nccwpck_require__(7067));
+const https = tslib_1.__importStar(__nccwpck_require__(4708));
+const zlib = tslib_1.__importStar(__nccwpck_require__(8522));
+const node_stream_1 = __nccwpck_require__(7075);
+const abort_controller_1 = __nccwpck_require__(3287);
+const httpHeaders_js_1 = __nccwpck_require__(192);
+const restError_js_1 = __nccwpck_require__(8666);
+const log_js_1 = __nccwpck_require__(544);
+const sanitizer_js_1 = __nccwpck_require__(5204);
 const DEFAULT_TLS_SETTINGS = {};
 function isReadableStream(body) {
     return body && typeof body.pipe === "function";
@@ -26846,7 +22208,7 @@ function createNodeHttpClient() {
 
 /***/ }),
 
-/***/ 3906:
+/***/ 9590:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -27118,7 +22480,7 @@ function createEmptyPipeline() {
 
 /***/ }),
 
-/***/ 3536:
+/***/ 5709:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27127,8 +22489,8 @@ function createEmptyPipeline() {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createPipelineRequest = createPipelineRequest;
-const httpHeaders_js_1 = __nccwpck_require__(118);
-const core_util_1 = __nccwpck_require__(637);
+const httpHeaders_js_1 = __nccwpck_require__(192);
+const core_util_1 = __nccwpck_require__(7779);
 class PipelineRequestImpl {
     constructor(options) {
         var _a, _b, _c, _d, _e, _f, _g;
@@ -27166,7 +22528,7 @@ function createPipelineRequest(options) {
 
 /***/ }),
 
-/***/ 5093:
+/***/ 8554:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -27199,7 +22561,7 @@ function agentPolicy(agent) {
 
 /***/ }),
 
-/***/ 8152:
+/***/ 2262:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27209,8 +22571,8 @@ function agentPolicy(agent) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.auxiliaryAuthenticationHeaderPolicyName = void 0;
 exports.auxiliaryAuthenticationHeaderPolicy = auxiliaryAuthenticationHeaderPolicy;
-const tokenCycler_js_1 = __nccwpck_require__(601);
-const log_js_1 = __nccwpck_require__(648);
+const tokenCycler_js_1 = __nccwpck_require__(9202);
+const log_js_1 = __nccwpck_require__(544);
 /**
  * The programmatic identifier of the auxiliaryAuthenticationHeaderPolicy.
  */
@@ -27273,7 +22635,7 @@ function auxiliaryAuthenticationHeaderPolicy(options) {
 
 /***/ }),
 
-/***/ 1319:
+/***/ 6925:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27284,9 +22646,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.bearerTokenAuthenticationPolicyName = void 0;
 exports.bearerTokenAuthenticationPolicy = bearerTokenAuthenticationPolicy;
 exports.parseChallenges = parseChallenges;
-const tokenCycler_js_1 = __nccwpck_require__(601);
-const log_js_1 = __nccwpck_require__(648);
-const restError_js_1 = __nccwpck_require__(1036);
+const tokenCycler_js_1 = __nccwpck_require__(9202);
+const log_js_1 = __nccwpck_require__(544);
+const restError_js_1 = __nccwpck_require__(8666);
 /**
  * The programmatic identifier of the bearerTokenAuthenticationPolicy.
  */
@@ -27523,7 +22885,7 @@ function getCaeChallengeClaims(challenges) {
 
 /***/ }),
 
-/***/ 7618:
+/***/ 9295:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -27557,7 +22919,7 @@ function decompressResponsePolicy() {
 
 /***/ }),
 
-/***/ 8549:
+/***/ 8170:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27567,10 +22929,10 @@ function decompressResponsePolicy() {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.defaultRetryPolicyName = void 0;
 exports.defaultRetryPolicy = defaultRetryPolicy;
-const exponentialRetryStrategy_js_1 = __nccwpck_require__(843);
-const throttlingRetryStrategy_js_1 = __nccwpck_require__(6645);
-const retryPolicy_js_1 = __nccwpck_require__(9700);
-const constants_js_1 = __nccwpck_require__(3171);
+const exponentialRetryStrategy_js_1 = __nccwpck_require__(2);
+const throttlingRetryStrategy_js_1 = __nccwpck_require__(7084);
+const retryPolicy_js_1 = __nccwpck_require__(6085);
+const constants_js_1 = __nccwpck_require__(6427);
 /**
  * Name of the {@link defaultRetryPolicy}
  */
@@ -27594,7 +22956,7 @@ function defaultRetryPolicy(options = {}) {
 
 /***/ }),
 
-/***/ 1598:
+/***/ 6708:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27604,9 +22966,9 @@ function defaultRetryPolicy(options = {}) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.exponentialRetryPolicyName = void 0;
 exports.exponentialRetryPolicy = exponentialRetryPolicy;
-const exponentialRetryStrategy_js_1 = __nccwpck_require__(843);
-const retryPolicy_js_1 = __nccwpck_require__(9700);
-const constants_js_1 = __nccwpck_require__(3171);
+const exponentialRetryStrategy_js_1 = __nccwpck_require__(2);
+const retryPolicy_js_1 = __nccwpck_require__(6085);
+const constants_js_1 = __nccwpck_require__(6427);
 /**
  * The programmatic identifier of the exponentialRetryPolicy.
  */
@@ -27627,7 +22989,7 @@ function exponentialRetryPolicy(options = {}) {
 
 /***/ }),
 
-/***/ 6501:
+/***/ 5497:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27637,8 +22999,8 @@ function exponentialRetryPolicy(options = {}) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formDataPolicyName = void 0;
 exports.formDataPolicy = formDataPolicy;
-const core_util_1 = __nccwpck_require__(637);
-const httpHeaders_js_1 = __nccwpck_require__(118);
+const core_util_1 = __nccwpck_require__(7779);
+const httpHeaders_js_1 = __nccwpck_require__(192);
 /**
  * The programmatic identifier of the formDataPolicy.
  */
@@ -27734,7 +23096,7 @@ async function prepareFormData(formData, request) {
 
 /***/ }),
 
-/***/ 6821:
+/***/ 3253:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27744,8 +23106,8 @@ async function prepareFormData(formData, request) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.logPolicyName = void 0;
 exports.logPolicy = logPolicy;
-const log_js_1 = __nccwpck_require__(648);
-const sanitizer_js_1 = __nccwpck_require__(4472);
+const log_js_1 = __nccwpck_require__(544);
+const sanitizer_js_1 = __nccwpck_require__(5204);
 /**
  * The programmatic identifier of the logPolicy.
  */
@@ -27779,7 +23141,7 @@ function logPolicy(options = {}) {
 
 /***/ }),
 
-/***/ 9042:
+/***/ 5807:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27789,9 +23151,9 @@ function logPolicy(options = {}) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.multipartPolicyName = void 0;
 exports.multipartPolicy = multipartPolicy;
-const core_util_1 = __nccwpck_require__(637);
-const concat_js_1 = __nccwpck_require__(107);
-const typeGuards_js_1 = __nccwpck_require__(8520);
+const core_util_1 = __nccwpck_require__(7779);
+const concat_js_1 = __nccwpck_require__(2471);
+const typeGuards_js_1 = __nccwpck_require__(2621);
 function generateBoundary() {
     return `----AzSDKFormBoundary${(0, core_util_1.randomUUID)()}`;
 }
@@ -27901,7 +23263,7 @@ function multipartPolicy() {
 
 /***/ }),
 
-/***/ 2032:
+/***/ 6827:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -27937,7 +23299,7 @@ function ndJsonPolicy() {
 
 /***/ }),
 
-/***/ 4761:
+/***/ 2815:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27949,9 +23311,9 @@ exports.globalNoProxyList = exports.proxyPolicyName = void 0;
 exports.loadNoProxy = loadNoProxy;
 exports.getDefaultProxySettings = getDefaultProxySettings;
 exports.proxyPolicy = proxyPolicy;
-const https_proxy_agent_1 = __nccwpck_require__(4941);
-const http_proxy_agent_1 = __nccwpck_require__(4654);
-const log_js_1 = __nccwpck_require__(648);
+const https_proxy_agent_1 = __nccwpck_require__(2348);
+const http_proxy_agent_1 = __nccwpck_require__(3513);
+const log_js_1 = __nccwpck_require__(544);
 const HTTPS_PROXY = "HTTPS_PROXY";
 const HTTP_PROXY = "HTTP_PROXY";
 const ALL_PROXY = "ALL_PROXY";
@@ -28141,7 +23503,7 @@ function proxyPolicy(proxySettings, options) {
 
 /***/ }),
 
-/***/ 8526:
+/***/ 4087:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -28204,7 +23566,7 @@ async function handleRedirect(next, response, maxRetries, currentRetries = 0) {
 
 /***/ }),
 
-/***/ 9700:
+/***/ 6085:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28213,10 +23575,10 @@ async function handleRedirect(next, response, maxRetries, currentRetries = 0) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.retryPolicy = retryPolicy;
-const helpers_js_1 = __nccwpck_require__(1333);
-const logger_1 = __nccwpck_require__(3233);
-const abort_controller_1 = __nccwpck_require__(1514);
-const constants_js_1 = __nccwpck_require__(3171);
+const helpers_js_1 = __nccwpck_require__(3034);
+const logger_1 = __nccwpck_require__(6515);
+const abort_controller_1 = __nccwpck_require__(3287);
+const constants_js_1 = __nccwpck_require__(6427);
 const retryPolicyLogger = (0, logger_1.createClientLogger)("core-rest-pipeline retryPolicy");
 /**
  * The programmatic identifier of the retryPolicy.
@@ -28319,7 +23681,7 @@ function retryPolicy(strategies, options = { maxRetries: constants_js_1.DEFAULT_
 
 /***/ }),
 
-/***/ 3860:
+/***/ 5686:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -28354,7 +23716,7 @@ function setClientRequestIdPolicy(requestIdHeaderName = "x-ms-client-request-id"
 
 /***/ }),
 
-/***/ 2470:
+/***/ 6518:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28364,9 +23726,9 @@ function setClientRequestIdPolicy(requestIdHeaderName = "x-ms-client-request-id"
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.systemErrorRetryPolicyName = void 0;
 exports.systemErrorRetryPolicy = systemErrorRetryPolicy;
-const exponentialRetryStrategy_js_1 = __nccwpck_require__(843);
-const retryPolicy_js_1 = __nccwpck_require__(9700);
-const constants_js_1 = __nccwpck_require__(3171);
+const exponentialRetryStrategy_js_1 = __nccwpck_require__(2);
+const retryPolicy_js_1 = __nccwpck_require__(6085);
+const constants_js_1 = __nccwpck_require__(6427);
 /**
  * Name of the {@link systemErrorRetryPolicy}
  */
@@ -28392,7 +23754,7 @@ function systemErrorRetryPolicy(options = {}) {
 
 /***/ }),
 
-/***/ 4802:
+/***/ 7540:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28402,9 +23764,9 @@ function systemErrorRetryPolicy(options = {}) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.throttlingRetryPolicyName = void 0;
 exports.throttlingRetryPolicy = throttlingRetryPolicy;
-const throttlingRetryStrategy_js_1 = __nccwpck_require__(6645);
-const retryPolicy_js_1 = __nccwpck_require__(9700);
-const constants_js_1 = __nccwpck_require__(3171);
+const throttlingRetryStrategy_js_1 = __nccwpck_require__(7084);
+const retryPolicy_js_1 = __nccwpck_require__(6085);
+const constants_js_1 = __nccwpck_require__(6427);
 /**
  * Name of the {@link throttlingRetryPolicy}
  */
@@ -28432,7 +23794,7 @@ function throttlingRetryPolicy(options = {}) {
 
 /***/ }),
 
-/***/ 8446:
+/***/ 5798:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -28465,7 +23827,7 @@ function tlsPolicy(tlsSettings) {
 
 /***/ }),
 
-/***/ 606:
+/***/ 3237:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28475,13 +23837,13 @@ function tlsPolicy(tlsSettings) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.tracingPolicyName = void 0;
 exports.tracingPolicy = tracingPolicy;
-const core_tracing_1 = __nccwpck_require__(4175);
-const constants_js_1 = __nccwpck_require__(3171);
-const userAgent_js_1 = __nccwpck_require__(6158);
-const log_js_1 = __nccwpck_require__(648);
-const core_util_1 = __nccwpck_require__(637);
-const restError_js_1 = __nccwpck_require__(1036);
-const sanitizer_js_1 = __nccwpck_require__(4472);
+const core_tracing_1 = __nccwpck_require__(5553);
+const constants_js_1 = __nccwpck_require__(6427);
+const userAgent_js_1 = __nccwpck_require__(8431);
+const log_js_1 = __nccwpck_require__(544);
+const core_util_1 = __nccwpck_require__(7779);
+const restError_js_1 = __nccwpck_require__(8666);
+const sanitizer_js_1 = __nccwpck_require__(5204);
 /**
  * The programmatic identifier of the tracingPolicy.
  */
@@ -28608,7 +23970,7 @@ function tryProcessResponse(span, response) {
 
 /***/ }),
 
-/***/ 8935:
+/***/ 2799:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28618,7 +23980,7 @@ function tryProcessResponse(span, response) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.userAgentPolicyName = void 0;
 exports.userAgentPolicy = userAgentPolicy;
-const userAgent_js_1 = __nccwpck_require__(6158);
+const userAgent_js_1 = __nccwpck_require__(8431);
 const UserAgentHeaderName = (0, userAgent_js_1.getUserAgentHeaderName)();
 /**
  * The programmatic identifier of the userAgentPolicy.
@@ -28645,7 +24007,7 @@ function userAgentPolicy(options = {}) {
 
 /***/ }),
 
-/***/ 1036:
+/***/ 8666:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28655,9 +24017,9 @@ function userAgentPolicy(options = {}) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RestError = void 0;
 exports.isRestError = isRestError;
-const core_util_1 = __nccwpck_require__(637);
-const inspect_js_1 = __nccwpck_require__(3106);
-const sanitizer_js_1 = __nccwpck_require__(4472);
+const core_util_1 = __nccwpck_require__(7779);
+const inspect_js_1 = __nccwpck_require__(995);
+const sanitizer_js_1 = __nccwpck_require__(5204);
 const errorSanitizer = new sanitizer_js_1.Sanitizer();
 /**
  * A custom error type for failed pipeline requests.
@@ -28711,7 +24073,7 @@ function isRestError(e) {
 
 /***/ }),
 
-/***/ 843:
+/***/ 2:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28722,8 +24084,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.exponentialRetryStrategy = exponentialRetryStrategy;
 exports.isExponentialRetryResponse = isExponentialRetryResponse;
 exports.isSystemError = isSystemError;
-const core_util_1 = __nccwpck_require__(637);
-const throttlingRetryStrategy_js_1 = __nccwpck_require__(6645);
+const core_util_1 = __nccwpck_require__(7779);
+const throttlingRetryStrategy_js_1 = __nccwpck_require__(7084);
 // intervals are in milliseconds
 const DEFAULT_CLIENT_RETRY_INTERVAL = 1000;
 const DEFAULT_CLIENT_MAX_RETRY_INTERVAL = 1000 * 64;
@@ -28787,7 +24149,7 @@ function isSystemError(err) {
 
 /***/ }),
 
-/***/ 6645:
+/***/ 7084:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28797,7 +24159,7 @@ function isSystemError(err) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isThrottlingRetryResponse = isThrottlingRetryResponse;
 exports.throttlingRetryStrategy = throttlingRetryStrategy;
-const helpers_js_1 = __nccwpck_require__(1333);
+const helpers_js_1 = __nccwpck_require__(3034);
 /**
  * The header that comes back from Azure services representing
  * the amount of time (minimum) to wait to retry (in seconds or timestamp after which we can retry).
@@ -28872,7 +24234,7 @@ function throttlingRetryStrategy() {
 
 /***/ }),
 
-/***/ 107:
+/***/ 2471:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28881,10 +24243,10 @@ function throttlingRetryStrategy() {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.concat = concat;
-const tslib_1 = __nccwpck_require__(9045);
-const node_stream_1 = __nccwpck_require__(4492);
-const typeGuards_js_1 = __nccwpck_require__(8520);
-const file_js_1 = __nccwpck_require__(3224);
+const tslib_1 = __nccwpck_require__(1860);
+const node_stream_1 = __nccwpck_require__(7075);
+const typeGuards_js_1 = __nccwpck_require__(2621);
+const file_js_1 = __nccwpck_require__(7073);
 function streamAsyncIterator() {
     return tslib_1.__asyncGenerator(this, arguments, function* streamAsyncIterator_1() {
         const reader = this.getReader();
@@ -28970,7 +24332,7 @@ async function concat(sources) {
 
 /***/ }),
 
-/***/ 3224:
+/***/ 7073:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28981,8 +24343,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRawContent = getRawContent;
 exports.createFileFromStream = createFileFromStream;
 exports.createFile = createFile;
-const core_util_1 = __nccwpck_require__(637);
-const typeGuards_js_1 = __nccwpck_require__(8520);
+const core_util_1 = __nccwpck_require__(7779);
+const typeGuards_js_1 = __nccwpck_require__(2621);
 const unimplementedMethods = {
     arrayBuffer: () => {
         throw new Error("Not implemented");
@@ -29081,7 +24443,7 @@ function createFile(content, name, options = {}) {
 
 /***/ }),
 
-/***/ 1333:
+/***/ 3034:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29091,7 +24453,7 @@ function createFile(content, name, options = {}) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.delay = delay;
 exports.parseHeaderValueAsNumber = parseHeaderValueAsNumber;
-const abort_controller_1 = __nccwpck_require__(1514);
+const abort_controller_1 = __nccwpck_require__(3287);
 const StandardAbortMessage = "The operation was aborted.";
 /**
  * A wrapper for setTimeout that resolves a promise after delayInMs milliseconds.
@@ -29150,7 +24512,7 @@ function parseHeaderValueAsNumber(response, headerName) {
 
 /***/ }),
 
-/***/ 3106:
+/***/ 995:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29159,13 +24521,13 @@ function parseHeaderValueAsNumber(response, headerName) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.custom = void 0;
-const node_util_1 = __nccwpck_require__(7261);
+const node_util_1 = __nccwpck_require__(7975);
 exports.custom = node_util_1.inspect.custom;
 //# sourceMappingURL=inspect.js.map
 
 /***/ }),
 
-/***/ 4472:
+/***/ 5204:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29174,7 +24536,7 @@ exports.custom = node_util_1.inspect.custom;
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Sanitizer = void 0;
-const core_util_1 = __nccwpck_require__(637);
+const core_util_1 = __nccwpck_require__(7779);
 const RedactedString = "REDACTED";
 // Make sure this list is up-to-date with the one under core/logger/Readme#Keyconcepts
 const defaultAllowedHeaderNames = [
@@ -29315,7 +24677,7 @@ exports.Sanitizer = Sanitizer;
 
 /***/ }),
 
-/***/ 601:
+/***/ 9202:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29325,7 +24687,7 @@ exports.Sanitizer = Sanitizer;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DEFAULT_CYCLER_OPTIONS = void 0;
 exports.createTokenCycler = createTokenCycler;
-const helpers_js_1 = __nccwpck_require__(1333);
+const helpers_js_1 = __nccwpck_require__(3034);
 // Default options for the cycler if none are provided
 exports.DEFAULT_CYCLER_OPTIONS = {
     forcedRefreshWindowInMs: 1000, // Force waiting for a refresh 1s before the token expires
@@ -29488,7 +24850,7 @@ function createTokenCycler(credential, tokenCyclerOptions) {
 
 /***/ }),
 
-/***/ 8520:
+/***/ 2621:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -29518,7 +24880,7 @@ function isBlob(x) {
 
 /***/ }),
 
-/***/ 6158:
+/***/ 8431:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29528,8 +24890,8 @@ function isBlob(x) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getUserAgentHeaderName = getUserAgentHeaderName;
 exports.getUserAgentValue = getUserAgentValue;
-const userAgentPlatform_js_1 = __nccwpck_require__(5316);
-const constants_js_1 = __nccwpck_require__(3171);
+const userAgentPlatform_js_1 = __nccwpck_require__(1848);
+const constants_js_1 = __nccwpck_require__(6427);
 function getUserAgentString(telemetryInfo) {
     const parts = [];
     for (const [key, value] of telemetryInfo) {
@@ -29559,7 +24921,7 @@ async function getUserAgentValue(prefix) {
 
 /***/ }),
 
-/***/ 5316:
+/***/ 1848:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29569,9 +24931,9 @@ async function getUserAgentValue(prefix) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getHeaderName = getHeaderName;
 exports.setPlatformSpecificData = setPlatformSpecificData;
-const tslib_1 = __nccwpck_require__(9045);
-const os = tslib_1.__importStar(__nccwpck_require__(612));
-const process = tslib_1.__importStar(__nccwpck_require__(7742));
+const tslib_1 = __nccwpck_require__(1860);
+const os = tslib_1.__importStar(__nccwpck_require__(8161));
+const process = tslib_1.__importStar(__nccwpck_require__(1708));
 /**
  * @internal
  */
@@ -29600,7 +24962,7 @@ async function setPlatformSpecificData(map) {
 
 /***/ }),
 
-/***/ 9390:
+/***/ 5455:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -29638,7 +25000,7 @@ exports.AbortError = AbortError;
 
 /***/ }),
 
-/***/ 1514:
+/***/ 3287:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29647,13 +25009,13 @@ exports.AbortError = AbortError;
 // Licensed under the MIT license.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbortError = void 0;
-var AbortError_js_1 = __nccwpck_require__(9390);
+var AbortError_js_1 = __nccwpck_require__(5455);
 Object.defineProperty(exports, "AbortError", ({ enumerable: true, get: function () { return AbortError_js_1.AbortError; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 7205:
+/***/ 5209:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -29684,7 +25046,7 @@ async function cancelablePromiseRace(abortablePromiseBuilders, options) {
 
 /***/ }),
 
-/***/ 9972:
+/***/ 2741:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -29716,7 +25078,7 @@ function stringToUint8Array(value, format) {
 
 /***/ }),
 
-/***/ 7980:
+/***/ 8162:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -29773,7 +25135,7 @@ exports.isReactNative = typeof navigator !== "undefined" && (navigator === null 
 
 /***/ }),
 
-/***/ 2376:
+/***/ 3128:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29782,7 +25144,7 @@ exports.isReactNative = typeof navigator !== "undefined" && (navigator === null 
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createAbortablePromise = createAbortablePromise;
-const abort_controller_1 = __nccwpck_require__(4812);
+const abort_controller_1 = __nccwpck_require__(6492);
 /**
  * Creates an abortable promise.
  * @param buildPromise - A function that takes the resolve and reject functions as parameters.
@@ -29825,7 +25187,7 @@ function createAbortablePromise(buildPromise, options) {
 
 /***/ }),
 
-/***/ 9259:
+/***/ 636:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29835,8 +25197,8 @@ function createAbortablePromise(buildPromise, options) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.delay = delay;
 exports.calculateRetryDelay = calculateRetryDelay;
-const createAbortablePromise_js_1 = __nccwpck_require__(2376);
-const random_js_1 = __nccwpck_require__(3710);
+const createAbortablePromise_js_1 = __nccwpck_require__(3128);
+const random_js_1 = __nccwpck_require__(4196);
 const StandardAbortMessage = "The delay was aborted.";
 /**
  * A wrapper for setTimeout that resolves a promise after timeInMs milliseconds.
@@ -29875,7 +25237,7 @@ function calculateRetryDelay(retryAttempt, config) {
 
 /***/ }),
 
-/***/ 6734:
+/***/ 9945:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29885,7 +25247,7 @@ function calculateRetryDelay(retryAttempt, config) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isError = isError;
 exports.getErrorMessage = getErrorMessage;
-const object_js_1 = __nccwpck_require__(6538);
+const object_js_1 = __nccwpck_require__(7756);
 /**
  * Typeguard for an error object shape (has name and message)
  * @param e - Something caught by a catch clause.
@@ -29928,7 +25290,7 @@ function getErrorMessage(e) {
 
 /***/ }),
 
-/***/ 637:
+/***/ 7779:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29937,30 +25299,30 @@ function getErrorMessage(e) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.stringToUint8Array = exports.uint8ArrayToString = exports.isWebWorker = exports.isReactNative = exports.isDeno = exports.isNodeRuntime = exports.isNodeLike = exports.isNode = exports.isBun = exports.isBrowser = exports.randomUUID = exports.objectHasProperty = exports.isObjectWithProperties = exports.isDefined = exports.computeSha256Hmac = exports.computeSha256Hash = exports.getErrorMessage = exports.isError = exports.isObject = exports.getRandomIntegerInclusive = exports.createAbortablePromise = exports.cancelablePromiseRace = exports.calculateRetryDelay = exports.delay = void 0;
-var delay_js_1 = __nccwpck_require__(9259);
+var delay_js_1 = __nccwpck_require__(636);
 Object.defineProperty(exports, "delay", ({ enumerable: true, get: function () { return delay_js_1.delay; } }));
 Object.defineProperty(exports, "calculateRetryDelay", ({ enumerable: true, get: function () { return delay_js_1.calculateRetryDelay; } }));
-var aborterUtils_js_1 = __nccwpck_require__(7205);
+var aborterUtils_js_1 = __nccwpck_require__(5209);
 Object.defineProperty(exports, "cancelablePromiseRace", ({ enumerable: true, get: function () { return aborterUtils_js_1.cancelablePromiseRace; } }));
-var createAbortablePromise_js_1 = __nccwpck_require__(2376);
+var createAbortablePromise_js_1 = __nccwpck_require__(3128);
 Object.defineProperty(exports, "createAbortablePromise", ({ enumerable: true, get: function () { return createAbortablePromise_js_1.createAbortablePromise; } }));
-var random_js_1 = __nccwpck_require__(3710);
+var random_js_1 = __nccwpck_require__(4196);
 Object.defineProperty(exports, "getRandomIntegerInclusive", ({ enumerable: true, get: function () { return random_js_1.getRandomIntegerInclusive; } }));
-var object_js_1 = __nccwpck_require__(6538);
+var object_js_1 = __nccwpck_require__(7756);
 Object.defineProperty(exports, "isObject", ({ enumerable: true, get: function () { return object_js_1.isObject; } }));
-var error_js_1 = __nccwpck_require__(6734);
+var error_js_1 = __nccwpck_require__(9945);
 Object.defineProperty(exports, "isError", ({ enumerable: true, get: function () { return error_js_1.isError; } }));
 Object.defineProperty(exports, "getErrorMessage", ({ enumerable: true, get: function () { return error_js_1.getErrorMessage; } }));
-var sha256_js_1 = __nccwpck_require__(4793);
+var sha256_js_1 = __nccwpck_require__(9732);
 Object.defineProperty(exports, "computeSha256Hash", ({ enumerable: true, get: function () { return sha256_js_1.computeSha256Hash; } }));
 Object.defineProperty(exports, "computeSha256Hmac", ({ enumerable: true, get: function () { return sha256_js_1.computeSha256Hmac; } }));
-var typeGuards_js_1 = __nccwpck_require__(1187);
+var typeGuards_js_1 = __nccwpck_require__(6277);
 Object.defineProperty(exports, "isDefined", ({ enumerable: true, get: function () { return typeGuards_js_1.isDefined; } }));
 Object.defineProperty(exports, "isObjectWithProperties", ({ enumerable: true, get: function () { return typeGuards_js_1.isObjectWithProperties; } }));
 Object.defineProperty(exports, "objectHasProperty", ({ enumerable: true, get: function () { return typeGuards_js_1.objectHasProperty; } }));
-var uuidUtils_js_1 = __nccwpck_require__(7658);
+var uuidUtils_js_1 = __nccwpck_require__(8795);
 Object.defineProperty(exports, "randomUUID", ({ enumerable: true, get: function () { return uuidUtils_js_1.randomUUID; } }));
-var checkEnvironment_js_1 = __nccwpck_require__(7980);
+var checkEnvironment_js_1 = __nccwpck_require__(8162);
 Object.defineProperty(exports, "isBrowser", ({ enumerable: true, get: function () { return checkEnvironment_js_1.isBrowser; } }));
 Object.defineProperty(exports, "isBun", ({ enumerable: true, get: function () { return checkEnvironment_js_1.isBun; } }));
 Object.defineProperty(exports, "isNode", ({ enumerable: true, get: function () { return checkEnvironment_js_1.isNode; } }));
@@ -29969,14 +25331,14 @@ Object.defineProperty(exports, "isNodeRuntime", ({ enumerable: true, get: functi
 Object.defineProperty(exports, "isDeno", ({ enumerable: true, get: function () { return checkEnvironment_js_1.isDeno; } }));
 Object.defineProperty(exports, "isReactNative", ({ enumerable: true, get: function () { return checkEnvironment_js_1.isReactNative; } }));
 Object.defineProperty(exports, "isWebWorker", ({ enumerable: true, get: function () { return checkEnvironment_js_1.isWebWorker; } }));
-var bytesEncoding_js_1 = __nccwpck_require__(9972);
+var bytesEncoding_js_1 = __nccwpck_require__(2741);
 Object.defineProperty(exports, "uint8ArrayToString", ({ enumerable: true, get: function () { return bytesEncoding_js_1.uint8ArrayToString; } }));
 Object.defineProperty(exports, "stringToUint8Array", ({ enumerable: true, get: function () { return bytesEncoding_js_1.stringToUint8Array; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 6538:
+/***/ 7756:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -30000,7 +25362,7 @@ function isObject(input) {
 
 /***/ }),
 
-/***/ 3710:
+/***/ 4196:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -30031,7 +25393,7 @@ function getRandomIntegerInclusive(min, max) {
 
 /***/ }),
 
-/***/ 4793:
+/***/ 9732:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -30041,7 +25403,7 @@ function getRandomIntegerInclusive(min, max) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.computeSha256Hmac = computeSha256Hmac;
 exports.computeSha256Hash = computeSha256Hash;
-const crypto_1 = __nccwpck_require__(6113);
+const crypto_1 = __nccwpck_require__(6982);
 /**
  * Generates a SHA-256 HMAC signature.
  * @param key - The HMAC key represented as a base64 string, used to generate the cryptographic HMAC hash.
@@ -30064,7 +25426,7 @@ async function computeSha256Hash(content, encoding) {
 
 /***/ }),
 
-/***/ 1187:
+/***/ 6277:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -30110,7 +25472,7 @@ function objectHasProperty(thing, property) {
 
 /***/ }),
 
-/***/ 7658:
+/***/ 8795:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -30120,7 +25482,7 @@ function objectHasProperty(thing, property) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.randomUUID = randomUUID;
-const crypto_1 = __nccwpck_require__(6113);
+const crypto_1 = __nccwpck_require__(6982);
 // NOTE: This is a workaround until we can use `globalThis.crypto.randomUUID` in Node.js 19+.
 const uuidFunction = typeof ((_a = globalThis === null || globalThis === void 0 ? void 0 : globalThis.crypto) === null || _a === void 0 ? void 0 : _a.randomUUID) === "function"
     ? globalThis.crypto.randomUUID.bind(globalThis.crypto)
@@ -30137,7 +25499,7 @@ function randomUUID() {
 
 /***/ }),
 
-/***/ 2118:
+/***/ 1658:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -30175,7 +25537,7 @@ exports.AbortError = AbortError;
 
 /***/ }),
 
-/***/ 4812:
+/***/ 6492:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -30184,13 +25546,13 @@ exports.AbortError = AbortError;
 // Licensed under the MIT license.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbortError = void 0;
-var AbortError_js_1 = __nccwpck_require__(2118);
+var AbortError_js_1 = __nccwpck_require__(1658);
 Object.defineProperty(exports, "AbortError", ({ enumerable: true, get: function () { return AbortError_js_1.AbortError; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 6986:
+/***/ 7608:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -30200,15 +25562,15 @@ Object.defineProperty(exports, "AbortError", ({ enumerable: true, get: function 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.IdentityClient = void 0;
 exports.getIdentityClientAuthorityHost = getIdentityClientAuthorityHost;
-const core_client_1 = __nccwpck_require__(7611);
-const core_util_1 = __nccwpck_require__(637);
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
-const errors_js_1 = __nccwpck_require__(3310);
-const identityTokenEndpoint_js_1 = __nccwpck_require__(3317);
-const constants_js_1 = __nccwpck_require__(8535);
-const tracing_js_1 = __nccwpck_require__(7432);
-const logging_js_1 = __nccwpck_require__(4337);
-const utils_js_1 = __nccwpck_require__(6228);
+const core_client_1 = __nccwpck_require__(160);
+const core_util_1 = __nccwpck_require__(7779);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
+const errors_js_1 = __nccwpck_require__(6242);
+const identityTokenEndpoint_js_1 = __nccwpck_require__(240);
+const constants_js_1 = __nccwpck_require__(516);
+const tracing_js_1 = __nccwpck_require__(9180);
+const logging_js_1 = __nccwpck_require__(2615);
+const utils_js_1 = __nccwpck_require__(4312);
 const noCorrelationId = "noCorrelationId";
 /**
  * @internal
@@ -30450,7 +25812,7 @@ exports.IdentityClient = IdentityClient;
 
 /***/ }),
 
-/***/ 8535:
+/***/ 516:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -30535,7 +25897,7 @@ exports.DEFAULT_TOKEN_CACHE_NAME = "msal.cache";
 
 /***/ }),
 
-/***/ 6207:
+/***/ 8317:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -30544,12 +25906,12 @@ exports.DEFAULT_TOKEN_CACHE_NAME = "msal.cache";
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthorizationCodeCredential = void 0;
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const tenantIdUtils_js_2 = __nccwpck_require__(762);
-const logging_js_1 = __nccwpck_require__(4337);
-const scopeUtils_js_1 = __nccwpck_require__(2246);
-const tracing_js_1 = __nccwpck_require__(7432);
-const msalClient_js_1 = __nccwpck_require__(3992);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const tenantIdUtils_js_2 = __nccwpck_require__(4700);
+const logging_js_1 = __nccwpck_require__(2615);
+const scopeUtils_js_1 = __nccwpck_require__(8185);
+const tracing_js_1 = __nccwpck_require__(9180);
+const msalClient_js_1 = __nccwpck_require__(7359);
 const logger = (0, logging_js_1.credentialLogger)("AuthorizationCodeCredential");
 /**
  * Enables authentication to Microsoft Entra ID using an authorization code
@@ -30606,7 +25968,7 @@ exports.AuthorizationCodeCredential = AuthorizationCodeCredential;
 
 /***/ }),
 
-/***/ 4442:
+/***/ 7204:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -30615,14 +25977,14 @@ exports.AuthorizationCodeCredential = AuthorizationCodeCredential;
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AzureCliCredential = exports.cliCredentialInternals = void 0;
-const tslib_1 = __nccwpck_require__(2369);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const logging_js_1 = __nccwpck_require__(4337);
-const scopeUtils_js_1 = __nccwpck_require__(2246);
-const errors_js_1 = __nccwpck_require__(3310);
-const child_process_1 = tslib_1.__importDefault(__nccwpck_require__(2081));
-const tracing_js_1 = __nccwpck_require__(7432);
-const subscriptionUtils_js_1 = __nccwpck_require__(5137);
+const tslib_1 = __nccwpck_require__(1860);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const logging_js_1 = __nccwpck_require__(2615);
+const scopeUtils_js_1 = __nccwpck_require__(8185);
+const errors_js_1 = __nccwpck_require__(6242);
+const child_process_1 = tslib_1.__importDefault(__nccwpck_require__(5317));
+const tracing_js_1 = __nccwpck_require__(9180);
+const subscriptionUtils_js_1 = __nccwpck_require__(4860);
 const logger = (0, logging_js_1.credentialLogger)("AzureCliCredential");
 /**
  * Mockable reference to the CLI credential cliCredentialFunctions
@@ -30809,7 +26171,7 @@ exports.AzureCliCredential = AzureCliCredential;
 
 /***/ }),
 
-/***/ 4887:
+/***/ 9190:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -30818,13 +26180,13 @@ exports.AzureCliCredential = AzureCliCredential;
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AzureDeveloperCliCredential = exports.developerCliCredentialInternals = void 0;
-const tslib_1 = __nccwpck_require__(2369);
-const logging_js_1 = __nccwpck_require__(4337);
-const errors_js_1 = __nccwpck_require__(3310);
-const child_process_1 = tslib_1.__importDefault(__nccwpck_require__(2081));
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const tracing_js_1 = __nccwpck_require__(7432);
-const scopeUtils_js_1 = __nccwpck_require__(2246);
+const tslib_1 = __nccwpck_require__(1860);
+const logging_js_1 = __nccwpck_require__(2615);
+const errors_js_1 = __nccwpck_require__(6242);
+const child_process_1 = tslib_1.__importDefault(__nccwpck_require__(5317));
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const tracing_js_1 = __nccwpck_require__(9180);
+const scopeUtils_js_1 = __nccwpck_require__(8185);
 const logger = (0, logging_js_1.credentialLogger)("AzureDeveloperCliCredential");
 /**
  * Mockable reference to the Developer CLI credential cliCredentialFunctions
@@ -30994,7 +26356,7 @@ exports.AzureDeveloperCliCredential = AzureDeveloperCliCredential;
 
 /***/ }),
 
-/***/ 5310:
+/***/ 4473:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31004,12 +26366,12 @@ exports.AzureDeveloperCliCredential = AzureDeveloperCliCredential;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AzurePipelinesCredential = void 0;
 exports.handleOidcResponse = handleOidcResponse;
-const errors_js_1 = __nccwpck_require__(3310);
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
-const clientAssertionCredential_js_1 = __nccwpck_require__(2143);
-const identityClient_js_1 = __nccwpck_require__(6986);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const logging_js_1 = __nccwpck_require__(4337);
+const errors_js_1 = __nccwpck_require__(6242);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
+const clientAssertionCredential_js_1 = __nccwpck_require__(644);
+const identityClient_js_1 = __nccwpck_require__(7608);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const logging_js_1 = __nccwpck_require__(2615);
 const credentialName = "AzurePipelinesCredential";
 const logger = (0, logging_js_1.credentialLogger)(credentialName);
 const OIDC_API_VERSION = "7.1";
@@ -31147,7 +26509,7 @@ function handleOidcResponse(response) {
 
 /***/ }),
 
-/***/ 9292:
+/***/ 8223:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31158,12 +26520,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AzurePowerShellCredential = exports.commandStack = exports.powerShellPublicErrorMessages = exports.powerShellErrors = void 0;
 exports.formatCommand = formatCommand;
 exports.parseJsonToken = parseJsonToken;
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const logging_js_1 = __nccwpck_require__(4337);
-const scopeUtils_js_1 = __nccwpck_require__(2246);
-const errors_js_1 = __nccwpck_require__(3310);
-const processUtils_js_1 = __nccwpck_require__(8278);
-const tracing_js_1 = __nccwpck_require__(7432);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const logging_js_1 = __nccwpck_require__(2615);
+const scopeUtils_js_1 = __nccwpck_require__(8185);
+const errors_js_1 = __nccwpck_require__(6242);
+const processUtils_js_1 = __nccwpck_require__(3853);
+const tracing_js_1 = __nccwpck_require__(9180);
 const logger = (0, logging_js_1.credentialLogger)("AzurePowerShellCredential");
 const isWindows = process.platform === "win32";
 /**
@@ -31389,7 +26751,7 @@ async function parseJsonToken(result) {
 
 /***/ }),
 
-/***/ 6905:
+/***/ 2342:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31398,9 +26760,9 @@ async function parseJsonToken(result) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ChainedTokenCredential = exports.logger = void 0;
-const errors_js_1 = __nccwpck_require__(3310);
-const logging_js_1 = __nccwpck_require__(4337);
-const tracing_js_1 = __nccwpck_require__(7432);
+const errors_js_1 = __nccwpck_require__(6242);
+const logging_js_1 = __nccwpck_require__(2615);
+const tracing_js_1 = __nccwpck_require__(9180);
 /**
  * @internal
  */
@@ -31492,7 +26854,7 @@ exports.ChainedTokenCredential = ChainedTokenCredential;
 
 /***/ }),
 
-/***/ 2143:
+/***/ 644:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31501,11 +26863,11 @@ exports.ChainedTokenCredential = ChainedTokenCredential;
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClientAssertionCredential = void 0;
-const msalClient_js_1 = __nccwpck_require__(3992);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const errors_js_1 = __nccwpck_require__(3310);
-const logging_js_1 = __nccwpck_require__(4337);
-const tracing_js_1 = __nccwpck_require__(7432);
+const msalClient_js_1 = __nccwpck_require__(7359);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const errors_js_1 = __nccwpck_require__(6242);
+const logging_js_1 = __nccwpck_require__(2615);
+const tracing_js_1 = __nccwpck_require__(9180);
 const logger = (0, logging_js_1.credentialLogger)("ClientAssertionCredential");
 /**
  * Authenticates a service principal with a JWT assertion.
@@ -31558,7 +26920,7 @@ exports.ClientAssertionCredential = ClientAssertionCredential;
 
 /***/ }),
 
-/***/ 5436:
+/***/ 339:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31568,12 +26930,12 @@ exports.ClientAssertionCredential = ClientAssertionCredential;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClientCertificateCredential = void 0;
 exports.parseCertificate = parseCertificate;
-const msalClient_js_1 = __nccwpck_require__(3992);
-const node_crypto_1 = __nccwpck_require__(6005);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const logging_js_1 = __nccwpck_require__(4337);
-const promises_1 = __nccwpck_require__(3977);
-const tracing_js_1 = __nccwpck_require__(7432);
+const msalClient_js_1 = __nccwpck_require__(7359);
+const node_crypto_1 = __nccwpck_require__(7598);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const logging_js_1 = __nccwpck_require__(2615);
+const promises_1 = __nccwpck_require__(1455);
+const tracing_js_1 = __nccwpck_require__(9180);
 const credentialName = "ClientCertificateCredential";
 const logger = (0, logging_js_1.credentialLogger)(credentialName);
 /**
@@ -31692,7 +27054,7 @@ async function parseCertificate(certificateConfiguration, sendCertificateChain) 
 
 /***/ }),
 
-/***/ 3118:
+/***/ 9424:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31701,12 +27063,12 @@ async function parseCertificate(certificateConfiguration, sendCertificateChain) 
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClientSecretCredential = void 0;
-const msalClient_js_1 = __nccwpck_require__(3992);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const errors_js_1 = __nccwpck_require__(3310);
-const logging_js_1 = __nccwpck_require__(4337);
-const scopeUtils_js_1 = __nccwpck_require__(2246);
-const tracing_js_1 = __nccwpck_require__(7432);
+const msalClient_js_1 = __nccwpck_require__(7359);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const errors_js_1 = __nccwpck_require__(6242);
+const logging_js_1 = __nccwpck_require__(2615);
+const scopeUtils_js_1 = __nccwpck_require__(8185);
+const tracing_js_1 = __nccwpck_require__(9180);
 const logger = (0, logging_js_1.credentialLogger)("ClientSecretCredential");
 /**
  * Enables authentication to Microsoft Entra ID using a client secret
@@ -31763,7 +27125,7 @@ exports.ClientSecretCredential = ClientSecretCredential;
 
 /***/ }),
 
-/***/ 8506:
+/***/ 2451:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31774,14 +27136,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DefaultAzureCredential = exports.UnavailableDefaultCredential = void 0;
 exports.createDefaultManagedIdentityCredential = createDefaultManagedIdentityCredential;
 exports.createEnvironmentCredential = createEnvironmentCredential;
-const index_js_1 = __nccwpck_require__(8538);
-const azureCliCredential_js_1 = __nccwpck_require__(4442);
-const azureDeveloperCliCredential_js_1 = __nccwpck_require__(4887);
-const azurePowerShellCredential_js_1 = __nccwpck_require__(9292);
-const chainedTokenCredential_js_1 = __nccwpck_require__(6905);
-const environmentCredential_js_1 = __nccwpck_require__(5497);
-const workloadIdentityCredential_js_1 = __nccwpck_require__(4421);
-const logging_js_1 = __nccwpck_require__(4337);
+const index_js_1 = __nccwpck_require__(3661);
+const azureCliCredential_js_1 = __nccwpck_require__(7204);
+const azureDeveloperCliCredential_js_1 = __nccwpck_require__(9190);
+const azurePowerShellCredential_js_1 = __nccwpck_require__(8223);
+const chainedTokenCredential_js_1 = __nccwpck_require__(2342);
+const environmentCredential_js_1 = __nccwpck_require__(6660);
+const workloadIdentityCredential_js_1 = __nccwpck_require__(6712);
+const logging_js_1 = __nccwpck_require__(2615);
 const logger = (0, logging_js_1.credentialLogger)("DefaultAzureCredential");
 /**
  * Creates a {@link ManagedIdentityCredential} from the provided options.
@@ -31941,7 +27303,7 @@ exports.DefaultAzureCredential = DefaultAzureCredential;
 
 /***/ }),
 
-/***/ 4003:
+/***/ 5164:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31951,12 +27313,12 @@ exports.DefaultAzureCredential = DefaultAzureCredential;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DeviceCodeCredential = void 0;
 exports.defaultDeviceCodePromptCallback = defaultDeviceCodePromptCallback;
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const logging_js_1 = __nccwpck_require__(4337);
-const scopeUtils_js_1 = __nccwpck_require__(2246);
-const tracing_js_1 = __nccwpck_require__(7432);
-const msalClient_js_1 = __nccwpck_require__(3992);
-const constants_js_1 = __nccwpck_require__(8535);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const logging_js_1 = __nccwpck_require__(2615);
+const scopeUtils_js_1 = __nccwpck_require__(8185);
+const tracing_js_1 = __nccwpck_require__(9180);
+const msalClient_js_1 = __nccwpck_require__(7359);
+const constants_js_1 = __nccwpck_require__(516);
 const logger = (0, logging_js_1.credentialLogger)("DeviceCodeCredential");
 /**
  * Method that logs the user code from the DeviceCodeCredential.
@@ -32044,7 +27406,7 @@ exports.DeviceCodeCredential = DeviceCodeCredential;
 
 /***/ }),
 
-/***/ 5497:
+/***/ 6660:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32054,13 +27416,13 @@ exports.DeviceCodeCredential = DeviceCodeCredential;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.EnvironmentCredential = exports.AllSupportedEnvironmentVariables = void 0;
 exports.getSendCertificateChain = getSendCertificateChain;
-const errors_js_1 = __nccwpck_require__(3310);
-const logging_js_1 = __nccwpck_require__(4337);
-const clientCertificateCredential_js_1 = __nccwpck_require__(5436);
-const clientSecretCredential_js_1 = __nccwpck_require__(3118);
-const usernamePasswordCredential_js_1 = __nccwpck_require__(7418);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const tracing_js_1 = __nccwpck_require__(7432);
+const errors_js_1 = __nccwpck_require__(6242);
+const logging_js_1 = __nccwpck_require__(2615);
+const clientCertificateCredential_js_1 = __nccwpck_require__(339);
+const clientSecretCredential_js_1 = __nccwpck_require__(9424);
+const usernamePasswordCredential_js_1 = __nccwpck_require__(6678);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const tracing_js_1 = __nccwpck_require__(9180);
 /**
  * Contains the list of all supported environment variable names so that an
  * appropriate error message can be generated when no credentials can be
@@ -32186,7 +27548,7 @@ exports.EnvironmentCredential = EnvironmentCredential;
 
 /***/ }),
 
-/***/ 2135:
+/***/ 6115:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32195,12 +27557,12 @@ exports.EnvironmentCredential = EnvironmentCredential;
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.InteractiveBrowserCredential = void 0;
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const logging_js_1 = __nccwpck_require__(4337);
-const scopeUtils_js_1 = __nccwpck_require__(2246);
-const tracing_js_1 = __nccwpck_require__(7432);
-const msalClient_js_1 = __nccwpck_require__(3992);
-const constants_js_1 = __nccwpck_require__(8535);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const logging_js_1 = __nccwpck_require__(2615);
+const scopeUtils_js_1 = __nccwpck_require__(8185);
+const tracing_js_1 = __nccwpck_require__(9180);
+const msalClient_js_1 = __nccwpck_require__(7359);
+const constants_js_1 = __nccwpck_require__(516);
 const logger = (0, logging_js_1.credentialLogger)("InteractiveBrowserCredential");
 /**
  * Enables authentication to Microsoft Entra ID inside of the web browser
@@ -32288,7 +27650,7 @@ exports.InteractiveBrowserCredential = InteractiveBrowserCredential;
 
 /***/ }),
 
-/***/ 6555:
+/***/ 527:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32297,11 +27659,11 @@ exports.InteractiveBrowserCredential = InteractiveBrowserCredential;
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.imdsMsi = void 0;
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
-const core_util_1 = __nccwpck_require__(637);
-const logging_js_1 = __nccwpck_require__(4337);
-const utils_js_1 = __nccwpck_require__(6228);
-const tracing_js_1 = __nccwpck_require__(7432);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
+const core_util_1 = __nccwpck_require__(7779);
+const logging_js_1 = __nccwpck_require__(2615);
+const utils_js_1 = __nccwpck_require__(4312);
+const tracing_js_1 = __nccwpck_require__(9180);
 const msiName = "ManagedIdentityCredential - IMDS";
 const logger = (0, logging_js_1.credentialLogger)(msiName);
 const imdsHost = "http://169.254.169.254";
@@ -32397,7 +27759,7 @@ exports.imdsMsi = {
 
 /***/ }),
 
-/***/ 7851:
+/***/ 968:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32406,8 +27768,8 @@ exports.imdsMsi = {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.imdsRetryPolicy = imdsRetryPolicy;
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
-const core_util_1 = __nccwpck_require__(637);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
+const core_util_1 = __nccwpck_require__(7779);
 // Matches the default retry configuration in expontentialRetryStrategy.ts
 const DEFAULT_CLIENT_MAX_RETRY_INTERVAL = 1000 * 64;
 /**
@@ -32440,7 +27802,7 @@ function imdsRetryPolicy(msiRetryConfig) {
 
 /***/ }),
 
-/***/ 8538:
+/***/ 3661:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32449,17 +27811,17 @@ function imdsRetryPolicy(msiRetryConfig) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ManagedIdentityCredential = void 0;
-const logger_1 = __nccwpck_require__(3233);
-const msal_node_1 = __nccwpck_require__(5167);
-const identityClient_js_1 = __nccwpck_require__(6986);
-const errors_js_1 = __nccwpck_require__(3310);
-const utils_js_1 = __nccwpck_require__(5472);
-const imdsRetryPolicy_js_1 = __nccwpck_require__(7851);
-const logging_js_1 = __nccwpck_require__(4337);
-const tracing_js_1 = __nccwpck_require__(7432);
-const imdsMsi_js_1 = __nccwpck_require__(6555);
-const tokenExchangeMsi_js_1 = __nccwpck_require__(6972);
-const utils_js_2 = __nccwpck_require__(6228);
+const logger_1 = __nccwpck_require__(6515);
+const msal_node_1 = __nccwpck_require__(7);
+const identityClient_js_1 = __nccwpck_require__(7608);
+const errors_js_1 = __nccwpck_require__(6242);
+const utils_js_1 = __nccwpck_require__(4738);
+const imdsRetryPolicy_js_1 = __nccwpck_require__(968);
+const logging_js_1 = __nccwpck_require__(2615);
+const tracing_js_1 = __nccwpck_require__(9180);
+const imdsMsi_js_1 = __nccwpck_require__(527);
+const tokenExchangeMsi_js_1 = __nccwpck_require__(1618);
+const utils_js_2 = __nccwpck_require__(4312);
 const logger = (0, logging_js_1.credentialLogger)("ManagedIdentityCredential");
 /**
  * Attempts authentication using a managed identity available at the deployment environment.
@@ -32690,7 +28052,7 @@ function isNetworkError(err) {
 
 /***/ }),
 
-/***/ 6972:
+/***/ 1618:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32699,8 +28061,8 @@ function isNetworkError(err) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.tokenExchangeMsi = void 0;
-const workloadIdentityCredential_js_1 = __nccwpck_require__(4421);
-const logging_js_1 = __nccwpck_require__(4337);
+const workloadIdentityCredential_js_1 = __nccwpck_require__(6712);
+const logging_js_1 = __nccwpck_require__(2615);
 const msiName = "ManagedIdentityCredential - Token Exchange";
 const logger = (0, logging_js_1.credentialLogger)(msiName);
 /**
@@ -32732,7 +28094,7 @@ exports.tokenExchangeMsi = {
 
 /***/ }),
 
-/***/ 6228:
+/***/ 4312:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -32826,7 +28188,7 @@ function parseRefreshTimestamp(body) {
 
 /***/ }),
 
-/***/ 4400:
+/***/ 6347:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32835,14 +28197,14 @@ function parseRefreshTimestamp(body) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OnBehalfOfCredential = void 0;
-const msalClient_js_1 = __nccwpck_require__(3992);
-const logging_js_1 = __nccwpck_require__(4337);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const errors_js_1 = __nccwpck_require__(3310);
-const node_crypto_1 = __nccwpck_require__(6005);
-const scopeUtils_js_1 = __nccwpck_require__(2246);
-const promises_1 = __nccwpck_require__(3977);
-const tracing_js_1 = __nccwpck_require__(7432);
+const msalClient_js_1 = __nccwpck_require__(7359);
+const logging_js_1 = __nccwpck_require__(2615);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const errors_js_1 = __nccwpck_require__(6242);
+const node_crypto_1 = __nccwpck_require__(7598);
+const scopeUtils_js_1 = __nccwpck_require__(8185);
+const promises_1 = __nccwpck_require__(1455);
+const tracing_js_1 = __nccwpck_require__(9180);
 const credentialName = "OnBehalfOfCredential";
 const logger = (0, logging_js_1.credentialLogger)(credentialName);
 /**
@@ -32949,7 +28311,7 @@ exports.OnBehalfOfCredential = OnBehalfOfCredential;
 
 /***/ }),
 
-/***/ 7418:
+/***/ 6678:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32958,12 +28320,12 @@ exports.OnBehalfOfCredential = OnBehalfOfCredential;
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UsernamePasswordCredential = void 0;
-const msalClient_js_1 = __nccwpck_require__(3992);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const errors_js_1 = __nccwpck_require__(3310);
-const logging_js_1 = __nccwpck_require__(4337);
-const scopeUtils_js_1 = __nccwpck_require__(2246);
-const tracing_js_1 = __nccwpck_require__(7432);
+const msalClient_js_1 = __nccwpck_require__(7359);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const errors_js_1 = __nccwpck_require__(6242);
+const logging_js_1 = __nccwpck_require__(2615);
+const scopeUtils_js_1 = __nccwpck_require__(8185);
+const tracing_js_1 = __nccwpck_require__(9180);
 const logger = (0, logging_js_1.credentialLogger)("UsernamePasswordCredential");
 /**
  * Enables authentication to Microsoft Entra ID with a user's
@@ -33028,7 +28390,7 @@ exports.UsernamePasswordCredential = UsernamePasswordCredential;
 
 /***/ }),
 
-/***/ 1212:
+/***/ 8088:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -33038,16 +28400,16 @@ exports.UsernamePasswordCredential = UsernamePasswordCredential;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VisualStudioCodeCredential = exports.vsCodeCredentialControl = void 0;
 exports.getPropertyFromVSCode = getPropertyFromVSCode;
-const tslib_1 = __nccwpck_require__(2369);
-const logging_js_1 = __nccwpck_require__(4337);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const constants_js_1 = __nccwpck_require__(8535);
-const errors_js_1 = __nccwpck_require__(3310);
-const identityClient_js_1 = __nccwpck_require__(6986);
-const tenantIdUtils_js_2 = __nccwpck_require__(762);
-const node_fs_1 = tslib_1.__importDefault(__nccwpck_require__(7561));
-const node_os_1 = tslib_1.__importDefault(__nccwpck_require__(612));
-const node_path_1 = tslib_1.__importDefault(__nccwpck_require__(9411));
+const tslib_1 = __nccwpck_require__(1860);
+const logging_js_1 = __nccwpck_require__(2615);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const constants_js_1 = __nccwpck_require__(516);
+const errors_js_1 = __nccwpck_require__(6242);
+const identityClient_js_1 = __nccwpck_require__(7608);
+const tenantIdUtils_js_2 = __nccwpck_require__(4700);
+const node_fs_1 = tslib_1.__importDefault(__nccwpck_require__(3024));
+const node_os_1 = tslib_1.__importDefault(__nccwpck_require__(8161));
+const node_path_1 = tslib_1.__importDefault(__nccwpck_require__(6760));
 const CommonTenantId = "common";
 const AzureAccountClientId = "aebc6443-996d-45c2-90f0-388ff96faa56"; // VSC: 'aebc6443-996d-45c2-90f0-388ff96faa56'
 const logger = (0, logging_js_1.credentialLogger)("VisualStudioCodeCredential");
@@ -33231,7 +28593,7 @@ exports.VisualStudioCodeCredential = VisualStudioCodeCredential;
 
 /***/ }),
 
-/***/ 4421:
+/***/ 6712:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -33240,11 +28602,11 @@ exports.VisualStudioCodeCredential = VisualStudioCodeCredential;
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WorkloadIdentityCredential = exports.SupportedWorkloadEnvironmentVariables = void 0;
-const logging_js_1 = __nccwpck_require__(4337);
-const clientAssertionCredential_js_1 = __nccwpck_require__(2143);
-const errors_js_1 = __nccwpck_require__(3310);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
-const promises_1 = __nccwpck_require__(3977);
+const logging_js_1 = __nccwpck_require__(2615);
+const clientAssertionCredential_js_1 = __nccwpck_require__(644);
+const errors_js_1 = __nccwpck_require__(6242);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
+const promises_1 = __nccwpck_require__(1455);
 const credentialName = "WorkloadIdentityCredential";
 /**
  * Contains the list of all supported environment variable names so that an
@@ -33356,7 +28718,7 @@ exports.WorkloadIdentityCredential = WorkloadIdentityCredential;
 
 /***/ }),
 
-/***/ 3310:
+/***/ 6242:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -33493,7 +28855,7 @@ exports.AuthenticationRequiredError = AuthenticationRequiredError;
 
 /***/ }),
 
-/***/ 8154:
+/***/ 5261:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -33503,10 +28865,10 @@ exports.AuthenticationRequiredError = AuthenticationRequiredError;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getBearerTokenProvider = exports.AzureAuthorityHosts = exports.logger = exports.WorkloadIdentityCredential = exports.OnBehalfOfCredential = exports.VisualStudioCodeCredential = exports.UsernamePasswordCredential = exports.AzurePowerShellCredential = exports.AuthorizationCodeCredential = exports.AzurePipelinesCredential = exports.DeviceCodeCredential = exports.ManagedIdentityCredential = exports.InteractiveBrowserCredential = exports.AzureDeveloperCliCredential = exports.AzureCliCredential = exports.ClientAssertionCredential = exports.ClientCertificateCredential = exports.EnvironmentCredential = exports.DefaultAzureCredential = exports.ClientSecretCredential = exports.ChainedTokenCredential = exports.deserializeAuthenticationRecord = exports.serializeAuthenticationRecord = exports.AuthenticationRequiredError = exports.CredentialUnavailableErrorName = exports.CredentialUnavailableError = exports.AggregateAuthenticationErrorName = exports.AuthenticationErrorName = exports.AggregateAuthenticationError = exports.AuthenticationError = void 0;
 exports.getDefaultAzureCredential = getDefaultAzureCredential;
-const tslib_1 = __nccwpck_require__(2369);
-tslib_1.__exportStar(__nccwpck_require__(93), exports);
-const defaultAzureCredential_js_1 = __nccwpck_require__(8506);
-var errors_js_1 = __nccwpck_require__(3310);
+const tslib_1 = __nccwpck_require__(1860);
+tslib_1.__exportStar(__nccwpck_require__(6496), exports);
+const defaultAzureCredential_js_1 = __nccwpck_require__(2451);
+var errors_js_1 = __nccwpck_require__(6242);
 Object.defineProperty(exports, "AuthenticationError", ({ enumerable: true, get: function () { return errors_js_1.AuthenticationError; } }));
 Object.defineProperty(exports, "AggregateAuthenticationError", ({ enumerable: true, get: function () { return errors_js_1.AggregateAuthenticationError; } }));
 Object.defineProperty(exports, "AuthenticationErrorName", ({ enumerable: true, get: function () { return errors_js_1.AuthenticationErrorName; } }));
@@ -33514,48 +28876,48 @@ Object.defineProperty(exports, "AggregateAuthenticationErrorName", ({ enumerable
 Object.defineProperty(exports, "CredentialUnavailableError", ({ enumerable: true, get: function () { return errors_js_1.CredentialUnavailableError; } }));
 Object.defineProperty(exports, "CredentialUnavailableErrorName", ({ enumerable: true, get: function () { return errors_js_1.CredentialUnavailableErrorName; } }));
 Object.defineProperty(exports, "AuthenticationRequiredError", ({ enumerable: true, get: function () { return errors_js_1.AuthenticationRequiredError; } }));
-var utils_js_1 = __nccwpck_require__(5472);
+var utils_js_1 = __nccwpck_require__(4738);
 Object.defineProperty(exports, "serializeAuthenticationRecord", ({ enumerable: true, get: function () { return utils_js_1.serializeAuthenticationRecord; } }));
 Object.defineProperty(exports, "deserializeAuthenticationRecord", ({ enumerable: true, get: function () { return utils_js_1.deserializeAuthenticationRecord; } }));
-var chainedTokenCredential_js_1 = __nccwpck_require__(6905);
+var chainedTokenCredential_js_1 = __nccwpck_require__(2342);
 Object.defineProperty(exports, "ChainedTokenCredential", ({ enumerable: true, get: function () { return chainedTokenCredential_js_1.ChainedTokenCredential; } }));
-var clientSecretCredential_js_1 = __nccwpck_require__(3118);
+var clientSecretCredential_js_1 = __nccwpck_require__(9424);
 Object.defineProperty(exports, "ClientSecretCredential", ({ enumerable: true, get: function () { return clientSecretCredential_js_1.ClientSecretCredential; } }));
-var defaultAzureCredential_js_2 = __nccwpck_require__(8506);
+var defaultAzureCredential_js_2 = __nccwpck_require__(2451);
 Object.defineProperty(exports, "DefaultAzureCredential", ({ enumerable: true, get: function () { return defaultAzureCredential_js_2.DefaultAzureCredential; } }));
-var environmentCredential_js_1 = __nccwpck_require__(5497);
+var environmentCredential_js_1 = __nccwpck_require__(6660);
 Object.defineProperty(exports, "EnvironmentCredential", ({ enumerable: true, get: function () { return environmentCredential_js_1.EnvironmentCredential; } }));
-var clientCertificateCredential_js_1 = __nccwpck_require__(5436);
+var clientCertificateCredential_js_1 = __nccwpck_require__(339);
 Object.defineProperty(exports, "ClientCertificateCredential", ({ enumerable: true, get: function () { return clientCertificateCredential_js_1.ClientCertificateCredential; } }));
-var clientAssertionCredential_js_1 = __nccwpck_require__(2143);
+var clientAssertionCredential_js_1 = __nccwpck_require__(644);
 Object.defineProperty(exports, "ClientAssertionCredential", ({ enumerable: true, get: function () { return clientAssertionCredential_js_1.ClientAssertionCredential; } }));
-var azureCliCredential_js_1 = __nccwpck_require__(4442);
+var azureCliCredential_js_1 = __nccwpck_require__(7204);
 Object.defineProperty(exports, "AzureCliCredential", ({ enumerable: true, get: function () { return azureCliCredential_js_1.AzureCliCredential; } }));
-var azureDeveloperCliCredential_js_1 = __nccwpck_require__(4887);
+var azureDeveloperCliCredential_js_1 = __nccwpck_require__(9190);
 Object.defineProperty(exports, "AzureDeveloperCliCredential", ({ enumerable: true, get: function () { return azureDeveloperCliCredential_js_1.AzureDeveloperCliCredential; } }));
-var interactiveBrowserCredential_js_1 = __nccwpck_require__(2135);
+var interactiveBrowserCredential_js_1 = __nccwpck_require__(6115);
 Object.defineProperty(exports, "InteractiveBrowserCredential", ({ enumerable: true, get: function () { return interactiveBrowserCredential_js_1.InteractiveBrowserCredential; } }));
-var index_js_1 = __nccwpck_require__(8538);
+var index_js_1 = __nccwpck_require__(3661);
 Object.defineProperty(exports, "ManagedIdentityCredential", ({ enumerable: true, get: function () { return index_js_1.ManagedIdentityCredential; } }));
-var deviceCodeCredential_js_1 = __nccwpck_require__(4003);
+var deviceCodeCredential_js_1 = __nccwpck_require__(5164);
 Object.defineProperty(exports, "DeviceCodeCredential", ({ enumerable: true, get: function () { return deviceCodeCredential_js_1.DeviceCodeCredential; } }));
-var azurePipelinesCredential_js_1 = __nccwpck_require__(5310);
+var azurePipelinesCredential_js_1 = __nccwpck_require__(4473);
 Object.defineProperty(exports, "AzurePipelinesCredential", ({ enumerable: true, get: function () { return azurePipelinesCredential_js_1.AzurePipelinesCredential; } }));
-var authorizationCodeCredential_js_1 = __nccwpck_require__(6207);
+var authorizationCodeCredential_js_1 = __nccwpck_require__(8317);
 Object.defineProperty(exports, "AuthorizationCodeCredential", ({ enumerable: true, get: function () { return authorizationCodeCredential_js_1.AuthorizationCodeCredential; } }));
-var azurePowerShellCredential_js_1 = __nccwpck_require__(9292);
+var azurePowerShellCredential_js_1 = __nccwpck_require__(8223);
 Object.defineProperty(exports, "AzurePowerShellCredential", ({ enumerable: true, get: function () { return azurePowerShellCredential_js_1.AzurePowerShellCredential; } }));
-var usernamePasswordCredential_js_1 = __nccwpck_require__(7418);
+var usernamePasswordCredential_js_1 = __nccwpck_require__(6678);
 Object.defineProperty(exports, "UsernamePasswordCredential", ({ enumerable: true, get: function () { return usernamePasswordCredential_js_1.UsernamePasswordCredential; } }));
-var visualStudioCodeCredential_js_1 = __nccwpck_require__(1212);
+var visualStudioCodeCredential_js_1 = __nccwpck_require__(8088);
 Object.defineProperty(exports, "VisualStudioCodeCredential", ({ enumerable: true, get: function () { return visualStudioCodeCredential_js_1.VisualStudioCodeCredential; } }));
-var onBehalfOfCredential_js_1 = __nccwpck_require__(4400);
+var onBehalfOfCredential_js_1 = __nccwpck_require__(6347);
 Object.defineProperty(exports, "OnBehalfOfCredential", ({ enumerable: true, get: function () { return onBehalfOfCredential_js_1.OnBehalfOfCredential; } }));
-var workloadIdentityCredential_js_1 = __nccwpck_require__(4421);
+var workloadIdentityCredential_js_1 = __nccwpck_require__(6712);
 Object.defineProperty(exports, "WorkloadIdentityCredential", ({ enumerable: true, get: function () { return workloadIdentityCredential_js_1.WorkloadIdentityCredential; } }));
-var logging_js_1 = __nccwpck_require__(4337);
+var logging_js_1 = __nccwpck_require__(2615);
 Object.defineProperty(exports, "logger", ({ enumerable: true, get: function () { return logging_js_1.logger; } }));
-var constants_js_1 = __nccwpck_require__(8535);
+var constants_js_1 = __nccwpck_require__(516);
 Object.defineProperty(exports, "AzureAuthorityHosts", ({ enumerable: true, get: function () { return constants_js_1.AzureAuthorityHosts; } }));
 /**
  * Returns a new instance of the {@link DefaultAzureCredential}.
@@ -33563,13 +28925,13 @@ Object.defineProperty(exports, "AzureAuthorityHosts", ({ enumerable: true, get: 
 function getDefaultAzureCredential() {
     return new defaultAzureCredential_js_1.DefaultAzureCredential();
 }
-var tokenProvider_js_1 = __nccwpck_require__(1545);
+var tokenProvider_js_1 = __nccwpck_require__(349);
 Object.defineProperty(exports, "getBearerTokenProvider", ({ enumerable: true, get: function () { return tokenProvider_js_1.getBearerTokenProvider; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 4597:
+/***/ 4062:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -33578,14 +28940,14 @@ Object.defineProperty(exports, "getBearerTokenProvider", ({ enumerable: true, ge
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.msalCommon = void 0;
-const tslib_1 = __nccwpck_require__(2369);
-const msalCommon = tslib_1.__importStar(__nccwpck_require__(5167));
+const tslib_1 = __nccwpck_require__(1860);
+const msalCommon = tslib_1.__importStar(__nccwpck_require__(7));
 exports.msalCommon = msalCommon;
 //# sourceMappingURL=msal.js.map
 
 /***/ }),
 
-/***/ 3992:
+/***/ 7359:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -33595,16 +28957,16 @@ exports.msalCommon = msalCommon;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.generateMsalConfiguration = generateMsalConfiguration;
 exports.createMsalClient = createMsalClient;
-const tslib_1 = __nccwpck_require__(2369);
-const msal = tslib_1.__importStar(__nccwpck_require__(5167));
-const logging_js_1 = __nccwpck_require__(4337);
-const msalPlugins_js_1 = __nccwpck_require__(9993);
-const utils_js_1 = __nccwpck_require__(5472);
-const errors_js_1 = __nccwpck_require__(3310);
-const identityClient_js_1 = __nccwpck_require__(6986);
-const regionalAuthority_js_1 = __nccwpck_require__(2158);
-const logger_1 = __nccwpck_require__(3233);
-const tenantIdUtils_js_1 = __nccwpck_require__(762);
+const tslib_1 = __nccwpck_require__(1860);
+const msal = tslib_1.__importStar(__nccwpck_require__(7));
+const logging_js_1 = __nccwpck_require__(2615);
+const msalPlugins_js_1 = __nccwpck_require__(7326);
+const utils_js_1 = __nccwpck_require__(4738);
+const errors_js_1 = __nccwpck_require__(6242);
+const identityClient_js_1 = __nccwpck_require__(7608);
+const regionalAuthority_js_1 = __nccwpck_require__(1747);
+const logger_1 = __nccwpck_require__(6515);
+const tenantIdUtils_js_1 = __nccwpck_require__(4700);
 /**
  * The default logger used if no logger was passed in by the credential.
  */
@@ -34022,7 +29384,7 @@ function createMsalClient(clientId, tenantId, createMsalClientOptions = {}) {
             var _a, _b;
             return {
                 openBrowser: async (url) => {
-                    const open = await __nccwpck_require__.e(/* import() */ 148).then(__nccwpck_require__.bind(__nccwpck_require__, 148));
+                    const open = await __nccwpck_require__.e(/* import() */ 667).then(__nccwpck_require__.bind(__nccwpck_require__, 7667));
                     await open.default(url, { wait: true, newInstance: true });
                 },
                 scopes,
@@ -34066,7 +29428,7 @@ function createMsalClient(clientId, tenantId, createMsalClientOptions = {}) {
 
 /***/ }),
 
-/***/ 9993:
+/***/ 7326:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34076,7 +29438,7 @@ function createMsalClient(clientId, tenantId, createMsalClientOptions = {}) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.msalPlugins = exports.msalNodeFlowNativeBrokerControl = exports.nativeBrokerInfo = exports.msalNodeFlowCacheControl = exports.persistenceProvider = void 0;
 exports.hasNativeBroker = hasNativeBroker;
-const constants_js_1 = __nccwpck_require__(8535);
+const constants_js_1 = __nccwpck_require__(516);
 /**
  * The current persistence provider, undefined by default.
  * @internal
@@ -34164,7 +29526,7 @@ exports.msalPlugins = {
 
 /***/ }),
 
-/***/ 5472:
+/***/ 4738:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34184,12 +29546,12 @@ exports.publicToMsal = publicToMsal;
 exports.msalToPublic = msalToPublic;
 exports.serializeAuthenticationRecord = serializeAuthenticationRecord;
 exports.deserializeAuthenticationRecord = deserializeAuthenticationRecord;
-const errors_js_1 = __nccwpck_require__(3310);
-const logging_js_1 = __nccwpck_require__(4337);
-const constants_js_1 = __nccwpck_require__(8535);
-const core_util_1 = __nccwpck_require__(637);
-const abort_controller_1 = __nccwpck_require__(7928);
-const msal_js_1 = __nccwpck_require__(4597);
+const errors_js_1 = __nccwpck_require__(6242);
+const logging_js_1 = __nccwpck_require__(2615);
+const constants_js_1 = __nccwpck_require__(516);
+const core_util_1 = __nccwpck_require__(7779);
+const abort_controller_1 = __nccwpck_require__(7934);
+const msal_js_1 = __nccwpck_require__(4062);
 /**
  * @internal
  */
@@ -34424,7 +29786,7 @@ function deserializeAuthenticationRecord(serializedRecord) {
 
 /***/ }),
 
-/***/ 93:
+/***/ 6496:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34433,8 +29795,8 @@ function deserializeAuthenticationRecord(serializedRecord) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.useIdentityPlugin = useIdentityPlugin;
-const msalPlugins_js_1 = __nccwpck_require__(9993);
-const visualStudioCodeCredential_js_1 = __nccwpck_require__(1212);
+const msalPlugins_js_1 = __nccwpck_require__(7326);
+const visualStudioCodeCredential_js_1 = __nccwpck_require__(8088);
 /**
  * The context passed to an Identity plugin. This contains objects that
  * plugins can use to set backend implementations.
@@ -34477,7 +29839,7 @@ function useIdentityPlugin(plugin) {
 
 /***/ }),
 
-/***/ 2158:
+/***/ 1747:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -34628,7 +29990,7 @@ function calculateRegionalAuthority(regionalAuthority) {
 
 /***/ }),
 
-/***/ 1545:
+/***/ 349:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34637,7 +29999,7 @@ function calculateRegionalAuthority(regionalAuthority) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getBearerTokenProvider = getBearerTokenProvider;
-const core_rest_pipeline_1 = __nccwpck_require__(9146);
+const core_rest_pipeline_1 = __nccwpck_require__(778);
 /**
  * Returns a callback that provides a bearer token.
  * For example, the bearer token can be used to authenticate a request as follows:
@@ -34691,7 +30053,7 @@ function getBearerTokenProvider(credential, scopes, options) {
 
 /***/ }),
 
-/***/ 3317:
+/***/ 240:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -34712,7 +30074,7 @@ function getIdentityTokenEndpointSuffix(tenantId) {
 
 /***/ }),
 
-/***/ 4337:
+/***/ 2615:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34727,7 +30089,7 @@ exports.formatSuccess = formatSuccess;
 exports.formatError = formatError;
 exports.credentialLoggerInstance = credentialLoggerInstance;
 exports.credentialLogger = credentialLogger;
-const logger_1 = __nccwpck_require__(3233);
+const logger_1 = __nccwpck_require__(6515);
 /**
  * The AzureLogger used for all clients within the identity package
  */
@@ -34822,7 +30184,7 @@ function credentialLogger(title, log = exports.logger) {
 
 /***/ }),
 
-/***/ 1424:
+/***/ 9313:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34831,7 +30193,7 @@ function credentialLogger(title, log = exports.logger) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processMultiTenantRequest = processMultiTenantRequest;
-const errors_js_1 = __nccwpck_require__(3310);
+const errors_js_1 = __nccwpck_require__(6242);
 function createConfigurationErrorMessage(tenantId) {
     return `The current credential is not configured to acquire tokens for tenant ${tenantId}. To enable acquiring tokens for this tenant add it to the AdditionallyAllowedTenants on the credential options, or add "*" to AdditionallyAllowedTenants to allow acquiring tokens for any tenant.`;
 }
@@ -34867,7 +30229,7 @@ function processMultiTenantRequest(tenantId, getTokenOptions, additionallyAllowe
 
 /***/ }),
 
-/***/ 8278:
+/***/ 3853:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34876,8 +30238,8 @@ function processMultiTenantRequest(tenantId, getTokenOptions, additionallyAllowe
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processUtils = void 0;
-const tslib_1 = __nccwpck_require__(2369);
-const childProcess = tslib_1.__importStar(__nccwpck_require__(2081));
+const tslib_1 = __nccwpck_require__(1860);
+const childProcess = tslib_1.__importStar(__nccwpck_require__(5317));
 /**
  * Easy to mock childProcess utils.
  * @internal
@@ -34910,7 +30272,7 @@ exports.processUtils = {
 
 /***/ }),
 
-/***/ 2246:
+/***/ 8185:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34921,7 +30283,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ensureScopes = ensureScopes;
 exports.ensureValidScopeForDevTimeCreds = ensureValidScopeForDevTimeCreds;
 exports.getScopeResource = getScopeResource;
-const logging_js_1 = __nccwpck_require__(4337);
+const logging_js_1 = __nccwpck_require__(2615);
 /**
  * Ensures the scopes value is an array.
  * @internal
@@ -34951,7 +30313,7 @@ function getScopeResource(scope) {
 
 /***/ }),
 
-/***/ 5137:
+/***/ 4860:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34960,7 +30322,7 @@ function getScopeResource(scope) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkSubscription = checkSubscription;
-const logging_js_1 = __nccwpck_require__(4337);
+const logging_js_1 = __nccwpck_require__(2615);
 /**
  * @internal
  */
@@ -34975,7 +30337,7 @@ function checkSubscription(logger, subscription) {
 
 /***/ }),
 
-/***/ 762:
+/***/ 4700:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34987,9 +30349,9 @@ exports.processMultiTenantRequest = void 0;
 exports.checkTenantId = checkTenantId;
 exports.resolveTenantId = resolveTenantId;
 exports.resolveAdditionallyAllowedTenantIds = resolveAdditionallyAllowedTenantIds;
-const constants_js_1 = __nccwpck_require__(8535);
-const logging_js_1 = __nccwpck_require__(4337);
-var processMultiTenantRequest_js_1 = __nccwpck_require__(1424);
+const constants_js_1 = __nccwpck_require__(516);
+const logging_js_1 = __nccwpck_require__(2615);
+var processMultiTenantRequest_js_1 = __nccwpck_require__(9313);
 Object.defineProperty(exports, "processMultiTenantRequest", ({ enumerable: true, get: function () { return processMultiTenantRequest_js_1.processMultiTenantRequest; } }));
 /**
  * @internal
@@ -35033,7 +30395,7 @@ function resolveAdditionallyAllowedTenantIds(additionallyAllowedTenants) {
 
 /***/ }),
 
-/***/ 7432:
+/***/ 9180:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -35042,8 +30404,8 @@ function resolveAdditionallyAllowedTenantIds(additionallyAllowedTenants) {
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.tracingClient = void 0;
-const constants_js_1 = __nccwpck_require__(8535);
-const core_tracing_1 = __nccwpck_require__(4175);
+const constants_js_1 = __nccwpck_require__(516);
+const core_tracing_1 = __nccwpck_require__(5553);
 /**
  * Creates a span using the global tracer.
  * @internal
@@ -35057,7 +30419,7 @@ exports.tracingClient = (0, core_tracing_1.createTracingClient)({
 
 /***/ }),
 
-/***/ 9179:
+/***/ 760:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -35095,7 +30457,7 @@ exports.AbortError = AbortError;
 
 /***/ }),
 
-/***/ 7928:
+/***/ 7934:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -35104,13 +30466,2869 @@ exports.AbortError = AbortError;
 // Licensed under the MIT license.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbortError = void 0;
-var AbortError_js_1 = __nccwpck_require__(9179);
+var AbortError_js_1 = __nccwpck_require__(760);
 Object.defineProperty(exports, "AbortError", ({ enumerable: true, get: function () { return AbortError_js_1.AbortError; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 5167:
+/***/ 7128:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const tslib_1 = __nccwpck_require__(1860);
+tslib_1.__exportStar(__nccwpck_require__(4209), exports);
+tslib_1.__exportStar(__nccwpck_require__(2401), exports);
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 4209:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.keyVaultAuthenticationPolicyName = void 0;
+exports.keyVaultAuthenticationPolicy = keyVaultAuthenticationPolicy;
+const parseWWWAuthenticate_js_1 = __nccwpck_require__(1601);
+const tokenCycler_js_1 = __nccwpck_require__(1805);
+const logger_js_1 = __nccwpck_require__(3417);
+function verifyChallengeResource(scope, request) {
+    let scopeAsUrl;
+    try {
+        scopeAsUrl = new URL(scope);
+    }
+    catch (e) {
+        throw new Error(`The challenge contains invalid scope '${scope}'`);
+    }
+    const requestUrl = new URL(request.url);
+    if (!requestUrl.hostname.endsWith(`.${scopeAsUrl.hostname}`)) {
+        throw new Error(`The challenge resource '${scopeAsUrl.hostname}' does not match the requested domain. Set disableChallengeResourceVerification to true in your client options to disable. See https://aka.ms/azsdk/blog/vault-uri for more information.`);
+    }
+}
+/**
+ * Name of the Key Vault authentication policy.
+ */
+exports.keyVaultAuthenticationPolicyName = "keyVaultAuthenticationPolicy";
+/**
+ * A custom implementation of the bearer-token authentication policy that handles Key Vault and CAE challenges.
+ *
+ * Key Vault supports other authentication schemes, but we ensure challenge authentication
+ * is used by first sending a copy of the request, without authorization or content.
+ *
+ * when the challenge is received, it will be authenticated and used to send the original
+ * request with authorization.
+ *
+ * Following the first request of a client, follow-up requests will get the cached token
+ * if possible.
+ *
+ */
+function keyVaultAuthenticationPolicy(credential, options = {}) {
+    const { disableChallengeResourceVerification } = options;
+    let challengeState = { status: "none" };
+    const getAccessToken = (0, tokenCycler_js_1.createTokenCycler)(credential);
+    function requestToOptions(request) {
+        return {
+            abortSignal: request.abortSignal,
+            requestOptions: {
+                timeout: request.timeout > 0 ? request.timeout : undefined,
+            },
+            tracingOptions: request.tracingOptions,
+        };
+    }
+    async function authorizeRequest(request) {
+        const requestOptions = requestToOptions(request);
+        switch (challengeState.status) {
+            case "none":
+                challengeState = {
+                    status: "started",
+                    originalBody: request.body,
+                };
+                request.body = null;
+                break;
+            case "started":
+                break; // Retry, we should not overwrite the original body
+            case "complete": {
+                const token = await getAccessToken(challengeState.scopes, Object.assign(Object.assign({}, requestOptions), { enableCae: true, tenantId: challengeState.tenantId }));
+                if (token) {
+                    request.headers.set("authorization", `Bearer ${token.token}`);
+                }
+                break;
+            }
+        }
+    }
+    async function handleChallenge(request, response, next) {
+        // If status is not 401, this is a no-op
+        if (response.status !== 401) {
+            return response;
+        }
+        if (request.body === null && challengeState.status === "started") {
+            // Reset the original body before doing anything else.
+            // Note: If successful status will be "complete", otherwise "none" will
+            // restart the process.
+            request.body = challengeState.originalBody;
+        }
+        const getTokenOptions = requestToOptions(request);
+        const challenge = response.headers.get("WWW-Authenticate");
+        if (!challenge) {
+            logger_js_1.logger.warning("keyVaultAuthentication policy encountered a 401 response without a corresponding WWW-Authenticate header. This is unexpected. Not handling the 401 response.");
+            return response;
+        }
+        const parsedChallenge = (0, parseWWWAuthenticate_js_1.parseWWWAuthenticateHeader)(challenge);
+        const scope = parsedChallenge.resource
+            ? parsedChallenge.resource + "/.default"
+            : parsedChallenge.scope;
+        if (!scope) {
+            // Cannot handle this kind of challenge here (if scope is not present, may be a CAE challenge)
+            return response;
+        }
+        if (!disableChallengeResourceVerification) {
+            verifyChallengeResource(scope, request);
+        }
+        const accessToken = await getAccessToken([scope], Object.assign(Object.assign({}, getTokenOptions), { enableCae: true, tenantId: parsedChallenge.tenantId }));
+        if (!accessToken) {
+            // No access token provided, treat as no-op
+            return response;
+        }
+        request.headers.set("Authorization", `Bearer ${accessToken.token}`);
+        challengeState = {
+            status: "complete",
+            scopes: [scope],
+            tenantId: parsedChallenge.tenantId,
+        };
+        // We have a token now, so try send the request again
+        return next(request);
+    }
+    async function handleCaeChallenge(request, response, next) {
+        // Cannot handle CAE challenge if a regular challenge has not been completed first
+        if (challengeState.status !== "complete") {
+            return response;
+        }
+        // If status is not 401, this is a no-op
+        if (response.status !== 401) {
+            return response;
+        }
+        const getTokenOptions = requestToOptions(request);
+        const challenge = response.headers.get("WWW-Authenticate");
+        if (!challenge) {
+            return response;
+        }
+        const { claims: base64EncodedClaims, error } = (0, parseWWWAuthenticate_js_1.parseWWWAuthenticateHeader)(challenge);
+        if (error !== "insufficient_claims" || base64EncodedClaims === undefined) {
+            return response;
+        }
+        const claims = atob(base64EncodedClaims);
+        const accessToken = await getAccessToken(challengeState.scopes, Object.assign(Object.assign({}, getTokenOptions), { enableCae: true, tenantId: challengeState.tenantId, claims }));
+        request.headers.set("Authorization", `Bearer ${accessToken.token}`);
+        return next(request);
+    }
+    async function sendRequest(request, next) {
+        // Add token if possible
+        await authorizeRequest(request);
+        // Try send request (first attempt)
+        let response = await next(request);
+        // Handle standard challenge if present
+        response = await handleChallenge(request, response, next);
+        // Handle CAE challenge if present
+        response = await handleCaeChallenge(request, response, next);
+        return response;
+    }
+    return {
+        name: exports.keyVaultAuthenticationPolicyName,
+        sendRequest,
+    };
+}
+//# sourceMappingURL=keyVaultAuthenticationPolicy.js.map
+
+/***/ }),
+
+/***/ 3417:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.logger = void 0;
+const logger_1 = __nccwpck_require__(6515);
+exports.logger = (0, logger_1.createClientLogger)("keyvault-common");
+//# sourceMappingURL=logger.js.map
+
+/***/ }),
+
+/***/ 2401:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseKeyVaultIdentifier = parseKeyVaultIdentifier;
+/**
+ * Parses a Key Vault identifier into its components.
+ *
+ * @param collection - The collection of the Key Vault identifier.
+ * @param identifier - The Key Vault identifier to be parsed.
+ */
+function parseKeyVaultIdentifier(collection, identifier) {
+    if (typeof collection !== "string" || !(collection = collection.trim())) {
+        throw new Error("Invalid collection argument");
+    }
+    if (typeof identifier !== "string" || !(identifier = identifier.trim())) {
+        throw new Error("Invalid identifier argument");
+    }
+    let baseUri;
+    try {
+        baseUri = new URL(identifier);
+    }
+    catch (e) {
+        throw new Error(`Invalid ${collection} identifier: ${identifier}. Not a valid URI`);
+    }
+    // Path is of the form '/collection/name[/version]'
+    const segments = (baseUri.pathname || "").split("/");
+    if (segments.length !== 3 && segments.length !== 4) {
+        throw new Error(`Invalid ${collection} identifier: ${identifier}. Bad number of segments: ${segments.length}`);
+    }
+    if (collection !== segments[1]) {
+        throw new Error(`Invalid ${collection} identifier: ${identifier}. segment [1] should be "${collection}", found "${segments[1]}"`);
+    }
+    const vaultUrl = `${baseUri.protocol}//${baseUri.host}`;
+    const name = segments[2];
+    const version = segments.length === 4 ? segments[3] : undefined;
+    return {
+        vaultUrl,
+        name,
+        version,
+    };
+}
+//# sourceMappingURL=parseKeyVaultIdentifier.js.map
+
+/***/ }),
+
+/***/ 1601:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseWWWAuthenticateHeader = parseWWWAuthenticateHeader;
+const validWWWAuthenticateProperties = [
+    "authorization",
+    "authorization_url",
+    "resource",
+    "scope",
+    "tenantId",
+    "claims",
+    "error",
+];
+/**
+ * Parses an WWW-Authenticate response header.
+ * This transforms a string value like:
+ * `Bearer authorization="https://some.url/tenantId", resource="https://some.url"`
+ * into an object like:
+ * `{ authorization: "https://some.url/tenantId", resource: "https://some.url" }`
+ * @param headerValue - String value in the WWW-Authenticate header
+ */
+function parseWWWAuthenticateHeader(headerValue) {
+    const pairDelimiter = /,? +/;
+    const parsed = headerValue.split(pairDelimiter).reduce((kvPairs, p) => {
+        if (p.match(/\w="/)) {
+            // 'sampleKey="sample_value"' -> [sampleKey, "sample_value"] -> { sampleKey: sample_value }
+            const [key, ...value] = p.split("=");
+            if (validWWWAuthenticateProperties.includes(key)) {
+                // The values will be wrapped in quotes, which need to be stripped out.
+                return Object.assign(Object.assign({}, kvPairs), { [key]: value.join("=").slice(1, -1) });
+            }
+        }
+        return kvPairs;
+    }, {});
+    // Finally, we pull the tenantId from the authorization header to support multi-tenant authentication.
+    if (parsed.authorization) {
+        try {
+            const tenantId = new URL(parsed.authorization).pathname.substring(1);
+            if (tenantId) {
+                parsed.tenantId = tenantId;
+            }
+        }
+        catch (_) {
+            throw new Error(`The challenge authorization URI '${parsed.authorization}' is invalid.`);
+        }
+    }
+    return parsed;
+}
+//# sourceMappingURL=parseWWWAuthenticate.js.map
+
+/***/ }),
+
+/***/ 1805:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DEFAULT_CYCLER_OPTIONS = void 0;
+exports.createTokenCycler = createTokenCycler;
+const core_util_1 = __nccwpck_require__(7779);
+// Default options for the cycler if none are provided
+exports.DEFAULT_CYCLER_OPTIONS = {
+    forcedRefreshWindowInMs: 1000, // Force waiting for a refresh 1s before the token expires
+    retryIntervalInMs: 3000, // Allow refresh attempts every 3s
+    refreshWindowInMs: 1000 * 60 * 2, // Start refreshing 2m before expiry
+};
+/**
+ * Converts an an unreliable access token getter (which may resolve with null)
+ * into an AccessTokenGetter by retrying the unreliable getter in a regular
+ * interval.
+ *
+ * @param getAccessToken - A function that produces a promise of an access token that may fail by returning null.
+ * @param retryIntervalInMs - The time (in milliseconds) to wait between retry attempts.
+ * @param refreshTimeout - The timestamp after which the refresh attempt will fail, throwing an exception.
+ * @returns - A promise that, if it resolves, will resolve with an access token.
+ */
+async function beginRefresh(getAccessToken, retryIntervalInMs, refreshTimeout) {
+    // This wrapper handles exceptions gracefully as long as we haven't exceeded
+    // the timeout.
+    async function tryGetAccessToken() {
+        if (Date.now() < refreshTimeout) {
+            try {
+                return await getAccessToken();
+            }
+            catch (_a) {
+                return null;
+            }
+        }
+        else {
+            const finalToken = await getAccessToken();
+            // Timeout is up, so throw if it's still null
+            if (finalToken === null) {
+                throw new Error("Failed to refresh access token.");
+            }
+            return finalToken;
+        }
+    }
+    let token = await tryGetAccessToken();
+    while (token === null) {
+        await (0, core_util_1.delay)(retryIntervalInMs);
+        token = await tryGetAccessToken();
+    }
+    return token;
+}
+/**
+ * Creates a token cycler from a credential, scopes, and optional settings.
+ *
+ * A token cycler represents a way to reliably retrieve a valid access token
+ * from a TokenCredential. It will handle initializing the token, refreshing it
+ * when it nears expiration, and synchronizes refresh attempts to avoid
+ * concurrency hazards.
+ *
+ * @param credential - the underlying TokenCredential that provides the access
+ * token
+ * @param tokenCyclerOptions - optionally override default settings for the cycler
+ *
+ * @returns - a function that reliably produces a valid access token
+ */
+function createTokenCycler(credential, tokenCyclerOptions) {
+    let refreshWorker = null;
+    let token = null;
+    let tenantId;
+    const options = Object.assign(Object.assign({}, exports.DEFAULT_CYCLER_OPTIONS), tokenCyclerOptions);
+    /**
+     * This little holder defines several predicates that we use to construct
+     * the rules of refreshing the token.
+     */
+    const cycler = {
+        /**
+         * Produces true if a refresh job is currently in progress.
+         */
+        get isRefreshing() {
+            return refreshWorker !== null;
+        },
+        /**
+         * Produces true if the cycler SHOULD refresh (we are within the refresh
+         * window and not already refreshing)
+         */
+        get shouldRefresh() {
+            var _a;
+            if (cycler.isRefreshing) {
+                return false;
+            }
+            if ((token === null || token === void 0 ? void 0 : token.refreshAfterTimestamp) && token.refreshAfterTimestamp < Date.now()) {
+                return true;
+            }
+            return ((_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : 0) - options.refreshWindowInMs < Date.now();
+        },
+        /**
+         * Produces true if the cycler MUST refresh (null or nearly-expired
+         * token).
+         */
+        get mustRefresh() {
+            return (token === null || token.expiresOnTimestamp - options.forcedRefreshWindowInMs < Date.now());
+        },
+    };
+    /**
+     * Starts a refresh job or returns the existing job if one is already
+     * running.
+     */
+    function refresh(scopes, getTokenOptions) {
+        var _a;
+        if (!cycler.isRefreshing) {
+            // We bind `scopes` here to avoid passing it around a lot
+            const tryGetAccessToken = () => credential.getToken(scopes, getTokenOptions);
+            // Take advantage of promise chaining to insert an assignment to `token`
+            // before the refresh can be considered done.
+            refreshWorker = beginRefresh(tryGetAccessToken, options.retryIntervalInMs, 
+            // If we don't have a token, then we should timeout immediately
+            (_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : Date.now())
+                .then((_token) => {
+                refreshWorker = null;
+                token = _token;
+                tenantId = getTokenOptions.tenantId;
+                return token;
+            })
+                .catch((reason) => {
+                // We also should reset the refresher if we enter a failed state.  All
+                // existing awaiters will throw, but subsequent requests will start a
+                // new retry chain.
+                refreshWorker = null;
+                token = null;
+                tenantId = undefined;
+                throw reason;
+            });
+        }
+        return refreshWorker;
+    }
+    return async (scopes, tokenOptions) => {
+        //
+        // Simple rules:
+        // - If we MUST refresh, then return the refresh task, blocking
+        //   the pipeline until a token is available.
+        // - If we SHOULD refresh, then run refresh but don't return it
+        //   (we can still use the cached token).
+        // - Return the token, since it's fine if we didn't return in
+        //   step 1.
+        //
+        const hasClaimChallenge = Boolean(tokenOptions.claims);
+        const tenantIdChanged = tenantId !== tokenOptions.tenantId;
+        if (hasClaimChallenge) {
+            // If we've received a claim, we know the existing token isn't valid
+            // We want to clear it so that that refresh worker won't use the old expiration time as a timeout
+            token = null;
+        }
+        // If the tenantId passed in token options is different to the one we have
+        // Or if we are in claim challenge and the token was rejected and a new access token need to be issued, we need to
+        // refresh the token with the new tenantId or token.
+        const mustRefresh = tenantIdChanged || hasClaimChallenge || cycler.mustRefresh;
+        if (mustRefresh) {
+            return refresh(scopes, tokenOptions);
+        }
+        if (cycler.shouldRefresh) {
+            refresh(scopes, tokenOptions);
+        }
+        return token;
+    };
+}
+//# sourceMappingURL=tokenCycler.js.map
+
+/***/ }),
+
+/***/ 6419:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SDK_VERSION = void 0;
+exports.SDK_VERSION = "4.9.0";
+//# sourceMappingURL=constants.js.map
+
+/***/ }),
+
+/***/ 6914:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+/*
+ * Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License.
+ *
+ * Code generated by Microsoft (R) AutoRest Code Generator.
+ * Changes may cause incorrect behavior and will be lost if the code is regenerated.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.KeyVaultClient = void 0;
+const tslib_1 = __nccwpck_require__(1860);
+const coreClient = tslib_1.__importStar(__nccwpck_require__(160));
+const coreHttpCompat = tslib_1.__importStar(__nccwpck_require__(1504));
+const coreRestPipeline = tslib_1.__importStar(__nccwpck_require__(778));
+const Parameters = tslib_1.__importStar(__nccwpck_require__(8071));
+const Mappers = tslib_1.__importStar(__nccwpck_require__(4497));
+/** @internal */
+class KeyVaultClient extends coreHttpCompat.ExtendedServiceClient {
+    /**
+     * Initializes a new instance of the KeyVaultClient class.
+     * @param apiVersion Api Version
+     * @param options The parameter options
+     */
+    constructor(apiVersion, options) {
+        var _a, _b;
+        if (apiVersion === undefined) {
+            throw new Error("'apiVersion' cannot be null");
+        }
+        // Initializing default values for options
+        if (!options) {
+            options = {};
+        }
+        const defaults = {
+            requestContentType: "application/json; charset=utf-8"
+        };
+        const packageDetails = `azsdk-js-keyvault-secrets/4.9.0`;
+        const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix
+            ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
+            : `${packageDetails}`;
+        const optionsWithDefaults = Object.assign(Object.assign(Object.assign({}, defaults), options), { userAgentOptions: {
+                userAgentPrefix
+            }, baseUri: (_b = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri) !== null && _b !== void 0 ? _b : "{vaultBaseUrl}" });
+        super(optionsWithDefaults);
+        if ((options === null || options === void 0 ? void 0 : options.pipeline) && options.pipeline.getOrderedPolicies().length > 0) {
+            const pipelinePolicies = options.pipeline.getOrderedPolicies();
+            const bearerTokenAuthenticationPolicyFound = pipelinePolicies.some((pipelinePolicy) => pipelinePolicy.name ===
+                coreRestPipeline.bearerTokenAuthenticationPolicyName);
+            if (!bearerTokenAuthenticationPolicyFound) {
+                this.pipeline.removePolicy({
+                    name: coreRestPipeline.bearerTokenAuthenticationPolicyName
+                });
+                this.pipeline.addPolicy(coreRestPipeline.bearerTokenAuthenticationPolicy({
+                    scopes: `${optionsWithDefaults.baseUri}/.default`,
+                    challengeCallbacks: {
+                        authorizeRequestOnChallenge: coreClient.authorizeRequestOnClaimChallenge
+                    }
+                }));
+            }
+        }
+        // Parameter assignments
+        this.apiVersion = apiVersion;
+    }
+    /**
+     *  The SET operation adds a secret to the Azure Key Vault. If the named secret already exists, Azure
+     * Key Vault creates a new version of that secret. This operation requires the secrets/set permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the secret. The value you provide may be copied globally for the
+     *                   purpose of running the service. The value provided should not include personally identifiable or
+     *                   sensitive information.
+     * @param value The value of the secret.
+     * @param options The options parameters.
+     */
+    setSecret(vaultBaseUrl, secretName, value, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, value, options }, setSecretOperationSpec);
+    }
+    /**
+     * The DELETE operation applies to any secret stored in Azure Key Vault. DELETE cannot be applied to an
+     * individual version of a secret. This operation requires the secrets/delete permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the secret.
+     * @param options The options parameters.
+     */
+    deleteSecret(vaultBaseUrl, secretName, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, deleteSecretOperationSpec);
+    }
+    /**
+     * The UPDATE operation changes specified attributes of an existing stored secret. Attributes that are
+     * not specified in the request are left unchanged. The value of a secret itself cannot be changed.
+     * This operation requires the secrets/set permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the secret.
+     * @param secretVersion The version of the secret.
+     * @param options The options parameters.
+     */
+    updateSecret(vaultBaseUrl, secretName, secretVersion, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, secretVersion, options }, updateSecretOperationSpec);
+    }
+    /**
+     * The GET operation is applicable to any secret stored in Azure Key Vault. This operation requires the
+     * secrets/get permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the secret.
+     * @param secretVersion The version of the secret. This URI fragment is optional. If not specified, the
+     *                      latest version of the secret is returned.
+     * @param options The options parameters.
+     */
+    getSecret(vaultBaseUrl, secretName, secretVersion, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, secretVersion, options }, getSecretOperationSpec);
+    }
+    /**
+     * The Get Secrets operation is applicable to the entire vault. However, only the base secret
+     * identifier and its attributes are provided in the response. Individual secret versions are not
+     * listed in the response. This operation requires the secrets/list permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param options The options parameters.
+     */
+    getSecrets(vaultBaseUrl, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, options }, getSecretsOperationSpec);
+    }
+    /**
+     * The full secret identifier and attributes are provided in the response. No values are returned for
+     * the secrets. This operations requires the secrets/list permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the secret.
+     * @param options The options parameters.
+     */
+    getSecretVersions(vaultBaseUrl, secretName, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, getSecretVersionsOperationSpec);
+    }
+    /**
+     * The Get Deleted Secrets operation returns the secrets that have been deleted for a vault enabled for
+     * soft-delete. This operation requires the secrets/list permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param options The options parameters.
+     */
+    getDeletedSecrets(vaultBaseUrl, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, options }, getDeletedSecretsOperationSpec);
+    }
+    /**
+     * The Get Deleted Secret operation returns the specified deleted secret along with its attributes.
+     * This operation requires the secrets/get permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the secret.
+     * @param options The options parameters.
+     */
+    getDeletedSecret(vaultBaseUrl, secretName, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, getDeletedSecretOperationSpec);
+    }
+    /**
+     * The purge deleted secret operation removes the secret permanently, without the possibility of
+     * recovery. This operation can only be enabled on a soft-delete enabled vault. This operation requires
+     * the secrets/purge permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the secret.
+     * @param options The options parameters.
+     */
+    purgeDeletedSecret(vaultBaseUrl, secretName, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, purgeDeletedSecretOperationSpec);
+    }
+    /**
+     * Recovers the deleted secret in the specified vault. This operation can only be performed on a
+     * soft-delete enabled vault. This operation requires the secrets/recover permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the deleted secret.
+     * @param options The options parameters.
+     */
+    recoverDeletedSecret(vaultBaseUrl, secretName, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, recoverDeletedSecretOperationSpec);
+    }
+    /**
+     * Requests that a backup of the specified secret be downloaded to the client. All versions of the
+     * secret will be downloaded. This operation requires the secrets/backup permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the secret.
+     * @param options The options parameters.
+     */
+    backupSecret(vaultBaseUrl, secretName, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, options }, backupSecretOperationSpec);
+    }
+    /**
+     * Restores a backed up secret, and all its versions, to a vault. This operation requires the
+     * secrets/restore permission.
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretBundleBackup The backup blob associated with a secret bundle.
+     * @param options The options parameters.
+     */
+    restoreSecret(vaultBaseUrl, secretBundleBackup, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretBundleBackup, options }, restoreSecretOperationSpec);
+    }
+    /**
+     * GetSecretsNext
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param nextLink The nextLink from the previous successful call to the GetSecrets method.
+     * @param options The options parameters.
+     */
+    getSecretsNext(vaultBaseUrl, nextLink, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, nextLink, options }, getSecretsNextOperationSpec);
+    }
+    /**
+     * GetSecretVersionsNext
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param secretName The name of the secret.
+     * @param nextLink The nextLink from the previous successful call to the GetSecretVersions method.
+     * @param options The options parameters.
+     */
+    getSecretVersionsNext(vaultBaseUrl, secretName, nextLink, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, secretName, nextLink, options }, getSecretVersionsNextOperationSpec);
+    }
+    /**
+     * GetDeletedSecretsNext
+     * @param vaultBaseUrl The vault name, for example https://myvault.vault.azure.net.
+     * @param nextLink The nextLink from the previous successful call to the GetDeletedSecrets method.
+     * @param options The options parameters.
+     */
+    getDeletedSecretsNext(vaultBaseUrl, nextLink, options) {
+        return this.sendOperationRequest({ vaultBaseUrl, nextLink, options }, getDeletedSecretsNextOperationSpec);
+    }
+}
+exports.KeyVaultClient = KeyVaultClient;
+// Operation Specifications
+const serializer = coreClient.createSerializer(Mappers, /* isXml */ false);
+const setSecretOperationSpec = {
+    path: "/secrets/{secret-name}",
+    httpMethod: "PUT",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SecretBundle
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    requestBody: {
+        parameterPath: {
+            value: ["value"],
+            tags: ["options", "tags"],
+            contentType: ["options", "contentType"],
+            secretAttributes: ["options", "secretAttributes"]
+        },
+        mapper: Object.assign(Object.assign({}, Mappers.SecretSetParameters), { required: true })
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.vaultBaseUrl, Parameters.secretName],
+    headerParameters: [Parameters.contentType, Parameters.accept],
+    mediaType: "json",
+    serializer
+};
+const deleteSecretOperationSpec = {
+    path: "/secrets/{secret-name}",
+    httpMethod: "DELETE",
+    responses: {
+        200: {
+            bodyMapper: Mappers.DeletedSecretBundle
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.vaultBaseUrl, Parameters.secretName1],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const updateSecretOperationSpec = {
+    path: "/secrets/{secret-name}/{secret-version}",
+    httpMethod: "PATCH",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SecretBundle
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    requestBody: {
+        parameterPath: {
+            contentType: ["options", "contentType"],
+            secretAttributes: ["options", "secretAttributes"],
+            tags: ["options", "tags"]
+        },
+        mapper: Object.assign(Object.assign({}, Mappers.SecretUpdateParameters), { required: true })
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [
+        Parameters.vaultBaseUrl,
+        Parameters.secretName1,
+        Parameters.secretVersion
+    ],
+    headerParameters: [Parameters.contentType, Parameters.accept],
+    mediaType: "json",
+    serializer
+};
+const getSecretOperationSpec = {
+    path: "/secrets/{secret-name}/{secret-version}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SecretBundle
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [
+        Parameters.vaultBaseUrl,
+        Parameters.secretName1,
+        Parameters.secretVersion
+    ],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const getSecretsOperationSpec = {
+    path: "/secrets",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SecretListResult
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.maxresults],
+    urlParameters: [Parameters.vaultBaseUrl],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const getSecretVersionsOperationSpec = {
+    path: "/secrets/{secret-name}/versions",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SecretListResult
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.maxresults],
+    urlParameters: [Parameters.vaultBaseUrl, Parameters.secretName1],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const getDeletedSecretsOperationSpec = {
+    path: "/deletedsecrets",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.DeletedSecretListResult
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.maxresults],
+    urlParameters: [Parameters.vaultBaseUrl],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const getDeletedSecretOperationSpec = {
+    path: "/deletedsecrets/{secret-name}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.DeletedSecretBundle
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.vaultBaseUrl, Parameters.secretName1],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const purgeDeletedSecretOperationSpec = {
+    path: "/deletedsecrets/{secret-name}",
+    httpMethod: "DELETE",
+    responses: {
+        204: {},
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.vaultBaseUrl, Parameters.secretName1],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const recoverDeletedSecretOperationSpec = {
+    path: "/deletedsecrets/{secret-name}/recover",
+    httpMethod: "POST",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SecretBundle
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.vaultBaseUrl, Parameters.secretName1],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const backupSecretOperationSpec = {
+    path: "/secrets/{secret-name}/backup",
+    httpMethod: "POST",
+    responses: {
+        200: {
+            bodyMapper: Mappers.BackupSecretResult
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.vaultBaseUrl, Parameters.secretName1],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const restoreSecretOperationSpec = {
+    path: "/secrets/restore",
+    httpMethod: "POST",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SecretBundle
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    requestBody: {
+        parameterPath: { secretBundleBackup: ["secretBundleBackup"] },
+        mapper: Object.assign(Object.assign({}, Mappers.SecretRestoreParameters), { required: true })
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.vaultBaseUrl],
+    headerParameters: [Parameters.contentType, Parameters.accept],
+    mediaType: "json",
+    serializer
+};
+const getSecretsNextOperationSpec = {
+    path: "{nextLink}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SecretListResult
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.maxresults],
+    urlParameters: [Parameters.vaultBaseUrl, Parameters.nextLink],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const getSecretVersionsNextOperationSpec = {
+    path: "{nextLink}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SecretListResult
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.maxresults],
+    urlParameters: [
+        Parameters.vaultBaseUrl,
+        Parameters.secretName1,
+        Parameters.nextLink
+    ],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const getDeletedSecretsNextOperationSpec = {
+    path: "{nextLink}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.DeletedSecretListResult
+        },
+        default: {
+            bodyMapper: Mappers.KeyVaultError
+        }
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.maxresults],
+    urlParameters: [Parameters.vaultBaseUrl, Parameters.nextLink],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+//# sourceMappingURL=keyVaultClient.js.map
+
+/***/ }),
+
+/***/ 1775:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/*
+ * Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License.
+ *
+ * Code generated by Microsoft (R) AutoRest Code Generator.
+ * Changes may cause incorrect behavior and will be lost if the code is regenerated.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.KnownDeletionRecoveryLevel = exports.KnownApiVersion75 = void 0;
+/** Known values of {@link ApiVersion75} that the service accepts. */
+var KnownApiVersion75;
+(function (KnownApiVersion75) {
+    /** Api Version '7.5' */
+    KnownApiVersion75["Seven5"] = "7.5";
+})(KnownApiVersion75 || (exports.KnownApiVersion75 = KnownApiVersion75 = {}));
+/** Known values of {@link DeletionRecoveryLevel} that the service accepts. */
+var KnownDeletionRecoveryLevel;
+(function (KnownDeletionRecoveryLevel) {
+    /** Denotes a vault state in which deletion is an irreversible operation, without the possibility for recovery. This level corresponds to no protection being available against a Delete operation; the data is irretrievably lost upon accepting a Delete operation at the entity level or higher (vault, resource group, subscription etc.) */
+    KnownDeletionRecoveryLevel["Purgeable"] = "Purgeable";
+    /** Denotes a vault state in which deletion is recoverable, and which also permits immediate and permanent deletion (i.e. purge). This level guarantees the recoverability of the deleted entity during the retention interval (90 days), unless a Purge operation is requested, or the subscription is cancelled. System wil permanently delete it after 90 days, if not recovered */
+    KnownDeletionRecoveryLevel["RecoverablePurgeable"] = "Recoverable+Purgeable";
+    /** Denotes a vault state in which deletion is recoverable without the possibility for immediate and permanent deletion (i.e. purge). This level guarantees the recoverability of the deleted entity during the retention interval(90 days) and while the subscription is still available. System wil permanently delete it after 90 days, if not recovered */
+    KnownDeletionRecoveryLevel["Recoverable"] = "Recoverable";
+    /** Denotes a vault and subscription state in which deletion is recoverable within retention interval (90 days), immediate and permanent deletion (i.e. purge) is not permitted, and in which the subscription itself  cannot be permanently canceled. System wil permanently delete it after 90 days, if not recovered */
+    KnownDeletionRecoveryLevel["RecoverableProtectedSubscription"] = "Recoverable+ProtectedSubscription";
+    /** Denotes a vault state in which deletion is recoverable, and which also permits immediate and permanent deletion (i.e. purge when 7<= SoftDeleteRetentionInDays < 90). This level guarantees the recoverability of the deleted entity during the retention interval, unless a Purge operation is requested, or the subscription is cancelled. */
+    KnownDeletionRecoveryLevel["CustomizedRecoverablePurgeable"] = "CustomizedRecoverable+Purgeable";
+    /** Denotes a vault state in which deletion is recoverable without the possibility for immediate and permanent deletion (i.e. purge when 7<= SoftDeleteRetentionInDays < 90).This level guarantees the recoverability of the deleted entity during the retention interval and while the subscription is still available. */
+    KnownDeletionRecoveryLevel["CustomizedRecoverable"] = "CustomizedRecoverable";
+    /** Denotes a vault and subscription state in which deletion is recoverable, immediate and permanent deletion (i.e. purge) is not permitted, and in which the subscription itself cannot be permanently canceled when 7<= SoftDeleteRetentionInDays < 90. This level guarantees the recoverability of the deleted entity during the retention interval, and also reflects the fact that the subscription itself cannot be cancelled. */
+    KnownDeletionRecoveryLevel["CustomizedRecoverableProtectedSubscription"] = "CustomizedRecoverable+ProtectedSubscription";
+})(KnownDeletionRecoveryLevel || (exports.KnownDeletionRecoveryLevel = KnownDeletionRecoveryLevel = {}));
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 4497:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/*
+ * Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License.
+ *
+ * Code generated by Microsoft (R) AutoRest Code Generator.
+ * Changes may cause incorrect behavior and will be lost if the code is regenerated.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DeletedSecretItem = exports.DeletedSecretBundle = exports.SecretAttributes = exports.SecretProperties = exports.SecretRestoreParameters = exports.BackupSecretResult = exports.DeletedSecretListResult = exports.SecretItem = exports.SecretListResult = exports.SecretUpdateParameters = exports.ErrorModel = exports.KeyVaultError = exports.SecretBundle = exports.Attributes = exports.SecretSetParameters = void 0;
+exports.SecretSetParameters = {
+    type: {
+        name: "Composite",
+        className: "SecretSetParameters",
+        modelProperties: {
+            value: {
+                serializedName: "value",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            tags: {
+                serializedName: "tags",
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "String" } }
+                }
+            },
+            contentType: {
+                serializedName: "contentType",
+                type: {
+                    name: "String"
+                }
+            },
+            secretAttributes: {
+                serializedName: "attributes",
+                type: {
+                    name: "Composite",
+                    className: "SecretAttributes"
+                }
+            }
+        }
+    }
+};
+exports.Attributes = {
+    type: {
+        name: "Composite",
+        className: "Attributes",
+        modelProperties: {
+            enabled: {
+                serializedName: "enabled",
+                type: {
+                    name: "Boolean"
+                }
+            },
+            notBefore: {
+                serializedName: "nbf",
+                type: {
+                    name: "UnixTime"
+                }
+            },
+            expires: {
+                serializedName: "exp",
+                type: {
+                    name: "UnixTime"
+                }
+            },
+            created: {
+                serializedName: "created",
+                readOnly: true,
+                type: {
+                    name: "UnixTime"
+                }
+            },
+            updated: {
+                serializedName: "updated",
+                readOnly: true,
+                type: {
+                    name: "UnixTime"
+                }
+            }
+        }
+    }
+};
+exports.SecretBundle = {
+    type: {
+        name: "Composite",
+        className: "SecretBundle",
+        modelProperties: {
+            value: {
+                serializedName: "value",
+                type: {
+                    name: "String"
+                }
+            },
+            id: {
+                serializedName: "id",
+                type: {
+                    name: "String"
+                }
+            },
+            contentType: {
+                serializedName: "contentType",
+                type: {
+                    name: "String"
+                }
+            },
+            attributes: {
+                serializedName: "attributes",
+                type: {
+                    name: "Composite",
+                    className: "SecretAttributes"
+                }
+            },
+            tags: {
+                serializedName: "tags",
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "String" } }
+                }
+            },
+            kid: {
+                serializedName: "kid",
+                readOnly: true,
+                type: {
+                    name: "String"
+                }
+            },
+            managed: {
+                serializedName: "managed",
+                readOnly: true,
+                type: {
+                    name: "Boolean"
+                }
+            }
+        }
+    }
+};
+exports.KeyVaultError = {
+    type: {
+        name: "Composite",
+        className: "KeyVaultError",
+        modelProperties: {
+            error: {
+                serializedName: "error",
+                type: {
+                    name: "Composite",
+                    className: "ErrorModel"
+                }
+            }
+        }
+    }
+};
+exports.ErrorModel = {
+    type: {
+        name: "Composite",
+        className: "ErrorModel",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                readOnly: true,
+                type: {
+                    name: "String"
+                }
+            },
+            message: {
+                serializedName: "message",
+                readOnly: true,
+                type: {
+                    name: "String"
+                }
+            },
+            innerError: {
+                serializedName: "innererror",
+                type: {
+                    name: "Composite",
+                    className: "ErrorModel"
+                }
+            }
+        }
+    }
+};
+exports.SecretUpdateParameters = {
+    type: {
+        name: "Composite",
+        className: "SecretUpdateParameters",
+        modelProperties: {
+            contentType: {
+                serializedName: "contentType",
+                type: {
+                    name: "String"
+                }
+            },
+            secretAttributes: {
+                serializedName: "attributes",
+                type: {
+                    name: "Composite",
+                    className: "SecretAttributes"
+                }
+            },
+            tags: {
+                serializedName: "tags",
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "String" } }
+                }
+            }
+        }
+    }
+};
+exports.SecretListResult = {
+    type: {
+        name: "Composite",
+        className: "SecretListResult",
+        modelProperties: {
+            value: {
+                serializedName: "value",
+                readOnly: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "SecretItem"
+                        }
+                    }
+                }
+            },
+            nextLink: {
+                serializedName: "nextLink",
+                readOnly: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+exports.SecretItem = {
+    type: {
+        name: "Composite",
+        className: "SecretItem",
+        modelProperties: {
+            id: {
+                serializedName: "id",
+                type: {
+                    name: "String"
+                }
+            },
+            attributes: {
+                serializedName: "attributes",
+                type: {
+                    name: "Composite",
+                    className: "SecretAttributes"
+                }
+            },
+            tags: {
+                serializedName: "tags",
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "String" } }
+                }
+            },
+            contentType: {
+                serializedName: "contentType",
+                type: {
+                    name: "String"
+                }
+            },
+            managed: {
+                serializedName: "managed",
+                readOnly: true,
+                type: {
+                    name: "Boolean"
+                }
+            }
+        }
+    }
+};
+exports.DeletedSecretListResult = {
+    type: {
+        name: "Composite",
+        className: "DeletedSecretListResult",
+        modelProperties: {
+            value: {
+                serializedName: "value",
+                readOnly: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "DeletedSecretItem"
+                        }
+                    }
+                }
+            },
+            nextLink: {
+                serializedName: "nextLink",
+                readOnly: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+exports.BackupSecretResult = {
+    type: {
+        name: "Composite",
+        className: "BackupSecretResult",
+        modelProperties: {
+            value: {
+                serializedName: "value",
+                readOnly: true,
+                type: {
+                    name: "Base64Url"
+                }
+            }
+        }
+    }
+};
+exports.SecretRestoreParameters = {
+    type: {
+        name: "Composite",
+        className: "SecretRestoreParameters",
+        modelProperties: {
+            secretBundleBackup: {
+                serializedName: "value",
+                required: true,
+                type: {
+                    name: "Base64Url"
+                }
+            }
+        }
+    }
+};
+exports.SecretProperties = {
+    type: {
+        name: "Composite",
+        className: "SecretProperties",
+        modelProperties: {
+            contentType: {
+                serializedName: "contentType",
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+exports.SecretAttributes = {
+    type: {
+        name: "Composite",
+        className: "SecretAttributes",
+        modelProperties: Object.assign(Object.assign({}, exports.Attributes.type.modelProperties), { recoverableDays: {
+                serializedName: "recoverableDays",
+                readOnly: true,
+                type: {
+                    name: "Number"
+                }
+            }, recoveryLevel: {
+                serializedName: "recoveryLevel",
+                readOnly: true,
+                type: {
+                    name: "String"
+                }
+            } })
+    }
+};
+exports.DeletedSecretBundle = {
+    type: {
+        name: "Composite",
+        className: "DeletedSecretBundle",
+        modelProperties: Object.assign(Object.assign({}, exports.SecretBundle.type.modelProperties), { recoveryId: {
+                serializedName: "recoveryId",
+                type: {
+                    name: "String"
+                }
+            }, scheduledPurgeDate: {
+                serializedName: "scheduledPurgeDate",
+                readOnly: true,
+                type: {
+                    name: "UnixTime"
+                }
+            }, deletedDate: {
+                serializedName: "deletedDate",
+                readOnly: true,
+                type: {
+                    name: "UnixTime"
+                }
+            } })
+    }
+};
+exports.DeletedSecretItem = {
+    type: {
+        name: "Composite",
+        className: "DeletedSecretItem",
+        modelProperties: Object.assign(Object.assign({}, exports.SecretItem.type.modelProperties), { recoveryId: {
+                serializedName: "recoveryId",
+                type: {
+                    name: "String"
+                }
+            }, scheduledPurgeDate: {
+                serializedName: "scheduledPurgeDate",
+                readOnly: true,
+                type: {
+                    name: "UnixTime"
+                }
+            }, deletedDate: {
+                serializedName: "deletedDate",
+                readOnly: true,
+                type: {
+                    name: "UnixTime"
+                }
+            } })
+    }
+};
+//# sourceMappingURL=mappers.js.map
+
+/***/ }),
+
+/***/ 8071:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+/*
+ * Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License.
+ *
+ * Code generated by Microsoft (R) AutoRest Code Generator.
+ * Changes may cause incorrect behavior and will be lost if the code is regenerated.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.nextLink = exports.secretBundleBackup = exports.maxresults = exports.secretVersion = exports.tags1 = exports.secretAttributes1 = exports.contentType2 = exports.secretName1 = exports.apiVersion = exports.secretName = exports.vaultBaseUrl = exports.secretAttributes = exports.contentType1 = exports.tags = exports.value = exports.accept = exports.contentType = void 0;
+const mappers_js_1 = __nccwpck_require__(4497);
+exports.contentType = {
+    parameterPath: ["options", "contentType"],
+    mapper: {
+        defaultValue: "application/json",
+        isConstant: true,
+        serializedName: "Content-Type",
+        type: {
+            name: "String"
+        }
+    }
+};
+exports.accept = {
+    parameterPath: "accept",
+    mapper: {
+        defaultValue: "application/json",
+        isConstant: true,
+        serializedName: "Accept",
+        type: {
+            name: "String"
+        }
+    }
+};
+exports.value = {
+    parameterPath: "value",
+    mapper: mappers_js_1.SecretSetParameters
+};
+exports.tags = {
+    parameterPath: ["options", "tags"],
+    mapper: mappers_js_1.SecretSetParameters
+};
+exports.contentType1 = {
+    parameterPath: ["options", "contentType"],
+    mapper: mappers_js_1.SecretSetParameters
+};
+exports.secretAttributes = {
+    parameterPath: ["options", "secretAttributes"],
+    mapper: mappers_js_1.SecretSetParameters
+};
+exports.vaultBaseUrl = {
+    parameterPath: "vaultBaseUrl",
+    mapper: {
+        serializedName: "vaultBaseUrl",
+        required: true,
+        type: {
+            name: "String"
+        }
+    },
+    skipEncoding: true
+};
+exports.secretName = {
+    parameterPath: "secretName",
+    mapper: {
+        constraints: {
+            Pattern: new RegExp("^[0-9a-zA-Z-]+$")
+        },
+        serializedName: "secret-name",
+        required: true,
+        type: {
+            name: "String"
+        }
+    }
+};
+exports.apiVersion = {
+    parameterPath: "apiVersion",
+    mapper: {
+        serializedName: "api-version",
+        required: true,
+        type: {
+            name: "String"
+        }
+    }
+};
+exports.secretName1 = {
+    parameterPath: "secretName",
+    mapper: {
+        serializedName: "secret-name",
+        required: true,
+        type: {
+            name: "String"
+        }
+    }
+};
+exports.contentType2 = {
+    parameterPath: ["options", "contentType"],
+    mapper: mappers_js_1.SecretUpdateParameters
+};
+exports.secretAttributes1 = {
+    parameterPath: ["options", "secretAttributes"],
+    mapper: mappers_js_1.SecretUpdateParameters
+};
+exports.tags1 = {
+    parameterPath: ["options", "tags"],
+    mapper: mappers_js_1.SecretUpdateParameters
+};
+exports.secretVersion = {
+    parameterPath: "secretVersion",
+    mapper: {
+        serializedName: "secret-version",
+        required: true,
+        type: {
+            name: "String"
+        }
+    }
+};
+exports.maxresults = {
+    parameterPath: ["options", "maxresults"],
+    mapper: {
+        constraints: {
+            InclusiveMaximum: 25,
+            InclusiveMinimum: 1
+        },
+        serializedName: "maxresults",
+        type: {
+            name: "Number"
+        }
+    }
+};
+exports.secretBundleBackup = {
+    parameterPath: "secretBundleBackup",
+    mapper: mappers_js_1.SecretRestoreParameters
+};
+exports.nextLink = {
+    parameterPath: "nextLink",
+    mapper: {
+        serializedName: "nextLink",
+        required: true,
+        type: {
+            name: "String"
+        }
+    },
+    skipEncoding: true
+};
+//# sourceMappingURL=parameters.js.map
+
+/***/ }),
+
+/***/ 3015:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseKeyVaultSecretIdentifier = parseKeyVaultSecretIdentifier;
+const keyvault_common_1 = __nccwpck_require__(7128);
+/**
+ * Parses the given Key Vault Secret Id. An example is:
+ *
+ *   https://<keyvault-name>.vault.azure.net/secrets/<secret-name>/<unique-version-id>
+ *
+ * On parsing the above Id, this function returns:
+ *```ts
+ *   {
+ *      sourceId: "https://<keyvault-name>.vault.azure.net/secrets/<secret-name>/<unique-version-id>",
+ *      vaultUrl: "https://<keyvault-name>.vault.azure.net",
+ *      version: "<unique-version-id>",
+ *      name: "<secret-name>"
+ *   }
+ *```
+ * @param id - The Id of the Key Vault Secret.
+ */
+function parseKeyVaultSecretIdentifier(id) {
+    const urlParts = id.split("/");
+    const collection = urlParts[3];
+    return Object.assign({ sourceId: id }, (0, keyvault_common_1.parseKeyVaultIdentifier)(collection, id));
+}
+//# sourceMappingURL=identifier.js.map
+
+/***/ }),
+
+/***/ 3602:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/// <reference lib="esnext.asynciterable" />
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SecretClient = exports.logger = exports.parseKeyVaultSecretIdentifier = exports.KnownDeletionRecoveryLevel = void 0;
+const tslib_1 = __nccwpck_require__(1860);
+const log_js_1 = __nccwpck_require__(2056);
+Object.defineProperty(exports, "logger", ({ enumerable: true, get: function () { return log_js_1.logger; } }));
+const index_js_1 = __nccwpck_require__(1775);
+Object.defineProperty(exports, "KnownDeletionRecoveryLevel", ({ enumerable: true, get: function () { return index_js_1.KnownDeletionRecoveryLevel; } }));
+const keyVaultClient_js_1 = __nccwpck_require__(6914);
+const keyvault_common_1 = __nccwpck_require__(7128);
+const poller_js_1 = __nccwpck_require__(6180);
+const poller_js_2 = __nccwpck_require__(1831);
+const secretsModels_js_1 = __nccwpck_require__(6965);
+const identifier_js_1 = __nccwpck_require__(3015);
+Object.defineProperty(exports, "parseKeyVaultSecretIdentifier", ({ enumerable: true, get: function () { return identifier_js_1.parseKeyVaultSecretIdentifier; } }));
+const transformations_js_1 = __nccwpck_require__(4716);
+const tracing_js_1 = __nccwpck_require__(3432);
+/**
+ * The SecretClient provides methods to manage {@link KeyVaultSecret} in
+ * the Azure Key Vault. The client supports creating, retrieving, updating,
+ * deleting, purging, backing up, restoring and listing KeyVaultSecrets. The
+ * client also supports listing {@link DeletedSecret} for a soft-delete enabled Azure
+ * Key Vault.
+ */
+class SecretClient {
+    /**
+     * Creates an instance of SecretClient.
+     *
+     * Example usage:
+     * ```ts
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     * import { DefaultAzureCredential } from "@azure/identity";
+     *
+     * let vaultUrl = `https://<MY KEYVAULT HERE>.vault.azure.net`;
+     * let credentials = new DefaultAzureCredential();
+     *
+     * let client = new SecretClient(vaultUrl, credentials);
+     * ```
+     * @param vaultUrl - The base URL to the vault. You should validate that this URL references a valid Key Vault resource. See https://aka.ms/azsdk/blog/vault-uri for details.
+     * @param credential - An object that implements the `TokenCredential` interface used to authenticate requests to the service. Use the \@azure/identity package to create a credential that suits your needs.
+     * @param pipelineOptions - Pipeline options used to configure Key Vault API requests.
+     *                          Omit this parameter to use the default pipeline configuration.
+     */
+    constructor(vaultUrl, credential, pipelineOptions = {}) {
+        this.vaultUrl = vaultUrl;
+        const internalPipelineOptions = Object.assign(Object.assign({}, pipelineOptions), { loggingOptions: {
+                logger: log_js_1.logger.info,
+                allowedHeaderNames: [
+                    "x-ms-keyvault-region",
+                    "x-ms-keyvault-network-info",
+                    "x-ms-keyvault-service-version",
+                ],
+            } });
+        this.client = new keyVaultClient_js_1.KeyVaultClient(pipelineOptions.serviceVersion || secretsModels_js_1.LATEST_API_VERSION, internalPipelineOptions);
+        // The authentication policy must come after the deserialization policy since the deserialization policy
+        // converts 401 responses to an Error, and we don't want to deal with that.
+        this.client.pipeline.addPolicy((0, keyvault_common_1.keyVaultAuthenticationPolicy)(credential, pipelineOptions), {
+            afterPolicies: ["deserializationPolicy"],
+        });
+    }
+    /**
+     * The setSecret method adds a secret or secret version to the Azure Key Vault. If the named secret
+     * already exists, Azure Key Vault creates a new version of that secret.
+     * This operation requires the secrets/set permission.
+     *
+     * Example usage:
+     * ```ts
+     * let client = new SecretClient(url, credentials);
+     * await client.setSecret("MySecretName", "ABC123");
+     * ```
+     * Adds a secret in a specified key vault.
+     * @param secretName - The name of the secret.
+     * @param value - The value of the secret.
+     * @param options - The optional parameters.
+     */
+    setSecret(secretName, value, options = {}) {
+        let unflattenedOptions = {};
+        if (options) {
+            const { enabled, notBefore, expiresOn: expires } = options, remainingOptions = tslib_1.__rest(options, ["enabled", "notBefore", "expiresOn"]);
+            unflattenedOptions = Object.assign(Object.assign({}, remainingOptions), { secretAttributes: {
+                    enabled,
+                    notBefore,
+                    expires,
+                } });
+        }
+        return tracing_js_1.tracingClient.withSpan("SecretClient.setSecret", unflattenedOptions, async (updatedOptions) => {
+            const response = await this.client.setSecret(this.vaultUrl, secretName, value, updatedOptions);
+            return (0, transformations_js_1.getSecretFromSecretBundle)(response);
+        });
+    }
+    /**
+     * Deletes a secret stored in Azure Key Vault.
+     * This function returns a Long Running Operation poller that allows you to wait indefinitely until the secret is deleted.
+     *
+     * This operation requires the secrets/delete permission.
+     *
+     * Example usage:
+     * ```ts
+     * const client = new SecretClient(url, credentials);
+     * await client.setSecret("MySecretName", "ABC123");
+     *
+     * const deletePoller = await client.beginDeleteSecret("MySecretName");
+     *
+     * // Serializing the poller
+     * const serialized = deletePoller.toString();
+     *
+     * // A new poller can be created with:
+     * // const newPoller = await client.beginDeleteSecret("MySecretName", { resumeFrom: serialized });
+     *
+     * // Waiting until it's done
+     * const deletedSecret = await deletePoller.pollUntilDone();
+     * console.log(deletedSecret);
+     * ```
+     * Deletes a secret from a specified key vault.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    async beginDeleteSecret(name, options = {}) {
+        const poller = new poller_js_1.DeleteSecretPoller(Object.assign(Object.assign({ name, client: this.client, vaultUrl: this.vaultUrl }, options), { operationOptions: options }));
+        // This will initialize the poller's operation (the deletion of the secret).
+        await poller.poll();
+        return poller;
+    }
+    /**
+     * The updateSecret method changes specified attributes of an existing stored secret. Properties that
+     * are not specified in the request are left unchanged. The value of a secret itself cannot be
+     * changed. This operation requires the secrets/set permission.
+     *
+     * Example usage:
+     * ```ts
+     * let secretName = "MySecretName";
+     * let client = new SecretClient(url, credentials);
+     * let secret = await client.getSecret(secretName);
+     * await client.updateSecretProperties(secretName, secret.properties.version, { enabled: false });
+     * ```
+     * Updates the attributes associated with a specified secret in a given key vault.
+     * @param secretName - The name of the secret.
+     * @param secretVersion - The version of the secret.
+     * @param options - The optional parameters.
+     */
+    async updateSecretProperties(secretName, secretVersion, options = {}) {
+        let unflattenedOptions = {};
+        if (options) {
+            const { enabled, notBefore, expiresOn: expires } = options, remainingOptions = tslib_1.__rest(options, ["enabled", "notBefore", "expiresOn"]);
+            unflattenedOptions = Object.assign(Object.assign({}, remainingOptions), { secretAttributes: {
+                    enabled,
+                    notBefore,
+                    expires,
+                } });
+        }
+        return tracing_js_1.tracingClient.withSpan("SecretClient.updateSecretProperties", unflattenedOptions, async (updatedOptions) => {
+            const response = await this.client.updateSecret(this.vaultUrl, secretName, secretVersion, updatedOptions);
+            return (0, transformations_js_1.getSecretFromSecretBundle)(response).properties;
+        });
+    }
+    /**
+     * The getSecret method is applicable to any secret stored in Azure Key Vault. This operation requires
+     * the secrets/get permission.
+     *
+     * Example usage:
+     * ```ts
+     * let client = new SecretClient(url, credentials);
+     * let secret = await client.getSecret("MySecretName");
+     * ```
+     * Get a specified secret from a given key vault.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    getSecret(secretName, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("SecretClient.getSecret", options, async (updatedOptions) => {
+            const response = await this.client.getSecret(this.vaultUrl, secretName, options && options.version ? options.version : "", updatedOptions);
+            return (0, transformations_js_1.getSecretFromSecretBundle)(response);
+        });
+    }
+    /**
+     * The getDeletedSecret method returns the specified deleted secret along with its attributes.
+     * This operation requires the secrets/get permission.
+     *
+     * Example usage:
+     * ```ts
+     * let client = new SecretClient(url, credentials);
+     * await client.getDeletedSecret("MyDeletedSecret");
+     * ```
+     * Gets the specified deleted secret.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    getDeletedSecret(secretName, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("SecretClient.getDeletedSecret", options, async (updatedOptions) => {
+            const response = await this.client.getDeletedSecret(this.vaultUrl, secretName, updatedOptions);
+            return (0, transformations_js_1.getSecretFromSecretBundle)(response);
+        });
+    }
+    /**
+     * The purge deleted secret operation removes the secret permanently, without the possibility of
+     * recovery. This operation can only be enabled on a soft-delete enabled vault. This operation
+     * requires the secrets/purge permission.
+     *
+     * Example usage:
+     * ```ts
+     * const client = new SecretClient(url, credentials);
+     * const deletePoller = await client.beginDeleteSecret("MySecretName");
+     * await deletePoller.pollUntilDone();
+     * await client.purgeDeletedSecret("MySecretName");
+     * ```
+     * Permanently deletes the specified secret.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    purgeDeletedSecret(secretName, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("SecretClient.purgeDeletedSecret", options, async (updatedOptions) => {
+            await this.client.purgeDeletedSecret(this.vaultUrl, secretName, updatedOptions);
+        });
+    }
+    /**
+     * Recovers the deleted secret in the specified vault.
+     * This function returns a Long Running Operation poller that allows you to wait indefinitely until the secret is recovered.
+     *
+     * This operation requires the secrets/recover permission.
+     *
+     * Example usage:
+     * ```ts
+     * const client = new SecretClient(url, credentials);
+     * await client.setSecret("MySecretName", "ABC123");
+     *
+     * const deletePoller = await client.beginDeleteSecret("MySecretName");
+     * await deletePoller.pollUntilDone();
+     *
+     * const recoverPoller = await client.beginRecoverDeletedSecret("MySecretName");
+     *
+     * // Serializing the poller
+     * const serialized = recoverPoller.toString();
+     *
+     * // A new poller can be created with:
+     * // const newPoller = await client.beginRecoverDeletedSecret("MySecretName", { resumeFrom: serialized });
+     *
+     * // Waiting until it's done
+     * const deletedSecret = await recoverPoller.pollUntilDone();
+     * console.log(deletedSecret);
+     * ```
+     * Recovers the deleted secret to the latest version.
+     * @param secretName - The name of the deleted secret.
+     * @param options - The optional parameters.
+     */
+    async beginRecoverDeletedSecret(name, options = {}) {
+        const poller = new poller_js_2.RecoverDeletedSecretPoller(Object.assign(Object.assign({ name, client: this.client, vaultUrl: this.vaultUrl }, options), { operationOptions: options }));
+        // This will initialize the poller's operation (the recovery of the deleted secret).
+        await poller.poll();
+        return poller;
+    }
+    /**
+     * Requests that a backup of the specified secret be downloaded to the client. All versions of the
+     * secret will be downloaded. This operation requires the secrets/backup permission.
+     *
+     * Example usage:
+     * ```ts
+     * let client = new SecretClient(url, credentials);
+     * let backupResult = await client.backupSecret("MySecretName");
+     * ```
+     * Backs up the specified secret.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    backupSecret(secretName, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("SecretClient.backupSecret", options, async (updatedOptions) => {
+            const response = await this.client.backupSecret(this.vaultUrl, secretName, updatedOptions);
+            return response.value;
+        });
+    }
+    /**
+     * Restores a backed up secret, and all its versions, to a vault. This operation requires the
+     * secrets/restore permission.
+     *
+     * Example usage:
+     * ```ts
+     * let client = new SecretClient(url, credentials);
+     * let mySecretBundle = await client.backupSecret("MySecretName");
+     * // ...
+     * await client.restoreSecretBackup(mySecretBundle);
+     * ```
+     * Restores a backed up secret to a vault.
+     * @param secretBundleBackup - The backup blob associated with a secret bundle.
+     * @param options - The optional parameters.
+     */
+    restoreSecretBackup(secretBundleBackup, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("SecretClient.restoreSecretBackup", options, async (updatedOptions) => {
+            const response = await this.client.restoreSecret(this.vaultUrl, secretBundleBackup, updatedOptions);
+            return (0, transformations_js_1.getSecretFromSecretBundle)(response).properties;
+        });
+    }
+    /**
+     * Deals with the pagination of {@link listPropertiesOfSecretVersions}.
+     * @param name - The name of the KeyVault Secret.
+     * @param continuationState - An object that indicates the position of the paginated request.
+     * @param options - Optional parameters for the underlying HTTP request.
+     */
+    listPropertiesOfSecretVersionsPage(secretName_1, continuationState_1) {
+        return tslib_1.__asyncGenerator(this, arguments, function* listPropertiesOfSecretVersionsPage_1(secretName, continuationState, options = {}) {
+            if (continuationState.continuationToken == null) {
+                const optionsComplete = Object.assign({ maxresults: continuationState.maxPageSize }, options);
+                const currentSetResponse = yield tslib_1.__await(tracing_js_1.tracingClient.withSpan("SecretClient.listPropertiesOfSecretVersionsPage", optionsComplete, (updatedOptions) => this.client.getSecretVersions(this.vaultUrl, secretName, updatedOptions)));
+                continuationState.continuationToken = currentSetResponse.nextLink;
+                if (currentSetResponse.value) {
+                    yield yield tslib_1.__await(currentSetResponse.value.map((bundle) => (0, transformations_js_1.getSecretFromSecretBundle)(bundle).properties));
+                }
+            }
+            while (continuationState.continuationToken) {
+                const currentSetResponse = yield tslib_1.__await(tracing_js_1.tracingClient.withSpan("SecretClient.listPropertiesOfSecretVersionsPage", options, (updatedOptions) => this.client.getSecretVersionsNext(this.vaultUrl, secretName, continuationState.continuationToken, updatedOptions)));
+                continuationState.continuationToken = currentSetResponse.nextLink;
+                if (currentSetResponse.value) {
+                    yield yield tslib_1.__await(currentSetResponse.value.map((bundle) => (0, transformations_js_1.getSecretFromSecretBundle)(bundle).properties));
+                }
+                else {
+                    break;
+                }
+            }
+        });
+    }
+    /**
+     * Deals with the iteration of all the available results of {@link listPropertiesOfSecretVersions}.
+     * @param name - The name of the KeyVault Secret.
+     * @param options - Optional parameters for the underlying HTTP request.
+     */
+    listPropertiesOfSecretVersionsAll(secretName_1) {
+        return tslib_1.__asyncGenerator(this, arguments, function* listPropertiesOfSecretVersionsAll_1(secretName, options = {}) {
+            var _a, e_1, _b, _c;
+            const f = {};
+            try {
+                for (var _d = true, _e = tslib_1.__asyncValues(this.listPropertiesOfSecretVersionsPage(secretName, f, options)), _f; _f = yield tslib_1.__await(_e.next()), _a = _f.done, !_a; _d = true) {
+                    _c = _f.value;
+                    _d = false;
+                    const page = _c;
+                    for (const item of page) {
+                        yield yield tslib_1.__await(item);
+                    }
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (!_d && !_a && (_b = _e.return)) yield tslib_1.__await(_b.call(_e));
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+        });
+    }
+    /**
+     * Iterates all versions of the given secret in the vault. The full secret identifier and attributes are provided
+     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
+     *
+     * Example usage:
+     * ```ts
+     * let client = new SecretClient(url, credentials);
+     * for await (const secretProperties of client.listPropertiesOfSecretVersions("MySecretName")) {
+     *   const secret = await client.getSecret(secretProperties.name);
+     *   console.log("secret version: ", secret);
+     * }
+     * ```
+     * @param secretName - Name of the secret to fetch versions for.
+     * @param options - The optional parameters.
+     */
+    listPropertiesOfSecretVersions(secretName, options = {}) {
+        const iter = this.listPropertiesOfSecretVersionsAll(secretName, options);
+        return {
+            next() {
+                return iter.next();
+            },
+            [Symbol.asyncIterator]() {
+                return this;
+            },
+            byPage: (settings = {}) => this.listPropertiesOfSecretVersionsPage(secretName, settings, options),
+        };
+    }
+    /**
+     * Deals with the pagination of {@link listPropertiesOfSecrets}.
+     * @param continuationState - An object that indicates the position of the paginated request.
+     * @param options - Optional parameters for the underlying HTTP request.
+     */
+    listPropertiesOfSecretsPage(continuationState_1) {
+        return tslib_1.__asyncGenerator(this, arguments, function* listPropertiesOfSecretsPage_1(continuationState, options = {}) {
+            if (continuationState.continuationToken == null) {
+                const optionsComplete = Object.assign({ maxresults: continuationState.maxPageSize }, options);
+                const currentSetResponse = yield tslib_1.__await(tracing_js_1.tracingClient.withSpan("SecretClient.listPropertiesOfSecretsPage", optionsComplete, (updatedOptions) => this.client.getSecrets(this.vaultUrl, updatedOptions)));
+                continuationState.continuationToken = currentSetResponse.nextLink;
+                if (currentSetResponse.value) {
+                    yield yield tslib_1.__await(currentSetResponse.value.map((bundle) => (0, transformations_js_1.getSecretFromSecretBundle)(bundle).properties));
+                }
+            }
+            while (continuationState.continuationToken) {
+                const currentSetResponse = yield tslib_1.__await(tracing_js_1.tracingClient.withSpan("SecretClient.listPropertiesOfSecretsPage", options, (updatedOptions) => this.client.getSecretsNext(this.vaultUrl, continuationState.continuationToken, updatedOptions)));
+                continuationState.continuationToken = currentSetResponse.nextLink;
+                if (currentSetResponse.value) {
+                    yield yield tslib_1.__await(currentSetResponse.value.map((bundle) => (0, transformations_js_1.getSecretFromSecretBundle)(bundle).properties));
+                }
+                else {
+                    break;
+                }
+            }
+        });
+    }
+    /**
+     * Deals with the iteration of all the available results of {@link listPropertiesOfSecrets}.
+     * @param options - Optional parameters for the underlying HTTP request.
+     */
+    listPropertiesOfSecretsAll() {
+        return tslib_1.__asyncGenerator(this, arguments, function* listPropertiesOfSecretsAll_1(options = {}) {
+            var _a, e_2, _b, _c;
+            const f = {};
+            try {
+                for (var _d = true, _e = tslib_1.__asyncValues(this.listPropertiesOfSecretsPage(f, options)), _f; _f = yield tslib_1.__await(_e.next()), _a = _f.done, !_a; _d = true) {
+                    _c = _f.value;
+                    _d = false;
+                    const page = _c;
+                    for (const item of page) {
+                        yield yield tslib_1.__await(item);
+                    }
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (!_d && !_a && (_b = _e.return)) yield tslib_1.__await(_b.call(_e));
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+        });
+    }
+    /**
+     * Iterates the latest version of all secrets in the vault.  The full secret identifier and attributes are provided
+     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
+     *
+     * Example usage:
+     * ```ts
+     * let client = new SecretClient(url, credentials);
+     * for await (const secretProperties of client.listPropertiesOfSecrets()) {
+     *   const secret = await client.getSecret(secretProperties.name);
+     *   console.log("secret: ", secret);
+     * }
+     * ```
+     * List all secrets in the vault.
+     * @param options - The optional parameters.
+     */
+    listPropertiesOfSecrets(options = {}) {
+        const iter = this.listPropertiesOfSecretsAll(options);
+        return {
+            next() {
+                return iter.next();
+            },
+            [Symbol.asyncIterator]() {
+                return this;
+            },
+            byPage: (settings = {}) => this.listPropertiesOfSecretsPage(settings, options),
+        };
+    }
+    /**
+     * Deals with the pagination of {@link listDeletedSecrets}.
+     * @param continuationState - An object that indicates the position of the paginated request.
+     * @param options - Optional parameters for the underlying HTTP request.
+     */
+    listDeletedSecretsPage(continuationState_1) {
+        return tslib_1.__asyncGenerator(this, arguments, function* listDeletedSecretsPage_1(continuationState, options = {}) {
+            if (continuationState.continuationToken == null) {
+                const optionsComplete = Object.assign({ maxresults: continuationState.maxPageSize }, options);
+                const currentSetResponse = yield tslib_1.__await(tracing_js_1.tracingClient.withSpan("SecretClient.listDeletedSecretsPage", optionsComplete, (updatedOptions) => this.client.getDeletedSecrets(this.vaultUrl, updatedOptions)));
+                continuationState.continuationToken = currentSetResponse.nextLink;
+                if (currentSetResponse.value) {
+                    yield yield tslib_1.__await(currentSetResponse.value.map((bundle) => (0, transformations_js_1.getSecretFromSecretBundle)(bundle)));
+                }
+            }
+            while (continuationState.continuationToken) {
+                const currentSetResponse = yield tslib_1.__await(tracing_js_1.tracingClient.withSpan("SecretClient.lisDeletedSecretsPage", options, (updatedOptions) => this.client.getDeletedSecretsNext(this.vaultUrl, continuationState.continuationToken, updatedOptions)));
+                continuationState.continuationToken = currentSetResponse.nextLink;
+                if (currentSetResponse.value) {
+                    yield yield tslib_1.__await(currentSetResponse.value.map((bundle) => (0, transformations_js_1.getSecretFromSecretBundle)(bundle)));
+                }
+                else {
+                    break;
+                }
+            }
+        });
+    }
+    /**
+     * Deals with the iteration of all the available results of {@link listDeletedSecrets}.
+     * @param options - Optional parameters for the underlying HTTP request.
+     */
+    listDeletedSecretsAll() {
+        return tslib_1.__asyncGenerator(this, arguments, function* listDeletedSecretsAll_1(options = {}) {
+            var _a, e_3, _b, _c;
+            const f = {};
+            try {
+                for (var _d = true, _e = tslib_1.__asyncValues(this.listDeletedSecretsPage(f, options)), _f; _f = yield tslib_1.__await(_e.next()), _a = _f.done, !_a; _d = true) {
+                    _c = _f.value;
+                    _d = false;
+                    const page = _c;
+                    for (const item of page) {
+                        yield yield tslib_1.__await(item);
+                    }
+                }
+            }
+            catch (e_3_1) { e_3 = { error: e_3_1 }; }
+            finally {
+                try {
+                    if (!_d && !_a && (_b = _e.return)) yield tslib_1.__await(_b.call(_e));
+                }
+                finally { if (e_3) throw e_3.error; }
+            }
+        });
+    }
+    /**
+     * Iterates the deleted secrets in the vault.  The full secret identifier and attributes are provided
+     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
+     *
+     * Example usage:
+     * ```ts
+     * let client = new SecretClient(url, credentials);
+     * for await (const deletedSecret of client.listDeletedSecrets()) {
+     *   console.log("deleted secret: ", deletedSecret);
+     * }
+     * ```
+     * List all secrets in the vault.
+     * @param options - The optional parameters.
+     */
+    listDeletedSecrets(options = {}) {
+        const iter = this.listDeletedSecretsAll(options);
+        return {
+            next() {
+                return iter.next();
+            },
+            [Symbol.asyncIterator]() {
+                return this;
+            },
+            byPage: (settings = {}) => this.listDeletedSecretsPage(settings, options),
+        };
+    }
+}
+exports.SecretClient = SecretClient;
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 2056:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.logger = void 0;
+const logger_1 = __nccwpck_require__(6515);
+/**
+ * The \@azure/logger configuration for this package.
+ */
+exports.logger = (0, logger_1.createClientLogger)("keyvault-secrets");
+//# sourceMappingURL=log.js.map
+
+/***/ }),
+
+/***/ 1081:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DeleteSecretPollOperation = void 0;
+const keyVaultSecretPoller_js_1 = __nccwpck_require__(3259);
+const transformations_js_1 = __nccwpck_require__(4716);
+const tracing_js_1 = __nccwpck_require__(3432);
+/**
+ * An interface representing a delete secret's poll operation
+ */
+class DeleteSecretPollOperation extends keyVaultSecretPoller_js_1.KeyVaultSecretPollOperation {
+    constructor(state, vaultUrl, client, operationOptions = {}) {
+        super(state, { cancelMessage: "Canceling the deletion of a secret is not supported." });
+        this.state = state;
+        this.vaultUrl = vaultUrl;
+        this.client = client;
+        this.operationOptions = operationOptions;
+    }
+    /**
+     * Sends a delete request for the given Key Vault Key's name to the Key Vault service.
+     * Since the Key Vault Key won't be immediately deleted, we have {@link beginDeleteKey}.
+     */
+    deleteSecret(name, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("DeleteSecretPoller.deleteSecret", options, async (updatedOptions) => {
+            const response = await this.client.deleteSecret(this.vaultUrl, name, updatedOptions);
+            return (0, transformations_js_1.getSecretFromSecretBundle)(response);
+        });
+    }
+    /**
+     * The getDeletedSecret method returns the specified deleted secret along with its properties.
+     * This operation requires the secrets/get permission.
+     */
+    getDeletedSecret(name, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("DeleteSecretPoller.getDeletedSecret", options, async (updatedOptions) => {
+            const response = await this.client.getDeletedSecret(this.vaultUrl, name, updatedOptions);
+            return (0, transformations_js_1.getSecretFromSecretBundle)(response);
+        });
+    }
+    /**
+     * Reaches to the service and updates the delete secret's poll operation.
+     */
+    async update(options = {}) {
+        const state = this.state;
+        const { name } = state;
+        if (options.abortSignal) {
+            this.operationOptions.abortSignal = options.abortSignal;
+        }
+        if (!state.isStarted) {
+            const deletedSecret = await this.deleteSecret(name, this.operationOptions);
+            state.isStarted = true;
+            state.result = deletedSecret;
+            if (!deletedSecret.properties.recoveryId) {
+                state.isCompleted = true;
+            }
+        }
+        if (!state.isCompleted) {
+            try {
+                state.result = await this.getDeletedSecret(name, this.operationOptions);
+                state.isCompleted = true;
+            }
+            catch (error) {
+                if (error.statusCode === 403) {
+                    // At this point, the resource exists but the user doesn't have access to it.
+                    state.isCompleted = true;
+                }
+                else if (error.statusCode !== 404) {
+                    state.error = error;
+                    state.isCompleted = true;
+                    throw error;
+                }
+            }
+        }
+        return this;
+    }
+}
+exports.DeleteSecretPollOperation = DeleteSecretPollOperation;
+//# sourceMappingURL=operation.js.map
+
+/***/ }),
+
+/***/ 6180:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DeleteSecretPoller = void 0;
+const operation_js_1 = __nccwpck_require__(1081);
+const keyVaultSecretPoller_js_1 = __nccwpck_require__(3259);
+/**
+ * Class that creates a poller that waits until a secret finishes being deleted.
+ */
+class DeleteSecretPoller extends keyVaultSecretPoller_js_1.KeyVaultSecretPoller {
+    constructor(options) {
+        const { vaultUrl, client, name, operationOptions, intervalInMs = 2000, resumeFrom } = options;
+        let state;
+        if (resumeFrom) {
+            state = JSON.parse(resumeFrom).state;
+        }
+        const operation = new operation_js_1.DeleteSecretPollOperation(Object.assign(Object.assign({}, state), { name }), vaultUrl, client, operationOptions);
+        super(operation);
+        this.intervalInMs = intervalInMs;
+    }
+}
+exports.DeleteSecretPoller = DeleteSecretPoller;
+//# sourceMappingURL=poller.js.map
+
+/***/ }),
+
+/***/ 3259:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.KeyVaultSecretPollOperation = exports.KeyVaultSecretPoller = void 0;
+const core_lro_1 = __nccwpck_require__(5862);
+const core_util_1 = __nccwpck_require__(7779);
+/**
+ * Common properties and methods of the Key Vault Secret Pollers.
+ */
+class KeyVaultSecretPoller extends core_lro_1.Poller {
+    constructor() {
+        super(...arguments);
+        /**
+         * Defines how much time the poller is going to wait before making a new request to the service.
+         */
+        this.intervalInMs = 2000;
+    }
+    /**
+     * The method used by the poller to wait before attempting to update its operation.
+     */
+    async delay() {
+        return (0, core_util_1.delay)(this.intervalInMs);
+    }
+}
+exports.KeyVaultSecretPoller = KeyVaultSecretPoller;
+/**
+ * Common properties and methods of the Key Vault Secret Poller operations.
+ */
+// eslint-disable-next-next no-use-before-define
+class KeyVaultSecretPollOperation {
+    constructor(state, options = {}) {
+        this.state = state;
+        this.cancelMessage = "";
+        if (options.cancelMessage) {
+            this.cancelMessage = options.cancelMessage;
+        }
+    }
+    /**
+     * Meant to reach to the service and update the Poller operation.
+     * @param options - The optional parameters, which is only an abortSignal from \@azure/abort-controller
+     */
+    async update() {
+        throw new Error("Operation not supported.");
+    }
+    /**
+     * Meant to reach to the service and cancel the Poller operation.
+     * @param options - The optional parameters, which is only an abortSignal from \@azure/abort-controller
+     */
+    async cancel() {
+        throw new Error(this.cancelMessage);
+    }
+    /**
+     * Serializes the Poller operation.
+     */
+    toString() {
+        return JSON.stringify({
+            state: this.state,
+        });
+    }
+}
+exports.KeyVaultSecretPollOperation = KeyVaultSecretPollOperation;
+//# sourceMappingURL=keyVaultSecretPoller.js.map
+
+/***/ }),
+
+/***/ 1815:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RecoverDeletedSecretPollOperation = void 0;
+const keyVaultSecretPoller_js_1 = __nccwpck_require__(3259);
+const transformations_js_1 = __nccwpck_require__(4716);
+const tracing_js_1 = __nccwpck_require__(3432);
+/**
+ * An interface representing a delete secret's poll operation
+ */
+class RecoverDeletedSecretPollOperation extends keyVaultSecretPoller_js_1.KeyVaultSecretPollOperation {
+    constructor(state, vaultUrl, client, options = {}) {
+        super(state, { cancelMessage: "Canceling the recovery of a deleted secret is not supported." });
+        this.state = state;
+        this.vaultUrl = vaultUrl;
+        this.client = client;
+        this.options = options;
+    }
+    /**
+     * The getSecret method returns the specified secret along with its properties.
+     * This operation requires the secrets/get permission.
+     */
+    getSecret(name, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("RecoverDeletedSecretPoller.getSecret", options, async (updatedOptions) => {
+            const response = await this.client.getSecret(this.vaultUrl, name, options && options.version ? options.version : "", updatedOptions);
+            return (0, transformations_js_1.getSecretFromSecretBundle)(response);
+        });
+    }
+    /**
+     * The recoverDeletedSecret method recovers the specified deleted secret along with its properties.
+     * This operation requires the secrets/recover permission.
+     */
+    recoverDeletedSecret(name, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("RecoverDeletedSecretPoller.recoverDeletedSecret", options, async (updatedOptions) => {
+            const response = await this.client.recoverDeletedSecret(this.vaultUrl, name, updatedOptions);
+            return (0, transformations_js_1.getSecretFromSecretBundle)(response);
+        });
+    }
+    /**
+     * Reaches to the service and updates the delete secret's poll operation.
+     */
+    async update(options = {}) {
+        const state = this.state;
+        const { name } = state;
+        if (options.abortSignal) {
+            this.options.abortSignal = options.abortSignal;
+        }
+        if (!state.isStarted) {
+            try {
+                state.result = (await this.getSecret(name, this.options)).properties;
+                state.isCompleted = true;
+            }
+            catch (_a) {
+                // Nothing to do here.
+            }
+            if (!state.isCompleted) {
+                state.result = (await this.recoverDeletedSecret(name, this.options)).properties;
+                state.isStarted = true;
+            }
+        }
+        if (!state.isCompleted) {
+            try {
+                state.result = (await this.getSecret(name, this.options)).properties;
+                state.isCompleted = true;
+            }
+            catch (error) {
+                if (error.statusCode === 403) {
+                    // At this point, the resource exists but the user doesn't have access to it.
+                    state.isCompleted = true;
+                }
+                else if (error.statusCode !== 404) {
+                    state.error = error;
+                    state.isCompleted = true;
+                    throw error;
+                }
+            }
+        }
+        return this;
+    }
+}
+exports.RecoverDeletedSecretPollOperation = RecoverDeletedSecretPollOperation;
+//# sourceMappingURL=operation.js.map
+
+/***/ }),
+
+/***/ 1831:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RecoverDeletedSecretPoller = void 0;
+const operation_js_1 = __nccwpck_require__(1815);
+const keyVaultSecretPoller_js_1 = __nccwpck_require__(3259);
+/**
+ * Class that deletes a poller that waits until a secret finishes being deleted
+ */
+class RecoverDeletedSecretPoller extends keyVaultSecretPoller_js_1.KeyVaultSecretPoller {
+    constructor(options) {
+        const { vaultUrl, client, name, operationOptions, intervalInMs = 2000, resumeFrom } = options;
+        let state;
+        if (resumeFrom) {
+            state = JSON.parse(resumeFrom).state;
+        }
+        const operation = new operation_js_1.RecoverDeletedSecretPollOperation(Object.assign(Object.assign({}, state), { name }), vaultUrl, client, operationOptions);
+        super(operation);
+        this.intervalInMs = intervalInMs;
+    }
+}
+exports.RecoverDeletedSecretPoller = RecoverDeletedSecretPoller;
+//# sourceMappingURL=poller.js.map
+
+/***/ }),
+
+/***/ 6965:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LATEST_API_VERSION = void 0;
+/**
+ * The latest supported KeyVault service API version
+ */
+exports.LATEST_API_VERSION = "7.5";
+//# sourceMappingURL=secretsModels.js.map
+
+/***/ }),
+
+/***/ 3432:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.tracingClient = void 0;
+const core_tracing_1 = __nccwpck_require__(5553);
+const constants_js_1 = __nccwpck_require__(6419);
+exports.tracingClient = (0, core_tracing_1.createTracingClient)({
+    namespace: "Microsoft.KeyVault",
+    packageName: "@azure/keyvault-secrets",
+    packageVersion: constants_js_1.SDK_VERSION,
+});
+//# sourceMappingURL=tracing.js.map
+
+/***/ }),
+
+/***/ 4716:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getSecretFromSecretBundle = getSecretFromSecretBundle;
+const identifier_js_1 = __nccwpck_require__(3015);
+/**
+ * @internal
+ * Shapes the exposed {@link KeyVaultKey} based on either a received secret bundle or deleted secret bundle.
+ */
+function getSecretFromSecretBundle(bundle) {
+    const secretBundle = bundle;
+    const deletedSecretBundle = bundle;
+    const parsedId = (0, identifier_js_1.parseKeyVaultSecretIdentifier)(secretBundle.id);
+    const attributes = secretBundle.attributes;
+    delete secretBundle.attributes;
+    const resultObject = {
+        value: secretBundle.value,
+        name: parsedId.name,
+        properties: {
+            expiresOn: attributes === null || attributes === void 0 ? void 0 : attributes.expires,
+            createdOn: attributes === null || attributes === void 0 ? void 0 : attributes.created,
+            updatedOn: attributes === null || attributes === void 0 ? void 0 : attributes.updated,
+            enabled: attributes === null || attributes === void 0 ? void 0 : attributes.enabled,
+            notBefore: attributes === null || attributes === void 0 ? void 0 : attributes.notBefore,
+            recoverableDays: attributes === null || attributes === void 0 ? void 0 : attributes.recoverableDays,
+            recoveryLevel: attributes === null || attributes === void 0 ? void 0 : attributes.recoveryLevel,
+            id: secretBundle.id,
+            contentType: secretBundle.contentType,
+            tags: secretBundle.tags,
+            managed: secretBundle.managed,
+            vaultUrl: parsedId.vaultUrl,
+            version: parsedId.version,
+            name: parsedId.name,
+            certificateKeyId: secretBundle.kid,
+        },
+    };
+    if (deletedSecretBundle.recoveryId) {
+        resultObject.properties.recoveryId = deletedSecretBundle.recoveryId;
+        resultObject.properties.scheduledPurgeDate = deletedSecretBundle.scheduledPurgeDate;
+        resultObject.properties.deletedOn = deletedSecretBundle.deletedDate;
+        resultObject.recoveryId = deletedSecretBundle.recoveryId;
+        resultObject.scheduledPurgeDate = deletedSecretBundle.scheduledPurgeDate;
+        resultObject.deletedOn = deletedSecretBundle.deletedDate;
+    }
+    if (attributes) {
+        if (attributes.vaultUrl) {
+            delete resultObject.properties.vaultUrl;
+        }
+        if (attributes.expires) {
+            delete resultObject.properties.expires;
+        }
+        if (attributes.created) {
+            delete resultObject.properties.created;
+        }
+        if (attributes.updated) {
+            delete resultObject.properties.updated;
+        }
+    }
+    return resultObject;
+}
+//# sourceMappingURL=transformations.js.map
+
+/***/ }),
+
+/***/ 1676:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const log_js_1 = __nccwpck_require__(6757);
+const debugEnvVariable = (typeof process !== "undefined" && process.env && process.env.DEBUG) || undefined;
+let enabledString;
+let enabledNamespaces = [];
+let skippedNamespaces = [];
+const debuggers = [];
+if (debugEnvVariable) {
+    enable(debugEnvVariable);
+}
+const debugObj = Object.assign((namespace) => {
+    return createDebugger(namespace);
+}, {
+    enable,
+    enabled,
+    disable,
+    log: log_js_1.log,
+});
+function enable(namespaces) {
+    enabledString = namespaces;
+    enabledNamespaces = [];
+    skippedNamespaces = [];
+    const wildcard = /\*/g;
+    const namespaceList = namespaces.split(",").map((ns) => ns.trim().replace(wildcard, ".*?"));
+    for (const ns of namespaceList) {
+        if (ns.startsWith("-")) {
+            skippedNamespaces.push(new RegExp(`^${ns.substr(1)}$`));
+        }
+        else {
+            enabledNamespaces.push(new RegExp(`^${ns}$`));
+        }
+    }
+    for (const instance of debuggers) {
+        instance.enabled = enabled(instance.namespace);
+    }
+}
+function enabled(namespace) {
+    if (namespace.endsWith("*")) {
+        return true;
+    }
+    for (const skipped of skippedNamespaces) {
+        if (skipped.test(namespace)) {
+            return false;
+        }
+    }
+    for (const enabledNamespace of enabledNamespaces) {
+        if (enabledNamespace.test(namespace)) {
+            return true;
+        }
+    }
+    return false;
+}
+function disable() {
+    const result = enabledString || "";
+    enable("");
+    return result;
+}
+function createDebugger(namespace) {
+    const newDebugger = Object.assign(debug, {
+        enabled: enabled(namespace),
+        destroy,
+        log: debugObj.log,
+        namespace,
+        extend,
+    });
+    function debug(...args) {
+        if (!newDebugger.enabled) {
+            return;
+        }
+        if (args.length > 0) {
+            args[0] = `${namespace} ${args[0]}`;
+        }
+        newDebugger.log(...args);
+    }
+    debuggers.push(newDebugger);
+    return newDebugger;
+}
+function destroy() {
+    const index = debuggers.indexOf(this);
+    if (index >= 0) {
+        debuggers.splice(index, 1);
+        return true;
+    }
+    return false;
+}
+function extend(namespace) {
+    const newDebugger = createDebugger(`${this.namespace}:${namespace}`);
+    newDebugger.log = this.log;
+    return newDebugger;
+}
+exports["default"] = debugObj;
+//# sourceMappingURL=debug.js.map
+
+/***/ }),
+
+/***/ 6515:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AzureLogger = void 0;
+exports.setLogLevel = setLogLevel;
+exports.getLogLevel = getLogLevel;
+exports.createClientLogger = createClientLogger;
+const tslib_1 = __nccwpck_require__(1860);
+const debug_js_1 = tslib_1.__importDefault(__nccwpck_require__(1676));
+const registeredLoggers = new Set();
+const logLevelFromEnv = (typeof process !== "undefined" && process.env && process.env.AZURE_LOG_LEVEL) || undefined;
+let azureLogLevel;
+/**
+ * The AzureLogger provides a mechanism for overriding where logs are output to.
+ * By default, logs are sent to stderr.
+ * Override the `log` method to redirect logs to another location.
+ */
+exports.AzureLogger = (0, debug_js_1.default)("azure");
+exports.AzureLogger.log = (...args) => {
+    debug_js_1.default.log(...args);
+};
+const AZURE_LOG_LEVELS = ["verbose", "info", "warning", "error"];
+if (logLevelFromEnv) {
+    // avoid calling setLogLevel because we don't want a mis-set environment variable to crash
+    if (isAzureLogLevel(logLevelFromEnv)) {
+        setLogLevel(logLevelFromEnv);
+    }
+    else {
+        console.error(`AZURE_LOG_LEVEL set to unknown log level '${logLevelFromEnv}'; logging is not enabled. Acceptable values: ${AZURE_LOG_LEVELS.join(", ")}.`);
+    }
+}
+/**
+ * Immediately enables logging at the specified log level. If no level is specified, logging is disabled.
+ * @param level - The log level to enable for logging.
+ * Options from most verbose to least verbose are:
+ * - verbose
+ * - info
+ * - warning
+ * - error
+ */
+function setLogLevel(level) {
+    if (level && !isAzureLogLevel(level)) {
+        throw new Error(`Unknown log level '${level}'. Acceptable values: ${AZURE_LOG_LEVELS.join(",")}`);
+    }
+    azureLogLevel = level;
+    const enabledNamespaces = [];
+    for (const logger of registeredLoggers) {
+        if (shouldEnable(logger)) {
+            enabledNamespaces.push(logger.namespace);
+        }
+    }
+    debug_js_1.default.enable(enabledNamespaces.join(","));
+}
+/**
+ * Retrieves the currently specified log level.
+ */
+function getLogLevel() {
+    return azureLogLevel;
+}
+const levelMap = {
+    verbose: 400,
+    info: 300,
+    warning: 200,
+    error: 100,
+};
+/**
+ * Creates a logger for use by the Azure SDKs that inherits from `AzureLogger`.
+ * @param namespace - The name of the SDK package.
+ * @hidden
+ */
+function createClientLogger(namespace) {
+    const clientRootLogger = exports.AzureLogger.extend(namespace);
+    patchLogMethod(exports.AzureLogger, clientRootLogger);
+    return {
+        error: createLogger(clientRootLogger, "error"),
+        warning: createLogger(clientRootLogger, "warning"),
+        info: createLogger(clientRootLogger, "info"),
+        verbose: createLogger(clientRootLogger, "verbose"),
+    };
+}
+function patchLogMethod(parent, child) {
+    child.log = (...args) => {
+        parent.log(...args);
+    };
+}
+function createLogger(parent, level) {
+    const logger = Object.assign(parent.extend(level), {
+        level,
+    });
+    patchLogMethod(parent, logger);
+    if (shouldEnable(logger)) {
+        const enabledNamespaces = debug_js_1.default.disable();
+        debug_js_1.default.enable(enabledNamespaces + "," + logger.namespace);
+    }
+    registeredLoggers.add(logger);
+    return logger;
+}
+function shouldEnable(logger) {
+    return Boolean(azureLogLevel && levelMap[logger.level] <= levelMap[azureLogLevel]);
+}
+function isAzureLogLevel(logLevel) {
+    return AZURE_LOG_LEVELS.includes(logLevel);
+}
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 6757:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.log = log;
+const tslib_1 = __nccwpck_require__(1860);
+const node_os_1 = __nccwpck_require__(8161);
+const node_util_1 = tslib_1.__importDefault(__nccwpck_require__(7975));
+const process = tslib_1.__importStar(__nccwpck_require__(1708));
+function log(message, ...args) {
+    process.stderr.write(`${node_util_1.default.format(message, ...args)}${node_os_1.EOL}`);
+}
+//# sourceMappingURL=log.js.map
+
+/***/ }),
+
+/***/ 7:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -35118,13 +33336,13 @@ Object.defineProperty(exports, "AbortError", ({ enumerable: true, get: function 
 
 'use strict';
 
-var http = __nccwpck_require__(3685);
-var https = __nccwpck_require__(5687);
-var uuid = __nccwpck_require__(5840);
-var crypto = __nccwpck_require__(6113);
-var jwt = __nccwpck_require__(7486);
-var fs = __nccwpck_require__(7147);
-var path = __nccwpck_require__(1017);
+var http = __nccwpck_require__(8611);
+var https = __nccwpck_require__(5692);
+var uuid = __nccwpck_require__(2048);
+var crypto = __nccwpck_require__(6982);
+var jwt = __nccwpck_require__(9653);
+var fs = __nccwpck_require__(9896);
+var path = __nccwpck_require__(6928);
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -47642,7 +45860,7 @@ exports.version = version;
 /******/ 		// object to store loaded chunks
 /******/ 		// "1" means "loaded", otherwise not loaded yet
 /******/ 		var installedChunks = {
-/******/ 			179: 1
+/******/ 			792: 1
 /******/ 		};
 /******/ 		
 /******/ 		// no on chunks loaded
@@ -47682,7 +45900,7 @@ exports.version = version;
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(3109);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(5915);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
