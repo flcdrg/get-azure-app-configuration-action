@@ -42,7 +42,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getKeys = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const io = __importStar(__nccwpck_require__(7436));
-const app_configuration_1 = __nccwpck_require__(732);
+const app_configuration_1 = __nccwpck_require__(910);
 const executeAzCliCommand_1 = __nccwpck_require__(9493);
 function getKeys(resourceGroup, appConfigurationName, filter) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -236,7 +236,7 @@ exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const appConfiguration_1 = __nccwpck_require__(5366);
 const kv_1 = __nccwpck_require__(8116);
-const app_configuration_1 = __nccwpck_require__(732);
+const app_configuration_1 = __nccwpck_require__(910);
 const keyvault_secrets_1 = __nccwpck_require__(181);
 function run() {
     var _a, e_1, _b, _c;
@@ -3874,3373 +3874,10 @@ var __createBinding;
 
 /***/ }),
 
-/***/ 732:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-var corePaging = __nccwpck_require__(4559);
-var coreRestPipeline = __nccwpck_require__(8121);
-var logger$1 = __nccwpck_require__(3233);
-var coreAuth = __nccwpck_require__(9645);
-var tslib = __nccwpck_require__(2350);
-var coreUtil = __nccwpck_require__(1333);
-var coreClient = __nccwpck_require__(9729);
-var coreHttpCompat = __nccwpck_require__(6232);
-var coreLro = __nccwpck_require__(7094);
-var coreTracing = __nccwpck_require__(4175);
-
-function _interopNamespaceDefault(e) {
-    var n = Object.create(null);
-    if (e) {
-        Object.keys(e).forEach(function (k) {
-            if (k !== 'default') {
-                var d = Object.getOwnPropertyDescriptor(e, k);
-                Object.defineProperty(n, k, d.get ? d : {
-                    enumerable: true,
-                    get: function () { return e[k]; }
-                });
-            }
-        });
-    }
-    n.default = e;
-    return Object.freeze(n);
-}
-
-var coreClient__namespace = /*#__PURE__*/_interopNamespaceDefault(coreClient);
-var coreHttpCompat__namespace = /*#__PURE__*/_interopNamespaceDefault(coreHttpCompat);
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * The `@azure/logger` configuration for this package.
- * @internal
- */
-const logger = logger$1.createClientLogger("app-config");
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * The sync token header, as described here:
- * https://docs.microsoft.com/azure/azure-app-configuration/rest-api-consistency
- * @internal
- */
-const SyncTokenHeaderName = "sync-token";
-/**
- * A policy factory for injecting sync tokens properly into outgoing requests.
- * @param syncTokens - the sync tokens store to be used across requests.
- * @internal
- */
-function syncTokenPolicy(syncTokens) {
-    return {
-        name: "Sync Token Policy",
-        async sendRequest(request, next) {
-            const syncTokenHeaderValue = syncTokens.getSyncTokenHeaderValue();
-            if (syncTokenHeaderValue) {
-                logger.info("[syncTokenPolicy] Setting headers with ${SyncTokenHeaderName} and ${syncTokenHeaderValue}");
-                request.headers.set(SyncTokenHeaderName, syncTokenHeaderValue);
-            }
-            const response = await next(request);
-            syncTokens.addSyncTokenFromHeaderValue(response.headers.get(SyncTokenHeaderName));
-            return response;
-        },
-    };
-}
-/**
- * Sync token tracker (allows for real-time consistency, even in the face of
- * caching and load balancing within App Configuration).
- *
- * (protocol and format described here)
- * https://docs.microsoft.com/azure/azure-app-configuration/rest-api-consistency
- *
- * @internal
- */
-class SyncTokens {
-    constructor() {
-        this._currentSyncTokens = new Map();
-    }
-    /**
-     * Takes the value from the header named after the constant `SyncTokenHeaderName`
-     * and adds it to our list of accumulated sync tokens.
-     *
-     * If given an empty value (or undefined) it clears the current list of sync tokens.
-     * (indicates the service has properly absorbed values into the cluster).
-     *
-     * @param syncTokenHeaderValue - The full value of the sync token header.
-     */
-    addSyncTokenFromHeaderValue(syncTokenHeaderValue) {
-        if (syncTokenHeaderValue == null || syncTokenHeaderValue === "") {
-            // eventually everything gets synced up and we don't have to track
-            // these headers anymore
-            this._currentSyncTokens.clear();
-            return;
-        }
-        const newTokens = syncTokenHeaderValue.split(",").map(parseSyncToken);
-        for (const newToken of newTokens) {
-            const existingToken = this._currentSyncTokens.get(newToken.id);
-            if (!existingToken || existingToken.sequenceNumber < newToken.sequenceNumber) {
-                this._currentSyncTokens.set(newToken.id, newToken);
-                continue;
-            }
-        }
-    }
-    /**
-     * Gets a properly formatted SyncToken header value.
-     */
-    getSyncTokenHeaderValue() {
-        if (this._currentSyncTokens.size === 0) {
-            return undefined;
-        }
-        const syncTokenStrings = [];
-        for (const syncToken of this._currentSyncTokens.values()) {
-            // note that you don't include the 'sn' field here - that's only
-            // used for internal tracking of the 'version' for the token itself
-            syncTokenStrings.push(`${syncToken.id}=${syncToken.value}`);
-        }
-        return syncTokenStrings.join(",");
-    }
-}
-// An example sync token (from their documentation):
-//
-// jtqGc1I4=MDoyOA==;sn=28
-//
-// Which breaks down to:
-// id: jtqGc1I4
-// value: MDoyOA==
-// sequence number: 28
-const syncTokenRegex = /^([^=]+)=([^;]+);sn=(\d+)$/;
-/**
- * Parses a single sync token into it's constituent parts.
- *
- * @param syncToken - A single sync token.
- *
- * @internal
- */
-function parseSyncToken(syncToken) {
-    const matches = syncToken.match(syncTokenRegex);
-    if (matches == null) {
-        throw new Error(`Failed to parse sync token '${syncToken}' with regex ${syncTokenRegex.source}`);
-    }
-    const sequenceNumber = parseInt(matches[3], 10);
-    if (isNaN(sequenceNumber)) {
-        // this should be impossible since our regex restricts to just digits
-        // but there's nothing wrong with being thorough.
-        throw new Error(`${syncToken}: The sequence number value '${matches[3]}' wasn't a number`);
-    }
-    return {
-        id: matches[1],
-        value: matches[2],
-        sequenceNumber,
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * The prefix for feature flags.
- */
-const featureFlagPrefix = ".appconfig.featureflag/";
-/**
- * The content type for a FeatureFlag
- */
-const featureFlagContentType = "application/vnd.microsoft.appconfig.ff+json;charset=utf-8";
-/**
- * @internal
- */
-const FeatureFlagHelper = {
-    /**
-     * Takes the FeatureFlag (JSON) and returns a ConfigurationSetting (with the props encodeed in the value).
-     */
-    toConfigurationSettingParam: (featureFlag) => {
-        var _a;
-        logger.info("Encoding FeatureFlag value in a ConfigurationSetting:", featureFlag);
-        if (!featureFlag.value) {
-            logger.error("FeatureFlag has an unexpected value", featureFlag);
-            throw new TypeError(`FeatureFlag has an unexpected value - ${featureFlag.value}`);
-        }
-        let key = featureFlag.key;
-        if (typeof featureFlag.key === "string" && !featureFlag.key.startsWith(featureFlagPrefix)) {
-            key = featureFlagPrefix + featureFlag.key;
-        }
-        const jsonFeatureFlagValue = {
-            id: (_a = featureFlag.value.id) !== null && _a !== void 0 ? _a : key.replace(featureFlagPrefix, ""),
-            enabled: featureFlag.value.enabled,
-            description: featureFlag.value.description,
-            conditions: {
-                client_filters: featureFlag.value.conditions.clientFilters,
-            },
-            display_name: featureFlag.value.displayName,
-        };
-        const configSetting = Object.assign(Object.assign({}, featureFlag), { key, value: JSON.stringify(jsonFeatureFlagValue) });
-        return configSetting;
-    },
-};
-/**
- * Takes the ConfigurationSetting as input and returns the ConfigurationSetting<FeatureFlagValue> by parsing the value string.
- */
-function parseFeatureFlag(setting) {
-    logger.info("Parsing the value to return the FeatureFlagValue", setting);
-    if (!isFeatureFlag(setting)) {
-        logger.error("Invalid FeatureFlag input", setting);
-        throw TypeError(`Setting with key ${setting.key} is not a valid FeatureFlag, make sure to have the correct content-type and a valid non-null value.`);
-    }
-    const jsonFeatureFlagValue = JSON.parse(setting.value);
-    let key = setting.key;
-    if (typeof setting.key === "string" && !setting.key.startsWith(featureFlagPrefix)) {
-        key = featureFlagPrefix + setting.key;
-    }
-    const featureflag = Object.assign(Object.assign({}, setting), { value: {
-            id: jsonFeatureFlagValue.id,
-            enabled: jsonFeatureFlagValue.enabled,
-            description: jsonFeatureFlagValue.description,
-            displayName: jsonFeatureFlagValue.display_name,
-            conditions: { clientFilters: jsonFeatureFlagValue.conditions.client_filters },
-        }, key, contentType: featureFlagContentType });
-    return featureflag;
-}
-/**
- * Lets you know if the ConfigurationSetting is a feature flag.
- *
- * [Checks if the content type is featureFlagContentType `"application/vnd.microsoft.appconfig.ff+json;charset=utf-8"`]
- */
-function isFeatureFlag(setting) {
-    return (setting && setting.contentType === featureFlagContentType && typeof setting.value === "string");
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * content-type for the secret reference.
- */
-const secretReferenceContentType = "application/vnd.microsoft.appconfig.keyvaultref+json;charset=utf-8";
-/**
- * @internal
- */
-const SecretReferenceHelper = {
-    /**
-     * Takes the SecretReference (JSON) and returns a ConfigurationSetting (with the props encodeed in the value).
-     */
-    toConfigurationSettingParam: (secretReference) => {
-        logger.info("Encoding SecretReference value in a ConfigurationSetting:", secretReference);
-        if (!secretReference.value) {
-            logger.error(`SecretReference has an unexpected value`, secretReference);
-            throw new TypeError(`SecretReference has an unexpected value - ${secretReference.value}`);
-        }
-        const jsonSecretReferenceValue = {
-            uri: secretReference.value.secretId,
-        };
-        const configSetting = Object.assign(Object.assign({}, secretReference), { value: JSON.stringify(jsonSecretReferenceValue) });
-        return configSetting;
-    },
-};
-/**
- * Takes the ConfigurationSetting as input and returns the ConfigurationSetting<SecretReferenceValue> by parsing the value string.
- */
-function parseSecretReference(setting) {
-    logger.info("[parseSecretReference] Parsing the value to return the SecretReferenceValue", setting);
-    if (!isSecretReference(setting)) {
-        logger.error("Invalid SecretReference input", setting);
-        throw TypeError(`Setting with key ${setting.key} is not a valid SecretReference, make sure to have the correct content-type and a valid non-null value.`);
-    }
-    const jsonSecretReferenceValue = JSON.parse(setting.value);
-    const secretReference = Object.assign(Object.assign({}, setting), { value: { secretId: jsonSecretReferenceValue.uri } });
-    return secretReference;
-}
-/**
- * Lets you know if the ConfigurationSetting is a secret reference.
- *
- * [Checks if the content type is secretReferenceContentType `"application/vnd.microsoft.appconfig.keyvaultref+json;charset=utf-8"`]
- */
-function isSecretReference(setting) {
-    return (setting &&
-        setting.contentType === secretReferenceContentType &&
-        typeof setting.value === "string");
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Formats the etag so it can be used with a If-Match/If-None-Match header
- * @internal
- */
-function quoteETag(etag) {
-    // https://tools.ietf.org/html/rfc7232#section-3.1
-    if (etag === undefined || etag === "*") {
-        return etag;
-    }
-    if (etag.startsWith('"') && etag.endsWith('"')) {
-        return etag;
-    }
-    if (etag.startsWith("'") && etag.endsWith("'")) {
-        return etag;
-    }
-    return `"${etag}"`;
-}
-/**
- * Checks the onlyIfChanged/onlyIfUnchanged properties to make sure we haven't specified both
- * and throws an Error. Otherwise, returns the properties properly quoted.
- * @param options - An options object with onlyIfChanged/onlyIfUnchanged fields
- * @internal
- */
-function checkAndFormatIfAndIfNoneMatch(objectWithEtag, options) {
-    if (options.onlyIfChanged && options.onlyIfUnchanged) {
-        logger.error("onlyIfChanged and onlyIfUnchanged are both specified", options.onlyIfChanged, options.onlyIfUnchanged);
-        throw new Error("onlyIfChanged and onlyIfUnchanged are mutually-exclusive");
-    }
-    let ifMatch;
-    let ifNoneMatch;
-    if (options.onlyIfUnchanged) {
-        ifMatch = quoteETag(objectWithEtag.etag);
-    }
-    if (options.onlyIfChanged) {
-        ifNoneMatch = quoteETag(objectWithEtag.etag);
-    }
-    return {
-        ifMatch: ifMatch,
-        ifNoneMatch: ifNoneMatch,
-    };
-}
-/**
- * Transforms some of the key fields in SendConfigurationSettingsOptions and ListRevisionsOptions
- * so they can be added to a request using AppConfigurationGetKeyValuesOptionalParams.
- * - `options.acceptDateTime` is converted into an ISO string
- * - `select` is populated with the proper field names from `options.fields`
- * - keyFilter and labelFilter are moved to key and label, respectively.
- *
- * @internal
- */
-function formatFiltersAndSelect(listConfigOptions) {
-    let acceptDatetime = undefined;
-    if (listConfigOptions.acceptDateTime) {
-        acceptDatetime = listConfigOptions.acceptDateTime.toISOString();
-    }
-    return {
-        key: listConfigOptions.keyFilter,
-        label: listConfigOptions.labelFilter,
-        acceptDatetime,
-        select: formatFieldsForSelect(listConfigOptions.fields),
-    };
-}
-/**
- * Transforms some of the key fields in SendConfigurationSettingsOptions
- * so they can be added to a request using AppConfigurationGetKeyValuesOptionalParams.
- * - `options.acceptDateTime` is converted into an ISO string
- * - `select` is populated with the proper field names from `options.fields`
- * - keyFilter, labelFilter, snapshotName are moved to key, label, and snapshot respectively.
- *
- * @internal
- */
-function formatConfigurationSettingsFiltersAndSelect(listConfigOptions) {
-    const { snapshotName: snapshot } = listConfigOptions, options = tslib.__rest(listConfigOptions, ["snapshotName"]);
-    return Object.assign(Object.assign({}, formatFiltersAndSelect(options)), { snapshot });
-}
-/**
- * Transforms some of the key fields in ListSnapshotsOptions
- * so they can be added to a request using AppConfigurationGetSnapshotsOptionalParams.
- * - `select` is populated with the proper field names from `options.fields`
- * - keyFilter and labelFilter are moved to key and label, respectively.
- *
- * @internal
- */
-function formatSnapshotFiltersAndSelect(listSnapshotOptions) {
-    return {
-        name: listSnapshotOptions.nameFilter,
-        status: listSnapshotOptions.statusFilter,
-        select: listSnapshotOptions.fields,
-    };
-}
-/**
- * Handles translating a Date acceptDateTime into a string as needed by the API
- * @param newOptions - A newer style options with acceptDateTime as a date (and with proper casing!)
- * @internal
- */
-function formatAcceptDateTime(newOptions) {
-    return {
-        acceptDatetime: newOptions.acceptDateTime && newOptions.acceptDateTime.toISOString(),
-    };
-}
-/**
- * Take the URL that gets returned from next link and extract the 'after' token needed
- * to get the next page of results.
- * @internal
- */
-function extractAfterTokenFromNextLink(nextLink) {
-    const searchParams = new URLSearchParams(nextLink);
-    const afterToken = searchParams.get("after");
-    if (afterToken == null || Array.isArray(afterToken)) {
-        logger.error("Invalid nextLink - invalid after token", afterToken, Array.isArray(afterToken));
-        throw new Error("Invalid nextLink - invalid after token");
-    }
-    return decodeURIComponent(afterToken);
-}
-/**
- * Makes a ConfigurationSetting-based response throw for all of the data members. Used primarily
- * to prevent possible errors by the user in accessing a model that is uninitialized. This can happen
- * in cases like HTTP status code 204 or 304, which return an empty response body.
- *
- * @param configurationSetting - The configuration setting to alter
- */
-function makeConfigurationSettingEmpty(configurationSetting) {
-    const names = [
-        "contentType",
-        "etag",
-        "label",
-        "lastModified",
-        "isReadOnly",
-        "tags",
-        "value",
-    ];
-    for (const name of names) {
-        configurationSetting[name] = undefined;
-    }
-}
-/**
- * @internal
- */
-function transformKeyValue(kvp) {
-    const setting = Object.assign(Object.assign({ value: undefined }, kvp), { isReadOnly: !!kvp.locked });
-    delete setting.locked;
-    if (!setting.label) {
-        delete setting.label;
-    }
-    if (!setting.contentType) {
-        delete setting.contentType;
-    }
-    return setting;
-}
-/**
- * @internal
- */
-function isConfigSettingWithSecretReferenceValue(setting) {
-    return (setting.contentType === secretReferenceContentType &&
-        coreUtil.isDefined(setting.value) &&
-        typeof setting.value !== "string");
-}
-/**
- * @internal
- */
-function isConfigSettingWithFeatureFlagValue(setting) {
-    return (setting.contentType === featureFlagContentType &&
-        coreUtil.isDefined(setting.value) &&
-        typeof setting.value !== "string");
-}
-/**
- * @internal
- */
-function isSimpleConfigSetting(setting) {
-    return typeof setting.value === "string" || !coreUtil.isDefined(setting.value);
-}
-/**
- * @internal
- */
-function serializeAsConfigurationSettingParam(setting) {
-    if (isSimpleConfigSetting(setting)) {
-        return setting;
-    }
-    try {
-        if (isConfigSettingWithFeatureFlagValue(setting)) {
-            return FeatureFlagHelper.toConfigurationSettingParam(setting);
-        }
-        if (isConfigSettingWithSecretReferenceValue(setting)) {
-            return SecretReferenceHelper.toConfigurationSettingParam(setting);
-        }
-    }
-    catch (error) {
-        return setting;
-    }
-    logger.error("Unable to serialize to a configuration setting", setting);
-    throw new TypeError(`Unable to serialize the setting with key "${setting.key}" as a configuration setting`);
-}
-/**
- * @internal
- */
-function transformKeyValueResponseWithStatusCode(kvp, status) {
-    const response = Object.assign(Object.assign({}, transformKeyValue(kvp)), { statusCode: status !== null && status !== void 0 ? status : -1 });
-    if (hasUnderscoreResponse(kvp)) {
-        Object.defineProperty(response, "_response", {
-            enumerable: false,
-            value: kvp._response,
-        });
-    }
-    return response;
-}
-/**
- * @internal
- */
-function transformKeyValueResponse(kvp) {
-    const setting = transformKeyValue(kvp);
-    if (hasUnderscoreResponse(kvp)) {
-        Object.defineProperty(setting, "_response", {
-            enumerable: false,
-            value: kvp._response,
-        });
-    }
-    delete setting.eTag;
-    return setting;
-}
-/**
- * @internal
- */
-function transformSnapshotResponse(snapshot) {
-    if (hasUnderscoreResponse(snapshot)) {
-        Object.defineProperty(snapshot, "_response", {
-            enumerable: false,
-            value: snapshot._response,
-        });
-    }
-    return snapshot;
-}
-/**
- * Translates user-facing field names into their `select` equivalents (these can be
- * seen in the `KnownEnum5`)
- *
- * @param fieldNames - fieldNames from users.
- * @returns The field names translated into the `select` field equivalents.
- *
- * @internal
- */
-function formatFieldsForSelect(fieldNames) {
-    if (fieldNames == null) {
-        return undefined;
-    }
-    const mappedFieldNames = fieldNames.map((fn) => {
-        switch (fn) {
-            case "lastModified":
-                return "last_modified";
-            case "contentType":
-                return "content_type";
-            case "isReadOnly":
-                return "locked";
-            default:
-                return fn;
-        }
-    });
-    return mappedFieldNames;
-}
-// eslint-disable-next-line @typescript-eslint/ban-types
-function assertResponse(result) {
-    if (!hasUnderscoreResponse(result)) {
-        Object.defineProperty(result, "_response", {
-            enumerable: false,
-            value: "Something went wrong, _response(raw response) is supposed to be part of the response. Please file a bug at https://github.com/Azure/azure-sdk-for-js",
-        });
-    }
-}
-// eslint-disable-next-line @typescript-eslint/ban-types
-function hasUnderscoreResponse(result) {
-    return Object.prototype.hasOwnProperty.call(result, "_response");
-}
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-function createLroSpec(inputs) {
-    const { args, spec, sendOperationFn } = inputs;
-    return {
-        requestMethod: spec.httpMethod,
-        requestPath: spec.path,
-        sendInitialRequest: () => sendOperationFn(args, spec),
-        sendPollRequest: (path, options) => {
-            const restSpec = tslib.__rest(spec, ["requestBody"]);
-            return sendOperationFn(args, Object.assign(Object.assign({}, restSpec), { httpMethod: "GET", path, abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal }));
-        }
-    };
-}
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-const KeyListResult = {
-    type: {
-        name: "Composite",
-        className: "KeyListResult",
-        modelProperties: {
-            items: {
-                serializedName: "items",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "Key"
-                        }
-                    }
-                }
-            },
-            nextLink: {
-                serializedName: "@nextLink",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const Key = {
-    type: {
-        name: "Composite",
-        className: "Key",
-        modelProperties: {
-            name: {
-                serializedName: "name",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const ErrorModel = {
-    type: {
-        name: "Composite",
-        className: "ErrorModel",
-        modelProperties: {
-            type: {
-                serializedName: "type",
-                type: {
-                    name: "String"
-                }
-            },
-            title: {
-                serializedName: "title",
-                type: {
-                    name: "String"
-                }
-            },
-            name: {
-                serializedName: "name",
-                type: {
-                    name: "String"
-                }
-            },
-            detail: {
-                serializedName: "detail",
-                type: {
-                    name: "String"
-                }
-            },
-            status: {
-                serializedName: "status",
-                type: {
-                    name: "Number"
-                }
-            }
-        }
-    }
-};
-const KeyValueListResult = {
-    type: {
-        name: "Composite",
-        className: "KeyValueListResult",
-        modelProperties: {
-            items: {
-                serializedName: "items",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "KeyValue"
-                        }
-                    }
-                }
-            },
-            etag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            },
-            nextLink: {
-                serializedName: "@nextLink",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const KeyValue = {
-    type: {
-        name: "Composite",
-        className: "KeyValue",
-        modelProperties: {
-            key: {
-                serializedName: "key",
-                required: true,
-                type: {
-                    name: "String"
-                }
-            },
-            label: {
-                serializedName: "label",
-                type: {
-                    name: "String"
-                }
-            },
-            contentType: {
-                serializedName: "content_type",
-                type: {
-                    name: "String"
-                }
-            },
-            value: {
-                serializedName: "value",
-                type: {
-                    name: "String"
-                }
-            },
-            lastModified: {
-                serializedName: "last_modified",
-                type: {
-                    name: "DateTime"
-                }
-            },
-            tags: {
-                serializedName: "tags",
-                type: {
-                    name: "Dictionary",
-                    value: { type: { name: "String" } }
-                }
-            },
-            locked: {
-                serializedName: "locked",
-                type: {
-                    name: "Boolean"
-                }
-            },
-            etag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const SnapshotListResult = {
-    type: {
-        name: "Composite",
-        className: "SnapshotListResult",
-        modelProperties: {
-            items: {
-                serializedName: "items",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "ConfigurationSnapshot"
-                        }
-                    }
-                }
-            },
-            nextLink: {
-                serializedName: "@nextLink",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const ConfigurationSnapshot = {
-    type: {
-        name: "Composite",
-        className: "ConfigurationSnapshot",
-        modelProperties: {
-            name: {
-                serializedName: "name",
-                required: true,
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            },
-            status: {
-                serializedName: "status",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            },
-            filters: {
-                constraints: {
-                    MinItems: 1,
-                    MaxItems: 3
-                },
-                serializedName: "filters",
-                required: true,
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "ConfigurationSettingsFilter"
-                        }
-                    }
-                }
-            },
-            compositionType: {
-                serializedName: "composition_type",
-                type: {
-                    name: "String"
-                }
-            },
-            createdOn: {
-                serializedName: "created",
-                readOnly: true,
-                type: {
-                    name: "DateTime"
-                }
-            },
-            expiresOn: {
-                serializedName: "expires",
-                readOnly: true,
-                type: {
-                    name: "DateTime"
-                }
-            },
-            retentionPeriodInSeconds: {
-                constraints: {
-                    InclusiveMaximum: 7776000,
-                    InclusiveMinimum: 3600
-                },
-                serializedName: "retention_period",
-                type: {
-                    name: "Number"
-                }
-            },
-            sizeInBytes: {
-                serializedName: "size",
-                readOnly: true,
-                type: {
-                    name: "Number"
-                }
-            },
-            itemCount: {
-                serializedName: "items_count",
-                readOnly: true,
-                type: {
-                    name: "Number"
-                }
-            },
-            tags: {
-                serializedName: "tags",
-                type: {
-                    name: "Dictionary",
-                    value: { type: { name: "String" } }
-                }
-            },
-            etag: {
-                serializedName: "etag",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const ConfigurationSettingsFilter = {
-    type: {
-        name: "Composite",
-        className: "ConfigurationSettingsFilter",
-        modelProperties: {
-            keyFilter: {
-                serializedName: "key",
-                required: true,
-                type: {
-                    name: "String"
-                }
-            },
-            labelFilter: {
-                serializedName: "label",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const SnapshotUpdateParameters = {
-    type: {
-        name: "Composite",
-        className: "SnapshotUpdateParameters",
-        modelProperties: {
-            status: {
-                serializedName: "status",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const LabelListResult = {
-    type: {
-        name: "Composite",
-        className: "LabelListResult",
-        modelProperties: {
-            items: {
-                serializedName: "items",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "Label"
-                        }
-                    }
-                }
-            },
-            nextLink: {
-                serializedName: "@nextLink",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const Label = {
-    type: {
-        name: "Composite",
-        className: "Label",
-        modelProperties: {
-            name: {
-                serializedName: "name",
-                readOnly: true,
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const OperationDetails = {
-    type: {
-        name: "Composite",
-        className: "OperationDetails",
-        modelProperties: {
-            id: {
-                serializedName: "id",
-                required: true,
-                type: {
-                    name: "String"
-                }
-            },
-            status: {
-                serializedName: "status",
-                required: true,
-                type: {
-                    name: "Enum",
-                    allowedValues: [
-                        "NotStarted",
-                        "Running",
-                        "Succeeded",
-                        "Failed",
-                        "Canceled"
-                    ]
-                }
-            },
-            error: {
-                serializedName: "error",
-                type: {
-                    name: "Composite",
-                    className: "ErrorDetail"
-                }
-            }
-        }
-    }
-};
-const ErrorDetail = {
-    type: {
-        name: "Composite",
-        className: "ErrorDetail",
-        modelProperties: {
-            code: {
-                serializedName: "code",
-                required: true,
-                type: {
-                    name: "String"
-                }
-            },
-            message: {
-                serializedName: "message",
-                required: true,
-                type: {
-                    name: "String"
-                }
-            },
-            details: {
-                serializedName: "details",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "ErrorDetail"
-                        }
-                    }
-                }
-            },
-            innererror: {
-                serializedName: "innererror",
-                type: {
-                    name: "Composite",
-                    className: "InnerError"
-                }
-            }
-        }
-    }
-};
-const InnerError = {
-    type: {
-        name: "Composite",
-        className: "InnerError",
-        modelProperties: {
-            code: {
-                serializedName: "code",
-                type: {
-                    name: "String"
-                }
-            },
-            innererror: {
-                serializedName: "innererror",
-                type: {
-                    name: "Composite",
-                    className: "InnerError"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetKeysHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeysHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationCheckKeysHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckKeysHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetKeyValuesHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeyValuesHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationCheckKeyValuesHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckKeyValuesHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetKeyValueHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeyValueHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationPutKeyValueHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationPutKeyValueHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationDeleteKeyValueHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationDeleteKeyValueHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationCheckKeyValueHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckKeyValueHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetSnapshotsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetSnapshotsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationCheckSnapshotsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckSnapshotsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetSnapshotHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetSnapshotHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            },
-            link: {
-                serializedName: "link",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationCreateSnapshotHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCreateSnapshotHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            },
-            link: {
-                serializedName: "link",
-                type: {
-                    name: "String"
-                }
-            },
-            operationLocation: {
-                serializedName: "operation-location",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationUpdateSnapshotHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationUpdateSnapshotHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            },
-            link: {
-                serializedName: "link",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationCheckSnapshotHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckSnapshotHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            },
-            link: {
-                serializedName: "link",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetLabelsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetLabelsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationCheckLabelsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckLabelsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationPutLockHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationPutLockHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationDeleteLockHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationDeleteLockHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetRevisionsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetRevisionsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationCheckRevisionsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckRevisionsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetKeysNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeysNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetKeyValuesNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeyValuesNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetSnapshotsNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetSnapshotsNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetLabelsNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetLabelsNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-const AppConfigurationGetRevisionsNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetRevisionsNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String"
-                }
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    }
-};
-
-var Mappers = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    AppConfigurationCheckKeyValueHeaders: AppConfigurationCheckKeyValueHeaders,
-    AppConfigurationCheckKeyValuesHeaders: AppConfigurationCheckKeyValuesHeaders,
-    AppConfigurationCheckKeysHeaders: AppConfigurationCheckKeysHeaders,
-    AppConfigurationCheckLabelsHeaders: AppConfigurationCheckLabelsHeaders,
-    AppConfigurationCheckRevisionsHeaders: AppConfigurationCheckRevisionsHeaders,
-    AppConfigurationCheckSnapshotHeaders: AppConfigurationCheckSnapshotHeaders,
-    AppConfigurationCheckSnapshotsHeaders: AppConfigurationCheckSnapshotsHeaders,
-    AppConfigurationCreateSnapshotHeaders: AppConfigurationCreateSnapshotHeaders,
-    AppConfigurationDeleteKeyValueHeaders: AppConfigurationDeleteKeyValueHeaders,
-    AppConfigurationDeleteLockHeaders: AppConfigurationDeleteLockHeaders,
-    AppConfigurationGetKeyValueHeaders: AppConfigurationGetKeyValueHeaders,
-    AppConfigurationGetKeyValuesHeaders: AppConfigurationGetKeyValuesHeaders,
-    AppConfigurationGetKeyValuesNextHeaders: AppConfigurationGetKeyValuesNextHeaders,
-    AppConfigurationGetKeysHeaders: AppConfigurationGetKeysHeaders,
-    AppConfigurationGetKeysNextHeaders: AppConfigurationGetKeysNextHeaders,
-    AppConfigurationGetLabelsHeaders: AppConfigurationGetLabelsHeaders,
-    AppConfigurationGetLabelsNextHeaders: AppConfigurationGetLabelsNextHeaders,
-    AppConfigurationGetRevisionsHeaders: AppConfigurationGetRevisionsHeaders,
-    AppConfigurationGetRevisionsNextHeaders: AppConfigurationGetRevisionsNextHeaders,
-    AppConfigurationGetSnapshotHeaders: AppConfigurationGetSnapshotHeaders,
-    AppConfigurationGetSnapshotsHeaders: AppConfigurationGetSnapshotsHeaders,
-    AppConfigurationGetSnapshotsNextHeaders: AppConfigurationGetSnapshotsNextHeaders,
-    AppConfigurationPutKeyValueHeaders: AppConfigurationPutKeyValueHeaders,
-    AppConfigurationPutLockHeaders: AppConfigurationPutLockHeaders,
-    AppConfigurationUpdateSnapshotHeaders: AppConfigurationUpdateSnapshotHeaders,
-    ConfigurationSettingsFilter: ConfigurationSettingsFilter,
-    ConfigurationSnapshot: ConfigurationSnapshot,
-    ErrorDetail: ErrorDetail,
-    ErrorModel: ErrorModel,
-    InnerError: InnerError,
-    Key: Key,
-    KeyListResult: KeyListResult,
-    KeyValue: KeyValue,
-    KeyValueListResult: KeyValueListResult,
-    Label: Label,
-    LabelListResult: LabelListResult,
-    OperationDetails: OperationDetails,
-    SnapshotListResult: SnapshotListResult,
-    SnapshotUpdateParameters: SnapshotUpdateParameters
-});
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-const accept = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.keyset+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String"
-        }
-    }
-};
-const endpoint = {
-    parameterPath: "endpoint",
-    mapper: {
-        serializedName: "endpoint",
-        required: true,
-        type: {
-            name: "String"
-        }
-    },
-    skipEncoding: true
-};
-const name = {
-    parameterPath: ["options", "name"],
-    mapper: {
-        serializedName: "name",
-        type: {
-            name: "String"
-        }
-    }
-};
-const syncToken = {
-    parameterPath: "syncToken",
-    mapper: {
-        serializedName: "Sync-Token",
-        type: {
-            name: "String"
-        }
-    }
-};
-const apiVersion = {
-    parameterPath: "apiVersion",
-    mapper: {
-        serializedName: "api-version",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
-const after = {
-    parameterPath: ["options", "after"],
-    mapper: {
-        serializedName: "After",
-        type: {
-            name: "String"
-        }
-    }
-};
-const acceptDatetime = {
-    parameterPath: ["options", "acceptDatetime"],
-    mapper: {
-        serializedName: "Accept-Datetime",
-        type: {
-            name: "String"
-        }
-    }
-};
-const accept1 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.kvset+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String"
-        }
-    }
-};
-const key = {
-    parameterPath: ["options", "key"],
-    mapper: {
-        serializedName: "key",
-        type: {
-            name: "String"
-        }
-    }
-};
-const label = {
-    parameterPath: ["options", "label"],
-    mapper: {
-        serializedName: "label",
-        type: {
-            name: "String"
-        }
-    }
-};
-const select = {
-    parameterPath: ["options", "select"],
-    mapper: {
-        serializedName: "$Select",
-        type: {
-            name: "Sequence",
-            element: {
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    },
-    collectionFormat: "CSV"
-};
-const snapshot = {
-    parameterPath: ["options", "snapshot"],
-    mapper: {
-        serializedName: "snapshot",
-        type: {
-            name: "String"
-        }
-    }
-};
-const ifMatch = {
-    parameterPath: ["options", "ifMatch"],
-    mapper: {
-        serializedName: "If-Match",
-        type: {
-            name: "String"
-        }
-    }
-};
-const ifNoneMatch = {
-    parameterPath: ["options", "ifNoneMatch"],
-    mapper: {
-        serializedName: "If-None-Match",
-        type: {
-            name: "String"
-        }
-    }
-};
-const accept2 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.kv+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String"
-        }
-    }
-};
-const key1 = {
-    parameterPath: "key",
-    mapper: {
-        serializedName: "key",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
-const contentType = {
-    parameterPath: ["options", "contentType"],
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.kv+json",
-        isConstant: true,
-        serializedName: "Content-Type",
-        type: {
-            name: "String"
-        }
-    }
-};
-const entity = {
-    parameterPath: ["options", "entity"],
-    mapper: KeyValue
-};
-const accept3 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.snapshotset+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String"
-        }
-    }
-};
-const select1 = {
-    parameterPath: ["options", "select"],
-    mapper: {
-        serializedName: "$Select",
-        type: {
-            name: "Sequence",
-            element: {
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    },
-    collectionFormat: "CSV"
-};
-const status = {
-    parameterPath: ["options", "status"],
-    mapper: {
-        serializedName: "status",
-        type: {
-            name: "Sequence",
-            element: {
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    },
-    collectionFormat: "CSV"
-};
-const accept4 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.snapshot+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String"
-        }
-    }
-};
-const name1 = {
-    parameterPath: "name",
-    mapper: {
-        serializedName: "name",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
-const contentType1 = {
-    parameterPath: ["options", "contentType"],
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.snapshot+json",
-        isConstant: true,
-        serializedName: "Content-Type",
-        type: {
-            name: "String"
-        }
-    }
-};
-const entity1 = {
-    parameterPath: "entity",
-    mapper: ConfigurationSnapshot
-};
-const name2 = {
-    parameterPath: "name",
-    mapper: {
-        constraints: {
-            MaxLength: 256
-        },
-        serializedName: "name",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
-const contentType2 = {
-    parameterPath: ["options", "contentType"],
-    mapper: {
-        defaultValue: "application/json",
-        isConstant: true,
-        serializedName: "Content-Type",
-        type: {
-            name: "String"
-        }
-    }
-};
-const entity2 = {
-    parameterPath: "entity",
-    mapper: SnapshotUpdateParameters
-};
-const accept5 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.labelset+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String"
-        }
-    }
-};
-const select2 = {
-    parameterPath: ["options", "select"],
-    mapper: {
-        serializedName: "$Select",
-        type: {
-            name: "Sequence",
-            element: {
-                type: {
-                    name: "String"
-                }
-            }
-        }
-    },
-    collectionFormat: "CSV"
-};
-const accept6 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String"
-        }
-    }
-};
-const snapshot1 = {
-    parameterPath: "snapshot",
-    mapper: {
-        serializedName: "snapshot",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
-const nextLink = {
-    parameterPath: "nextLink",
-    mapper: {
-        serializedName: "nextLink",
-        required: true,
-        type: {
-            name: "String"
-        }
-    },
-    skipEncoding: true
-};
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-/** @internal */
-class AppConfiguration extends coreHttpCompat__namespace.ExtendedServiceClient {
-    /**
-     * Initializes a new instance of the AppConfiguration class.
-     * @param endpoint The endpoint of the App Configuration instance to send requests to.
-     * @param apiVersion Api Version
-     * @param options The parameter options
-     */
-    constructor(endpoint, apiVersion, options) {
-        var _a, _b;
-        if (endpoint === undefined) {
-            throw new Error("'endpoint' cannot be null");
-        }
-        if (apiVersion === undefined) {
-            throw new Error("'apiVersion' cannot be null");
-        }
-        // Initializing default values for options
-        if (!options) {
-            options = {};
-        }
-        const defaults = {
-            requestContentType: "application/json; charset=utf-8"
-        };
-        const packageDetails = `azsdk-js-app-configuration/1.5.0`;
-        const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix
-            ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
-            : `${packageDetails}`;
-        const optionsWithDefaults = Object.assign(Object.assign(Object.assign({}, defaults), options), { userAgentOptions: {
-                userAgentPrefix
-            }, endpoint: (_b = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri) !== null && _b !== void 0 ? _b : "{endpoint}" });
-        super(optionsWithDefaults);
-        // Parameter assignments
-        this.endpoint = endpoint;
-        this.apiVersion = apiVersion;
-        this.addCustomApiVersionPolicy(apiVersion);
-    }
-    /** A function that adds a policy that sets the api-version (or equivalent) to reflect the library version. */
-    addCustomApiVersionPolicy(apiVersion) {
-        if (!apiVersion) {
-            return;
-        }
-        const apiVersionPolicy = {
-            name: "CustomApiVersionPolicy",
-            async sendRequest(request, next) {
-                const param = request.url.split("?");
-                if (param.length > 1) {
-                    const newParams = param[1].split("&").map((item) => {
-                        if (item.indexOf("api-version") > -1) {
-                            return "api-version=" + apiVersion;
-                        }
-                        else {
-                            return item;
-                        }
-                    });
-                    request.url = param[0] + "?" + newParams.join("&");
-                }
-                return next(request);
-            }
-        };
-        this.pipeline.addPolicy(apiVersionPolicy);
-    }
-    /**
-     * Gets a list of keys.
-     * @param options The options parameters.
-     */
-    getKeys(options) {
-        return this.sendOperationRequest({ options }, getKeysOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkKeys(options) {
-        return this.sendOperationRequest({ options }, checkKeysOperationSpec);
-    }
-    /**
-     * Gets a list of key-values.
-     * @param options The options parameters.
-     */
-    getKeyValues(options) {
-        return this.sendOperationRequest({ options }, getKeyValuesOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkKeyValues(options) {
-        return this.sendOperationRequest({ options }, checkKeyValuesOperationSpec);
-    }
-    /**
-     * Gets a single key-value.
-     * @param key The key of the key-value to retrieve.
-     * @param options The options parameters.
-     */
-    getKeyValue(key, options) {
-        return this.sendOperationRequest({ key, options }, getKeyValueOperationSpec);
-    }
-    /**
-     * Creates a key-value.
-     * @param key The key of the key-value to create.
-     * @param options The options parameters.
-     */
-    putKeyValue(key, options) {
-        return this.sendOperationRequest({ key, options }, putKeyValueOperationSpec);
-    }
-    /**
-     * Deletes a key-value.
-     * @param key The key of the key-value to delete.
-     * @param options The options parameters.
-     */
-    deleteKeyValue(key, options) {
-        return this.sendOperationRequest({ key, options }, deleteKeyValueOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param key The key of the key-value to retrieve.
-     * @param options The options parameters.
-     */
-    checkKeyValue(key, options) {
-        return this.sendOperationRequest({ key, options }, checkKeyValueOperationSpec);
-    }
-    /**
-     * Gets a list of key-value snapshots.
-     * @param options The options parameters.
-     */
-    getSnapshots(options) {
-        return this.sendOperationRequest({ options }, getSnapshotsOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkSnapshots(options) {
-        return this.sendOperationRequest({ options }, checkSnapshotsOperationSpec);
-    }
-    /**
-     * Gets a single key-value snapshot.
-     * @param name The name of the key-value snapshot to retrieve.
-     * @param options The options parameters.
-     */
-    getSnapshot(name, options) {
-        return this.sendOperationRequest({ name, options }, getSnapshotOperationSpec);
-    }
-    /**
-     * Creates a key-value snapshot.
-     * @param name The name of the key-value snapshot to create.
-     * @param entity The key-value snapshot to create.
-     * @param options The options parameters.
-     */
-    async beginCreateSnapshot(name, entity, options) {
-        const directSendOperation = async (args, spec) => {
-            return this.sendOperationRequest(args, spec);
-        };
-        const sendOperationFn = async (args, spec) => {
-            var _a;
-            let currentRawResponse = undefined;
-            const providedCallback = (_a = args.options) === null || _a === void 0 ? void 0 : _a.onResponse;
-            const callback = (rawResponse, flatResponse) => {
-                currentRawResponse = rawResponse;
-                providedCallback === null || providedCallback === void 0 ? void 0 : providedCallback(rawResponse, flatResponse);
-            };
-            const updatedArgs = Object.assign(Object.assign({}, args), { options: Object.assign(Object.assign({}, args.options), { onResponse: callback }) });
-            const flatResponse = await directSendOperation(updatedArgs, spec);
-            return {
-                flatResponse,
-                rawResponse: {
-                    statusCode: currentRawResponse.status,
-                    body: currentRawResponse.parsedBody,
-                    headers: currentRawResponse.headers.toJSON()
-                }
-            };
-        };
-        const lro = createLroSpec({
-            sendOperationFn,
-            args: { name, entity, options },
-            spec: createSnapshotOperationSpec
-        });
-        const poller = await coreLro.createHttpPoller(lro, {
-            restoreFrom: options === null || options === void 0 ? void 0 : options.resumeFrom,
-            intervalInMs: options === null || options === void 0 ? void 0 : options.updateIntervalInMs
-        });
-        await poller.poll();
-        return poller;
-    }
-    /**
-     * Creates a key-value snapshot.
-     * @param name The name of the key-value snapshot to create.
-     * @param entity The key-value snapshot to create.
-     * @param options The options parameters.
-     */
-    async beginCreateSnapshotAndWait(name, entity, options) {
-        const poller = await this.beginCreateSnapshot(name, entity, options);
-        return poller.pollUntilDone();
-    }
-    /**
-     * Updates the state of a key-value snapshot.
-     * @param name The name of the key-value snapshot to update.
-     * @param entity The parameters used to update the snapshot.
-     * @param options The options parameters.
-     */
-    updateSnapshot(name, entity, options) {
-        return this.sendOperationRequest({ name, entity, options }, updateSnapshotOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param name The name of the key-value snapshot to check.
-     * @param options The options parameters.
-     */
-    checkSnapshot(name, options) {
-        return this.sendOperationRequest({ name, options }, checkSnapshotOperationSpec);
-    }
-    /**
-     * Gets a list of labels.
-     * @param options The options parameters.
-     */
-    getLabels(options) {
-        return this.sendOperationRequest({ options }, getLabelsOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkLabels(options) {
-        return this.sendOperationRequest({ options }, checkLabelsOperationSpec);
-    }
-    /**
-     * Locks a key-value.
-     * @param key The key of the key-value to lock.
-     * @param options The options parameters.
-     */
-    putLock(key, options) {
-        return this.sendOperationRequest({ key, options }, putLockOperationSpec);
-    }
-    /**
-     * Unlocks a key-value.
-     * @param key The key of the key-value to unlock.
-     * @param options The options parameters.
-     */
-    deleteLock(key, options) {
-        return this.sendOperationRequest({ key, options }, deleteLockOperationSpec);
-    }
-    /**
-     * Gets a list of key-value revisions.
-     * @param options The options parameters.
-     */
-    getRevisions(options) {
-        return this.sendOperationRequest({ options }, getRevisionsOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkRevisions(options) {
-        return this.sendOperationRequest({ options }, checkRevisionsOperationSpec);
-    }
-    /**
-     * Gets the state of a long running operation.
-     * @param snapshot Snapshot identifier for the long running operation.
-     * @param options The options parameters.
-     */
-    getOperationDetails(snapshot, options) {
-        return this.sendOperationRequest({ snapshot, options }, getOperationDetailsOperationSpec);
-    }
-    /**
-     * GetKeysNext
-     * @param nextLink The nextLink from the previous successful call to the GetKeys method.
-     * @param options The options parameters.
-     */
-    getKeysNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getKeysNextOperationSpec);
-    }
-    /**
-     * GetKeyValuesNext
-     * @param nextLink The nextLink from the previous successful call to the GetKeyValues method.
-     * @param options The options parameters.
-     */
-    getKeyValuesNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getKeyValuesNextOperationSpec);
-    }
-    /**
-     * GetSnapshotsNext
-     * @param nextLink The nextLink from the previous successful call to the GetSnapshots method.
-     * @param options The options parameters.
-     */
-    getSnapshotsNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getSnapshotsNextOperationSpec);
-    }
-    /**
-     * GetLabelsNext
-     * @param nextLink The nextLink from the previous successful call to the GetLabels method.
-     * @param options The options parameters.
-     */
-    getLabelsNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getLabelsNextOperationSpec);
-    }
-    /**
-     * GetRevisionsNext
-     * @param nextLink The nextLink from the previous successful call to the GetRevisions method.
-     * @param options The options parameters.
-     */
-    getRevisionsNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getRevisionsNextOperationSpec);
-    }
-}
-// Operation Specifications
-const serializer = coreClient__namespace.createSerializer(Mappers, /* isXml */ false);
-const getKeysOperationSpec = {
-    path: "/keys",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyListResult,
-            headersMapper: AppConfigurationGetKeysHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [name, apiVersion, after],
-    urlParameters: [endpoint],
-    headerParameters: [
-        accept,
-        syncToken,
-        acceptDatetime
-    ],
-    serializer
-};
-const checkKeysOperationSpec = {
-    path: "/keys",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckKeysHeaders
-        },
-        default: {}
-    },
-    queryParameters: [name, apiVersion, after],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken, acceptDatetime],
-    serializer
-};
-const getKeyValuesOperationSpec = {
-    path: "/kv",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValueListResult,
-            headersMapper: AppConfigurationGetKeyValuesHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [
-        apiVersion,
-        after,
-        key,
-        label,
-        select,
-        snapshot
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept1,
-        ifMatch,
-        ifNoneMatch
-    ],
-    serializer
-};
-const checkKeyValuesOperationSpec = {
-    path: "/kv",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckKeyValuesHeaders
-        },
-        default: {}
-    },
-    queryParameters: [
-        apiVersion,
-        after,
-        key,
-        label,
-        select,
-        snapshot
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        ifMatch,
-        ifNoneMatch
-    ],
-    serializer
-};
-const getKeyValueOperationSpec = {
-    path: "/kv/{key}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationGetKeyValueHeaders
-        },
-        304: {
-            headersMapper: AppConfigurationGetKeyValueHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [apiVersion, label, select],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        ifMatch,
-        ifNoneMatch,
-        accept2
-    ],
-    serializer
-};
-const putKeyValueOperationSpec = {
-    path: "/kv/{key}",
-    httpMethod: "PUT",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationPutKeyValueHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    requestBody: entity,
-    queryParameters: [apiVersion, label],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept2,
-        contentType
-    ],
-    mediaType: "json",
-    serializer
-};
-const deleteKeyValueOperationSpec = {
-    path: "/kv/{key}",
-    httpMethod: "DELETE",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationDeleteKeyValueHeaders
-        },
-        204: {
-            headersMapper: AppConfigurationDeleteKeyValueHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [apiVersion, label],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        accept2
-    ],
-    serializer
-};
-const checkKeyValueOperationSpec = {
-    path: "/kv/{key}",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckKeyValueHeaders
-        },
-        304: {
-            headersMapper: AppConfigurationCheckKeyValueHeaders
-        },
-        default: {}
-    },
-    queryParameters: [apiVersion, label, select],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        ifMatch,
-        ifNoneMatch
-    ],
-    serializer
-};
-const getSnapshotsOperationSpec = {
-    path: "/snapshots",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: SnapshotListResult,
-            headersMapper: AppConfigurationGetSnapshotsHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [
-        name,
-        apiVersion,
-        after,
-        select1,
-        status
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken, accept3],
-    serializer
-};
-const checkSnapshotsOperationSpec = {
-    path: "/snapshots",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckSnapshotsHeaders
-        },
-        default: {}
-    },
-    queryParameters: [apiVersion, after],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken],
-    serializer
-};
-const getSnapshotOperationSpec = {
-    path: "/snapshots/{name}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationGetSnapshotHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [apiVersion, select1],
-    urlParameters: [endpoint, name1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept4
-    ],
-    serializer
-};
-const createSnapshotOperationSpec = {
-    path: "/snapshots/{name}",
-    httpMethod: "PUT",
-    responses: {
-        200: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationCreateSnapshotHeaders
-        },
-        201: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationCreateSnapshotHeaders
-        },
-        202: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationCreateSnapshotHeaders
-        },
-        204: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationCreateSnapshotHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    requestBody: entity1,
-    queryParameters: [apiVersion],
-    urlParameters: [endpoint, name2],
-    headerParameters: [
-        syncToken,
-        accept4,
-        contentType1
-    ],
-    mediaType: "json",
-    serializer
-};
-const updateSnapshotOperationSpec = {
-    path: "/snapshots/{name}",
-    httpMethod: "PATCH",
-    responses: {
-        200: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationUpdateSnapshotHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    requestBody: entity2,
-    queryParameters: [apiVersion],
-    urlParameters: [endpoint, name1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept4,
-        contentType2
-    ],
-    mediaType: "json",
-    serializer
-};
-const checkSnapshotOperationSpec = {
-    path: "/snapshots/{name}",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckSnapshotHeaders
-        },
-        default: {}
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [endpoint, name1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch
-    ],
-    serializer
-};
-const getLabelsOperationSpec = {
-    path: "/labels",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: LabelListResult,
-            headersMapper: AppConfigurationGetLabelsHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [
-        name,
-        apiVersion,
-        after,
-        select2
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept5
-    ],
-    serializer
-};
-const checkLabelsOperationSpec = {
-    path: "/labels",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckLabelsHeaders
-        },
-        default: {}
-    },
-    queryParameters: [
-        name,
-        apiVersion,
-        after,
-        select2
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken, acceptDatetime],
-    serializer
-};
-const putLockOperationSpec = {
-    path: "/locks/{key}",
-    httpMethod: "PUT",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationPutLockHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [apiVersion, label],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept2
-    ],
-    serializer
-};
-const deleteLockOperationSpec = {
-    path: "/locks/{key}",
-    httpMethod: "DELETE",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationDeleteLockHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [apiVersion, label],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept2
-    ],
-    serializer
-};
-const getRevisionsOperationSpec = {
-    path: "/revisions",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValueListResult,
-            headersMapper: AppConfigurationGetRevisionsHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [
-        apiVersion,
-        after,
-        key,
-        label,
-        select
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept1
-    ],
-    serializer
-};
-const checkRevisionsOperationSpec = {
-    path: "/revisions",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckRevisionsHeaders
-        },
-        default: {}
-    },
-    queryParameters: [
-        apiVersion,
-        after,
-        key,
-        label,
-        select
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken, acceptDatetime],
-    serializer
-};
-const getOperationDetailsOperationSpec = {
-    path: "/operations",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: OperationDetails
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    queryParameters: [apiVersion, snapshot1],
-    urlParameters: [endpoint],
-    headerParameters: [accept6],
-    serializer
-};
-const getKeysNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyListResult,
-            headersMapper: AppConfigurationGetKeysNextHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [
-        accept,
-        syncToken,
-        acceptDatetime
-    ],
-    serializer
-};
-const getKeyValuesNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValueListResult,
-            headersMapper: AppConfigurationGetKeyValuesNextHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept1,
-        ifMatch,
-        ifNoneMatch
-    ],
-    serializer
-};
-const getSnapshotsNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: SnapshotListResult,
-            headersMapper: AppConfigurationGetSnapshotsNextHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [syncToken, accept3],
-    serializer
-};
-const getLabelsNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: LabelListResult,
-            headersMapper: AppConfigurationGetLabelsNextHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept5
-    ],
-    serializer
-};
-const getRevisionsNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValueListResult,
-            headersMapper: AppConfigurationGetRevisionsNextHeaders
-        },
-        default: {
-            bodyMapper: ErrorModel
-        }
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept1
-    ],
-    serializer
-};
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Create an HTTP pipeline policy to authenticate a request
- * using an `AzureKeyCredential` for AppConfig.
- */
-function appConfigKeyCredentialPolicy(credential, secret) {
-    return {
-        name: "AppConfigKeyCredentialPolicy",
-        async sendRequest(request, next) {
-            var _a;
-            const verb = request.method;
-            const utcNow = new Date().toUTCString();
-            logger.info("[appConfigKeyCredentialPolicy] Computing SHA-256 from the request body");
-            const contentHash = await coreUtil.computeSha256Hash(((_a = request.body) === null || _a === void 0 ? void 0 : _a.toString()) || "", "base64");
-            const signedHeaders = "x-ms-date;host;x-ms-content-sha256";
-            const url = new URL(request.url);
-            const query = url.search;
-            const urlPathAndQuery = query ? `${url.pathname}${query}` : url.pathname;
-            const stringToSign = `${verb}\n${urlPathAndQuery}\n${utcNow};${url.host};${contentHash}`;
-            logger.info("[appConfigKeyCredentialPolicy] Computing a SHA-256 Hmac signature");
-            const signature = await coreUtil.computeSha256Hmac(secret, stringToSign, "base64");
-            request.headers.set("x-ms-date", utcNow);
-            request.headers.set("x-ms-content-sha256", contentHash);
-            // Syntax for Authorization header
-            // Reference - https://docs.microsoft.com/en-us/azure/azure-app-configuration/rest-api-authentication-hmac#syntax
-            request.headers.set("Authorization", `HMAC-SHA256 Credential=${credential}&SignedHeaders=${signedHeaders}&Signature=${signature}`);
-            return next(request);
-        },
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * @internal
- */
-const packageVersion = "1.5.0";
-/**
- * @internal
- */
-const appConfigurationApiVersion = "2023-10-01";
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/** @internal */
-const tracingClient = coreTracing.createTracingClient({
-    namespace: "Microsoft.AppConfiguration",
-    packageName: "@azure/app-configuration",
-    packageVersion,
-});
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-const ConnectionStringRegex = /Endpoint=(.*);Id=(.*);Secret=(.*)/;
-const deserializationContentTypes = {
-    json: [
-        "application/vnd.microsoft.appconfig.kvset+json",
-        "application/vnd.microsoft.appconfig.kv+json",
-        "application/vnd.microsoft.appconfig.kvs+json",
-        "application/vnd.microsoft.appconfig.keyset+json",
-        "application/vnd.microsoft.appconfig.revs+json",
-        "application/vnd.microsoft.appconfig.snapshotset+json",
-        "application/vnd.microsoft.appconfig.snapshot+json",
-        "application/json",
-    ],
-};
-/**
- * Client for the Azure App Configuration service.
- */
-class AppConfigurationClient {
-    constructor(connectionStringOrEndpoint, tokenCredentialOrOptions, options) {
-        let appConfigOptions = {};
-        let appConfigCredential;
-        let appConfigEndpoint;
-        let authPolicy;
-        if (coreAuth.isTokenCredential(tokenCredentialOrOptions)) {
-            appConfigOptions = options || {};
-            appConfigCredential = tokenCredentialOrOptions;
-            appConfigEndpoint = connectionStringOrEndpoint.endsWith("/")
-                ? connectionStringOrEndpoint.slice(0, -1)
-                : connectionStringOrEndpoint;
-            authPolicy = coreRestPipeline.bearerTokenAuthenticationPolicy({
-                scopes: `${appConfigEndpoint}/.default`,
-                credential: appConfigCredential,
-            });
-        }
-        else {
-            appConfigOptions = tokenCredentialOrOptions || {};
-            const regexMatch = connectionStringOrEndpoint === null || connectionStringOrEndpoint === void 0 ? void 0 : connectionStringOrEndpoint.match(ConnectionStringRegex);
-            if (regexMatch) {
-                appConfigEndpoint = regexMatch[1];
-                authPolicy = appConfigKeyCredentialPolicy(regexMatch[2], regexMatch[3]);
-            }
-            else {
-                throw new Error(`Invalid connection string. Valid connection strings should match the regex '${ConnectionStringRegex.source}'.` +
-                    ` To mitigate the issue, please refer to the troubleshooting guide here at https://aka.ms/azsdk/js/app-configuration/troubleshoot.`);
-            }
-        }
-        const internalClientPipelineOptions = Object.assign(Object.assign({}, appConfigOptions), { loggingOptions: {
-                logger: logger.info,
-            }, deserializationOptions: {
-                expectedContentTypes: deserializationContentTypes,
-            } });
-        this._syncTokens = appConfigOptions.syncTokens || new SyncTokens();
-        this.client = new AppConfiguration(appConfigEndpoint, appConfigurationApiVersion, internalClientPipelineOptions);
-        this.client.pipeline.addPolicy(authPolicy, { phase: "Sign" });
-        this.client.pipeline.addPolicy(syncTokenPolicy(this._syncTokens), { afterPhase: "Retry" });
-    }
-    /**
-     * Add a setting into the Azure App Configuration service, failing if it
-     * already exists.
-     *
-     * Example usage:
-     * ```ts
-     * const result = await client.addConfigurationSetting({ key: "MyKey", label: "MyLabel", value: "MyValue" });
-     * ```
-     * @param configurationSetting - A configuration setting.
-     * @param options - Optional parameters for the request.
-     */
-    addConfigurationSetting(configurationSetting, options = {}) {
-        return tracingClient.withSpan("AppConfigurationClient.addConfigurationSetting", options, async (updatedOptions) => {
-            const keyValue = serializeAsConfigurationSettingParam(configurationSetting);
-            logger.info("[addConfigurationSetting] Creating a key value pair");
-            try {
-                const originalResponse = await this.client.putKeyValue(configurationSetting.key, Object.assign({ ifNoneMatch: "*", label: configurationSetting.label, entity: keyValue }, updatedOptions));
-                const response = transformKeyValueResponse(originalResponse);
-                assertResponse(response);
-                return response;
-            }
-            catch (error) {
-                const err = error;
-                // Service does not return an error message. Raise a 412 error similar to .NET
-                if (err.statusCode === 412) {
-                    err.message = `Status 412: Setting was already present`;
-                }
-                throw err;
-            }
-            throw new Error("Unreachable code");
-        });
-    }
-    /**
-     * Delete a setting from the Azure App Configuration service
-     *
-     * Example usage:
-     * ```ts
-     * const deletedSetting = await client.deleteConfigurationSetting({ key: "MyKey", label: "MyLabel" });
-     * ```
-     * @param id - The id of the configuration setting to delete.
-     * @param options - Optional parameters for the request (ex: etag, label)
-     */
-    deleteConfigurationSetting(id, options = {}) {
-        return tracingClient.withSpan("AppConfigurationClient.deleteConfigurationSetting", options, async (updatedOptions) => {
-            let status;
-            logger.info("[deleteConfigurationSetting] Deleting key value pair");
-            const originalResponse = await this.client.deleteKeyValue(id.key, Object.assign(Object.assign(Object.assign({ label: id.label }, updatedOptions), checkAndFormatIfAndIfNoneMatch(id, options)), { onResponse: (response) => {
-                    status = response.status;
-                } }));
-            const response = transformKeyValueResponseWithStatusCode(originalResponse, status);
-            assertResponse(response);
-            return response;
-        });
-    }
-    /**
-     * Gets a setting from the Azure App Configuration service.
-     *
-     * Example code:
-     * ```ts
-     * const setting = await client.getConfigurationSetting({ key: "MyKey", label: "MyLabel" });
-     * ```
-     * @param id - The id of the configuration setting to get.
-     * @param options - Optional parameters for the request.
-     */
-    async getConfigurationSetting(id, options = {}) {
-        return tracingClient.withSpan("AppConfigurationClient.getConfigurationSetting", options, async (updatedOptions) => {
-            let status;
-            logger.info("[getConfigurationSetting] Getting key value pair");
-            const originalResponse = await this.client.getKeyValue(id.key, Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), { label: id.label, select: formatFieldsForSelect(options.fields) }), formatAcceptDateTime(options)), checkAndFormatIfAndIfNoneMatch(id, options)), { onResponse: (response) => {
-                    status = response.status;
-                } }));
-            const response = transformKeyValueResponseWithStatusCode(originalResponse, status);
-            // 304 only comes back if the user has passed a conditional option in their
-            // request _and_ the remote object has the same etag as what the user passed.
-            if (response.statusCode === 304) {
-                // this is one of our few 'required' fields so we'll make sure it does get initialized
-                // with a value
-                response.key = id.key;
-                // and now we'll undefine all the other properties that are not HTTP related
-                makeConfigurationSettingEmpty(response);
-            }
-            assertResponse(response);
-            return response;
-        });
-    }
-    /**
-     * Lists settings from the Azure App Configuration service, optionally
-     * filtered by key names, labels and accept datetime.
-     *
-     * Example code:
-     * ```ts
-     * const allSettingsWithLabel = client.listConfigurationSettings({ labelFilter: "MyLabel" });
-     * ```
-     * @param options - Optional parameters for the request.
-     */
-    listConfigurationSettings(options = {}) {
-        const pagedResult = {
-            firstPageLink: undefined,
-            getPage: async (pageLink) => {
-                var _a;
-                const response = await this.sendConfigurationSettingsRequest(options, pageLink);
-                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? (_a = response.items) === null || _a === void 0 ? void 0 : _a.map(transformKeyValue) : [], continuationToken: response.nextLink
-                        ? extractAfterTokenFromNextLink(response.nextLink)
-                        : undefined });
-                return {
-                    page: currentResponse,
-                    nextPageLink: currentResponse.continuationToken,
-                };
-            },
-            toElements: (page) => page.items,
-        };
-        return corePaging.getPagedAsyncIterator(pagedResult);
-    }
-    /**
-     * Lists settings from the Azure App Configuration service for snapshots based on name, optionally
-     * filtered by key names, labels and accept datetime.
-     *
-     * Example code:
-     * ```ts
-     * const allSettingsWithLabel = client.listConfigurationSettingsForSnashots({ snapshotName: "MySnapshot" });
-     * ```
-     * @param options - Optional parameters for the request.
-     */
-    listConfigurationSettingsForSnapshot(snapshotName, options = {}) {
-        const pagedResult = {
-            firstPageLink: undefined,
-            getPage: async (pageLink) => {
-                var _a;
-                const response = await this.sendConfigurationSettingsRequest(Object.assign({ snapshotName }, options), pageLink);
-                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? (_a = response.items) === null || _a === void 0 ? void 0 : _a.map(transformKeyValue) : [], continuationToken: response.nextLink
-                        ? extractAfterTokenFromNextLink(response.nextLink)
-                        : undefined });
-                return {
-                    page: currentResponse,
-                    nextPageLink: currentResponse.continuationToken,
-                };
-            },
-            toElements: (page) => page.items,
-        };
-        return corePaging.getPagedAsyncIterator(pagedResult);
-    }
-    async sendConfigurationSettingsRequest(options = {}, pageLink) {
-        return tracingClient.withSpan("AppConfigurationClient.listConfigurationSettings", options, async (updatedOptions) => {
-            const response = await this.client.getKeyValues(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), formatAcceptDateTime(options)), formatConfigurationSettingsFiltersAndSelect(options)), { after: pageLink }));
-            return response;
-        });
-    }
-    /**
-     * Lists revisions of a set of keys, optionally filtered by key names,
-     * labels and accept datetime.
-     *
-     * Example code:
-     * ```ts
-     * const revisionsIterator = client.listRevisions({ keys: ["MyKey"] });
-     * ```
-     * @param options - Optional parameters for the request.
-     */
-    listRevisions(options) {
-        const pagedResult = {
-            firstPageLink: undefined,
-            getPage: async (pageLink) => {
-                const response = await this.sendRevisionsRequest(options, pageLink);
-                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? response.items.map(transformKeyValue) : [], continuationToken: response.nextLink
-                        ? extractAfterTokenFromNextLink(response.nextLink)
-                        : undefined });
-                // let itemList = currentResponse.items;
-                return {
-                    page: currentResponse,
-                    nextPageLink: currentResponse.continuationToken,
-                };
-            },
-            toElements: (page) => page.items,
-        };
-        return corePaging.getPagedAsyncIterator(pagedResult);
-    }
-    async sendRevisionsRequest(options = {}, pageLink) {
-        return tracingClient.withSpan("AppConfigurationClient.listRevisions", options, async (updatedOptions) => {
-            const response = await this.client.getRevisions(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), formatAcceptDateTime(options)), formatFiltersAndSelect(updatedOptions)), { after: pageLink }));
-            return response;
-        });
-    }
-    /**
-     * Sets the value of a key in the Azure App Configuration service, allowing for an optional etag.
-     * @param key - The name of the key.
-     * @param configurationSetting - A configuration value.
-     * @param options - Optional parameters for the request.
-     *
-     * Example code:
-     * ```ts
-     * await client.setConfigurationSetting({ key: "MyKey", value: "MyValue" });
-     * ```
-     */
-    async setConfigurationSetting(configurationSetting, options = {}) {
-        return tracingClient.withSpan("AppConfigurationClient.setConfigurationSetting", options, async (updatedOptions) => {
-            const keyValue = serializeAsConfigurationSettingParam(configurationSetting);
-            logger.info("[setConfigurationSetting] Setting new key value");
-            const response = transformKeyValueResponse(await this.client.putKeyValue(configurationSetting.key, Object.assign(Object.assign(Object.assign({}, updatedOptions), { label: configurationSetting.label, entity: keyValue }), checkAndFormatIfAndIfNoneMatch(configurationSetting, options))));
-            assertResponse(response);
-            return response;
-        });
-    }
-    /**
-     * Sets or clears a key's read-only status.
-     * @param id - The id of the configuration setting to modify.
-     */
-    async setReadOnly(id, readOnly, options = {}) {
-        return tracingClient.withSpan("AppConfigurationClient.setReadOnly", options, async (newOptions) => {
-            let response;
-            if (readOnly) {
-                logger.info("[setReadOnly] Setting read-only status to ${readOnly}");
-                response = await this.client.putLock(id.key, Object.assign(Object.assign(Object.assign({}, newOptions), { label: id.label }), checkAndFormatIfAndIfNoneMatch(id, options)));
-            }
-            else {
-                logger.info("[setReadOnly] Deleting read-only lock");
-                response = await this.client.deleteLock(id.key, Object.assign(Object.assign(Object.assign({}, newOptions), { label: id.label }), checkAndFormatIfAndIfNoneMatch(id, options)));
-            }
-            response = transformKeyValueResponse(response);
-            assertResponse(response);
-            return response;
-        });
-    }
-    /**
-     * Adds an external synchronization token to ensure service requests receive up-to-date values.
-     *
-     * @param syncToken - The synchronization token value.
-     */
-    updateSyncToken(syncToken) {
-        this._syncTokens.addSyncTokenFromHeaderValue(syncToken);
-    }
-    /**
-     * Begins creating a snapshot for Azure App Configuration service, fails if it
-     * already exists.
-     */
-    beginCreateSnapshot(snapshot, options = {}) {
-        return tracingClient.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshot`, options, (updatedOptions) => this.client.beginCreateSnapshot(snapshot.name, snapshot, Object.assign({}, updatedOptions)));
-    }
-    /**
-     * Begins creating a snapshot for Azure App Configuration service, waits until it is done,
-     * fails if it already exists.
-     */
-    beginCreateSnapshotAndWait(snapshot, options = {}) {
-        return tracingClient.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshotAndWait`, options, (updatedOptions) => this.client.beginCreateSnapshotAndWait(snapshot.name, snapshot, Object.assign({}, updatedOptions)));
-    }
-    /**
-     * Get a snapshot from Azure App Configuration service
-     *
-     * Example usage:
-     * ```ts
-     * const result = await client.getSnapshot("MySnapshot");
-     * ```
-     * @param name - The name of the snapshot.
-     * @param options - Optional parameters for the request.
-     */
-    getSnapshot(name, options = {}) {
-        return tracingClient.withSpan("AppConfigurationClient.getSnapshot", options, async (updatedOptions) => {
-            logger.info("[getSnapshot] Get a snapshot");
-            const originalResponse = await this.client.getSnapshot(name, Object.assign({}, updatedOptions));
-            const response = transformSnapshotResponse(originalResponse);
-            assertResponse(response);
-            return response;
-        });
-    }
-    /**
-     * Recover an archived snapshot back to ready status
-     *
-     * Example usage:
-     * ```ts
-     * const result = await client.recoverSnapshot("MySnapshot");
-     * ```
-     * @param name - The name of the snapshot.
-     * @param options - Optional parameters for the request.
-     */
-    recoverSnapshot(name, options = {}) {
-        return tracingClient.withSpan("AppConfigurationClient.recoverSnapshot", options, async (updatedOptions) => {
-            logger.info("[recoverSnapshot] Recover a snapshot");
-            const originalResponse = await this.client.updateSnapshot(name, { status: "ready" }, Object.assign(Object.assign({}, updatedOptions), checkAndFormatIfAndIfNoneMatch({ etag: options.etag }, Object.assign({ onlyIfUnchanged: true }, options))));
-            const response = transformSnapshotResponse(originalResponse);
-            assertResponse(response);
-            return response;
-        });
-    }
-    /**
-     * Archive a ready snapshot
-     *
-     * Example usage:
-     * ```ts
-     * const result = await client.archiveSnapshot({name: "MySnapshot"});
-     * ```
-     * @param name - The name of the snapshot.
-     * @param options - Optional parameters for the request.
-     */
-    archiveSnapshot(name, options = {}) {
-        return tracingClient.withSpan("AppConfigurationClient.archiveSnapshot", options, async (updatedOptions) => {
-            logger.info("[archiveSnapshot] Archive a snapshot");
-            const originalResponse = await this.client.updateSnapshot(name, { status: "archived" }, Object.assign(Object.assign({}, updatedOptions), checkAndFormatIfAndIfNoneMatch({ etag: options.etag }, Object.assign({ onlyIfUnchanged: true }, options))));
-            const response = transformSnapshotResponse(originalResponse);
-            assertResponse(response);
-            return response;
-        });
-    }
-    /**
-     * List all snapshots from Azure App Configuration service
-     *
-     * Example usage:
-     * ```ts
-     * const result = await client.listSnapshots();
-     * ```
-     * @param options - Optional parameters for the request.
-     */
-    listSnapshots(options = {}) {
-        const pagedResult = {
-            firstPageLink: undefined,
-            getPage: async (pageLink) => {
-                const response = await this.sendSnapShotsRequest(options, pageLink);
-                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? response.items : [], continuationToken: response.nextLink
-                        ? extractAfterTokenFromNextLink(response.nextLink)
-                        : undefined });
-                return {
-                    page: currentResponse,
-                    nextPageLink: currentResponse.continuationToken,
-                };
-            },
-            toElements: (page) => page.items,
-        };
-        return corePaging.getPagedAsyncIterator(pagedResult);
-    }
-    async sendSnapShotsRequest(options = {}, pageLink) {
-        return tracingClient.withSpan("AppConfigurationClient.listSnapshots", options, async (updatedOptions) => {
-            const response = await this.client.getSnapshots(Object.assign(Object.assign(Object.assign({}, updatedOptions), formatSnapshotFiltersAndSelect(options)), { after: pageLink }));
-            return response;
-        });
-    }
-}
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-/** Known values of {@link ApiVersion20231001} that the service accepts. */
-var KnownApiVersion20231001;
-(function (KnownApiVersion20231001) {
-    /** Api Version '2023-10-01' */
-    KnownApiVersion20231001["TwoThousandTwentyThree1001"] = "2023-10-01";
-})(KnownApiVersion20231001 || (KnownApiVersion20231001 = {}));
-/** Known values of {@link KeyValueFields} that the service accepts. */
-var KnownKeyValueFields;
-(function (KnownKeyValueFields) {
-    /** Key */
-    KnownKeyValueFields["Key"] = "key";
-    /** Label */
-    KnownKeyValueFields["Label"] = "label";
-    /** ContentType */
-    KnownKeyValueFields["ContentType"] = "content_type";
-    /** Value */
-    KnownKeyValueFields["Value"] = "value";
-    /** LastModified */
-    KnownKeyValueFields["LastModified"] = "last_modified";
-    /** Tags */
-    KnownKeyValueFields["Tags"] = "tags";
-    /** Locked */
-    KnownKeyValueFields["Locked"] = "locked";
-    /** Etag */
-    KnownKeyValueFields["Etag"] = "etag";
-})(KnownKeyValueFields || (KnownKeyValueFields = {}));
-/** Known values of {@link SnapshotFields} that the service accepts. */
-var KnownSnapshotFields;
-(function (KnownSnapshotFields) {
-    /** Name */
-    KnownSnapshotFields["Name"] = "name";
-    /** Status */
-    KnownSnapshotFields["Status"] = "status";
-    /** Filters */
-    KnownSnapshotFields["Filters"] = "filters";
-    /** CompositionType */
-    KnownSnapshotFields["CompositionType"] = "composition_type";
-    /** Created */
-    KnownSnapshotFields["Created"] = "created";
-    /** Expires */
-    KnownSnapshotFields["Expires"] = "expires";
-    /** RetentionPeriod */
-    KnownSnapshotFields["RetentionPeriod"] = "retention_period";
-    /** Size */
-    KnownSnapshotFields["Size"] = "size";
-    /** ItemsCount */
-    KnownSnapshotFields["ItemsCount"] = "items_count";
-    /** Tags */
-    KnownSnapshotFields["Tags"] = "tags";
-    /** Etag */
-    KnownSnapshotFields["Etag"] = "etag";
-})(KnownSnapshotFields || (KnownSnapshotFields = {}));
-/** Known values of {@link SnapshotStatus} that the service accepts. */
-var KnownSnapshotStatus;
-(function (KnownSnapshotStatus) {
-    /** Provisioning */
-    KnownSnapshotStatus["Provisioning"] = "provisioning";
-    /** Ready */
-    KnownSnapshotStatus["Ready"] = "ready";
-    /** Archived */
-    KnownSnapshotStatus["Archived"] = "archived";
-    /** Failed */
-    KnownSnapshotStatus["Failed"] = "failed";
-})(KnownSnapshotStatus || (KnownSnapshotStatus = {}));
-/** Known values of {@link ConfigurationSnapshotStatus} that the service accepts. */
-exports.KnownConfigurationSnapshotStatus = void 0;
-(function (KnownConfigurationSnapshotStatus) {
-    /** Provisioning */
-    KnownConfigurationSnapshotStatus["Provisioning"] = "provisioning";
-    /** Ready */
-    KnownConfigurationSnapshotStatus["Ready"] = "ready";
-    /** Archived */
-    KnownConfigurationSnapshotStatus["Archived"] = "archived";
-    /** Failed */
-    KnownConfigurationSnapshotStatus["Failed"] = "failed";
-})(exports.KnownConfigurationSnapshotStatus || (exports.KnownConfigurationSnapshotStatus = {}));
-/** Known values of {@link SnapshotComposition} that the service accepts. */
-exports.KnownSnapshotComposition = void 0;
-(function (KnownSnapshotComposition) {
-    /** Key */
-    KnownSnapshotComposition["Key"] = "key";
-    /** KeyLabel */
-    KnownSnapshotComposition["KeyLabel"] = "key_label";
-})(exports.KnownSnapshotComposition || (exports.KnownSnapshotComposition = {}));
-/** Known values of {@link LabelFields} that the service accepts. */
-var KnownLabelFields;
-(function (KnownLabelFields) {
-    /** Name */
-    KnownLabelFields["Name"] = "name";
-})(KnownLabelFields || (KnownLabelFields = {}));
-
-exports.AppConfigurationClient = AppConfigurationClient;
-exports.featureFlagContentType = featureFlagContentType;
-exports.featureFlagPrefix = featureFlagPrefix;
-exports.isFeatureFlag = isFeatureFlag;
-exports.isSecretReference = isSecretReference;
-exports.parseFeatureFlag = parseFeatureFlag;
-exports.parseSecretReference = parseSecretReference;
-exports.secretReferenceContentType = secretReferenceContentType;
-//# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
 /***/ 2350:
 /***/ ((module) => {
 
-/*! *****************************************************************************
+/******************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -7254,12 +3891,16 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-/* global global, define, System, Reflect, Promise */
+/* global global, define, Symbol, Reflect, Promise, SuppressedError, Iterator */
 var __extends;
 var __assign;
 var __rest;
 var __decorate;
 var __param;
+var __esDecorate;
+var __runInitializers;
+var __propKey;
+var __setFunctionName;
 var __metadata;
 var __awaiter;
 var __generator;
@@ -7278,7 +3919,11 @@ var __importStar;
 var __importDefault;
 var __classPrivateFieldGet;
 var __classPrivateFieldSet;
+var __classPrivateFieldIn;
 var __createBinding;
+var __addDisposableResource;
+var __disposeResources;
+var __rewriteRelativeImportExtension;
 (function (factory) {
     var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
     if (typeof define === "function" && define.amd) {
@@ -7346,6 +3991,51 @@ var __createBinding;
         return function (target, key) { decorator(target, key, paramIndex); }
     };
 
+    __esDecorate = function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+        function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+        var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+        var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+        var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+        var _, done = false;
+        for (var i = decorators.length - 1; i >= 0; i--) {
+            var context = {};
+            for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+            for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+            context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+            var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+            if (kind === "accessor") {
+                if (result === void 0) continue;
+                if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+                if (_ = accept(result.get)) descriptor.get = _;
+                if (_ = accept(result.set)) descriptor.set = _;
+                if (_ = accept(result.init)) initializers.unshift(_);
+            }
+            else if (_ = accept(result)) {
+                if (kind === "field") initializers.unshift(_);
+                else descriptor[key] = _;
+            }
+        }
+        if (target) Object.defineProperty(target, contextIn.name, descriptor);
+        done = true;
+    };
+
+    __runInitializers = function (thisArg, initializers, value) {
+        var useValue = arguments.length > 2;
+        for (var i = 0; i < initializers.length; i++) {
+            value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+        }
+        return useValue ? value : void 0;
+    };
+
+    __propKey = function (x) {
+        return typeof x === "symbol" ? x : "".concat(x);
+    };
+
+    __setFunctionName = function (f, name, prefix) {
+        if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+    };
+
     __metadata = function (metadataKey, metadataValue) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
     };
@@ -7361,12 +4051,12 @@ var __createBinding;
     };
 
     __generator = function (thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+        return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
         function verb(n) { return function (v) { return step([n, v]); }; }
         function step(op) {
             if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
+            while (g && (g = 0, op[0] && (_ = 0)), _) try {
                 if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
                 if (y = 0, t) op = [op[0] & 2, t.value];
                 switch (op[0]) {
@@ -7394,7 +4084,11 @@ var __createBinding;
 
     __createBinding = Object.create ? (function(o, m, k, k2) {
         if (k2 === undefined) k2 = k;
-        Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+            desc = { enumerable: true, get: function() { return m[k]; } };
+        }
+        Object.defineProperty(o, k2, desc);
     }) : (function(o, m, k, k2) {
         if (k2 === undefined) k2 = k;
         o[k2] = m[k];
@@ -7462,10 +4156,11 @@ var __createBinding;
     __asyncGenerator = function (thisArg, _arguments, generator) {
         if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
         var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+        return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+        function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
+        function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
         function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);  }
+        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
         function fulfill(value) { resume("next", value); }
         function reject(value) { resume("throw", value); }
         function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
@@ -7474,7 +4169,7 @@ var __createBinding;
     __asyncDelegator = function (o) {
         var i, p;
         return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; } : f; }
+        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
     };
 
     __asyncValues = function (o) {
@@ -7496,10 +4191,19 @@ var __createBinding;
         o["default"] = v;
     };
 
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+
     __importStar = function (mod) {
         if (mod && mod.__esModule) return mod;
         var result = {};
-        if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
         __setModuleDefault(result, mod);
         return result;
     };
@@ -7521,11 +4225,83 @@ var __createBinding;
         return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
     };
 
+    __classPrivateFieldIn = function (state, receiver) {
+        if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function")) throw new TypeError("Cannot use 'in' operator on non-object");
+        return typeof state === "function" ? receiver === state : state.has(receiver);
+    };
+
+    __addDisposableResource = function (env, value, async) {
+        if (value !== null && value !== void 0) {
+            if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
+            var dispose, inner;
+            if (async) {
+                if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
+                dispose = value[Symbol.asyncDispose];
+            }
+            if (dispose === void 0) {
+                if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
+                dispose = value[Symbol.dispose];
+                if (async) inner = dispose;
+            }
+            if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+            if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
+            env.stack.push({ value: value, dispose: dispose, async: async });
+        }
+        else if (async) {
+            env.stack.push({ async: true });
+        }
+        return value;
+    };
+
+    var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+        var e = new Error(message);
+        return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+    };
+
+    __disposeResources = function (env) {
+        function fail(e) {
+            env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
+            env.hasError = true;
+        }
+        var r, s = 0;
+        function next() {
+            while (r = env.stack.pop()) {
+                try {
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
+                }
+                catch (e) {
+                    fail(e);
+                }
+            }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
+            if (env.hasError) throw env.error;
+        }
+        return next();
+    };
+
+    __rewriteRelativeImportExtension = function (path, preserveJsx) {
+        if (typeof path === "string" && /^\.\.?\//.test(path)) {
+            return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function (m, tsx, d, ext, cm) {
+                return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : (d + ext + "." + cm.toLowerCase() + "js");
+            });
+        }
+        return path;
+    };
+
     exporter("__extends", __extends);
     exporter("__assign", __assign);
     exporter("__rest", __rest);
     exporter("__decorate", __decorate);
     exporter("__param", __param);
+    exporter("__esDecorate", __esDecorate);
+    exporter("__runInitializers", __runInitializers);
+    exporter("__propKey", __propKey);
+    exporter("__setFunctionName", __setFunctionName);
     exporter("__metadata", __metadata);
     exporter("__awaiter", __awaiter);
     exporter("__generator", __generator);
@@ -7545,7 +4321,13 @@ var __createBinding;
     exporter("__importDefault", __importDefault);
     exporter("__classPrivateFieldGet", __classPrivateFieldGet);
     exporter("__classPrivateFieldSet", __classPrivateFieldSet);
+    exporter("__classPrivateFieldIn", __classPrivateFieldIn);
+    exporter("__addDisposableResource", __addDisposableResource);
+    exporter("__disposeResources", __disposeResources);
+    exporter("__rewriteRelativeImportExtension", __rewriteRelativeImportExtension);
 });
+
+0 && (0);
 
 
 /***/ }),
@@ -24537,7 +21319,7 @@ DelayedStream.prototype._checkIfMaxDataSizeExceeded = function() {
 
 var Buffer = (__nccwpck_require__(1867).Buffer);
 
-var getParamBytesForAlg = __nccwpck_require__(528);
+var getParamBytesForAlg = __nccwpck_require__(8417);
 
 var MAX_OCTET = 0x80,
 	CLASS_UNIVERSAL = 0,
@@ -24724,7 +21506,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 528:
+/***/ 8417:
 /***/ ((module) => {
 
 "use strict";
@@ -33565,6 +30347,3678 @@ module.exports = require("util");
 
 "use strict";
 module.exports = require("zlib");
+
+/***/ }),
+
+/***/ 528:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.appConfigKeyCredentialPolicy = appConfigKeyCredentialPolicy;
+const core_util_1 = __nccwpck_require__(1333);
+const logger_js_1 = __nccwpck_require__(6226);
+/**
+ * Create an HTTP pipeline policy to authenticate a request
+ * using an `AzureKeyCredential` for AppConfig.
+ */
+function appConfigKeyCredentialPolicy(credential, secret) {
+    return {
+        name: "AppConfigKeyCredentialPolicy",
+        async sendRequest(request, next) {
+            var _a;
+            const verb = request.method;
+            const utcNow = new Date().toUTCString();
+            logger_js_1.logger.info("[appConfigKeyCredentialPolicy] Computing SHA-256 from the request body");
+            const contentHash = await (0, core_util_1.computeSha256Hash)(((_a = request.body) === null || _a === void 0 ? void 0 : _a.toString()) || "", "base64");
+            const signedHeaders = "x-ms-date;host;x-ms-content-sha256";
+            const url = new URL(request.url);
+            const query = url.search;
+            const urlPathAndQuery = query ? `${url.pathname}${query}` : url.pathname;
+            const stringToSign = `${verb}\n${urlPathAndQuery}\n${utcNow};${url.host};${contentHash}`;
+            logger_js_1.logger.info("[appConfigKeyCredentialPolicy] Computing a SHA-256 Hmac signature");
+            const signature = await (0, core_util_1.computeSha256Hmac)(secret, stringToSign, "base64");
+            request.headers.set("x-ms-date", utcNow);
+            request.headers.set("x-ms-content-sha256", contentHash);
+            // Syntax for Authorization header
+            // Reference - https://docs.microsoft.com/en-us/azure/azure-app-configuration/rest-api-authentication-hmac#syntax
+            request.headers.set("Authorization", `HMAC-SHA256 Credential=${credential}&SignedHeaders=${signedHeaders}&Signature=${signature}`);
+            return next(request);
+        },
+    };
+}
+//# sourceMappingURL=appConfigCredential.js.map
+
+/***/ }),
+
+/***/ 113:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppConfigurationClient = void 0;
+const core_paging_1 = __nccwpck_require__(4559);
+const core_rest_pipeline_1 = __nccwpck_require__(8121);
+const synctokenpolicy_js_1 = __nccwpck_require__(1594);
+const core_auth_1 = __nccwpck_require__(9645);
+const helpers_js_1 = __nccwpck_require__(1232);
+const appConfiguration_js_1 = __nccwpck_require__(3205);
+const appConfigCredential_js_1 = __nccwpck_require__(528);
+const tracing_js_1 = __nccwpck_require__(5327);
+const logger_js_1 = __nccwpck_require__(6226);
+const constants_js_1 = __nccwpck_require__(1820);
+const ConnectionStringRegex = /Endpoint=(.*);Id=(.*);Secret=(.*)/;
+const deserializationContentTypes = {
+    json: [
+        "application/vnd.microsoft.appconfig.kvset+json",
+        "application/vnd.microsoft.appconfig.kv+json",
+        "application/vnd.microsoft.appconfig.kvs+json",
+        "application/vnd.microsoft.appconfig.keyset+json",
+        "application/vnd.microsoft.appconfig.revs+json",
+        "application/vnd.microsoft.appconfig.snapshotset+json",
+        "application/vnd.microsoft.appconfig.snapshot+json",
+        "application/vnd.microsoft.appconfig.labelset+json",
+        "application/json",
+    ],
+};
+/**
+ * Client for the Azure App Configuration service.
+ */
+class AppConfigurationClient {
+    constructor(connectionStringOrEndpoint, tokenCredentialOrOptions, options) {
+        var _a;
+        let appConfigOptions = {};
+        let appConfigCredential;
+        let appConfigEndpoint;
+        let authPolicy;
+        if ((0, core_auth_1.isTokenCredential)(tokenCredentialOrOptions)) {
+            appConfigOptions = options || {};
+            appConfigCredential = tokenCredentialOrOptions;
+            appConfigEndpoint = connectionStringOrEndpoint.endsWith("/")
+                ? connectionStringOrEndpoint.slice(0, -1)
+                : connectionStringOrEndpoint;
+            authPolicy = (0, core_rest_pipeline_1.bearerTokenAuthenticationPolicy)({
+                scopes: `${appConfigEndpoint}/.default`,
+                credential: appConfigCredential,
+            });
+        }
+        else {
+            appConfigOptions = tokenCredentialOrOptions || {};
+            const regexMatch = connectionStringOrEndpoint === null || connectionStringOrEndpoint === void 0 ? void 0 : connectionStringOrEndpoint.match(ConnectionStringRegex);
+            if (regexMatch) {
+                appConfigEndpoint = regexMatch[1];
+                authPolicy = (0, appConfigCredential_js_1.appConfigKeyCredentialPolicy)(regexMatch[2], regexMatch[3]);
+            }
+            else {
+                throw new Error(`Invalid connection string. Valid connection strings should match the regex '${ConnectionStringRegex.source}'.` +
+                    ` To mitigate the issue, please refer to the troubleshooting guide here at https://aka.ms/azsdk/js/app-configuration/troubleshoot.`);
+            }
+        }
+        const internalClientPipelineOptions = Object.assign(Object.assign({}, appConfigOptions), { loggingOptions: {
+                logger: logger_js_1.logger.info,
+            }, deserializationOptions: {
+                expectedContentTypes: deserializationContentTypes,
+            } });
+        this._syncTokens = appConfigOptions.syncTokens || new synctokenpolicy_js_1.SyncTokens();
+        this.client = new appConfiguration_js_1.AppConfiguration(appConfigEndpoint, (_a = options === null || options === void 0 ? void 0 : options.apiVersion) !== null && _a !== void 0 ? _a : constants_js_1.appConfigurationApiVersion, internalClientPipelineOptions);
+        this.client.pipeline.addPolicy(authPolicy, { phase: "Sign" });
+        this.client.pipeline.addPolicy((0, synctokenpolicy_js_1.syncTokenPolicy)(this._syncTokens), { afterPhase: "Retry" });
+    }
+    /**
+     * Add a setting into the Azure App Configuration service, failing if it
+     * already exists.
+     *
+     * Example usage:
+     * ```ts
+     * const result = await client.addConfigurationSetting({ key: "MyKey", label: "MyLabel", value: "MyValue" });
+     * ```
+     * @param configurationSetting - A configuration setting.
+     * @param options - Optional parameters for the request.
+     */
+    addConfigurationSetting(configurationSetting, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.addConfigurationSetting", options, async (updatedOptions) => {
+            const keyValue = (0, helpers_js_1.serializeAsConfigurationSettingParam)(configurationSetting);
+            logger_js_1.logger.info("[addConfigurationSetting] Creating a key value pair");
+            try {
+                const originalResponse = await this.client.putKeyValue(configurationSetting.key, Object.assign({ ifNoneMatch: "*", label: configurationSetting.label, entity: keyValue }, updatedOptions));
+                const response = (0, helpers_js_1.transformKeyValueResponse)(originalResponse);
+                (0, helpers_js_1.assertResponse)(response);
+                return response;
+            }
+            catch (error) {
+                const err = error;
+                // Service does not return an error message. Raise a 412 error similar to .NET
+                if (err.statusCode === 412) {
+                    err.message = `Status 412: Setting was already present`;
+                }
+                throw err;
+            }
+            throw new Error("Unreachable code");
+        });
+    }
+    /**
+     * Delete a setting from the Azure App Configuration service
+     *
+     * Example usage:
+     * ```ts
+     * const deletedSetting = await client.deleteConfigurationSetting({ key: "MyKey", label: "MyLabel" });
+     * ```
+     * @param id - The id of the configuration setting to delete.
+     * @param options - Optional parameters for the request (ex: etag, label)
+     */
+    deleteConfigurationSetting(id, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.deleteConfigurationSetting", options, async (updatedOptions) => {
+            let status;
+            logger_js_1.logger.info("[deleteConfigurationSetting] Deleting key value pair");
+            const originalResponse = await this.client.deleteKeyValue(id.key, Object.assign(Object.assign(Object.assign({ label: id.label }, updatedOptions), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options)), { onResponse: (response) => {
+                    status = response.status;
+                } }));
+            const response = (0, helpers_js_1.transformKeyValueResponseWithStatusCode)(originalResponse, status);
+            (0, helpers_js_1.assertResponse)(response);
+            return response;
+        });
+    }
+    /**
+     * Gets a setting from the Azure App Configuration service.
+     *
+     * Example code:
+     * ```ts
+     * const setting = await client.getConfigurationSetting({ key: "MyKey", label: "MyLabel" });
+     * ```
+     * @param id - The id of the configuration setting to get.
+     * @param options - Optional parameters for the request.
+     */
+    async getConfigurationSetting(id, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.getConfigurationSetting", options, async (updatedOptions) => {
+            let status;
+            logger_js_1.logger.info("[getConfigurationSetting] Getting key value pair");
+            const originalResponse = await this.client.getKeyValue(id.key, Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), { label: id.label, select: (0, helpers_js_1.formatFieldsForSelect)(options.fields) }), (0, helpers_js_1.formatAcceptDateTime)(options)), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options)), { onResponse: (response) => {
+                    status = response.status;
+                } }));
+            const response = (0, helpers_js_1.transformKeyValueResponseWithStatusCode)(originalResponse, status);
+            // 304 only comes back if the user has passed a conditional option in their
+            // request _and_ the remote object has the same etag as what the user passed.
+            if (response.statusCode === 304) {
+                // this is one of our few 'required' fields so we'll make sure it does get initialized
+                // with a value
+                response.key = id.key;
+                // and now we'll undefine all the other properties that are not HTTP related
+                (0, helpers_js_1.makeConfigurationSettingEmpty)(response);
+            }
+            (0, helpers_js_1.assertResponse)(response);
+            return response;
+        });
+    }
+    /**
+     * Lists settings from the Azure App Configuration service, optionally
+     * filtered by key names, labels and accept datetime.
+     *
+     * Example code:
+     * ```ts
+     * const allSettingsWithLabel = client.listConfigurationSettings({ labelFilter: "MyLabel" });
+     * ```
+     * @param options - Optional parameters for the request.
+     */
+    listConfigurationSettings(options = {}) {
+        const pageEtags = options.pageEtags ? [...options.pageEtags] : undefined;
+        delete options.pageEtags;
+        const pagedResult = {
+            firstPageLink: undefined,
+            getPage: async (pageLink) => {
+                var _a, _b, _c;
+                const etag = pageEtags === null || pageEtags === void 0 ? void 0 : pageEtags.shift();
+                try {
+                    const response = await this.sendConfigurationSettingsRequest(Object.assign(Object.assign({}, options), { etag }), pageLink);
+                    const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? (_a = response.items) === null || _a === void 0 ? void 0 : _a.map(helpers_js_1.transformKeyValue) : [], continuationToken: response.nextLink
+                            ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
+                            : undefined, _response: response._response });
+                    return {
+                        page: currentResponse,
+                        nextPageLink: currentResponse.continuationToken,
+                    };
+                }
+                catch (error) {
+                    const err = error;
+                    const link = (_c = (_b = err.response) === null || _b === void 0 ? void 0 : _b.headers) === null || _c === void 0 ? void 0 : _c.get("link");
+                    const continuationToken = link ? (0, helpers_js_1.extractAfterTokenFromLinkHeader)(link) : undefined;
+                    if (err.statusCode === 304) {
+                        err.message = `Status 304: No updates for this page`;
+                        logger_js_1.logger.info(`[listConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
+                        return {
+                            page: {
+                                items: [],
+                                etag,
+                                _response: Object.assign(Object.assign({}, err.response), { status: 304 }),
+                            },
+                            nextPageLink: continuationToken,
+                        };
+                    }
+                    throw err;
+                }
+            },
+            toElements: (page) => page.items,
+        };
+        return (0, core_paging_1.getPagedAsyncIterator)(pagedResult);
+    }
+    /**
+     * Lists settings from the Azure App Configuration service for snapshots based on name, optionally
+     * filtered by key names, labels and accept datetime.
+     *
+     * Example code:
+     * ```ts
+     * const allSettingsWithLabel = client.listConfigurationSettingsForSnashots({ snapshotName: "MySnapshot" });
+     * ```
+     * @param options - Optional parameters for the request.
+     */
+    listConfigurationSettingsForSnapshot(snapshotName, options = {}) {
+        const pagedResult = {
+            firstPageLink: undefined,
+            getPage: async (pageLink) => {
+                var _a;
+                const response = await this.sendConfigurationSettingsRequest(Object.assign({ snapshotName }, options), pageLink);
+                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? (_a = response.items) === null || _a === void 0 ? void 0 : _a.map(helpers_js_1.transformKeyValue) : [], continuationToken: response.nextLink
+                        ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
+                        : undefined });
+                return {
+                    page: currentResponse,
+                    nextPageLink: currentResponse.continuationToken,
+                };
+            },
+            toElements: (page) => page.items,
+        };
+        return (0, core_paging_1.getPagedAsyncIterator)(pagedResult);
+    }
+    /**
+     * Get a list of labels from the Azure App Configuration service
+     *
+     * Example code:
+     * ```ts
+     * const allSettingsWithLabel = client.listLabels({ nameFilter: "prod*" });
+     * ```
+     * @param options - Optional parameters for the request.
+     */
+    listLabels(options = {}) {
+        const pagedResult = {
+            firstPageLink: undefined,
+            getPage: async (pageLink) => {
+                var _a;
+                const response = await this.sendLabelsRequest(options, pageLink);
+                const currentResponse = Object.assign(Object.assign({}, response), { items: (_a = response.items) !== null && _a !== void 0 ? _a : [], continuationToken: response.nextLink
+                        ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
+                        : undefined, _response: response._response });
+                return {
+                    page: currentResponse,
+                    nextPageLink: currentResponse.continuationToken,
+                };
+            },
+            toElements: (page) => page.items,
+        };
+        return (0, core_paging_1.getPagedAsyncIterator)(pagedResult);
+    }
+    async sendLabelsRequest(options = {}, pageLink) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.listConfigurationSettings", options, async (updatedOptions) => {
+            const response = await this.client.getLabels(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.formatAcceptDateTime)(options)), (0, helpers_js_1.formatLabelsFiltersAndSelect)(options)), { after: pageLink }));
+            return response;
+        });
+    }
+    async sendConfigurationSettingsRequest(options = {}, pageLink) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.listConfigurationSettings", options, async (updatedOptions) => {
+            const response = await this.client.getKeyValues(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.formatAcceptDateTime)(options)), (0, helpers_js_1.formatConfigurationSettingsFiltersAndSelect)(options)), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, { onlyIfChanged: true })), { after: pageLink }));
+            return response;
+        });
+    }
+    /**
+     * Lists revisions of a set of keys, optionally filtered by key names,
+     * labels and accept datetime.
+     *
+     * Example code:
+     * ```ts
+     * const revisionsIterator = client.listRevisions({ keys: ["MyKey"] });
+     * ```
+     * @param options - Optional parameters for the request.
+     */
+    listRevisions(options) {
+        const pagedResult = {
+            firstPageLink: undefined,
+            getPage: async (pageLink) => {
+                const response = await this.sendRevisionsRequest(options, pageLink);
+                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? response.items.map(helpers_js_1.transformKeyValue) : [], continuationToken: response.nextLink
+                        ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
+                        : undefined });
+                // let itemList = currentResponse.items;
+                return {
+                    page: currentResponse,
+                    nextPageLink: currentResponse.continuationToken,
+                };
+            },
+            toElements: (page) => page.items,
+        };
+        return (0, core_paging_1.getPagedAsyncIterator)(pagedResult);
+    }
+    async sendRevisionsRequest(options = {}, pageLink) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.listRevisions", options, async (updatedOptions) => {
+            const response = await this.client.getRevisions(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.formatAcceptDateTime)(options)), (0, helpers_js_1.formatFiltersAndSelect)(updatedOptions)), { after: pageLink }));
+            return response;
+        });
+    }
+    /**
+     * Sets the value of a key in the Azure App Configuration service, allowing for an optional etag.
+     * @param key - The name of the key.
+     * @param configurationSetting - A configuration value.
+     * @param options - Optional parameters for the request.
+     *
+     * Example code:
+     * ```ts
+     * await client.setConfigurationSetting({ key: "MyKey", value: "MyValue" });
+     * ```
+     */
+    async setConfigurationSetting(configurationSetting, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.setConfigurationSetting", options, async (updatedOptions) => {
+            const keyValue = (0, helpers_js_1.serializeAsConfigurationSettingParam)(configurationSetting);
+            logger_js_1.logger.info("[setConfigurationSetting] Setting new key value");
+            const response = (0, helpers_js_1.transformKeyValueResponse)(await this.client.putKeyValue(configurationSetting.key, Object.assign(Object.assign(Object.assign({}, updatedOptions), { label: configurationSetting.label, entity: keyValue }), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(configurationSetting, options))));
+            (0, helpers_js_1.assertResponse)(response);
+            return response;
+        });
+    }
+    /**
+     * Sets or clears a key's read-only status.
+     * @param id - The id of the configuration setting to modify.
+     */
+    async setReadOnly(id, readOnly, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.setReadOnly", options, async (newOptions) => {
+            let response;
+            if (readOnly) {
+                logger_js_1.logger.info("[setReadOnly] Setting read-only status to ${readOnly}");
+                response = await this.client.putLock(id.key, Object.assign(Object.assign(Object.assign({}, newOptions), { label: id.label }), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options)));
+            }
+            else {
+                logger_js_1.logger.info("[setReadOnly] Deleting read-only lock");
+                response = await this.client.deleteLock(id.key, Object.assign(Object.assign(Object.assign({}, newOptions), { label: id.label }), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options)));
+            }
+            response = (0, helpers_js_1.transformKeyValueResponse)(response);
+            (0, helpers_js_1.assertResponse)(response);
+            return response;
+        });
+    }
+    /**
+     * Adds an external synchronization token to ensure service requests receive up-to-date values.
+     *
+     * @param syncToken - The synchronization token value.
+     */
+    updateSyncToken(syncToken) {
+        this._syncTokens.addSyncTokenFromHeaderValue(syncToken);
+    }
+    /**
+     * Begins creating a snapshot for Azure App Configuration service, fails if it
+     * already exists.
+     */
+    beginCreateSnapshot(snapshot, 
+    // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
+    options = {}) {
+        return tracing_js_1.tracingClient.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshot`, options, (updatedOptions) => this.client.beginCreateSnapshot(snapshot.name, snapshot, Object.assign({}, updatedOptions)));
+    }
+    /**
+     * Begins creating a snapshot for Azure App Configuration service, waits until it is done,
+     * fails if it already exists.
+     */
+    beginCreateSnapshotAndWait(snapshot, 
+    // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
+    options = {}) {
+        return tracing_js_1.tracingClient.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshotAndWait`, options, (updatedOptions) => this.client.beginCreateSnapshotAndWait(snapshot.name, snapshot, Object.assign({}, updatedOptions)));
+    }
+    /**
+     * Get a snapshot from Azure App Configuration service
+     *
+     * Example usage:
+     * ```ts
+     * const result = await client.getSnapshot("MySnapshot");
+     * ```
+     * @param name - The name of the snapshot.
+     * @param options - Optional parameters for the request.
+     */
+    getSnapshot(name, options = {}) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.getSnapshot", options, async (updatedOptions) => {
+            logger_js_1.logger.info("[getSnapshot] Get a snapshot");
+            const originalResponse = await this.client.getSnapshot(name, Object.assign({}, updatedOptions));
+            const response = (0, helpers_js_1.transformSnapshotResponse)(originalResponse);
+            (0, helpers_js_1.assertResponse)(response);
+            return response;
+        });
+    }
+    /**
+     * Recover an archived snapshot back to ready status
+     *
+     * Example usage:
+     * ```ts
+     * const result = await client.recoverSnapshot("MySnapshot");
+     * ```
+     * @param name - The name of the snapshot.
+     * @param options - Optional parameters for the request.
+     */
+    recoverSnapshot(name, 
+    // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
+    options = {}) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.recoverSnapshot", options, async (updatedOptions) => {
+            logger_js_1.logger.info("[recoverSnapshot] Recover a snapshot");
+            const originalResponse = await this.client.updateSnapshot(name, { status: "ready" }, Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, Object.assign({ onlyIfUnchanged: true }, options))));
+            const response = (0, helpers_js_1.transformSnapshotResponse)(originalResponse);
+            (0, helpers_js_1.assertResponse)(response);
+            return response;
+        });
+    }
+    /**
+     * Archive a ready snapshot
+     *
+     * Example usage:
+     * ```ts
+     * const result = await client.archiveSnapshot({name: "MySnapshot"});
+     * ```
+     * @param name - The name of the snapshot.
+     * @param options - Optional parameters for the request.
+     */
+    archiveSnapshot(name, 
+    // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
+    options = {}) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.archiveSnapshot", options, async (updatedOptions) => {
+            logger_js_1.logger.info("[archiveSnapshot] Archive a snapshot");
+            const originalResponse = await this.client.updateSnapshot(name, { status: "archived" }, Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, Object.assign({ onlyIfUnchanged: true }, options))));
+            const response = (0, helpers_js_1.transformSnapshotResponse)(originalResponse);
+            (0, helpers_js_1.assertResponse)(response);
+            return response;
+        });
+    }
+    /**
+     * List all snapshots from Azure App Configuration service
+     *
+     * Example usage:
+     * ```ts
+     * const result = await client.listSnapshots();
+     * ```
+     * @param options - Optional parameters for the request.
+     */
+    listSnapshots(options = {}) {
+        const pagedResult = {
+            firstPageLink: undefined,
+            getPage: async (pageLink) => {
+                const response = await this.sendSnapShotsRequest(options, pageLink);
+                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? response.items : [], continuationToken: response.nextLink
+                        ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
+                        : undefined });
+                return {
+                    page: currentResponse,
+                    nextPageLink: currentResponse.continuationToken,
+                };
+            },
+            toElements: (page) => page.items,
+        };
+        return (0, core_paging_1.getPagedAsyncIterator)(pagedResult);
+    }
+    async sendSnapShotsRequest(options = {}, pageLink) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.listSnapshots", options, async (updatedOptions) => {
+            const response = await this.client.getSnapshots(Object.assign(Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.formatSnapshotFiltersAndSelect)(options)), { after: pageLink }));
+            return response;
+        });
+    }
+}
+exports.AppConfigurationClient = AppConfigurationClient;
+//# sourceMappingURL=appConfigurationClient.js.map
+
+/***/ }),
+
+/***/ 6901:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FeatureFlagHelper = exports.featureFlagContentType = exports.featureFlagPrefix = void 0;
+exports.parseFeatureFlag = parseFeatureFlag;
+exports.isFeatureFlag = isFeatureFlag;
+const logger_js_1 = __nccwpck_require__(6226);
+/**
+ * The prefix for feature flags.
+ */
+exports.featureFlagPrefix = ".appconfig.featureflag/";
+/**
+ * The content type for a FeatureFlag
+ */
+exports.featureFlagContentType = "application/vnd.microsoft.appconfig.ff+json;charset=utf-8";
+/**
+ * @internal
+ */
+exports.FeatureFlagHelper = {
+    /**
+     * Takes the FeatureFlag (JSON) and returns a ConfigurationSetting (with the props encodeed in the value).
+     */
+    toConfigurationSettingParam: (featureFlag) => {
+        var _a;
+        logger_js_1.logger.info("Encoding FeatureFlag value in a ConfigurationSetting:", featureFlag);
+        if (!featureFlag.value) {
+            logger_js_1.logger.error("FeatureFlag has an unexpected value", featureFlag);
+            throw new TypeError(`FeatureFlag has an unexpected value - ${featureFlag.value}`);
+        }
+        let key = featureFlag.key;
+        if (typeof featureFlag.key === "string" && !featureFlag.key.startsWith(exports.featureFlagPrefix)) {
+            key = exports.featureFlagPrefix + featureFlag.key;
+        }
+        const jsonFeatureFlagValue = {
+            id: (_a = featureFlag.value.id) !== null && _a !== void 0 ? _a : key.replace(exports.featureFlagPrefix, ""),
+            enabled: featureFlag.value.enabled,
+            description: featureFlag.value.description,
+            conditions: {
+                client_filters: featureFlag.value.conditions.clientFilters,
+            },
+            display_name: featureFlag.value.displayName,
+        };
+        const configSetting = Object.assign(Object.assign({}, featureFlag), { key, value: JSON.stringify(jsonFeatureFlagValue) });
+        return configSetting;
+    },
+};
+/**
+ * Takes the ConfigurationSetting as input and returns the ConfigurationSetting<FeatureFlagValue> by parsing the value string.
+ */
+function parseFeatureFlag(setting) {
+    logger_js_1.logger.info("Parsing the value to return the FeatureFlagValue", setting);
+    if (!isFeatureFlag(setting)) {
+        logger_js_1.logger.error("Invalid FeatureFlag input", setting);
+        throw TypeError(`Setting with key ${setting.key} is not a valid FeatureFlag, make sure to have the correct content-type and a valid non-null value.`);
+    }
+    const jsonFeatureFlagValue = JSON.parse(setting.value);
+    let key = setting.key;
+    if (typeof setting.key === "string" && !setting.key.startsWith(exports.featureFlagPrefix)) {
+        key = exports.featureFlagPrefix + setting.key;
+    }
+    const featureflag = Object.assign(Object.assign({}, setting), { value: {
+            id: jsonFeatureFlagValue.id,
+            enabled: jsonFeatureFlagValue.enabled,
+            description: jsonFeatureFlagValue.description,
+            displayName: jsonFeatureFlagValue.display_name,
+            conditions: { clientFilters: jsonFeatureFlagValue.conditions.client_filters },
+        }, key, contentType: exports.featureFlagContentType });
+    return featureflag;
+}
+/**
+ * Lets you know if the ConfigurationSetting is a feature flag.
+ *
+ * [Checks if the content type is featureFlagContentType `"application/vnd.microsoft.appconfig.ff+json;charset=utf-8"`]
+ */
+function isFeatureFlag(setting) {
+    return (setting && setting.contentType === exports.featureFlagContentType && typeof setting.value === "string");
+}
+//# sourceMappingURL=featureFlag.js.map
+
+/***/ }),
+
+/***/ 3205:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+/*
+* Copyright (c) Microsoft Corporation.
+* Licensed under the MIT License.
+*
+* Code generated by Microsoft (R) AutoRest Code Generator.
+* Changes may cause incorrect behavior and will be lost if the code is regenerated.
+*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppConfiguration = void 0;
+const tslib_1 = __nccwpck_require__(2350);
+const coreClient = tslib_1.__importStar(__nccwpck_require__(9729));
+const coreHttpCompat = tslib_1.__importStar(__nccwpck_require__(6232));
+const core_lro_1 = __nccwpck_require__(7094);
+const lroImpl_js_1 = __nccwpck_require__(12);
+const Parameters = tslib_1.__importStar(__nccwpck_require__(4505));
+const Mappers = tslib_1.__importStar(__nccwpck_require__(286));
+/** @internal */
+class AppConfiguration extends coreHttpCompat.ExtendedServiceClient {
+    /**
+     * Initializes a new instance of the AppConfiguration class.
+     * @param endpoint The endpoint of the App Configuration instance to send requests to.
+     * @param apiVersion Api Version
+     * @param options The parameter options
+     */
+    constructor(endpoint, apiVersion, options) {
+        var _a, _b;
+        if (endpoint === undefined) {
+            throw new Error("'endpoint' cannot be null");
+        }
+        if (apiVersion === undefined) {
+            throw new Error("'apiVersion' cannot be null");
+        }
+        // Initializing default values for options
+        if (!options) {
+            options = {};
+        }
+        const defaults = {
+            requestContentType: "application/json; charset=utf-8",
+        };
+        const packageDetails = `azsdk-js-app-configuration/1.8.0`;
+        const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix
+            ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
+            : `${packageDetails}`;
+        const optionsWithDefaults = Object.assign(Object.assign(Object.assign({}, defaults), options), { userAgentOptions: {
+                userAgentPrefix,
+            }, endpoint: (_b = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri) !== null && _b !== void 0 ? _b : "{endpoint}" });
+        super(optionsWithDefaults);
+        // Parameter assignments
+        this.endpoint = endpoint;
+        this.apiVersion = apiVersion;
+        this.addCustomApiVersionPolicy(apiVersion);
+    }
+    /** A function that adds a policy that sets the api-version (or equivalent) to reflect the library version. */
+    addCustomApiVersionPolicy(apiVersion) {
+        if (!apiVersion) {
+            return;
+        }
+        const apiVersionPolicy = {
+            name: "CustomApiVersionPolicy",
+            async sendRequest(request, next) {
+                const param = request.url.split("?");
+                if (param.length > 1) {
+                    const newParams = param[1].split("&").map((item) => {
+                        if (item.indexOf("api-version") > -1) {
+                            return "api-version=" + apiVersion;
+                        }
+                        else {
+                            return item;
+                        }
+                    });
+                    request.url = param[0] + "?" + newParams.join("&");
+                }
+                return next(request);
+            },
+        };
+        this.pipeline.addPolicy(apiVersionPolicy);
+    }
+    /**
+     * Gets a list of keys.
+     * @param options The options parameters.
+     */
+    getKeys(options) {
+        return this.sendOperationRequest({ options }, getKeysOperationSpec);
+    }
+    /**
+     * Requests the headers and status of the given resource.
+     * @param options The options parameters.
+     */
+    checkKeys(options) {
+        return this.sendOperationRequest({ options }, checkKeysOperationSpec);
+    }
+    /**
+     * Gets a list of key-values.
+     * @param options The options parameters.
+     */
+    getKeyValues(options) {
+        return this.sendOperationRequest({ options }, getKeyValuesOperationSpec);
+    }
+    /**
+     * Requests the headers and status of the given resource.
+     * @param options The options parameters.
+     */
+    checkKeyValues(options) {
+        return this.sendOperationRequest({ options }, checkKeyValuesOperationSpec);
+    }
+    /**
+     * Gets a single key-value.
+     * @param key The key of the key-value to retrieve.
+     * @param options The options parameters.
+     */
+    getKeyValue(key, options) {
+        return this.sendOperationRequest({ key, options }, getKeyValueOperationSpec);
+    }
+    /**
+     * Creates a key-value.
+     * @param key The key of the key-value to create.
+     * @param options The options parameters.
+     */
+    putKeyValue(key, options) {
+        return this.sendOperationRequest({ key, options }, putKeyValueOperationSpec);
+    }
+    /**
+     * Deletes a key-value.
+     * @param key The key of the key-value to delete.
+     * @param options The options parameters.
+     */
+    deleteKeyValue(key, options) {
+        return this.sendOperationRequest({ key, options }, deleteKeyValueOperationSpec);
+    }
+    /**
+     * Requests the headers and status of the given resource.
+     * @param key The key of the key-value to retrieve.
+     * @param options The options parameters.
+     */
+    checkKeyValue(key, options) {
+        return this.sendOperationRequest({ key, options }, checkKeyValueOperationSpec);
+    }
+    /**
+     * Gets a list of key-value snapshots.
+     * @param options The options parameters.
+     */
+    getSnapshots(options) {
+        return this.sendOperationRequest({ options }, getSnapshotsOperationSpec);
+    }
+    /**
+     * Requests the headers and status of the given resource.
+     * @param options The options parameters.
+     */
+    checkSnapshots(options) {
+        return this.sendOperationRequest({ options }, checkSnapshotsOperationSpec);
+    }
+    /**
+     * Gets a single key-value snapshot.
+     * @param name The name of the key-value snapshot to retrieve.
+     * @param options The options parameters.
+     */
+    getSnapshot(name, options) {
+        return this.sendOperationRequest({ name, options }, getSnapshotOperationSpec);
+    }
+    /**
+     * Creates a key-value snapshot.
+     * @param name The name of the key-value snapshot to create.
+     * @param entity The key-value snapshot to create.
+     * @param options The options parameters.
+     */
+    async beginCreateSnapshot(name, entity, options) {
+        const directSendOperation = async (args, spec) => {
+            return this.sendOperationRequest(args, spec);
+        };
+        const sendOperationFn = async (args, spec) => {
+            var _a;
+            let currentRawResponse = undefined;
+            const providedCallback = (_a = args.options) === null || _a === void 0 ? void 0 : _a.onResponse;
+            const callback = (rawResponse, flatResponse) => {
+                currentRawResponse = rawResponse;
+                providedCallback === null || providedCallback === void 0 ? void 0 : providedCallback(rawResponse, flatResponse);
+            };
+            const updatedArgs = Object.assign(Object.assign({}, args), { options: Object.assign(Object.assign({}, args.options), { onResponse: callback }) });
+            const flatResponse = await directSendOperation(updatedArgs, spec);
+            return {
+                flatResponse,
+                rawResponse: {
+                    statusCode: currentRawResponse.status,
+                    body: currentRawResponse.parsedBody,
+                    headers: currentRawResponse.headers.toJSON(),
+                },
+            };
+        };
+        const lro = (0, lroImpl_js_1.createLroSpec)({
+            sendOperationFn,
+            args: { name, entity, options },
+            spec: createSnapshotOperationSpec,
+        });
+        const poller = await (0, core_lro_1.createHttpPoller)(lro, {
+            restoreFrom: options === null || options === void 0 ? void 0 : options.resumeFrom,
+            intervalInMs: options === null || options === void 0 ? void 0 : options.updateIntervalInMs,
+        });
+        await poller.poll();
+        return poller;
+    }
+    /**
+     * Creates a key-value snapshot.
+     * @param name The name of the key-value snapshot to create.
+     * @param entity The key-value snapshot to create.
+     * @param options The options parameters.
+     */
+    async beginCreateSnapshotAndWait(name, entity, options) {
+        const poller = await this.beginCreateSnapshot(name, entity, options);
+        return poller.pollUntilDone();
+    }
+    /**
+     * Updates the state of a key-value snapshot.
+     * @param name The name of the key-value snapshot to update.
+     * @param entity The parameters used to update the snapshot.
+     * @param options The options parameters.
+     */
+    updateSnapshot(name, entity, options) {
+        return this.sendOperationRequest({ name, entity, options }, updateSnapshotOperationSpec);
+    }
+    /**
+     * Requests the headers and status of the given resource.
+     * @param name The name of the key-value snapshot to check.
+     * @param options The options parameters.
+     */
+    checkSnapshot(name, options) {
+        return this.sendOperationRequest({ name, options }, checkSnapshotOperationSpec);
+    }
+    /**
+     * Gets a list of labels.
+     * @param options The options parameters.
+     */
+    getLabels(options) {
+        return this.sendOperationRequest({ options }, getLabelsOperationSpec);
+    }
+    /**
+     * Requests the headers and status of the given resource.
+     * @param options The options parameters.
+     */
+    checkLabels(options) {
+        return this.sendOperationRequest({ options }, checkLabelsOperationSpec);
+    }
+    /**
+     * Locks a key-value.
+     * @param key The key of the key-value to lock.
+     * @param options The options parameters.
+     */
+    putLock(key, options) {
+        return this.sendOperationRequest({ key, options }, putLockOperationSpec);
+    }
+    /**
+     * Unlocks a key-value.
+     * @param key The key of the key-value to unlock.
+     * @param options The options parameters.
+     */
+    deleteLock(key, options) {
+        return this.sendOperationRequest({ key, options }, deleteLockOperationSpec);
+    }
+    /**
+     * Gets a list of key-value revisions.
+     * @param options The options parameters.
+     */
+    getRevisions(options) {
+        return this.sendOperationRequest({ options }, getRevisionsOperationSpec);
+    }
+    /**
+     * Requests the headers and status of the given resource.
+     * @param options The options parameters.
+     */
+    checkRevisions(options) {
+        return this.sendOperationRequest({ options }, checkRevisionsOperationSpec);
+    }
+    /**
+     * Gets the state of a long running operation.
+     * @param snapshot Snapshot identifier for the long running operation.
+     * @param options The options parameters.
+     */
+    getOperationDetails(snapshot, options) {
+        return this.sendOperationRequest({ snapshot, options }, getOperationDetailsOperationSpec);
+    }
+    /**
+     * GetKeysNext
+     * @param nextLink The nextLink from the previous successful call to the GetKeys method.
+     * @param options The options parameters.
+     */
+    getKeysNext(nextLink, options) {
+        return this.sendOperationRequest({ nextLink, options }, getKeysNextOperationSpec);
+    }
+    /**
+     * GetKeyValuesNext
+     * @param nextLink The nextLink from the previous successful call to the GetKeyValues method.
+     * @param options The options parameters.
+     */
+    getKeyValuesNext(nextLink, options) {
+        return this.sendOperationRequest({ nextLink, options }, getKeyValuesNextOperationSpec);
+    }
+    /**
+     * GetSnapshotsNext
+     * @param nextLink The nextLink from the previous successful call to the GetSnapshots method.
+     * @param options The options parameters.
+     */
+    getSnapshotsNext(nextLink, options) {
+        return this.sendOperationRequest({ nextLink, options }, getSnapshotsNextOperationSpec);
+    }
+    /**
+     * GetLabelsNext
+     * @param nextLink The nextLink from the previous successful call to the GetLabels method.
+     * @param options The options parameters.
+     */
+    getLabelsNext(nextLink, options) {
+        return this.sendOperationRequest({ nextLink, options }, getLabelsNextOperationSpec);
+    }
+    /**
+     * GetRevisionsNext
+     * @param nextLink The nextLink from the previous successful call to the GetRevisions method.
+     * @param options The options parameters.
+     */
+    getRevisionsNext(nextLink, options) {
+        return this.sendOperationRequest({ nextLink, options }, getRevisionsNextOperationSpec);
+    }
+}
+exports.AppConfiguration = AppConfiguration;
+// Operation Specifications
+const serializer = coreClient.createSerializer(Mappers, /* isXml */ false);
+const getKeysOperationSpec = {
+    path: "/keys",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyListResult,
+            headersMapper: Mappers.AppConfigurationGetKeysHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [Parameters.name, Parameters.apiVersion, Parameters.after],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [
+        Parameters.accept,
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+    ],
+    serializer,
+};
+const checkKeysOperationSpec = {
+    path: "/keys",
+    httpMethod: "HEAD",
+    responses: {
+        200: {
+            headersMapper: Mappers.AppConfigurationCheckKeysHeaders,
+        },
+        default: {},
+    },
+    queryParameters: [Parameters.name, Parameters.apiVersion, Parameters.after],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [Parameters.syncToken, Parameters.acceptDatetime],
+    serializer,
+};
+const getKeyValuesOperationSpec = {
+    path: "/kv",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyValueListResult,
+            headersMapper: Mappers.AppConfigurationGetKeyValuesHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [
+        Parameters.apiVersion,
+        Parameters.after,
+        Parameters.key,
+        Parameters.label,
+        Parameters.select,
+        Parameters.snapshot,
+        Parameters.tags,
+    ],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+        Parameters.accept1,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+    ],
+    serializer,
+};
+const checkKeyValuesOperationSpec = {
+    path: "/kv",
+    httpMethod: "HEAD",
+    responses: {
+        200: {
+            headersMapper: Mappers.AppConfigurationCheckKeyValuesHeaders,
+        },
+        default: {},
+    },
+    queryParameters: [
+        Parameters.apiVersion,
+        Parameters.after,
+        Parameters.key,
+        Parameters.label,
+        Parameters.select,
+        Parameters.snapshot,
+        Parameters.tags,
+    ],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+    ],
+    serializer,
+};
+const getKeyValueOperationSpec = {
+    path: "/kv/{key}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyValue,
+            headersMapper: Mappers.AppConfigurationGetKeyValueHeaders,
+        },
+        304: {
+            headersMapper: Mappers.AppConfigurationGetKeyValueHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.label, Parameters.select],
+    urlParameters: [Parameters.endpoint, Parameters.key1],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+        Parameters.accept2,
+    ],
+    serializer,
+};
+const putKeyValueOperationSpec = {
+    path: "/kv/{key}",
+    httpMethod: "PUT",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyValue,
+            headersMapper: Mappers.AppConfigurationPutKeyValueHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    requestBody: Parameters.entity,
+    queryParameters: [Parameters.apiVersion, Parameters.label],
+    urlParameters: [Parameters.endpoint, Parameters.key1],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+        Parameters.accept2,
+        Parameters.contentType,
+    ],
+    mediaType: "json",
+    serializer,
+};
+const deleteKeyValueOperationSpec = {
+    path: "/kv/{key}",
+    httpMethod: "DELETE",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyValue,
+            headersMapper: Mappers.AppConfigurationDeleteKeyValueHeaders,
+        },
+        204: {
+            headersMapper: Mappers.AppConfigurationDeleteKeyValueHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.label],
+    urlParameters: [Parameters.endpoint, Parameters.key1],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.ifMatch,
+        Parameters.accept2,
+    ],
+    serializer,
+};
+const checkKeyValueOperationSpec = {
+    path: "/kv/{key}",
+    httpMethod: "HEAD",
+    responses: {
+        200: {
+            headersMapper: Mappers.AppConfigurationCheckKeyValueHeaders,
+        },
+        304: {
+            headersMapper: Mappers.AppConfigurationCheckKeyValueHeaders,
+        },
+        default: {},
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.label, Parameters.select],
+    urlParameters: [Parameters.endpoint, Parameters.key1],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+    ],
+    serializer,
+};
+const getSnapshotsOperationSpec = {
+    path: "/snapshots",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SnapshotListResult,
+            headersMapper: Mappers.AppConfigurationGetSnapshotsHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [
+        Parameters.name,
+        Parameters.apiVersion,
+        Parameters.after,
+        Parameters.select1,
+        Parameters.status,
+    ],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [Parameters.syncToken, Parameters.accept3],
+    serializer,
+};
+const checkSnapshotsOperationSpec = {
+    path: "/snapshots",
+    httpMethod: "HEAD",
+    responses: {
+        200: {
+            headersMapper: Mappers.AppConfigurationCheckSnapshotsHeaders,
+        },
+        default: {},
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.after],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [Parameters.syncToken],
+    serializer,
+};
+const getSnapshotOperationSpec = {
+    path: "/snapshots/{name}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ConfigurationSnapshot,
+            headersMapper: Mappers.AppConfigurationGetSnapshotHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.select1],
+    urlParameters: [Parameters.endpoint, Parameters.name1],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+        Parameters.accept4,
+    ],
+    serializer,
+};
+const createSnapshotOperationSpec = {
+    path: "/snapshots/{name}",
+    httpMethod: "PUT",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ConfigurationSnapshot,
+            headersMapper: Mappers.AppConfigurationCreateSnapshotHeaders,
+        },
+        201: {
+            bodyMapper: Mappers.ConfigurationSnapshot,
+            headersMapper: Mappers.AppConfigurationCreateSnapshotHeaders,
+        },
+        202: {
+            bodyMapper: Mappers.ConfigurationSnapshot,
+            headersMapper: Mappers.AppConfigurationCreateSnapshotHeaders,
+        },
+        204: {
+            bodyMapper: Mappers.ConfigurationSnapshot,
+            headersMapper: Mappers.AppConfigurationCreateSnapshotHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    requestBody: Parameters.entity1,
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.endpoint, Parameters.name2],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.accept4,
+        Parameters.contentType1,
+    ],
+    mediaType: "json",
+    serializer,
+};
+const updateSnapshotOperationSpec = {
+    path: "/snapshots/{name}",
+    httpMethod: "PATCH",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ConfigurationSnapshot,
+            headersMapper: Mappers.AppConfigurationUpdateSnapshotHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    requestBody: Parameters.entity2,
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.endpoint, Parameters.name1],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+        Parameters.accept4,
+        Parameters.contentType2,
+    ],
+    mediaType: "json",
+    serializer,
+};
+const checkSnapshotOperationSpec = {
+    path: "/snapshots/{name}",
+    httpMethod: "HEAD",
+    responses: {
+        200: {
+            headersMapper: Mappers.AppConfigurationCheckSnapshotHeaders,
+        },
+        default: {},
+    },
+    queryParameters: [Parameters.apiVersion],
+    urlParameters: [Parameters.endpoint, Parameters.name1],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+    ],
+    serializer,
+};
+const getLabelsOperationSpec = {
+    path: "/labels",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.LabelListResult,
+            headersMapper: Mappers.AppConfigurationGetLabelsHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [
+        Parameters.name,
+        Parameters.apiVersion,
+        Parameters.after,
+        Parameters.select2,
+    ],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+        Parameters.accept5,
+    ],
+    serializer,
+};
+const checkLabelsOperationSpec = {
+    path: "/labels",
+    httpMethod: "HEAD",
+    responses: {
+        200: {
+            headersMapper: Mappers.AppConfigurationCheckLabelsHeaders,
+        },
+        default: {},
+    },
+    queryParameters: [
+        Parameters.name,
+        Parameters.apiVersion,
+        Parameters.after,
+        Parameters.select2,
+    ],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [Parameters.syncToken, Parameters.acceptDatetime],
+    serializer,
+};
+const putLockOperationSpec = {
+    path: "/locks/{key}",
+    httpMethod: "PUT",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyValue,
+            headersMapper: Mappers.AppConfigurationPutLockHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.label],
+    urlParameters: [Parameters.endpoint, Parameters.key1],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+        Parameters.accept2,
+    ],
+    serializer,
+};
+const deleteLockOperationSpec = {
+    path: "/locks/{key}",
+    httpMethod: "DELETE",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyValue,
+            headersMapper: Mappers.AppConfigurationDeleteLockHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.label],
+    urlParameters: [Parameters.endpoint, Parameters.key1],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+        Parameters.accept2,
+    ],
+    serializer,
+};
+const getRevisionsOperationSpec = {
+    path: "/revisions",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyValueListResult,
+            headersMapper: Mappers.AppConfigurationGetRevisionsHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [
+        Parameters.apiVersion,
+        Parameters.after,
+        Parameters.key,
+        Parameters.label,
+        Parameters.select,
+        Parameters.tags,
+    ],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+        Parameters.accept1,
+    ],
+    serializer,
+};
+const checkRevisionsOperationSpec = {
+    path: "/revisions",
+    httpMethod: "HEAD",
+    responses: {
+        200: {
+            headersMapper: Mappers.AppConfigurationCheckRevisionsHeaders,
+        },
+        default: {},
+    },
+    queryParameters: [
+        Parameters.apiVersion,
+        Parameters.after,
+        Parameters.key,
+        Parameters.label,
+        Parameters.select,
+        Parameters.tags,
+    ],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [Parameters.syncToken, Parameters.acceptDatetime],
+    serializer,
+};
+const getOperationDetailsOperationSpec = {
+    path: "/operations",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.OperationDetails,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    queryParameters: [Parameters.apiVersion, Parameters.snapshot1],
+    urlParameters: [Parameters.endpoint],
+    headerParameters: [Parameters.accept6],
+    serializer,
+};
+const getKeysNextOperationSpec = {
+    path: "{nextLink}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyListResult,
+            headersMapper: Mappers.AppConfigurationGetKeysNextHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    urlParameters: [Parameters.endpoint, Parameters.nextLink],
+    headerParameters: [
+        Parameters.accept,
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+    ],
+    serializer,
+};
+const getKeyValuesNextOperationSpec = {
+    path: "{nextLink}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyValueListResult,
+            headersMapper: Mappers.AppConfigurationGetKeyValuesNextHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    urlParameters: [Parameters.endpoint, Parameters.nextLink],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+        Parameters.accept1,
+        Parameters.ifMatch,
+        Parameters.ifNoneMatch,
+    ],
+    serializer,
+};
+const getSnapshotsNextOperationSpec = {
+    path: "{nextLink}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.SnapshotListResult,
+            headersMapper: Mappers.AppConfigurationGetSnapshotsNextHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    urlParameters: [Parameters.endpoint, Parameters.nextLink],
+    headerParameters: [Parameters.syncToken, Parameters.accept3],
+    serializer,
+};
+const getLabelsNextOperationSpec = {
+    path: "{nextLink}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.LabelListResult,
+            headersMapper: Mappers.AppConfigurationGetLabelsNextHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    urlParameters: [Parameters.endpoint, Parameters.nextLink],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+        Parameters.accept5,
+    ],
+    serializer,
+};
+const getRevisionsNextOperationSpec = {
+    path: "{nextLink}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.KeyValueListResult,
+            headersMapper: Mappers.AppConfigurationGetRevisionsNextHeaders,
+        },
+        default: {
+            bodyMapper: Mappers.ErrorModel,
+        },
+    },
+    urlParameters: [Parameters.endpoint, Parameters.nextLink],
+    headerParameters: [
+        Parameters.syncToken,
+        Parameters.acceptDatetime,
+        Parameters.accept1,
+    ],
+    serializer,
+};
+//# sourceMappingURL=appConfiguration.js.map
+
+/***/ }),
+
+/***/ 4231:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+/*
+ * Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License.
+ *
+ * Code generated by Microsoft (R) AutoRest Code Generator.
+ * Changes may cause incorrect behavior and will be lost if the code is regenerated.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppConfiguration = void 0;
+const tslib_1 = __nccwpck_require__(2350);
+tslib_1.__exportStar(__nccwpck_require__(8741), exports);
+var appConfiguration_js_1 = __nccwpck_require__(3205);
+Object.defineProperty(exports, "AppConfiguration", ({ enumerable: true, get: function () { return appConfiguration_js_1.AppConfiguration; } }));
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 12:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+/*
+ * Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License.
+ *
+ * Code generated by Microsoft (R) AutoRest Code Generator.
+ * Changes may cause incorrect behavior and will be lost if the code is regenerated.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createLroSpec = createLroSpec;
+const tslib_1 = __nccwpck_require__(2350);
+function createLroSpec(inputs) {
+    const { args, spec, sendOperationFn } = inputs;
+    return {
+        requestMethod: spec.httpMethod,
+        requestPath: spec.path,
+        sendInitialRequest: () => sendOperationFn(args, spec),
+        sendPollRequest: (path, options) => {
+            const { requestBody } = spec, restSpec = tslib_1.__rest(spec, ["requestBody"]);
+            return sendOperationFn(args, Object.assign(Object.assign({}, restSpec), { httpMethod: "GET", path, abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal }));
+        },
+    };
+}
+//# sourceMappingURL=lroImpl.js.map
+
+/***/ }),
+
+/***/ 8741:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/*
+ * Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License.
+ *
+ * Code generated by Microsoft (R) AutoRest Code Generator.
+ * Changes may cause incorrect behavior and will be lost if the code is regenerated.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.KnownLabelFields = exports.KnownSnapshotComposition = exports.KnownConfigurationSnapshotStatus = exports.KnownSnapshotStatus = exports.KnownSnapshotFields = exports.KnownKeyValueFields = exports.KnownApiVersion20231101 = void 0;
+/** Known values of {@link ApiVersion20231101} that the service accepts. */
+var KnownApiVersion20231101;
+(function (KnownApiVersion20231101) {
+    /** Api Version '2023-11-01' */
+    KnownApiVersion20231101["TwoThousandTwentyThree1101"] = "2023-11-01";
+})(KnownApiVersion20231101 || (exports.KnownApiVersion20231101 = KnownApiVersion20231101 = {}));
+/** Known values of {@link KeyValueFields} that the service accepts. */
+var KnownKeyValueFields;
+(function (KnownKeyValueFields) {
+    /** Key */
+    KnownKeyValueFields["Key"] = "key";
+    /** Label */
+    KnownKeyValueFields["Label"] = "label";
+    /** ContentType */
+    KnownKeyValueFields["ContentType"] = "content_type";
+    /** Value */
+    KnownKeyValueFields["Value"] = "value";
+    /** LastModified */
+    KnownKeyValueFields["LastModified"] = "last_modified";
+    /** Tags */
+    KnownKeyValueFields["Tags"] = "tags";
+    /** Locked */
+    KnownKeyValueFields["Locked"] = "locked";
+    /** Etag */
+    KnownKeyValueFields["Etag"] = "etag";
+})(KnownKeyValueFields || (exports.KnownKeyValueFields = KnownKeyValueFields = {}));
+/** Known values of {@link SnapshotFields} that the service accepts. */
+var KnownSnapshotFields;
+(function (KnownSnapshotFields) {
+    /** Name */
+    KnownSnapshotFields["Name"] = "name";
+    /** Status */
+    KnownSnapshotFields["Status"] = "status";
+    /** Filters */
+    KnownSnapshotFields["Filters"] = "filters";
+    /** CompositionType */
+    KnownSnapshotFields["CompositionType"] = "composition_type";
+    /** Created */
+    KnownSnapshotFields["Created"] = "created";
+    /** Expires */
+    KnownSnapshotFields["Expires"] = "expires";
+    /** RetentionPeriod */
+    KnownSnapshotFields["RetentionPeriod"] = "retention_period";
+    /** Size */
+    KnownSnapshotFields["Size"] = "size";
+    /** ItemsCount */
+    KnownSnapshotFields["ItemsCount"] = "items_count";
+    /** Tags */
+    KnownSnapshotFields["Tags"] = "tags";
+    /** Etag */
+    KnownSnapshotFields["Etag"] = "etag";
+})(KnownSnapshotFields || (exports.KnownSnapshotFields = KnownSnapshotFields = {}));
+/** Known values of {@link SnapshotStatus} that the service accepts. */
+var KnownSnapshotStatus;
+(function (KnownSnapshotStatus) {
+    /** Provisioning */
+    KnownSnapshotStatus["Provisioning"] = "provisioning";
+    /** Ready */
+    KnownSnapshotStatus["Ready"] = "ready";
+    /** Archived */
+    KnownSnapshotStatus["Archived"] = "archived";
+    /** Failed */
+    KnownSnapshotStatus["Failed"] = "failed";
+})(KnownSnapshotStatus || (exports.KnownSnapshotStatus = KnownSnapshotStatus = {}));
+/** Known values of {@link ConfigurationSnapshotStatus} that the service accepts. */
+var KnownConfigurationSnapshotStatus;
+(function (KnownConfigurationSnapshotStatus) {
+    /** Provisioning */
+    KnownConfigurationSnapshotStatus["Provisioning"] = "provisioning";
+    /** Ready */
+    KnownConfigurationSnapshotStatus["Ready"] = "ready";
+    /** Archived */
+    KnownConfigurationSnapshotStatus["Archived"] = "archived";
+    /** Failed */
+    KnownConfigurationSnapshotStatus["Failed"] = "failed";
+})(KnownConfigurationSnapshotStatus || (exports.KnownConfigurationSnapshotStatus = KnownConfigurationSnapshotStatus = {}));
+/** Known values of {@link SnapshotComposition} that the service accepts. */
+var KnownSnapshotComposition;
+(function (KnownSnapshotComposition) {
+    /** Key */
+    KnownSnapshotComposition["Key"] = "key";
+    /** KeyLabel */
+    KnownSnapshotComposition["KeyLabel"] = "key_label";
+})(KnownSnapshotComposition || (exports.KnownSnapshotComposition = KnownSnapshotComposition = {}));
+/** Known values of {@link LabelFields} that the service accepts. */
+var KnownLabelFields;
+(function (KnownLabelFields) {
+    /** Name */
+    KnownLabelFields["Name"] = "name";
+})(KnownLabelFields || (exports.KnownLabelFields = KnownLabelFields = {}));
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 286:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/*
+ * Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License.
+ *
+ * Code generated by Microsoft (R) AutoRest Code Generator.
+ * Changes may cause incorrect behavior and will be lost if the code is regenerated.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppConfigurationGetRevisionsNextHeaders = exports.AppConfigurationGetLabelsNextHeaders = exports.AppConfigurationGetSnapshotsNextHeaders = exports.AppConfigurationGetKeyValuesNextHeaders = exports.AppConfigurationGetKeysNextHeaders = exports.AppConfigurationCheckRevisionsHeaders = exports.AppConfigurationGetRevisionsHeaders = exports.AppConfigurationDeleteLockHeaders = exports.AppConfigurationPutLockHeaders = exports.AppConfigurationCheckLabelsHeaders = exports.AppConfigurationGetLabelsHeaders = exports.AppConfigurationCheckSnapshotHeaders = exports.AppConfigurationUpdateSnapshotHeaders = exports.AppConfigurationCreateSnapshotHeaders = exports.AppConfigurationGetSnapshotHeaders = exports.AppConfigurationCheckSnapshotsHeaders = exports.AppConfigurationGetSnapshotsHeaders = exports.AppConfigurationCheckKeyValueHeaders = exports.AppConfigurationDeleteKeyValueHeaders = exports.AppConfigurationPutKeyValueHeaders = exports.AppConfigurationGetKeyValueHeaders = exports.AppConfigurationCheckKeyValuesHeaders = exports.AppConfigurationGetKeyValuesHeaders = exports.AppConfigurationCheckKeysHeaders = exports.AppConfigurationGetKeysHeaders = exports.InnerError = exports.ErrorDetail = exports.OperationDetails = exports.SettingLabel = exports.LabelListResult = exports.SnapshotUpdateParameters = exports.ConfigurationSettingsFilter = exports.ConfigurationSnapshot = exports.SnapshotListResult = exports.KeyValue = exports.KeyValueListResult = exports.ErrorModel = exports.Key = exports.KeyListResult = void 0;
+exports.KeyListResult = {
+    type: {
+        name: "Composite",
+        className: "KeyListResult",
+        modelProperties: {
+            items: {
+                serializedName: "items",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "Key",
+                        },
+                    },
+                },
+            },
+            nextLink: {
+                serializedName: "@nextLink",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.Key = {
+    type: {
+        name: "Composite",
+        className: "Key",
+        modelProperties: {
+            name: {
+                serializedName: "name",
+                readOnly: true,
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.ErrorModel = {
+    type: {
+        name: "Composite",
+        className: "ErrorModel",
+        modelProperties: {
+            type: {
+                serializedName: "type",
+                type: {
+                    name: "String",
+                },
+            },
+            title: {
+                serializedName: "title",
+                type: {
+                    name: "String",
+                },
+            },
+            name: {
+                serializedName: "name",
+                type: {
+                    name: "String",
+                },
+            },
+            detail: {
+                serializedName: "detail",
+                type: {
+                    name: "String",
+                },
+            },
+            status: {
+                serializedName: "status",
+                type: {
+                    name: "Number",
+                },
+            },
+        },
+    },
+};
+exports.KeyValueListResult = {
+    type: {
+        name: "Composite",
+        className: "KeyValueListResult",
+        modelProperties: {
+            items: {
+                serializedName: "items",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "KeyValue",
+                        },
+                    },
+                },
+            },
+            etag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+            nextLink: {
+                serializedName: "@nextLink",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.KeyValue = {
+    type: {
+        name: "Composite",
+        className: "KeyValue",
+        modelProperties: {
+            key: {
+                serializedName: "key",
+                required: true,
+                type: {
+                    name: "String",
+                },
+            },
+            label: {
+                serializedName: "label",
+                type: {
+                    name: "String",
+                },
+            },
+            contentType: {
+                serializedName: "content_type",
+                type: {
+                    name: "String",
+                },
+            },
+            value: {
+                serializedName: "value",
+                type: {
+                    name: "String",
+                },
+            },
+            lastModified: {
+                serializedName: "last_modified",
+                type: {
+                    name: "DateTime",
+                },
+            },
+            tags: {
+                serializedName: "tags",
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "String" } },
+                },
+            },
+            locked: {
+                serializedName: "locked",
+                type: {
+                    name: "Boolean",
+                },
+            },
+            etag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.SnapshotListResult = {
+    type: {
+        name: "Composite",
+        className: "SnapshotListResult",
+        modelProperties: {
+            items: {
+                serializedName: "items",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "ConfigurationSnapshot",
+                        },
+                    },
+                },
+            },
+            nextLink: {
+                serializedName: "@nextLink",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.ConfigurationSnapshot = {
+    type: {
+        name: "Composite",
+        className: "ConfigurationSnapshot",
+        modelProperties: {
+            name: {
+                serializedName: "name",
+                required: true,
+                readOnly: true,
+                type: {
+                    name: "String",
+                },
+            },
+            status: {
+                serializedName: "status",
+                readOnly: true,
+                type: {
+                    name: "String",
+                },
+            },
+            filters: {
+                constraints: {
+                    MinItems: 1,
+                    MaxItems: 3,
+                },
+                serializedName: "filters",
+                required: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "ConfigurationSettingsFilter",
+                        },
+                    },
+                },
+            },
+            compositionType: {
+                serializedName: "composition_type",
+                type: {
+                    name: "String",
+                },
+            },
+            createdOn: {
+                serializedName: "created",
+                readOnly: true,
+                type: {
+                    name: "DateTime",
+                },
+            },
+            expiresOn: {
+                serializedName: "expires",
+                readOnly: true,
+                type: {
+                    name: "DateTime",
+                },
+            },
+            retentionPeriodInSeconds: {
+                constraints: {
+                    InclusiveMaximum: 7776000,
+                    InclusiveMinimum: 3600,
+                },
+                serializedName: "retention_period",
+                type: {
+                    name: "Number",
+                },
+            },
+            sizeInBytes: {
+                serializedName: "size",
+                readOnly: true,
+                type: {
+                    name: "Number",
+                },
+            },
+            itemCount: {
+                serializedName: "items_count",
+                readOnly: true,
+                type: {
+                    name: "Number",
+                },
+            },
+            tags: {
+                serializedName: "tags",
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "String" } },
+                },
+            },
+            etag: {
+                serializedName: "etag",
+                readOnly: true,
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.ConfigurationSettingsFilter = {
+    type: {
+        name: "Composite",
+        className: "ConfigurationSettingsFilter",
+        modelProperties: {
+            keyFilter: {
+                serializedName: "key",
+                required: true,
+                type: {
+                    name: "String",
+                },
+            },
+            labelFilter: {
+                serializedName: "label",
+                type: {
+                    name: "String",
+                },
+            },
+            tagsFilter: {
+                constraints: {
+                    UniqueItems: true,
+                },
+                serializedName: "tags",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String",
+                        },
+                    },
+                },
+            },
+        },
+    },
+};
+exports.SnapshotUpdateParameters = {
+    type: {
+        name: "Composite",
+        className: "SnapshotUpdateParameters",
+        modelProperties: {
+            status: {
+                serializedName: "status",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.LabelListResult = {
+    type: {
+        name: "Composite",
+        className: "LabelListResult",
+        modelProperties: {
+            items: {
+                serializedName: "items",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "SettingLabel",
+                        },
+                    },
+                },
+            },
+            nextLink: {
+                serializedName: "@nextLink",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.SettingLabel = {
+    type: {
+        name: "Composite",
+        className: "SettingLabel",
+        modelProperties: {
+            name: {
+                serializedName: "name",
+                readOnly: true,
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.OperationDetails = {
+    type: {
+        name: "Composite",
+        className: "OperationDetails",
+        modelProperties: {
+            id: {
+                serializedName: "id",
+                required: true,
+                type: {
+                    name: "String",
+                },
+            },
+            status: {
+                serializedName: "status",
+                required: true,
+                type: {
+                    name: "Enum",
+                    allowedValues: [
+                        "NotStarted",
+                        "Running",
+                        "Succeeded",
+                        "Failed",
+                        "Canceled",
+                    ],
+                },
+            },
+            error: {
+                serializedName: "error",
+                type: {
+                    name: "Composite",
+                    className: "ErrorDetail",
+                },
+            },
+        },
+    },
+};
+exports.ErrorDetail = {
+    type: {
+        name: "Composite",
+        className: "ErrorDetail",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                required: true,
+                type: {
+                    name: "String",
+                },
+            },
+            message: {
+                serializedName: "message",
+                required: true,
+                type: {
+                    name: "String",
+                },
+            },
+            details: {
+                serializedName: "details",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "ErrorDetail",
+                        },
+                    },
+                },
+            },
+            innererror: {
+                serializedName: "innererror",
+                type: {
+                    name: "Composite",
+                    className: "InnerError",
+                },
+            },
+        },
+    },
+};
+exports.InnerError = {
+    type: {
+        name: "Composite",
+        className: "InnerError",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "String",
+                },
+            },
+            innererror: {
+                serializedName: "innererror",
+                type: {
+                    name: "Composite",
+                    className: "InnerError",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetKeysHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetKeysHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationCheckKeysHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationCheckKeysHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetKeyValuesHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetKeyValuesHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationCheckKeyValuesHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationCheckKeyValuesHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetKeyValueHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetKeyValueHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationPutKeyValueHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationPutKeyValueHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationDeleteKeyValueHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationDeleteKeyValueHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationCheckKeyValueHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationCheckKeyValueHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetSnapshotsHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetSnapshotsHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationCheckSnapshotsHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationCheckSnapshotsHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetSnapshotHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetSnapshotHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+            link: {
+                serializedName: "link",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationCreateSnapshotHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationCreateSnapshotHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+            link: {
+                serializedName: "link",
+                type: {
+                    name: "String",
+                },
+            },
+            operationLocation: {
+                serializedName: "operation-location",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationUpdateSnapshotHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationUpdateSnapshotHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+            link: {
+                serializedName: "link",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationCheckSnapshotHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationCheckSnapshotHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+            link: {
+                serializedName: "link",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetLabelsHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetLabelsHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationCheckLabelsHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationCheckLabelsHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationPutLockHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationPutLockHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationDeleteLockHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationDeleteLockHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetRevisionsHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetRevisionsHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationCheckRevisionsHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationCheckRevisionsHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetKeysNextHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetKeysNextHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetKeyValuesNextHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetKeyValuesNextHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetSnapshotsNextHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetSnapshotsNextHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetLabelsNextHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetLabelsNextHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+exports.AppConfigurationGetRevisionsNextHeaders = {
+    type: {
+        name: "Composite",
+        className: "AppConfigurationGetRevisionsNextHeaders",
+        modelProperties: {
+            syncToken: {
+                serializedName: "sync-token",
+                type: {
+                    name: "String",
+                },
+            },
+            eTag: {
+                serializedName: "etag",
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+};
+//# sourceMappingURL=mappers.js.map
+
+/***/ }),
+
+/***/ 4505:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+/*
+ * Copyright (c) Microsoft Corporation.
+ * Licensed under the MIT License.
+ *
+ * Code generated by Microsoft (R) AutoRest Code Generator.
+ * Changes may cause incorrect behavior and will be lost if the code is regenerated.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.nextLink = exports.snapshot1 = exports.accept6 = exports.select2 = exports.accept5 = exports.entity2 = exports.contentType2 = exports.name2 = exports.entity1 = exports.contentType1 = exports.name1 = exports.accept4 = exports.status = exports.select1 = exports.accept3 = exports.entity = exports.contentType = exports.key1 = exports.accept2 = exports.tags = exports.ifNoneMatch = exports.ifMatch = exports.snapshot = exports.select = exports.label = exports.key = exports.accept1 = exports.acceptDatetime = exports.after = exports.apiVersion = exports.syncToken = exports.name = exports.endpoint = exports.accept = void 0;
+const mappers_js_1 = __nccwpck_require__(286);
+exports.accept = {
+    parameterPath: "accept",
+    mapper: {
+        defaultValue: "application/vnd.microsoft.appconfig.keyset+json, application/problem+json",
+        isConstant: true,
+        serializedName: "Accept",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.endpoint = {
+    parameterPath: "endpoint",
+    mapper: {
+        serializedName: "endpoint",
+        required: true,
+        type: {
+            name: "String",
+        },
+    },
+    skipEncoding: true,
+};
+exports.name = {
+    parameterPath: ["options", "name"],
+    mapper: {
+        serializedName: "name",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.syncToken = {
+    parameterPath: "syncToken",
+    mapper: {
+        serializedName: "Sync-Token",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.apiVersion = {
+    parameterPath: "apiVersion",
+    mapper: {
+        serializedName: "api-version",
+        required: true,
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.after = {
+    parameterPath: ["options", "after"],
+    mapper: {
+        serializedName: "After",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.acceptDatetime = {
+    parameterPath: ["options", "acceptDatetime"],
+    mapper: {
+        serializedName: "Accept-Datetime",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.accept1 = {
+    parameterPath: "accept",
+    mapper: {
+        defaultValue: "application/vnd.microsoft.appconfig.kvset+json, application/problem+json",
+        isConstant: true,
+        serializedName: "Accept",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.key = {
+    parameterPath: ["options", "key"],
+    mapper: {
+        serializedName: "key",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.label = {
+    parameterPath: ["options", "label"],
+    mapper: {
+        serializedName: "label",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.select = {
+    parameterPath: ["options", "select"],
+    mapper: {
+        serializedName: "$Select",
+        type: {
+            name: "Sequence",
+            element: {
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+    collectionFormat: "CSV",
+};
+exports.snapshot = {
+    parameterPath: ["options", "snapshot"],
+    mapper: {
+        serializedName: "snapshot",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.ifMatch = {
+    parameterPath: ["options", "ifMatch"],
+    mapper: {
+        serializedName: "If-Match",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.ifNoneMatch = {
+    parameterPath: ["options", "ifNoneMatch"],
+    mapper: {
+        serializedName: "If-None-Match",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.tags = {
+    parameterPath: ["options", "tags"],
+    mapper: {
+        constraints: {
+            UniqueItems: true,
+        },
+        serializedName: "tags",
+        type: {
+            name: "Sequence",
+            element: {
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+    collectionFormat: "Multi",
+};
+exports.accept2 = {
+    parameterPath: "accept",
+    mapper: {
+        defaultValue: "application/vnd.microsoft.appconfig.kv+json, application/problem+json",
+        isConstant: true,
+        serializedName: "Accept",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.key1 = {
+    parameterPath: "key",
+    mapper: {
+        serializedName: "key",
+        required: true,
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.contentType = {
+    parameterPath: ["options", "contentType"],
+    mapper: {
+        defaultValue: "application/vnd.microsoft.appconfig.kv+json",
+        isConstant: true,
+        serializedName: "Content-Type",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.entity = {
+    parameterPath: ["options", "entity"],
+    mapper: mappers_js_1.KeyValue,
+};
+exports.accept3 = {
+    parameterPath: "accept",
+    mapper: {
+        defaultValue: "application/vnd.microsoft.appconfig.snapshotset+json, application/problem+json",
+        isConstant: true,
+        serializedName: "Accept",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.select1 = {
+    parameterPath: ["options", "select"],
+    mapper: {
+        serializedName: "$Select",
+        type: {
+            name: "Sequence",
+            element: {
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+    collectionFormat: "CSV",
+};
+exports.status = {
+    parameterPath: ["options", "status"],
+    mapper: {
+        serializedName: "status",
+        type: {
+            name: "Sequence",
+            element: {
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+    collectionFormat: "CSV",
+};
+exports.accept4 = {
+    parameterPath: "accept",
+    mapper: {
+        defaultValue: "application/vnd.microsoft.appconfig.snapshot+json, application/problem+json",
+        isConstant: true,
+        serializedName: "Accept",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.name1 = {
+    parameterPath: "name",
+    mapper: {
+        serializedName: "name",
+        required: true,
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.contentType1 = {
+    parameterPath: ["options", "contentType"],
+    mapper: {
+        defaultValue: "application/vnd.microsoft.appconfig.snapshot+json",
+        isConstant: true,
+        serializedName: "Content-Type",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.entity1 = {
+    parameterPath: "entity",
+    mapper: mappers_js_1.ConfigurationSnapshot,
+};
+exports.name2 = {
+    parameterPath: "name",
+    mapper: {
+        constraints: {
+            MaxLength: 256,
+        },
+        serializedName: "name",
+        required: true,
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.contentType2 = {
+    parameterPath: ["options", "contentType"],
+    mapper: {
+        defaultValue: "application/json",
+        isConstant: true,
+        serializedName: "Content-Type",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.entity2 = {
+    parameterPath: "entity",
+    mapper: mappers_js_1.SnapshotUpdateParameters,
+};
+exports.accept5 = {
+    parameterPath: "accept",
+    mapper: {
+        defaultValue: "application/vnd.microsoft.appconfig.labelset+json, application/problem+json",
+        isConstant: true,
+        serializedName: "Accept",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.select2 = {
+    parameterPath: ["options", "select"],
+    mapper: {
+        serializedName: "$Select",
+        type: {
+            name: "Sequence",
+            element: {
+                type: {
+                    name: "String",
+                },
+            },
+        },
+    },
+    collectionFormat: "CSV",
+};
+exports.accept6 = {
+    parameterPath: "accept",
+    mapper: {
+        defaultValue: "application/json",
+        isConstant: true,
+        serializedName: "Accept",
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.snapshot1 = {
+    parameterPath: "snapshot",
+    mapper: {
+        serializedName: "snapshot",
+        required: true,
+        type: {
+            name: "String",
+        },
+    },
+};
+exports.nextLink = {
+    parameterPath: "nextLink",
+    mapper: {
+        serializedName: "nextLink",
+        required: true,
+        type: {
+            name: "String",
+        },
+    },
+    skipEncoding: true,
+};
+//# sourceMappingURL=parameters.js.map
+
+/***/ }),
+
+/***/ 910:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.secretReferenceContentType = exports.parseSecretReference = exports.isSecretReference = exports.parseFeatureFlag = exports.isFeatureFlag = exports.featureFlagPrefix = exports.featureFlagContentType = exports.AppConfigurationClient = void 0;
+const tslib_1 = __nccwpck_require__(2350);
+var appConfigurationClient_js_1 = __nccwpck_require__(113);
+Object.defineProperty(exports, "AppConfigurationClient", ({ enumerable: true, get: function () { return appConfigurationClient_js_1.AppConfigurationClient; } }));
+var featureFlag_js_1 = __nccwpck_require__(6901);
+Object.defineProperty(exports, "featureFlagContentType", ({ enumerable: true, get: function () { return featureFlag_js_1.featureFlagContentType; } }));
+Object.defineProperty(exports, "featureFlagPrefix", ({ enumerable: true, get: function () { return featureFlag_js_1.featureFlagPrefix; } }));
+Object.defineProperty(exports, "isFeatureFlag", ({ enumerable: true, get: function () { return featureFlag_js_1.isFeatureFlag; } }));
+Object.defineProperty(exports, "parseFeatureFlag", ({ enumerable: true, get: function () { return featureFlag_js_1.parseFeatureFlag; } }));
+tslib_1.__exportStar(__nccwpck_require__(266), exports);
+var secretReference_js_1 = __nccwpck_require__(5994);
+Object.defineProperty(exports, "isSecretReference", ({ enumerable: true, get: function () { return secretReference_js_1.isSecretReference; } }));
+Object.defineProperty(exports, "parseSecretReference", ({ enumerable: true, get: function () { return secretReference_js_1.parseSecretReference; } }));
+Object.defineProperty(exports, "secretReferenceContentType", ({ enumerable: true, get: function () { return secretReference_js_1.secretReferenceContentType; } }));
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 1820:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.appConfigurationApiVersion = exports.packageVersion = void 0;
+/**
+ * @internal
+ */
+exports.packageVersion = "1.8.0";
+/**
+ * @internal
+ */
+exports.appConfigurationApiVersion = "2023-11-01";
+//# sourceMappingURL=constants.js.map
+
+/***/ }),
+
+/***/ 1232:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.quoteETag = quoteETag;
+exports.checkAndFormatIfAndIfNoneMatch = checkAndFormatIfAndIfNoneMatch;
+exports.formatFiltersAndSelect = formatFiltersAndSelect;
+exports.formatConfigurationSettingsFiltersAndSelect = formatConfigurationSettingsFiltersAndSelect;
+exports.formatSnapshotFiltersAndSelect = formatSnapshotFiltersAndSelect;
+exports.formatLabelsFiltersAndSelect = formatLabelsFiltersAndSelect;
+exports.formatAcceptDateTime = formatAcceptDateTime;
+exports.extractAfterTokenFromNextLink = extractAfterTokenFromNextLink;
+exports.extractAfterTokenFromLinkHeader = extractAfterTokenFromLinkHeader;
+exports.makeConfigurationSettingEmpty = makeConfigurationSettingEmpty;
+exports.transformKeyValue = transformKeyValue;
+exports.serializeAsConfigurationSettingParam = serializeAsConfigurationSettingParam;
+exports.transformKeyValueResponseWithStatusCode = transformKeyValueResponseWithStatusCode;
+exports.transformKeyValueResponse = transformKeyValueResponse;
+exports.transformSnapshotResponse = transformSnapshotResponse;
+exports.formatFieldsForSelect = formatFieldsForSelect;
+exports.errorMessageForUnexpectedSetting = errorMessageForUnexpectedSetting;
+exports.assertResponse = assertResponse;
+exports.hasUnderscoreResponse = hasUnderscoreResponse;
+const tslib_1 = __nccwpck_require__(2350);
+const featureFlag_js_1 = __nccwpck_require__(6901);
+const secretReference_js_1 = __nccwpck_require__(5994);
+const core_util_1 = __nccwpck_require__(1333);
+const logger_js_1 = __nccwpck_require__(6226);
+/**
+ * Formats the etag so it can be used with a If-Match/If-None-Match header
+ * @internal
+ */
+function quoteETag(etag) {
+    // https://tools.ietf.org/html/rfc7232#section-3.1
+    if (etag === undefined || etag === "*") {
+        return etag;
+    }
+    if (etag.startsWith('"') && etag.endsWith('"')) {
+        return etag;
+    }
+    if (etag.startsWith("'") && etag.endsWith("'")) {
+        return etag;
+    }
+    return `"${etag}"`;
+}
+/**
+ * Checks the onlyIfChanged/onlyIfUnchanged properties to make sure we haven't specified both
+ * and throws an Error. Otherwise, returns the properties properly quoted.
+ * @param options - An options object with onlyIfChanged/onlyIfUnchanged fields
+ * @internal
+ */
+function checkAndFormatIfAndIfNoneMatch(objectWithEtag, options) {
+    if (options.onlyIfChanged && options.onlyIfUnchanged) {
+        logger_js_1.logger.error("onlyIfChanged and onlyIfUnchanged are both specified", options.onlyIfChanged, options.onlyIfUnchanged);
+        throw new Error("onlyIfChanged and onlyIfUnchanged are mutually-exclusive");
+    }
+    let ifMatch;
+    let ifNoneMatch;
+    if (options.onlyIfUnchanged) {
+        ifMatch = quoteETag(objectWithEtag.etag);
+    }
+    if (options.onlyIfChanged) {
+        ifNoneMatch = quoteETag(objectWithEtag.etag);
+    }
+    return {
+        ifMatch: ifMatch,
+        ifNoneMatch: ifNoneMatch,
+    };
+}
+/**
+ * Transforms some of the key fields in SendConfigurationSettingsOptions and ListRevisionsOptions
+ * so they can be added to a request using AppConfigurationGetKeyValuesOptionalParams.
+ * - `options.acceptDateTime` is converted into an ISO string
+ * - `select` is populated with the proper field names from `options.fields`
+ * - keyFilter and labelFilter are moved to key and label, respectively.
+ *
+ * @internal
+ */
+function formatFiltersAndSelect(listConfigOptions) {
+    let acceptDatetime = undefined;
+    if (listConfigOptions.acceptDateTime) {
+        acceptDatetime = listConfigOptions.acceptDateTime.toISOString();
+    }
+    return {
+        key: listConfigOptions.keyFilter,
+        label: listConfigOptions.labelFilter,
+        tags: listConfigOptions.tagsFilter,
+        acceptDatetime,
+        select: formatFieldsForSelect(listConfigOptions.fields),
+    };
+}
+/**
+ * Transforms some of the key fields in SendConfigurationSettingsOptions
+ * so they can be added to a request using AppConfigurationGetKeyValuesOptionalParams.
+ * - `options.acceptDateTime` is converted into an ISO string
+ * - `select` is populated with the proper field names from `options.fields`
+ * - keyFilter, labelFilter, snapshotName are moved to key, label, and snapshot respectively.
+ *
+ * @internal
+ */
+function formatConfigurationSettingsFiltersAndSelect(listConfigOptions) {
+    const { snapshotName: snapshot } = listConfigOptions, options = tslib_1.__rest(listConfigOptions, ["snapshotName"]);
+    return Object.assign(Object.assign({}, formatFiltersAndSelect(options)), { snapshot });
+}
+/**
+ * Transforms some of the key fields in ListSnapshotsOptions
+ * so they can be added to a request using AppConfigurationGetSnapshotsOptionalParams.
+ * - `select` is populated with the proper field names from `options.fields`
+ * - keyFilter and labelFilter are moved to key and label, respectively.
+ *
+ * @internal
+ */
+function formatSnapshotFiltersAndSelect(listSnapshotOptions) {
+    return {
+        name: listSnapshotOptions.nameFilter,
+        status: listSnapshotOptions.statusFilter,
+        select: listSnapshotOptions.fields,
+    };
+}
+/**
+ * Transforms some of the key fields in ListLabelsOptions
+ * so they can be added to a request using AppConfigurationGetLabelsOptionalParams.
+ * - `select` is populated with the proper field names from `options.fields`
+ * - `nameFilter` are moved to name
+ *
+ * @internal
+ */
+function formatLabelsFiltersAndSelect(listLabelsOptions) {
+    return {
+        name: listLabelsOptions.nameFilter,
+        select: listLabelsOptions.fields,
+    };
+}
+/**
+ * Handles translating a Date acceptDateTime into a string as needed by the API
+ * @param newOptions - A newer style options with acceptDateTime as a date (and with proper casing!)
+ * @internal
+ */
+function formatAcceptDateTime(newOptions) {
+    return {
+        acceptDatetime: newOptions.acceptDateTime && newOptions.acceptDateTime.toISOString(),
+    };
+}
+/**
+ * Take the URL that gets returned from next link and extract the 'after' token needed
+ * to get the next page of results.
+ * @internal
+ */
+function extractAfterTokenFromNextLink(nextLink) {
+    const searchParams = new URLSearchParams(nextLink);
+    const afterToken = searchParams.get("after");
+    if (afterToken == null || Array.isArray(afterToken)) {
+        logger_js_1.logger.error("Invalid nextLink - invalid after token", afterToken, Array.isArray(afterToken));
+        throw new Error("Invalid nextLink - invalid after token");
+    }
+    return decodeURIComponent(afterToken);
+}
+/**
+ * Take the header link that gets returned from 304 response and extract the 'after' token needed
+ * to get the next page of results.
+ *
+ * @internal
+ */
+function extractAfterTokenFromLinkHeader(link) {
+    // Example transformation of the link header
+    // link:
+    // '</kv?api-version=2023-10-01&key=listResults714&after=bGlzdE4>; rel="next"'
+    //
+    // linkValue:
+    // </kv?api-version=2023-10-01&key=listResults714&after=bGlzdE4>
+    //
+    // nextLink:
+    // /kv?api-version=2023-10-01&key=listResults714&after=bGlzdE4
+    const linkValue = link.split(";")[0];
+    const nextLink = linkValue.substring(1, linkValue.length - 1);
+    return extractAfterTokenFromNextLink(nextLink);
+}
+/**
+ * Makes a ConfigurationSetting-based response throw for all of the data members. Used primarily
+ * to prevent possible errors by the user in accessing a model that is uninitialized. This can happen
+ * in cases like HTTP status code 204 or 304, which return an empty response body.
+ *
+ * @param configurationSetting - The configuration setting to alter
+ */
+function makeConfigurationSettingEmpty(configurationSetting) {
+    const names = [
+        "contentType",
+        "etag",
+        "label",
+        "lastModified",
+        "isReadOnly",
+        "tags",
+        "value",
+    ];
+    for (const name of names) {
+        configurationSetting[name] = undefined;
+    }
+}
+/**
+ * @internal
+ */
+function transformKeyValue(kvp) {
+    const setting = Object.assign(Object.assign({ value: undefined }, kvp), { isReadOnly: !!kvp.locked });
+    delete setting.locked;
+    if (!setting.label) {
+        delete setting.label;
+    }
+    if (!setting.contentType) {
+        delete setting.contentType;
+    }
+    return setting;
+}
+/**
+ * @internal
+ */
+function isConfigSettingWithSecretReferenceValue(setting) {
+    return (setting.contentType === secretReference_js_1.secretReferenceContentType &&
+        (0, core_util_1.isDefined)(setting.value) &&
+        typeof setting.value !== "string");
+}
+/**
+ * @internal
+ */
+function isConfigSettingWithFeatureFlagValue(setting) {
+    return (setting.contentType === featureFlag_js_1.featureFlagContentType &&
+        (0, core_util_1.isDefined)(setting.value) &&
+        typeof setting.value !== "string");
+}
+/**
+ * @internal
+ */
+function isSimpleConfigSetting(setting) {
+    return typeof setting.value === "string" || !(0, core_util_1.isDefined)(setting.value);
+}
+/**
+ * @internal
+ */
+function serializeAsConfigurationSettingParam(setting) {
+    if (isSimpleConfigSetting(setting)) {
+        return setting;
+    }
+    try {
+        if (isConfigSettingWithFeatureFlagValue(setting)) {
+            return featureFlag_js_1.FeatureFlagHelper.toConfigurationSettingParam(setting);
+        }
+        if (isConfigSettingWithSecretReferenceValue(setting)) {
+            return secretReference_js_1.SecretReferenceHelper.toConfigurationSettingParam(setting);
+        }
+    }
+    catch (error) {
+        return setting;
+    }
+    logger_js_1.logger.error("Unable to serialize to a configuration setting", setting);
+    throw new TypeError(`Unable to serialize the setting with key "${setting.key}" as a configuration setting`);
+}
+/**
+ * @internal
+ */
+function transformKeyValueResponseWithStatusCode(kvp, status) {
+    const response = Object.assign(Object.assign({}, transformKeyValue(kvp)), { statusCode: status !== null && status !== void 0 ? status : -1 });
+    if (hasUnderscoreResponse(kvp)) {
+        Object.defineProperty(response, "_response", {
+            enumerable: false,
+            value: kvp._response,
+        });
+    }
+    return response;
+}
+/**
+ * @internal
+ */
+function transformKeyValueResponse(kvp) {
+    const setting = transformKeyValue(kvp);
+    if (hasUnderscoreResponse(kvp)) {
+        Object.defineProperty(setting, "_response", {
+            enumerable: false,
+            value: kvp._response,
+        });
+    }
+    delete setting.eTag;
+    return setting;
+}
+/**
+ * @internal
+ */
+function transformSnapshotResponse(snapshot) {
+    if (hasUnderscoreResponse(snapshot)) {
+        Object.defineProperty(snapshot, "_response", {
+            enumerable: false,
+            value: snapshot._response,
+        });
+    }
+    return snapshot;
+}
+/**
+ * Translates user-facing field names into their `select` equivalents (these can be
+ * seen in the `KnownEnum5`)
+ *
+ * @param fieldNames - fieldNames from users.
+ * @returns The field names translated into the `select` field equivalents.
+ *
+ * @internal
+ */
+function formatFieldsForSelect(fieldNames) {
+    if (fieldNames == null) {
+        return undefined;
+    }
+    const mappedFieldNames = fieldNames.map((fn) => {
+        switch (fn) {
+            case "lastModified":
+                return "last_modified";
+            case "contentType":
+                return "content_type";
+            case "isReadOnly":
+                return "locked";
+            default:
+                return fn;
+        }
+    });
+    return mappedFieldNames;
+}
+/**
+ * @internal
+ */
+function errorMessageForUnexpectedSetting(key, expectedType) {
+    return `Setting with key ${key} is not a valid ${expectedType}, make sure to have the correct content-type and a valid non-null value.`;
+}
+function assertResponse(result) {
+    if (!hasUnderscoreResponse(result)) {
+        Object.defineProperty(result, "_response", {
+            enumerable: false,
+            value: "Something went wrong, _response(raw response) is supposed to be part of the response. Please file a bug at https://github.com/Azure/azure-sdk-for-js",
+        });
+    }
+}
+function hasUnderscoreResponse(result) {
+    return Object.prototype.hasOwnProperty.call(result, "_response");
+}
+//# sourceMappingURL=helpers.js.map
+
+/***/ }),
+
+/***/ 1594:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SyncTokens = exports.SyncTokenHeaderName = void 0;
+exports.syncTokenPolicy = syncTokenPolicy;
+exports.parseSyncToken = parseSyncToken;
+const logger_js_1 = __nccwpck_require__(6226);
+/**
+ * The sync token header, as described here:
+ * https://docs.microsoft.com/azure/azure-app-configuration/rest-api-consistency
+ * @internal
+ */
+exports.SyncTokenHeaderName = "sync-token";
+/**
+ * A policy factory for injecting sync tokens properly into outgoing requests.
+ * @param syncTokens - the sync tokens store to be used across requests.
+ * @internal
+ */
+function syncTokenPolicy(syncTokens) {
+    return {
+        name: "Sync Token Policy",
+        async sendRequest(request, next) {
+            const syncTokenHeaderValue = syncTokens.getSyncTokenHeaderValue();
+            if (syncTokenHeaderValue) {
+                logger_js_1.logger.info("[syncTokenPolicy] Setting headers with ${SyncTokenHeaderName} and ${syncTokenHeaderValue}");
+                request.headers.set(exports.SyncTokenHeaderName, syncTokenHeaderValue);
+            }
+            const response = await next(request);
+            syncTokens.addSyncTokenFromHeaderValue(response.headers.get(exports.SyncTokenHeaderName));
+            return response;
+        },
+    };
+}
+/**
+ * Sync token tracker (allows for real-time consistency, even in the face of
+ * caching and load balancing within App Configuration).
+ *
+ * (protocol and format described here)
+ * https://docs.microsoft.com/azure/azure-app-configuration/rest-api-consistency
+ *
+ * @internal
+ */
+class SyncTokens {
+    constructor() {
+        this._currentSyncTokens = new Map();
+    }
+    /**
+     * Takes the value from the header named after the constant `SyncTokenHeaderName`
+     * and adds it to our list of accumulated sync tokens.
+     *
+     * If given an empty value (or undefined) it clears the current list of sync tokens.
+     * (indicates the service has properly absorbed values into the cluster).
+     *
+     * @param syncTokenHeaderValue - The full value of the sync token header.
+     */
+    addSyncTokenFromHeaderValue(syncTokenHeaderValue) {
+        if (syncTokenHeaderValue == null || syncTokenHeaderValue === "") {
+            // eventually everything gets synced up and we don't have to track
+            // these headers anymore
+            this._currentSyncTokens.clear();
+            return;
+        }
+        const newTokens = syncTokenHeaderValue.split(",").map(parseSyncToken);
+        for (const newToken of newTokens) {
+            const existingToken = this._currentSyncTokens.get(newToken.id);
+            if (!existingToken || existingToken.sequenceNumber < newToken.sequenceNumber) {
+                this._currentSyncTokens.set(newToken.id, newToken);
+                continue;
+            }
+        }
+    }
+    /**
+     * Gets a properly formatted SyncToken header value.
+     */
+    getSyncTokenHeaderValue() {
+        if (this._currentSyncTokens.size === 0) {
+            return undefined;
+        }
+        const syncTokenStrings = [];
+        for (const syncToken of this._currentSyncTokens.values()) {
+            // note that you don't include the 'sn' field here - that's only
+            // used for internal tracking of the 'version' for the token itself
+            syncTokenStrings.push(`${syncToken.id}=${syncToken.value}`);
+        }
+        return syncTokenStrings.join(",");
+    }
+}
+exports.SyncTokens = SyncTokens;
+// An example sync token (from their documentation):
+//
+// jtqGc1I4=MDoyOA==;sn=28
+//
+// Which breaks down to:
+// id: jtqGc1I4
+// value: MDoyOA==
+// sequence number: 28
+const syncTokenRegex = /^([^=]+)=([^;]+);sn=(\d+)$/;
+/**
+ * Parses a single sync token into it's constituent parts.
+ *
+ * @param syncToken - A single sync token.
+ *
+ * @internal
+ */
+function parseSyncToken(syncToken) {
+    const matches = syncToken.match(syncTokenRegex);
+    if (matches == null) {
+        throw new Error(`Failed to parse sync token '${syncToken}' with regex ${syncTokenRegex.source}`);
+    }
+    const sequenceNumber = parseInt(matches[3], 10);
+    if (isNaN(sequenceNumber)) {
+        // this should be impossible since our regex restricts to just digits
+        // but there's nothing wrong with being thorough.
+        throw new Error(`${syncToken}: The sequence number value '${matches[3]}' wasn't a number`);
+    }
+    return {
+        id: matches[1],
+        value: matches[2],
+        sequenceNumber,
+    };
+}
+//# sourceMappingURL=synctokenpolicy.js.map
+
+/***/ }),
+
+/***/ 5327:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.tracingClient = void 0;
+const core_tracing_1 = __nccwpck_require__(4175);
+const constants_js_1 = __nccwpck_require__(1820);
+/** @internal */
+exports.tracingClient = (0, core_tracing_1.createTracingClient)({
+    namespace: "Microsoft.AppConfiguration",
+    packageName: "@azure/app-configuration",
+    packageVersion: constants_js_1.packageVersion,
+});
+//# sourceMappingURL=tracing.js.map
+
+/***/ }),
+
+/***/ 6226:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.logger = void 0;
+const logger_1 = __nccwpck_require__(3233);
+/**
+ * The `@azure/logger` configuration for this package.
+ * @internal
+ */
+exports.logger = (0, logger_1.createClientLogger)("app-config");
+//# sourceMappingURL=logger.js.map
+
+/***/ }),
+
+/***/ 266:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.KnownConfigurationSnapshotStatus = exports.KnownSnapshotComposition = void 0;
+var index_js_1 = __nccwpck_require__(4231);
+Object.defineProperty(exports, "KnownSnapshotComposition", ({ enumerable: true, get: function () { return index_js_1.KnownSnapshotComposition; } }));
+Object.defineProperty(exports, "KnownConfigurationSnapshotStatus", ({ enumerable: true, get: function () { return index_js_1.KnownConfigurationSnapshotStatus; } }));
+//# sourceMappingURL=models.js.map
+
+/***/ }),
+
+/***/ 5994:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SecretReferenceHelper = exports.secretReferenceContentType = void 0;
+exports.parseSecretReference = parseSecretReference;
+exports.isSecretReference = isSecretReference;
+const logger_js_1 = __nccwpck_require__(6226);
+/**
+ * content-type for the secret reference.
+ */
+exports.secretReferenceContentType = "application/vnd.microsoft.appconfig.keyvaultref+json;charset=utf-8";
+/**
+ * @internal
+ */
+exports.SecretReferenceHelper = {
+    /**
+     * Takes the SecretReference (JSON) and returns a ConfigurationSetting (with the props encodeed in the value).
+     */
+    toConfigurationSettingParam: (secretReference) => {
+        logger_js_1.logger.info("Encoding SecretReference value in a ConfigurationSetting:", secretReference);
+        if (!secretReference.value) {
+            logger_js_1.logger.error(`SecretReference has an unexpected value`, secretReference);
+            throw new TypeError(`SecretReference has an unexpected value - ${secretReference.value}`);
+        }
+        const jsonSecretReferenceValue = {
+            uri: secretReference.value.secretId,
+        };
+        const configSetting = Object.assign(Object.assign({}, secretReference), { value: JSON.stringify(jsonSecretReferenceValue) });
+        return configSetting;
+    },
+};
+/**
+ * Takes the ConfigurationSetting as input and returns the ConfigurationSetting<SecretReferenceValue> by parsing the value string.
+ */
+function parseSecretReference(setting) {
+    logger_js_1.logger.info("[parseSecretReference] Parsing the value to return the SecretReferenceValue", setting);
+    if (!isSecretReference(setting)) {
+        logger_js_1.logger.error("Invalid SecretReference input", setting);
+        throw TypeError(`Setting with key ${setting.key} is not a valid SecretReference, make sure to have the correct content-type and a valid non-null value.`);
+    }
+    const jsonSecretReferenceValue = JSON.parse(setting.value);
+    const secretReference = Object.assign(Object.assign({}, setting), { value: { secretId: jsonSecretReferenceValue.uri } });
+    return secretReference;
+}
+/**
+ * Lets you know if the ConfigurationSetting is a secret reference.
+ *
+ * [Checks if the content type is secretReferenceContentType `"application/vnd.microsoft.appconfig.keyvaultref+json;charset=utf-8"`]
+ */
+function isSecretReference(setting) {
+    return (setting &&
+        setting.contentType === exports.secretReferenceContentType &&
+        typeof setting.value === "string");
+}
+//# sourceMappingURL=secretReference.js.map
 
 /***/ }),
 
