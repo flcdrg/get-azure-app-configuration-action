@@ -22,6 +22,7 @@ export async function executeAzCliCommand(
         }
       }
     });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     throw new Error(stderr);
   }
