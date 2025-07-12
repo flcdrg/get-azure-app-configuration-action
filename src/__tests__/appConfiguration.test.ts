@@ -1,4 +1,3 @@
-/* eslint-disable import/named */
 /**
  * Integration Tests
  *
@@ -17,7 +16,7 @@ import {
   PageSettings
 } from '@azure/app-configuration';
 import { PagedAsyncIterableIterator } from '@azure/core-paging';
-import { getKeys } from '../src/appConfiguration';
+import { getKeys } from '../appConfiguration';
 
 type StringDictionary = {
   [id: string]: string;

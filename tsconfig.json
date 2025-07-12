@@ -9,5 +9,5 @@
     "esModuleInterop": true,                  /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     "newLine": "lf"
   },
-  "exclude": ["node_modules", "__tests__"]
+  "exclude": ["node_modules"]
 }
