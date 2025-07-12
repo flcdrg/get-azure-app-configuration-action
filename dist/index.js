@@ -15354,7 +15354,7 @@ function appConfigKeyCredentialPolicy(credential, secret) {
             request.headers.set("x-ms-date", utcNow);
             request.headers.set("x-ms-content-sha256", contentHash);
             // Syntax for Authorization header
-            // Reference - https://docs.microsoft.com/en-us/azure/azure-app-configuration/rest-api-authentication-hmac#syntax
+            // Reference - https://learn.microsoft.com/en-us/azure/azure-app-configuration/rest-api-authentication-hmac#syntax
             request.headers.set("Authorization", `HMAC-SHA256 Credential=${credential}&SignedHeaders=${signedHeaders}&Signature=${signature}`);
             return next(request);
         },
@@ -15407,14 +15407,16 @@ class AppConfigurationClient {
         let appConfigCredential;
         let appConfigEndpoint;
         let authPolicy;
+        let scope;
         if ((0, core_auth_1.isTokenCredential)(tokenCredentialOrOptions)) {
             appConfigOptions = options || {};
             appConfigCredential = tokenCredentialOrOptions;
             appConfigEndpoint = connectionStringOrEndpoint.endsWith("/")
                 ? connectionStringOrEndpoint.slice(0, -1)
                 : connectionStringOrEndpoint;
+            scope = (0, helpers_js_1.getScope)(appConfigEndpoint, appConfigOptions.audience);
             authPolicy = (0, core_rest_pipeline_1.bearerTokenAuthenticationPolicy)({
-                scopes: `${appConfigEndpoint}/.default`,
+                scopes: scope,
                 credential: appConfigCredential,
             });
         }
@@ -15445,8 +15447,20 @@ class AppConfigurationClient {
      * already exists.
      *
      * Example usage:
-     * ```ts
-     * const result = await client.addConfigurationSetting({ key: "MyKey", label: "MyLabel", value: "MyValue" });
+     * ```ts snippet:AddConfigurationSetting
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
+     * const result = await client.addConfigurationSetting({
+     *   key: "MyKey",
+     *   label: "MyLabel",
+     *   value: "MyValue",
+     * });
      * ```
      * @param configurationSetting - A configuration setting.
      * @param options - Optional parameters for the request.
@@ -15476,8 +15490,19 @@ class AppConfigurationClient {
      * Delete a setting from the Azure App Configuration service
      *
      * Example usage:
-     * ```ts
-     * const deletedSetting = await client.deleteConfigurationSetting({ key: "MyKey", label: "MyLabel" });
+     * ```ts snippet:DeleteConfigurationSetting
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
+     * const deletedSetting = await client.deleteConfigurationSetting({
+     *   key: "MyKey",
+     *   label: "MyLabel",
+     * });
      * ```
      * @param id - The id of the configuration setting to delete.
      * @param options - Optional parameters for the request (ex: etag, label)
@@ -15498,7 +15523,15 @@ class AppConfigurationClient {
      * Gets a setting from the Azure App Configuration service.
      *
      * Example code:
-     * ```ts
+     * ```ts snippet:GetConfigurationSetting
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
      * const setting = await client.getConfigurationSetting({ key: "MyKey", label: "MyLabel" });
      * ```
      * @param id - The id of the configuration setting to get.
@@ -15530,7 +15563,15 @@ class AppConfigurationClient {
      * filtered by key names, labels and accept datetime.
      *
      * Example code:
-     * ```ts
+     * ```ts snippet:ListConfigurationSettings
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
      * const allSettingsWithLabel = client.listConfigurationSettings({ labelFilter: "MyLabel" });
      * ```
      * @param options - Optional parameters for the request.
@@ -15581,8 +15622,18 @@ class AppConfigurationClient {
      * filtered by key names, labels and accept datetime.
      *
      * Example code:
-     * ```ts
-     * const allSettingsWithLabel = client.listConfigurationSettingsForSnashots({ snapshotName: "MySnapshot" });
+     * ```ts snippet:ListConfigurationSettingsForSnashots
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
+     * const allSettingsWithLabel = client.listConfigurationSettingsForSnashots({
+     *   snapshotName: "MySnapshot",
+     * });
      * ```
      * @param options - Optional parameters for the request.
      */
@@ -15608,7 +15659,15 @@ class AppConfigurationClient {
      * Get a list of labels from the Azure App Configuration service
      *
      * Example code:
-     * ```ts
+     * ```ts snippet:ListLabels
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
      * const allSettingsWithLabel = client.listLabels({ nameFilter: "prod*" });
      * ```
      * @param options - Optional parameters for the request.
@@ -15648,7 +15707,15 @@ class AppConfigurationClient {
      * labels and accept datetime.
      *
      * Example code:
-     * ```ts
+     * ```ts snippet:ListRevisions
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
      * const revisionsIterator = client.listRevisions({ keys: ["MyKey"] });
      * ```
      * @param options - Optional parameters for the request.
@@ -15684,7 +15751,15 @@ class AppConfigurationClient {
      * @param options - Optional parameters for the request.
      *
      * Example code:
-     * ```ts
+     * ```ts snippet:SetConfigurationSetting
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
      * await client.setConfigurationSetting({ key: "MyKey", value: "MyValue" });
      * ```
      */
@@ -15747,8 +15822,17 @@ class AppConfigurationClient {
      * Get a snapshot from Azure App Configuration service
      *
      * Example usage:
-     * ```ts
-     * const result = await client.getSnapshot("MySnapshot");
+     * ```ts snippet:GetSnapshot
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
+     * const retrievedSnapshot = await client.getSnapshot("testsnapshot");
+     * console.log("Retrieved snapshot:", retrievedSnapshot);
      * ```
      * @param name - The name of the snapshot.
      * @param options - Optional parameters for the request.
@@ -15766,7 +15850,15 @@ class AppConfigurationClient {
      * Recover an archived snapshot back to ready status
      *
      * Example usage:
-     * ```ts
+     * ```ts snippet:RecoverSnapshot
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
      * const result = await client.recoverSnapshot("MySnapshot");
      * ```
      * @param name - The name of the snapshot.
@@ -15787,8 +15879,16 @@ class AppConfigurationClient {
      * Archive a ready snapshot
      *
      * Example usage:
-     * ```ts
-     * const result = await client.archiveSnapshot({name: "MySnapshot"});
+     * ```ts snippet:ArchiveSnapshot
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
+     * const result = await client.archiveSnapshot({ name: "MySnapshot" });
      * ```
      * @param name - The name of the snapshot.
      * @param options - Optional parameters for the request.
@@ -15808,8 +15908,20 @@ class AppConfigurationClient {
      * List all snapshots from Azure App Configuration service
      *
      * Example usage:
-     * ```ts
-     * const result = await client.listSnapshots();
+     * ```ts snippet:ListSnapshots
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
+     * const snapshots = await client.listSnapshots();
+     *
+     * for await (const snapshot of snapshots) {
+     *   console.log(`Found snapshot: ${snapshot.name}`);
+     * }
      * ```
      * @param options - Optional parameters for the request.
      */
@@ -15972,7 +16084,7 @@ class AppConfiguration extends coreHttpCompat.ExtendedServiceClient {
         const defaults = {
             requestContentType: "application/json; charset=utf-8",
         };
-        const packageDetails = `azsdk-js-app-configuration/1.8.0`;
+        const packageDetails = `azsdk-js-app-configuration/1.9.0`;
         const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix
             ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
             : `${packageDetails}`;
@@ -16866,13 +16978,6 @@ Object.defineProperty(exports, "AppConfiguration", ({ enumerable: true, get: fun
 
 "use strict";
 
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createLroSpec = createLroSpec;
 const tslib_1 = __nccwpck_require__(1860);
@@ -18388,7 +18493,7 @@ exports.appConfigurationApiVersion = exports.packageVersion = void 0;
 /**
  * @internal
  */
-exports.packageVersion = "1.8.0";
+exports.packageVersion = "1.9.0";
 /**
  * @internal
  */
@@ -18424,7 +18529,9 @@ exports.formatFieldsForSelect = formatFieldsForSelect;
 exports.errorMessageForUnexpectedSetting = errorMessageForUnexpectedSetting;
 exports.assertResponse = assertResponse;
 exports.hasUnderscoreResponse = hasUnderscoreResponse;
+exports.getScope = getScope;
 const tslib_1 = __nccwpck_require__(1860);
+const models_js_1 = __nccwpck_require__(6399);
 const featureFlag_js_1 = __nccwpck_require__(3165);
 const secretReference_js_1 = __nccwpck_require__(8312);
 const core_util_1 = __nccwpck_require__(7779);
@@ -18739,6 +18846,29 @@ function assertResponse(result) {
 function hasUnderscoreResponse(result) {
     return Object.prototype.hasOwnProperty.call(result, "_response");
 }
+/**
+ * Get the scope for the App Configuration service based on the endpoint and audience.
+ * If the audience is provided, it will be used as the scope.
+ * If not, the scope is defaulted to Azure Public Cloud when not specified.
+ *
+ * @internal
+ */
+function getScope(appConfigEndpoint, appConfigAudience) {
+    if (appConfigAudience) {
+        return `${appConfigAudience}/.default`;
+    }
+    else if (appConfigEndpoint.endsWith("azconfig.azure.us") ||
+        appConfigEndpoint.endsWith("appconfig.azure.us")) {
+        return `${models_js_1.KnownAppConfigAudience.AzureGovernment}/.default`;
+    }
+    else if (appConfigEndpoint.endsWith("azconfig.azure.cn") ||
+        appConfigEndpoint.endsWith("appconfig.azure.cn")) {
+        return `${models_js_1.KnownAppConfigAudience.AzureChina}/.default`;
+    }
+    else {
+        return `${models_js_1.KnownAppConfigAudience.AzurePublicCloud}/.default`;
+    }
+}
 //# sourceMappingURL=helpers.js.map
 
 /***/ }),
@@ -18757,7 +18887,7 @@ exports.parseSyncToken = parseSyncToken;
 const logger_js_1 = __nccwpck_require__(4541);
 /**
  * The sync token header, as described here:
- * https://docs.microsoft.com/azure/azure-app-configuration/rest-api-consistency
+ * https://learn.microsoft.com/azure/azure-app-configuration/rest-api-consistency
  * @internal
  */
 exports.SyncTokenHeaderName = "sync-token";
@@ -18786,7 +18916,7 @@ function syncTokenPolicy(syncTokens) {
  * caching and load balancing within App Configuration).
  *
  * (protocol and format described here)
- * https://docs.microsoft.com/azure/azure-app-configuration/rest-api-consistency
+ * https://learn.microsoft.com/azure/azure-app-configuration/rest-api-consistency
  *
  * @internal
  */
@@ -18921,7 +19051,25 @@ exports.logger = (0, logger_1.createClientLogger)("app-config");
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.KnownConfigurationSnapshotStatus = exports.KnownSnapshotComposition = void 0;
+exports.KnownConfigurationSnapshotStatus = exports.KnownSnapshotComposition = exports.KnownAppConfigAudience = void 0;
+/**
+ * Known values for Azure App Configuration Audience
+ */
+var KnownAppConfigAudience;
+(function (KnownAppConfigAudience) {
+    /**
+     * Audience for Azure China
+     */
+    KnownAppConfigAudience["AzureChina"] = "https://appconfig.azure.cn";
+    /**
+     * Audience for Azure Government
+     */
+    KnownAppConfigAudience["AzureGovernment"] = "https://appconfig.azure.us";
+    /**
+     * Audience for Azure Public
+     */
+    KnownAppConfigAudience["AzurePublicCloud"] = "https://appconfig.azure.com";
+})(KnownAppConfigAudience || (exports.KnownAppConfigAudience = KnownAppConfigAudience = {}));
 var index_js_1 = __nccwpck_require__(7346);
 Object.defineProperty(exports, "KnownSnapshotComposition", ({ enumerable: true, get: function () { return index_js_1.KnownSnapshotComposition; } }));
 Object.defineProperty(exports, "KnownConfigurationSnapshotStatus", ({ enumerable: true, get: function () { return index_js_1.KnownConfigurationSnapshotStatus; } }));
