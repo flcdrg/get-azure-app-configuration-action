@@ -72,13 +72,13 @@ jobs:
 
       - name: Dump steps context
         run: echo '${{ toJSON(steps) }}"''
-        continue-on-error: true
 
         # This step only runs if value is not what was expected
       - run: |
           echo ' ${{ toJSON(steps.get-app-configuration2.outputs['ref kv secret 1']) }} '
+          exit 1
         name: Check result
-        continue-on-error: true
+        if: ${{ steps.get-app-configuration2.outputs['ref kv secret 1'] != 'Don''t tell anyone!' }}
 
       - run: printenv
         name: Dump environment
