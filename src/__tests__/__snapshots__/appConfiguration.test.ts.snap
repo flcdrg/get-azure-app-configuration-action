@@ -3,6 +3,8 @@
 exports[`appConfiguration all 1`] = `
 {
   "$dollarkey": "dollarkey value",
+  ".appconfig.featureflag/Fruit/Apples": "{"id":"Apples","description":"","enabled":false,"conditions":{"client_filters":[]}}",
+  ".appconfig.featureflag/SuperThing": "{"id":"SuperThing","description":"","enabled":false,"conditions":{"client_filters":[]}}",
   ".leadingdot": ".leadingdot value",
   "coloned:key": "coloned:key value",
   "dotted.key": "dotted.key value",
@@ -31,6 +33,8 @@ exports[`appConfiguration multiple key1,key2 1`] = `
 exports[`appConfiguration no labels 1`] = `
 {
   "$dollarkey": "dollarkey value",
+  ".appconfig.featureflag/Fruit/Apples": "{"id":"Apples","description":"","enabled":false,"conditions":{"client_filters":[]}}",
+  ".appconfig.featureflag/SuperThing": "{"id":"SuperThing","description":"","enabled":false,"conditions":{"client_filters":[]}}",
   ".leadingdot": ".leadingdot value",
   "coloned:key": "coloned:key value",
   "dotted.key": "dotted.key value",
@@ -45,6 +49,8 @@ exports[`appConfiguration no labels 1`] = `
 exports[`appConfiguration nulls 1`] = `
 {
   "$dollarkey": "dollarkey value",
+  ".appconfig.featureflag/Fruit/Apples": "{"id":"Apples","description":"","enabled":false,"conditions":{"client_filters":[]}}",
+  ".appconfig.featureflag/SuperThing": "{"id":"SuperThing","description":"","enabled":false,"conditions":{"client_filters":[]}}",
   ".leadingdot": ".leadingdot value",
   "coloned:key": "coloned:key value",
   "dotted.key": "dotted.key value",
