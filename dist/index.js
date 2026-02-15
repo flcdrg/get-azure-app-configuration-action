@@ -14011,11 +14011,10 @@ function appConfigKeyCredentialPolicy(credential, secret) {
     return {
         name: "AppConfigKeyCredentialPolicy",
         async sendRequest(request, next) {
-            var _a;
             const verb = request.method;
             const utcNow = new Date().toUTCString();
             logger_js_1.logger.info("[appConfigKeyCredentialPolicy] Computing SHA-256 from the request body");
-            const contentHash = await (0, core_util_1.computeSha256Hash)(((_a = request.body) === null || _a === void 0 ? void 0 : _a.toString()) || "", "base64");
+            const contentHash = await (0, core_util_1.computeSha256Hash)(request.body?.toString() || "", "base64");
             const signedHeaders = "x-ms-date;host;x-ms-content-sha256";
             const url = new URL(request.url);
             const query = url.search;
@@ -14026,7 +14025,7 @@ function appConfigKeyCredentialPolicy(credential, secret) {
             request.headers.set("x-ms-date", utcNow);
             request.headers.set("x-ms-content-sha256", contentHash);
             // Syntax for Authorization header
-            // Reference - https://learn.microsoft.com/en-us/azure/azure-app-configuration/rest-api-authentication-hmac#syntax
+            // Reference - https://learn.microsoft.com/azure/azure-app-configuration/rest-api-authentication-hmac#syntax
             request.headers.set("Authorization", `HMAC-SHA256 Credential=${credential}&SignedHeaders=${signedHeaders}&Signature=${signature}`);
             return next(request);
         },
@@ -14047,7 +14046,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppConfigurationClient = void 0;
 const core_paging_1 = __nccwpck_require__(4031);
 const core_rest_pipeline_1 = __nccwpck_require__(778);
-const synctokenpolicy_js_1 = __nccwpck_require__(9865);
+const audienceErrorHandlingPolicy_js_1 = __nccwpck_require__(6364);
+const syncTokenPolicy_js_1 = __nccwpck_require__(7881);
+const queryParamPolicy_js_1 = __nccwpck_require__(5856);
 const core_auth_1 = __nccwpck_require__(417);
 const helpers_js_1 = __nccwpck_require__(4070);
 const appConfiguration_js_1 = __nccwpck_require__(995);
@@ -14073,8 +14074,9 @@ const deserializationContentTypes = {
  * Client for the Azure App Configuration service.
  */
 class AppConfigurationClient {
+    client;
+    _syncTokens;
     constructor(connectionStringOrEndpoint, tokenCredentialOrOptions, options) {
-        var _a;
         let appConfigOptions = {};
         let appConfigCredential;
         let appConfigEndpoint;
@@ -14094,7 +14096,7 @@ class AppConfigurationClient {
         }
         else {
             appConfigOptions = tokenCredentialOrOptions || {};
-            const regexMatch = connectionStringOrEndpoint === null || connectionStringOrEndpoint === void 0 ? void 0 : connectionStringOrEndpoint.match(ConnectionStringRegex);
+            const regexMatch = connectionStringOrEndpoint?.match(ConnectionStringRegex);
             if (regexMatch) {
                 appConfigEndpoint = regexMatch[1];
                 authPolicy = (0, appConfigCredential_js_1.appConfigKeyCredentialPolicy)(regexMatch[2], regexMatch[3]);
@@ -14104,15 +14106,24 @@ class AppConfigurationClient {
                     ` To mitigate the issue, please refer to the troubleshooting guide here at https://aka.ms/azsdk/js/app-configuration/troubleshoot.`);
             }
         }
-        const internalClientPipelineOptions = Object.assign(Object.assign({}, appConfigOptions), { loggingOptions: {
+        const internalClientPipelineOptions = {
+            ...appConfigOptions,
+            loggingOptions: {
                 logger: logger_js_1.logger.info,
-            }, deserializationOptions: {
+            },
+            deserializationOptions: {
                 expectedContentTypes: deserializationContentTypes,
-            } });
-        this._syncTokens = appConfigOptions.syncTokens || new synctokenpolicy_js_1.SyncTokens();
-        this.client = new appConfiguration_js_1.AppConfiguration(appConfigEndpoint, (_a = options === null || options === void 0 ? void 0 : options.apiVersion) !== null && _a !== void 0 ? _a : constants_js_1.appConfigurationApiVersion, internalClientPipelineOptions);
+            },
+        };
+        this._syncTokens = appConfigOptions.syncTokens || new syncTokenPolicy_js_1.SyncTokens();
+        this.client = new appConfiguration_js_1.AppConfiguration(appConfigEndpoint, options?.apiVersion ?? constants_js_1.appConfigurationApiVersion, internalClientPipelineOptions);
+        this.client.pipeline.addPolicy((0, audienceErrorHandlingPolicy_js_1.audienceErrorHandlingPolicy)(appConfigOptions?.audience !== undefined), {
+            phase: "Sign",
+            beforePolicies: [authPolicy.name],
+        });
         this.client.pipeline.addPolicy(authPolicy, { phase: "Sign" });
-        this.client.pipeline.addPolicy((0, synctokenpolicy_js_1.syncTokenPolicy)(this._syncTokens), { afterPhase: "Retry" });
+        this.client.pipeline.addPolicy((0, queryParamPolicy_js_1.queryParamPolicy)());
+        this.client.pipeline.addPolicy((0, syncTokenPolicy_js_1.syncTokenPolicy)(this._syncTokens), { afterPhase: "Retry" });
     }
     /**
      * Add a setting into the Azure App Configuration service, failing if it
@@ -14142,7 +14153,12 @@ class AppConfigurationClient {
             const keyValue = (0, helpers_js_1.serializeAsConfigurationSettingParam)(configurationSetting);
             logger_js_1.logger.info("[addConfigurationSetting] Creating a key value pair");
             try {
-                const originalResponse = await this.client.putKeyValue(configurationSetting.key, Object.assign({ ifNoneMatch: "*", label: configurationSetting.label, entity: keyValue }, updatedOptions));
+                const originalResponse = await this.client.putKeyValue(configurationSetting.key, {
+                    ifNoneMatch: "*",
+                    label: configurationSetting.label,
+                    entity: keyValue,
+                    ...updatedOptions,
+                });
                 const response = (0, helpers_js_1.transformKeyValueResponse)(originalResponse);
                 (0, helpers_js_1.assertResponse)(response);
                 return response;
@@ -14183,9 +14199,14 @@ class AppConfigurationClient {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.deleteConfigurationSetting", options, async (updatedOptions) => {
             let status;
             logger_js_1.logger.info("[deleteConfigurationSetting] Deleting key value pair");
-            const originalResponse = await this.client.deleteKeyValue(id.key, Object.assign(Object.assign(Object.assign({ label: id.label }, updatedOptions), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options)), { onResponse: (response) => {
+            const originalResponse = await this.client.deleteKeyValue(id.key, {
+                label: id.label,
+                ...updatedOptions,
+                ...(0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options),
+                onResponse: (response) => {
                     status = response.status;
-                } }));
+                },
+            });
             const response = (0, helpers_js_1.transformKeyValueResponseWithStatusCode)(originalResponse, status);
             (0, helpers_js_1.assertResponse)(response);
             return response;
@@ -14213,9 +14234,16 @@ class AppConfigurationClient {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.getConfigurationSetting", options, async (updatedOptions) => {
             let status;
             logger_js_1.logger.info("[getConfigurationSetting] Getting key value pair");
-            const originalResponse = await this.client.getKeyValue(id.key, Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), { label: id.label, select: (0, helpers_js_1.formatFieldsForSelect)(options.fields) }), (0, helpers_js_1.formatAcceptDateTime)(options)), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options)), { onResponse: (response) => {
+            const originalResponse = await this.client.getKeyValue(id.key, {
+                ...updatedOptions,
+                label: id.label,
+                select: (0, helpers_js_1.formatFieldsForSelect)(options.fields),
+                ...(0, helpers_js_1.formatAcceptDateTime)(options),
+                ...(0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options),
+                onResponse: (response) => {
                     status = response.status;
-                } }));
+                },
+            });
             const response = (0, helpers_js_1.transformKeyValueResponseWithStatusCode)(originalResponse, status);
             // 304 only comes back if the user has passed a conditional option in their
             // request _and_ the remote object has the same etag as what the user passed.
@@ -14254,13 +14282,17 @@ class AppConfigurationClient {
         const pagedResult = {
             firstPageLink: undefined,
             getPage: async (pageLink) => {
-                var _a, _b, _c;
-                const etag = pageEtags === null || pageEtags === void 0 ? void 0 : pageEtags.shift();
+                const etag = pageEtags?.shift();
                 try {
-                    const response = await this.sendConfigurationSettingsRequest(Object.assign(Object.assign({}, options), { etag }), pageLink);
-                    const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? (_a = response.items) === null || _a === void 0 ? void 0 : _a.map(helpers_js_1.transformKeyValue) : [], continuationToken: response.nextLink
+                    const response = await this.sendConfigurationSettingsRequest({ ...options, etag }, pageLink);
+                    const currentResponse = {
+                        ...response,
+                        items: response.items != null ? response.items?.map(helpers_js_1.transformKeyValue) : [],
+                        continuationToken: response.nextLink
                             ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
-                            : undefined, _response: response._response });
+                            : undefined,
+                        _response: response._response,
+                    };
                     return {
                         page: currentResponse,
                         nextPageLink: currentResponse.continuationToken,
@@ -14268,7 +14300,7 @@ class AppConfigurationClient {
                 }
                 catch (error) {
                     const err = error;
-                    const link = (_c = (_b = err.response) === null || _b === void 0 ? void 0 : _b.headers) === null || _c === void 0 ? void 0 : _c.get("link");
+                    const link = err.response?.headers?.get("link");
                     const continuationToken = link ? (0, helpers_js_1.extractAfterTokenFromLinkHeader)(link) : undefined;
                     if (err.statusCode === 304) {
                         err.message = `Status 304: No updates for this page`;
@@ -14277,7 +14309,71 @@ class AppConfigurationClient {
                             page: {
                                 items: [],
                                 etag,
-                                _response: Object.assign(Object.assign({}, err.response), { status: 304 }),
+                                _response: { ...err.response, status: 304 },
+                            },
+                            nextPageLink: continuationToken,
+                        };
+                    }
+                    throw err;
+                }
+            },
+            toElements: (page) => page.items,
+        };
+        return (0, core_paging_1.getPagedAsyncIterator)(pagedResult);
+    }
+    /**
+     * Checks settings from the Azure App Configuration service using a HEAD request, returning only headers without the response body.
+     * This is useful for efficiently checking if settings have changed by comparing ETags.
+     *
+     * Example code:
+     * ```ts snippet:CheckConfigurationSettings
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { AppConfigurationClient } from "@azure/app-configuration";
+     *
+     * // The endpoint for your App Configuration resource
+     * const endpoint = "https://example.azconfig.io";
+     * const credential = new DefaultAzureCredential();
+     * const client = new AppConfigurationClient(endpoint, credential);
+     *
+     * const pageIterator = client.checkConfigurationSettings({ keyFilter: "MyKey" }).byPage();
+     * ```
+     * @param options - Optional parameters for the request.
+     */
+    checkConfigurationSettings(options = {}) {
+        const pageEtags = options.pageEtags ? [...options.pageEtags] : undefined;
+        delete options.pageEtags;
+        const pagedResult = {
+            firstPageLink: undefined,
+            getPage: async (pageLink) => {
+                const etag = pageEtags?.shift();
+                try {
+                    const response = await this.checkConfigurationSettingsRequest({ ...options, etag }, pageLink);
+                    const link = response._response?.headers?.get("link");
+                    const continuationToken = link ? (0, helpers_js_1.extractAfterTokenFromLinkHeader)(link) : undefined;
+                    const currentResponse = {
+                        ...response,
+                        etag: response._response?.headers?.get("etag"),
+                        items: [],
+                        continuationToken: continuationToken,
+                        _response: response._response,
+                    };
+                    return {
+                        page: currentResponse,
+                        nextPageLink: currentResponse.continuationToken,
+                    };
+                }
+                catch (error) {
+                    const err = error;
+                    const link = err.response?.headers?.get("link");
+                    const continuationToken = link ? (0, helpers_js_1.extractAfterTokenFromLinkHeader)(link) : undefined;
+                    if (err.statusCode === 304) {
+                        err.message = `Status 304: No updates for this page`;
+                        logger_js_1.logger.info(`[checkConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
+                        return {
+                            page: {
+                                items: [],
+                                etag,
+                                _response: { ...err.response, status: 304 },
                             },
                             nextPageLink: continuationToken,
                         };
@@ -14313,11 +14409,14 @@ class AppConfigurationClient {
         const pagedResult = {
             firstPageLink: undefined,
             getPage: async (pageLink) => {
-                var _a;
-                const response = await this.sendConfigurationSettingsRequest(Object.assign({ snapshotName }, options), pageLink);
-                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? (_a = response.items) === null || _a === void 0 ? void 0 : _a.map(helpers_js_1.transformKeyValue) : [], continuationToken: response.nextLink
+                const response = await this.sendConfigurationSettingsRequest({ snapshotName, ...options }, pageLink);
+                const currentResponse = {
+                    ...response,
+                    items: response.items != null ? response.items?.map(helpers_js_1.transformKeyValue) : [],
+                    continuationToken: response.nextLink
                         ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
-                        : undefined });
+                        : undefined,
+                };
                 return {
                     page: currentResponse,
                     nextPageLink: currentResponse.continuationToken,
@@ -14348,11 +14447,15 @@ class AppConfigurationClient {
         const pagedResult = {
             firstPageLink: undefined,
             getPage: async (pageLink) => {
-                var _a;
                 const response = await this.sendLabelsRequest(options, pageLink);
-                const currentResponse = Object.assign(Object.assign({}, response), { items: (_a = response.items) !== null && _a !== void 0 ? _a : [], continuationToken: response.nextLink
+                const currentResponse = {
+                    ...response,
+                    items: response.items ?? [],
+                    continuationToken: response.nextLink
                         ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
-                        : undefined, _response: response._response });
+                        : undefined,
+                    _response: response._response,
+                };
                 return {
                     page: currentResponse,
                     nextPageLink: currentResponse.continuationToken,
@@ -14364,13 +14467,36 @@ class AppConfigurationClient {
     }
     async sendLabelsRequest(options = {}, pageLink) {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.listConfigurationSettings", options, async (updatedOptions) => {
-            const response = await this.client.getLabels(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.formatAcceptDateTime)(options)), (0, helpers_js_1.formatLabelsFiltersAndSelect)(options)), { after: pageLink }));
+            const response = await this.client.getLabels({
+                ...updatedOptions,
+                ...(0, helpers_js_1.formatAcceptDateTime)(options),
+                ...(0, helpers_js_1.formatLabelsFiltersAndSelect)(options),
+                after: pageLink,
+            });
             return response;
         });
     }
     async sendConfigurationSettingsRequest(options = {}, pageLink) {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.listConfigurationSettings", options, async (updatedOptions) => {
-            const response = await this.client.getKeyValues(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.formatAcceptDateTime)(options)), (0, helpers_js_1.formatConfigurationSettingsFiltersAndSelect)(options)), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, { onlyIfChanged: true })), { after: pageLink }));
+            const response = await this.client.getKeyValues({
+                ...updatedOptions,
+                ...(0, helpers_js_1.formatAcceptDateTime)(options),
+                ...(0, helpers_js_1.formatConfigurationSettingsFiltersAndSelect)(options),
+                ...(0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, { onlyIfChanged: true }),
+                after: pageLink,
+            });
+            return response;
+        });
+    }
+    async checkConfigurationSettingsRequest(options = {}, pageLink) {
+        return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.checkConfigurationSettings", options, async (updatedOptions) => {
+            const response = await this.client.checkKeyValues({
+                ...updatedOptions,
+                ...(0, helpers_js_1.formatAcceptDateTime)(options),
+                ...(0, helpers_js_1.formatConfigurationSettingsFiltersAndSelect)(options),
+                ...(0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, { onlyIfChanged: true }),
+                after: pageLink,
+            });
             return response;
         });
     }
@@ -14397,9 +14523,13 @@ class AppConfigurationClient {
             firstPageLink: undefined,
             getPage: async (pageLink) => {
                 const response = await this.sendRevisionsRequest(options, pageLink);
-                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? response.items.map(helpers_js_1.transformKeyValue) : [], continuationToken: response.nextLink
+                const currentResponse = {
+                    ...response,
+                    items: response.items != null ? response.items.map(helpers_js_1.transformKeyValue) : [],
+                    continuationToken: response.nextLink
                         ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
-                        : undefined });
+                        : undefined,
+                };
                 // let itemList = currentResponse.items;
                 return {
                     page: currentResponse,
@@ -14412,7 +14542,12 @@ class AppConfigurationClient {
     }
     async sendRevisionsRequest(options = {}, pageLink) {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.listRevisions", options, async (updatedOptions) => {
-            const response = await this.client.getRevisions(Object.assign(Object.assign(Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.formatAcceptDateTime)(options)), (0, helpers_js_1.formatFiltersAndSelect)(updatedOptions)), { after: pageLink }));
+            const response = await this.client.getRevisions({
+                ...updatedOptions,
+                ...(0, helpers_js_1.formatAcceptDateTime)(options),
+                ...(0, helpers_js_1.formatFiltersAndSelect)(updatedOptions),
+                after: pageLink,
+            });
             return response;
         });
     }
@@ -14439,7 +14574,12 @@ class AppConfigurationClient {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.setConfigurationSetting", options, async (updatedOptions) => {
             const keyValue = (0, helpers_js_1.serializeAsConfigurationSettingParam)(configurationSetting);
             logger_js_1.logger.info("[setConfigurationSetting] Setting new key value");
-            const response = (0, helpers_js_1.transformKeyValueResponse)(await this.client.putKeyValue(configurationSetting.key, Object.assign(Object.assign(Object.assign({}, updatedOptions), { label: configurationSetting.label, entity: keyValue }), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(configurationSetting, options))));
+            const response = (0, helpers_js_1.transformKeyValueResponse)(await this.client.putKeyValue(configurationSetting.key, {
+                ...updatedOptions,
+                label: configurationSetting.label,
+                entity: keyValue,
+                ...(0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(configurationSetting, options),
+            }));
             (0, helpers_js_1.assertResponse)(response);
             return response;
         });
@@ -14453,11 +14593,19 @@ class AppConfigurationClient {
             let response;
             if (readOnly) {
                 logger_js_1.logger.info("[setReadOnly] Setting read-only status to ${readOnly}");
-                response = await this.client.putLock(id.key, Object.assign(Object.assign(Object.assign({}, newOptions), { label: id.label }), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options)));
+                response = await this.client.putLock(id.key, {
+                    ...newOptions,
+                    label: id.label,
+                    ...(0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options),
+                });
             }
             else {
                 logger_js_1.logger.info("[setReadOnly] Deleting read-only lock");
-                response = await this.client.deleteLock(id.key, Object.assign(Object.assign(Object.assign({}, newOptions), { label: id.label }), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options)));
+                response = await this.client.deleteLock(id.key, {
+                    ...newOptions,
+                    label: id.label,
+                    ...(0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)(id, options),
+                });
             }
             response = (0, helpers_js_1.transformKeyValueResponse)(response);
             (0, helpers_js_1.assertResponse)(response);
@@ -14479,7 +14627,7 @@ class AppConfigurationClient {
     beginCreateSnapshot(snapshot, 
     // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
     options = {}) {
-        return tracing_js_1.tracingClient.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshot`, options, (updatedOptions) => this.client.beginCreateSnapshot(snapshot.name, snapshot, Object.assign({}, updatedOptions)));
+        return tracing_js_1.tracingClient.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshot`, options, (updatedOptions) => this.client.beginCreateSnapshot(snapshot.name, snapshot, { ...updatedOptions }));
     }
     /**
      * Begins creating a snapshot for Azure App Configuration service, waits until it is done,
@@ -14488,7 +14636,7 @@ class AppConfigurationClient {
     beginCreateSnapshotAndWait(snapshot, 
     // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
     options = {}) {
-        return tracing_js_1.tracingClient.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshotAndWait`, options, (updatedOptions) => this.client.beginCreateSnapshotAndWait(snapshot.name, snapshot, Object.assign({}, updatedOptions)));
+        return tracing_js_1.tracingClient.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshotAndWait`, options, (updatedOptions) => this.client.beginCreateSnapshotAndWait(snapshot.name, snapshot, { ...updatedOptions }));
     }
     /**
      * Get a snapshot from Azure App Configuration service
@@ -14512,7 +14660,9 @@ class AppConfigurationClient {
     getSnapshot(name, options = {}) {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.getSnapshot", options, async (updatedOptions) => {
             logger_js_1.logger.info("[getSnapshot] Get a snapshot");
-            const originalResponse = await this.client.getSnapshot(name, Object.assign({}, updatedOptions));
+            const originalResponse = await this.client.getSnapshot(name, {
+                ...updatedOptions,
+            });
             const response = (0, helpers_js_1.transformSnapshotResponse)(originalResponse);
             (0, helpers_js_1.assertResponse)(response);
             return response;
@@ -14541,7 +14691,10 @@ class AppConfigurationClient {
     options = {}) {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.recoverSnapshot", options, async (updatedOptions) => {
             logger_js_1.logger.info("[recoverSnapshot] Recover a snapshot");
-            const originalResponse = await this.client.updateSnapshot(name, { status: "ready" }, Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, Object.assign({ onlyIfUnchanged: true }, options))));
+            const originalResponse = await this.client.updateSnapshot(name, { status: "ready" }, {
+                ...updatedOptions,
+                ...(0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, { onlyIfUnchanged: true, ...options }),
+            });
             const response = (0, helpers_js_1.transformSnapshotResponse)(originalResponse);
             (0, helpers_js_1.assertResponse)(response);
             return response;
@@ -14570,7 +14723,10 @@ class AppConfigurationClient {
     options = {}) {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.archiveSnapshot", options, async (updatedOptions) => {
             logger_js_1.logger.info("[archiveSnapshot] Archive a snapshot");
-            const originalResponse = await this.client.updateSnapshot(name, { status: "archived" }, Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, Object.assign({ onlyIfUnchanged: true }, options))));
+            const originalResponse = await this.client.updateSnapshot(name, { status: "archived" }, {
+                ...updatedOptions,
+                ...(0, helpers_js_1.checkAndFormatIfAndIfNoneMatch)({ etag: options.etag }, { onlyIfUnchanged: true, ...options }),
+            });
             const response = (0, helpers_js_1.transformSnapshotResponse)(originalResponse);
             (0, helpers_js_1.assertResponse)(response);
             return response;
@@ -14602,9 +14758,13 @@ class AppConfigurationClient {
             firstPageLink: undefined,
             getPage: async (pageLink) => {
                 const response = await this.sendSnapShotsRequest(options, pageLink);
-                const currentResponse = Object.assign(Object.assign({}, response), { items: response.items != null ? response.items : [], continuationToken: response.nextLink
+                const currentResponse = {
+                    ...response,
+                    items: response.items != null ? response.items : [],
+                    continuationToken: response.nextLink
                         ? (0, helpers_js_1.extractAfterTokenFromNextLink)(response.nextLink)
-                        : undefined });
+                        : undefined,
+                };
                 return {
                     page: currentResponse,
                     nextPageLink: currentResponse.continuationToken,
@@ -14616,7 +14776,11 @@ class AppConfigurationClient {
     }
     async sendSnapShotsRequest(options = {}, pageLink) {
         return tracing_js_1.tracingClient.withSpan("AppConfigurationClient.listSnapshots", options, async (updatedOptions) => {
-            const response = await this.client.getSnapshots(Object.assign(Object.assign(Object.assign({}, updatedOptions), (0, helpers_js_1.formatSnapshotFiltersAndSelect)(options)), { after: pageLink }));
+            const response = await this.client.getSnapshots({
+                ...updatedOptions,
+                ...(0, helpers_js_1.formatSnapshotFiltersAndSelect)(options),
+                after: pageLink,
+            });
             return response;
         });
     }
@@ -14654,7 +14818,6 @@ exports.FeatureFlagHelper = {
      * Takes the FeatureFlag (JSON) and returns a ConfigurationSetting (with the props encodeed in the value).
      */
     toConfigurationSettingParam: (featureFlag) => {
-        var _a;
         logger_js_1.logger.info("Encoding FeatureFlag value in a ConfigurationSetting:", featureFlag);
         if (!featureFlag.value) {
             logger_js_1.logger.error("FeatureFlag has an unexpected value", featureFlag);
@@ -14665,15 +14828,20 @@ exports.FeatureFlagHelper = {
             key = exports.featureFlagPrefix + featureFlag.key;
         }
         const jsonFeatureFlagValue = {
-            id: (_a = featureFlag.value.id) !== null && _a !== void 0 ? _a : key.replace(exports.featureFlagPrefix, ""),
+            id: featureFlag.value.id ?? key.replace(exports.featureFlagPrefix, ""),
             enabled: featureFlag.value.enabled,
             description: featureFlag.value.description,
             conditions: {
                 client_filters: featureFlag.value.conditions.clientFilters,
+                requirement_type: featureFlag.value.conditions.requirementType ?? "Any",
             },
             display_name: featureFlag.value.displayName,
         };
-        const configSetting = Object.assign(Object.assign({}, featureFlag), { key, value: JSON.stringify(jsonFeatureFlagValue) });
+        const configSetting = {
+            ...featureFlag,
+            key,
+            value: JSON.stringify(jsonFeatureFlagValue),
+        };
         return configSetting;
     },
 };
@@ -14691,13 +14859,23 @@ function parseFeatureFlag(setting) {
     if (typeof setting.key === "string" && !setting.key.startsWith(exports.featureFlagPrefix)) {
         key = exports.featureFlagPrefix + setting.key;
     }
-    const featureflag = Object.assign(Object.assign({}, setting), { value: {
+    const featureflag = {
+        ...setting,
+        value: {
             id: jsonFeatureFlagValue.id,
-            enabled: jsonFeatureFlagValue.enabled,
+            enabled: jsonFeatureFlagValue.enabled ?? false,
             description: jsonFeatureFlagValue.description,
             displayName: jsonFeatureFlagValue.display_name,
-            conditions: { clientFilters: jsonFeatureFlagValue.conditions.client_filters },
-        }, key, contentType: exports.featureFlagContentType });
+            conditions: jsonFeatureFlagValue.conditions
+                ? {
+                    clientFilters: jsonFeatureFlagValue.conditions.client_filters,
+                    requirementType: jsonFeatureFlagValue.conditions.requirement_type,
+                }
+                : { clientFilters: [] },
+        },
+        key,
+        contentType: exports.featureFlagContentType,
+    };
     return featureflag;
 }
 /**
@@ -14735,6 +14913,9 @@ const Parameters = tslib_1.__importStar(__nccwpck_require__(2253));
 const Mappers = tslib_1.__importStar(__nccwpck_require__(6751));
 /** @internal */
 class AppConfiguration extends coreHttpCompat.ExtendedServiceClient {
+    endpoint;
+    syncToken;
+    apiVersion;
     /**
      * Initializes a new instance of the AppConfiguration class.
      * @param endpoint The endpoint of the App Configuration instance to send requests to.
@@ -14742,7 +14923,6 @@ class AppConfiguration extends coreHttpCompat.ExtendedServiceClient {
      * @param options The parameter options
      */
     constructor(endpoint, apiVersion, options) {
-        var _a, _b;
         if (endpoint === undefined) {
             throw new Error("'endpoint' cannot be null");
         }
@@ -14756,13 +14936,18 @@ class AppConfiguration extends coreHttpCompat.ExtendedServiceClient {
         const defaults = {
             requestContentType: "application/json; charset=utf-8",
         };
-        const packageDetails = `azsdk-js-app-configuration/1.9.0`;
+        const packageDetails = `azsdk-js-app-configuration/1.11.0`;
         const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix
             ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
             : `${packageDetails}`;
-        const optionsWithDefaults = Object.assign(Object.assign(Object.assign({}, defaults), options), { userAgentOptions: {
+        const optionsWithDefaults = {
+            ...defaults,
+            ...options,
+            userAgentOptions: {
                 userAgentPrefix,
-            }, endpoint: (_b = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri) !== null && _b !== void 0 ? _b : "{endpoint}" });
+            },
+            endpoint: options.endpoint ?? options.baseUri ?? "{endpoint}",
+        };
         super(optionsWithDefaults);
         // Parameter assignments
         this.endpoint = endpoint;
@@ -14887,14 +15072,19 @@ class AppConfiguration extends coreHttpCompat.ExtendedServiceClient {
             return this.sendOperationRequest(args, spec);
         };
         const sendOperationFn = async (args, spec) => {
-            var _a;
             let currentRawResponse = undefined;
-            const providedCallback = (_a = args.options) === null || _a === void 0 ? void 0 : _a.onResponse;
+            const providedCallback = args.options?.onResponse;
             const callback = (rawResponse, flatResponse) => {
                 currentRawResponse = rawResponse;
-                providedCallback === null || providedCallback === void 0 ? void 0 : providedCallback(rawResponse, flatResponse);
+                providedCallback?.(rawResponse, flatResponse);
             };
-            const updatedArgs = Object.assign(Object.assign({}, args), { options: Object.assign(Object.assign({}, args.options), { onResponse: callback }) });
+            const updatedArgs = {
+                ...args,
+                options: {
+                    ...args.options,
+                    onResponse: callback,
+                },
+            };
             const flatResponse = await directSendOperation(updatedArgs, spec);
             return {
                 flatResponse,
@@ -14911,8 +15101,8 @@ class AppConfiguration extends coreHttpCompat.ExtendedServiceClient {
             spec: createSnapshotOperationSpec,
         });
         const poller = await (0, core_lro_1.createHttpPoller)(lro, {
-            restoreFrom: options === null || options === void 0 ? void 0 : options.resumeFrom,
-            intervalInMs: options === null || options === void 0 ? void 0 : options.updateIntervalInMs,
+            restoreFrom: options?.resumeFrom,
+            intervalInMs: options?.updateIntervalInMs,
         });
         await poller.poll();
         return poller;
@@ -15646,13 +15836,12 @@ Object.defineProperty(exports, "AppConfiguration", ({ enumerable: true, get: fun
 /***/ }),
 
 /***/ 3411:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createLroSpec = createLroSpec;
-const tslib_1 = __nccwpck_require__(1860);
 function createLroSpec(inputs) {
     const { args, spec, sendOperationFn } = inputs;
     return {
@@ -15660,8 +15849,13 @@ function createLroSpec(inputs) {
         requestPath: spec.path,
         sendInitialRequest: () => sendOperationFn(args, spec),
         sendPollRequest: (path, options) => {
-            const { requestBody } = spec, restSpec = tslib_1.__rest(spec, ["requestBody"]);
-            return sendOperationFn(args, Object.assign(Object.assign({}, restSpec), { httpMethod: "GET", path, abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal }));
+            const { requestBody, ...restSpec } = spec;
+            return sendOperationFn(args, {
+                ...restSpec,
+                httpMethod: "GET",
+                path,
+                abortSignal: options?.abortSignal,
+            });
         },
     };
 }
@@ -16820,7 +17014,7 @@ exports.apiVersion = {
 exports.after = {
     parameterPath: ["options", "after"],
     mapper: {
-        serializedName: "After",
+        serializedName: "after",
         type: {
             name: "String",
         },
@@ -17135,7 +17329,7 @@ exports.nextLink = {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.secretReferenceContentType = exports.parseSecretReference = exports.isSecretReference = exports.parseFeatureFlag = exports.isFeatureFlag = exports.featureFlagPrefix = exports.featureFlagContentType = exports.AppConfigurationClient = void 0;
+exports.snapshotReferenceContentType = exports.parseSnapshotReference = exports.isSnapshotReference = exports.secretReferenceContentType = exports.parseSecretReference = exports.isSecretReference = exports.parseFeatureFlag = exports.isFeatureFlag = exports.featureFlagPrefix = exports.featureFlagContentType = exports.AppConfigurationClient = void 0;
 const tslib_1 = __nccwpck_require__(1860);
 var appConfigurationClient_js_1 = __nccwpck_require__(2949);
 Object.defineProperty(exports, "AppConfigurationClient", ({ enumerable: true, get: function () { return appConfigurationClient_js_1.AppConfigurationClient; } }));
@@ -17149,7 +17343,52 @@ var secretReference_js_1 = __nccwpck_require__(8312);
 Object.defineProperty(exports, "isSecretReference", ({ enumerable: true, get: function () { return secretReference_js_1.isSecretReference; } }));
 Object.defineProperty(exports, "parseSecretReference", ({ enumerable: true, get: function () { return secretReference_js_1.parseSecretReference; } }));
 Object.defineProperty(exports, "secretReferenceContentType", ({ enumerable: true, get: function () { return secretReference_js_1.secretReferenceContentType; } }));
+var snapshotReference_js_1 = __nccwpck_require__(6356);
+Object.defineProperty(exports, "isSnapshotReference", ({ enumerable: true, get: function () { return snapshotReference_js_1.isSnapshotReference; } }));
+Object.defineProperty(exports, "parseSnapshotReference", ({ enumerable: true, get: function () { return snapshotReference_js_1.parseSnapshotReference; } }));
+Object.defineProperty(exports, "snapshotReferenceContentType", ({ enumerable: true, get: function () { return snapshotReference_js_1.snapshotReferenceContentType; } }));
 //# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 6364:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.audienceErrorHandlingPolicy = audienceErrorHandlingPolicy;
+const core_rest_pipeline_1 = __nccwpck_require__(778);
+const AadAudienceErrorCode = "AADSTS500011";
+const NoAudienceErrorMessage = "Unable to authenticate to Azure App Configuration. No authentication token audience was provided. Please set AppConfigurationClientOptions.audience to the appropriate audience for the target cloud. For details on how to configure the authentication token audience visit https://aka.ms/appconfig/client-token-audience.";
+const WrongAudienceErrorMessage = "Unable to authenticate to Azure App Configuration. An incorrect token audience was provided. Please set AppConfigurationClientOptions.audience to the appropriate audience for the target cloud. For details on how to configure the authentication token audience visit https://aka.ms/appconfig/client-token-audience.";
+/**
+ * Creates a PipelinePolicy that provides more helpful errors when Entra ID audience misconfiguration is detected.
+ */
+function audienceErrorHandlingPolicy(isAudienceConfigured) {
+    return {
+        name: "audienceErrorHandlingPolicy",
+        async sendRequest(request, next) {
+            try {
+                return await next(request);
+            }
+            catch (error) {
+                if (typeof error.message === "string" && error.message.includes(AadAudienceErrorCode)) {
+                    if (isAudienceConfigured) {
+                        throw new core_rest_pipeline_1.RestError(WrongAudienceErrorMessage);
+                    }
+                    else {
+                        throw new core_rest_pipeline_1.RestError(NoAudienceErrorMessage);
+                    }
+                }
+                throw error;
+            }
+        },
+    };
+}
+//# sourceMappingURL=audienceErrorHandlingPolicy.js.map
 
 /***/ }),
 
@@ -17165,7 +17404,7 @@ exports.appConfigurationApiVersion = exports.packageVersion = void 0;
 /**
  * @internal
  */
-exports.packageVersion = "1.9.0";
+exports.packageVersion = "1.11.0";
 /**
  * @internal
  */
@@ -17202,10 +17441,10 @@ exports.errorMessageForUnexpectedSetting = errorMessageForUnexpectedSetting;
 exports.assertResponse = assertResponse;
 exports.hasUnderscoreResponse = hasUnderscoreResponse;
 exports.getScope = getScope;
-const tslib_1 = __nccwpck_require__(1860);
 const models_js_1 = __nccwpck_require__(6399);
 const featureFlag_js_1 = __nccwpck_require__(3165);
 const secretReference_js_1 = __nccwpck_require__(8312);
+const snapshotReference_js_1 = __nccwpck_require__(6356);
 const core_util_1 = __nccwpck_require__(7779);
 const logger_js_1 = __nccwpck_require__(4541);
 /**
@@ -17281,8 +17520,11 @@ function formatFiltersAndSelect(listConfigOptions) {
  * @internal
  */
 function formatConfigurationSettingsFiltersAndSelect(listConfigOptions) {
-    const { snapshotName: snapshot } = listConfigOptions, options = tslib_1.__rest(listConfigOptions, ["snapshotName"]);
-    return Object.assign(Object.assign({}, formatFiltersAndSelect(options)), { snapshot });
+    const { snapshotName: snapshot, ...options } = listConfigOptions;
+    return {
+        ...formatFiltersAndSelect(options),
+        snapshot,
+    };
 }
 /**
  * Transforms some of the key fields in ListSnapshotsOptions
@@ -17382,7 +17624,11 @@ function makeConfigurationSettingEmpty(configurationSetting) {
  * @internal
  */
 function transformKeyValue(kvp) {
-    const setting = Object.assign(Object.assign({ value: undefined }, kvp), { isReadOnly: !!kvp.locked });
+    const setting = {
+        value: undefined,
+        ...kvp,
+        isReadOnly: !!kvp.locked,
+    };
     delete setting.locked;
     if (!setting.label) {
         delete setting.label;
@@ -17397,6 +17643,14 @@ function transformKeyValue(kvp) {
  */
 function isConfigSettingWithSecretReferenceValue(setting) {
     return (setting.contentType === secretReference_js_1.secretReferenceContentType &&
+        (0, core_util_1.isDefined)(setting.value) &&
+        typeof setting.value !== "string");
+}
+/**
+ * @internal
+ */
+function isConfigSettingWithSnapshotReferenceValue(setting) {
+    return (setting.contentType === snapshotReference_js_1.snapshotReferenceContentType &&
         (0, core_util_1.isDefined)(setting.value) &&
         typeof setting.value !== "string");
 }
@@ -17428,6 +17682,9 @@ function serializeAsConfigurationSettingParam(setting) {
         if (isConfigSettingWithSecretReferenceValue(setting)) {
             return secretReference_js_1.SecretReferenceHelper.toConfigurationSettingParam(setting);
         }
+        if (isConfigSettingWithSnapshotReferenceValue(setting)) {
+            return snapshotReference_js_1.SnapshotReferenceHelper.toConfigurationSettingParam(setting);
+        }
     }
     catch (error) {
         return setting;
@@ -17439,7 +17696,10 @@ function serializeAsConfigurationSettingParam(setting) {
  * @internal
  */
 function transformKeyValueResponseWithStatusCode(kvp, status) {
-    const response = Object.assign(Object.assign({}, transformKeyValue(kvp)), { statusCode: status !== null && status !== void 0 ? status : -1 });
+    const response = {
+        ...transformKeyValue(kvp),
+        statusCode: status ?? -1,
+    };
     if (hasUnderscoreResponse(kvp)) {
         Object.defineProperty(response, "_response", {
             enumerable: false,
@@ -17545,7 +17805,78 @@ function getScope(appConfigEndpoint, appConfigAudience) {
 
 /***/ }),
 
-/***/ 9865:
+/***/ 5856:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.queryParamPolicy = queryParamPolicy;
+const logger_js_1 = __nccwpck_require__(4541);
+/**
+ * Creates a PipelinePolicy that normalizes query parameters:
+ *  - Lowercase names
+ *  - Sort by lowercase name
+ *  - Preserve the relative order of duplicates
+ */
+function queryParamPolicy() {
+    return {
+        name: "queryParamPolicy",
+        async sendRequest(request, next) {
+            const originalUrl = request.url;
+            let url;
+            try {
+                url = new URL(originalUrl);
+            }
+            catch (error) {
+                if (error instanceof TypeError) {
+                    logger_js_1.logger.warning(`"[queryParamPolicy] Could not parse URL: ${request.url}"`);
+                    return next(request);
+                }
+                throw error;
+            }
+            if (url.search === "") {
+                return next(request);
+            }
+            const params = [];
+            for (const entry of url.search.substring(1).split("&")) {
+                if (entry === "") {
+                    continue;
+                }
+                const equalIndex = entry.indexOf("=");
+                const name = equalIndex === -1 ? entry : entry.substring(0, equalIndex);
+                const value = equalIndex === -1 ? "" : entry.substring(equalIndex + 1);
+                params.push({ lowercaseName: name.toLowerCase(), value });
+            }
+            // Modern JavaScript Array.prototype.sort is stable
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#sort_stability
+            params.sort((a, b) => {
+                if (a.lowercaseName < b.lowercaseName) {
+                    return -1;
+                }
+                else if (a.lowercaseName > b.lowercaseName) {
+                    return 1;
+                }
+                return 0;
+            });
+            const newSearchParams = params
+                .map(({ lowercaseName, value }) => `${lowercaseName}=${value}`)
+                .join("&");
+            const newUrl = url.origin + url.pathname + "?" + newSearchParams + url.hash;
+            if (newUrl !== originalUrl) {
+                request.url = newUrl;
+            }
+            return next(request);
+        },
+    };
+}
+//# sourceMappingURL=queryParamPolicy.js.map
+
+/***/ }),
+
+/***/ 7881:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17574,7 +17905,7 @@ function syncTokenPolicy(syncTokens) {
         async sendRequest(request, next) {
             const syncTokenHeaderValue = syncTokens.getSyncTokenHeaderValue();
             if (syncTokenHeaderValue) {
-                logger_js_1.logger.info("[syncTokenPolicy] Setting headers with ${SyncTokenHeaderName} and ${syncTokenHeaderValue}");
+                logger_js_1.logger.info(`[syncTokenPolicy] Setting headers with ${exports.SyncTokenHeaderName} and ${syncTokenHeaderValue}`);
                 request.headers.set(exports.SyncTokenHeaderName, syncTokenHeaderValue);
             }
             const response = await next(request);
@@ -17593,9 +17924,7 @@ function syncTokenPolicy(syncTokens) {
  * @internal
  */
 class SyncTokens {
-    constructor() {
-        this._currentSyncTokens = new Map();
-    }
+    _currentSyncTokens = new Map();
     /**
      * Takes the value from the header named after the constant `SyncTokenHeaderName`
      * and adds it to our list of accumulated sync tokens.
@@ -17671,7 +18000,7 @@ function parseSyncToken(syncToken) {
         sequenceNumber,
     };
 }
-//# sourceMappingURL=synctokenpolicy.js.map
+//# sourceMappingURL=syncTokenPolicy.js.map
 
 /***/ }),
 
@@ -17770,7 +18099,7 @@ exports.secretReferenceContentType = "application/vnd.microsoft.appconfig.keyvau
  */
 exports.SecretReferenceHelper = {
     /**
-     * Takes the SecretReference (JSON) and returns a ConfigurationSetting (with the props encodeed in the value).
+     * Takes the SecretReference (JSON) and returns a ConfigurationSetting (with the props encoded in the value).
      */
     toConfigurationSettingParam: (secretReference) => {
         logger_js_1.logger.info("Encoding SecretReference value in a ConfigurationSetting:", secretReference);
@@ -17781,7 +18110,10 @@ exports.SecretReferenceHelper = {
         const jsonSecretReferenceValue = {
             uri: secretReference.value.secretId,
         };
-        const configSetting = Object.assign(Object.assign({}, secretReference), { value: JSON.stringify(jsonSecretReferenceValue) });
+        const configSetting = {
+            ...secretReference,
+            value: JSON.stringify(jsonSecretReferenceValue),
+        };
         return configSetting;
     },
 };
@@ -17795,7 +18127,10 @@ function parseSecretReference(setting) {
         throw TypeError(`Setting with key ${setting.key} is not a valid SecretReference, make sure to have the correct content-type and a valid non-null value.`);
     }
     const jsonSecretReferenceValue = JSON.parse(setting.value);
-    const secretReference = Object.assign(Object.assign({}, setting), { value: { secretId: jsonSecretReferenceValue.uri } });
+    const secretReference = {
+        ...setting,
+        value: { secretId: jsonSecretReferenceValue.uri },
+    };
     return secretReference;
 }
 /**
@@ -17809,6 +18144,75 @@ function isSecretReference(setting) {
         typeof setting.value === "string");
 }
 //# sourceMappingURL=secretReference.js.map
+
+/***/ }),
+
+/***/ 6356:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SnapshotReferenceHelper = exports.snapshotReferenceContentType = void 0;
+exports.parseSnapshotReference = parseSnapshotReference;
+exports.isSnapshotReference = isSnapshotReference;
+const logger_js_1 = __nccwpck_require__(4541);
+/**
+ * content-type for the snapshot reference.
+ */
+exports.snapshotReferenceContentType = 'application/json; profile="https://azconfig.io/mime-profiles/snapshot-ref"; charset=utf-8';
+/**
+ * @internal
+ */
+exports.SnapshotReferenceHelper = {
+    /**
+     * Takes the SnapshotReference (JSON) and returns a ConfigurationSetting (with the props encoded in the value).
+     */
+    toConfigurationSettingParam: (snapshotReference) => {
+        logger_js_1.logger.info("Encoding SnapshotReference value in a ConfigurationSetting:", snapshotReference);
+        if (!snapshotReference.value) {
+            logger_js_1.logger.error(`SnapshotReference has an unexpected value`, snapshotReference);
+            throw new TypeError(`SnapshotReference has an unexpected value - ${snapshotReference.value}`);
+        }
+        const jsonSnapshotReferenceValue = {
+            snapshot_name: snapshotReference.value.snapshotName,
+        };
+        const configSetting = {
+            ...snapshotReference,
+            value: JSON.stringify(jsonSnapshotReferenceValue),
+        };
+        return configSetting;
+    },
+};
+/**
+ * Takes the ConfigurationSetting as input and returns the ConfigurationSetting<SnapshotReferenceValue> by parsing the value string.
+ */
+function parseSnapshotReference(setting) {
+    logger_js_1.logger.info("[parseSnapshotReference] Parsing the value to return the SnapshotReferenceValue", setting);
+    if (!isSnapshotReference(setting)) {
+        logger_js_1.logger.error("Invalid SnapshotReference input", setting);
+        throw TypeError(`Setting with key ${setting.key} is not a valid SnapshotReference, make sure to have the correct content-type and a valid non-null value.`);
+    }
+    const jsonSnapshotReferenceValue = JSON.parse(setting.value);
+    const snapshotReference = {
+        ...setting,
+        value: { snapshotName: jsonSnapshotReferenceValue.snapshot_name },
+    };
+    return snapshotReference;
+}
+/**
+ * Lets you know if the ConfigurationSetting is a snapshot reference.
+ *
+ * [Checks if the content type is snapshotReferenceContentType `"application/json; profile=\"https://azconfig.io/mime-profiles/snapshot-ref\"; charset=utf-8"`]
+ */
+function isSnapshotReference(setting) {
+    return (setting &&
+        setting.contentType === exports.snapshotReferenceContentType &&
+        typeof setting.value === "string");
+}
+//# sourceMappingURL=snapshotReference.js.map
 
 /***/ }),
 
