@@ -24775,7 +24775,7 @@ exports.DEFAULT_TOKEN_CACHE_NAME = exports.CACHE_NON_CAE_SUFFIX = exports.CACHE_
 /**
  * Current version of the `@azure/identity` package.
  */
-exports.SDK_VERSION = `4.11.1`;
+exports.SDK_VERSION = `4.13.0`;
 /**
  * The default client ID for authentication
  * @internal
@@ -24941,7 +24941,7 @@ exports.AuthorizationCodeCredential = AuthorizationCodeCredential;
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AzureCliCredential = exports.cliCredentialInternals = void 0;
+exports.AzureCliCredential = exports.cliCredentialInternals = exports.azureCliPublicErrorMessages = void 0;
 const tslib_1 = __nccwpck_require__(1860);
 const tenantIdUtils_js_1 = __nccwpck_require__(4700);
 const logging_js_1 = __nccwpck_require__(2615);
@@ -24951,6 +24951,17 @@ const child_process_1 = tslib_1.__importDefault(__nccwpck_require__(5317));
 const tracing_js_1 = __nccwpck_require__(9180);
 const subscriptionUtils_js_1 = __nccwpck_require__(4860);
 const logger = (0, logging_js_1.credentialLogger)("AzureCliCredential");
+/**
+ * Messages to use when throwing in this credential.
+ * @internal
+ */
+exports.azureCliPublicErrorMessages = {
+    claim: "This credential doesn't support claims challenges. To authenticate with the required claims, please run the following command:",
+    notInstalled: "Azure CLI could not be found. Please visit https://aka.ms/azure-cli for installation instructions and then, once installed, authenticate to your Azure account using 'az login'.",
+    login: "Please run 'az login' from a command prompt to authenticate before using this credential.",
+    unknown: "Unknown error while trying to retrieve the access token",
+    unexpectedResponse: 'Unexpected response from Azure CLI when getting token. Expected "expiresOn" to be a RFC3339 date string. Got:',
+};
 /**
  * Mockable reference to the CLI credential cliCredentialFunctions
  * @internal
@@ -25050,6 +25061,19 @@ class AzureCliCredential {
      *                TokenCredential implementation might make.
      */
     async getToken(scopes, options = {}) {
+        const scope = typeof scopes === "string" ? scopes : scopes[0];
+        const claimsValue = options.claims;
+        if (claimsValue && claimsValue.trim()) {
+            const encodedClaims = btoa(claimsValue);
+            let loginCmd = `az login --claims-challenge ${encodedClaims} --scope ${scope}`;
+            const tenantIdFromOptions = options.tenantId;
+            if (tenantIdFromOptions) {
+                loginCmd += ` --tenant ${tenantIdFromOptions}`;
+            }
+            const error = new errors_js_1.CredentialUnavailableError(`${exports.azureCliPublicErrorMessages.claim} ${loginCmd}`);
+            logger.getToken.info((0, logging_js_1.formatError)(scope, error));
+            throw error;
+        }
         const tenantId = (0, tenantIdUtils_js_1.processMultiTenantRequest)(this.tenantId, options, this.additionallyAllowedTenantIds);
         if (tenantId) {
             (0, tenantIdUtils_js_1.checkTenantId)(logger, tenantId);
@@ -25057,7 +25081,6 @@ class AzureCliCredential {
         if (this.subscription) {
             (0, subscriptionUtils_js_1.checkSubscription)(logger, this.subscription);
         }
-        const scope = typeof scopes === "string" ? scopes : scopes[0];
         logger.getToken.info(`Using the scope ${scope}`);
         return tracing_js_1.tracingClient.withSpan(`${this.constructor.name}.getToken`, options, async () => {
             try {
@@ -25068,12 +25091,12 @@ class AzureCliCredential {
                 const isLoginError = obj.stderr?.match("(.*)az login(.*)") && !specificScope;
                 const isNotInstallError = obj.stderr?.match("az:(.*)not found") || obj.stderr?.startsWith("'az' is not recognized");
                 if (isNotInstallError) {
-                    const error = new errors_js_1.CredentialUnavailableError("Azure CLI could not be found. Please visit https://aka.ms/azure-cli for installation instructions and then, once installed, authenticate to your Azure account using 'az login'.");
+                    const error = new errors_js_1.CredentialUnavailableError(exports.azureCliPublicErrorMessages.notInstalled);
                     logger.getToken.info((0, logging_js_1.formatError)(scopes, error));
                     throw error;
                 }
                 if (isLoginError) {
-                    const error = new errors_js_1.CredentialUnavailableError("Please run 'az login' from a command prompt to authenticate before using this credential.");
+                    const error = new errors_js_1.CredentialUnavailableError(exports.azureCliPublicErrorMessages.login);
                     logger.getToken.info((0, logging_js_1.formatError)(scopes, error));
                     throw error;
                 }
@@ -25093,7 +25116,7 @@ class AzureCliCredential {
             catch (err) {
                 const error = err.name === "CredentialUnavailableError"
                     ? err
-                    : new errors_js_1.CredentialUnavailableError(err.message || "Unknown error while trying to retrieve the access token");
+                    : new errors_js_1.CredentialUnavailableError(err.message || exports.azureCliPublicErrorMessages.unknown);
                 logger.getToken.info((0, logging_js_1.formatError)(scopes, error));
                 throw error;
             }
@@ -25127,7 +25150,7 @@ class AzureCliCredential {
         expiresOnTimestamp = new Date(response.expiresOn).getTime();
         // ensure expiresOn is well-formatted
         if (isNaN(expiresOnTimestamp)) {
-            throw new errors_js_1.CredentialUnavailableError(`Unexpected response from Azure CLI when getting token. Expected "expiresOn" to be a RFC3339 date string. Got: "${response.expiresOn}"`);
+            throw new errors_js_1.CredentialUnavailableError(`${exports.azureCliPublicErrorMessages.unexpectedResponse} "${response.expiresOn}"`);
         }
         return {
             token,
@@ -25149,7 +25172,7 @@ exports.AzureCliCredential = AzureCliCredential;
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AzureDeveloperCliCredential = exports.developerCliCredentialInternals = void 0;
+exports.AzureDeveloperCliCredential = exports.developerCliCredentialInternals = exports.azureDeveloperCliPublicErrorMessages = void 0;
 const tslib_1 = __nccwpck_require__(1860);
 const logging_js_1 = __nccwpck_require__(2615);
 const errors_js_1 = __nccwpck_require__(6242);
@@ -25158,6 +25181,16 @@ const tenantIdUtils_js_1 = __nccwpck_require__(4700);
 const tracing_js_1 = __nccwpck_require__(9180);
 const scopeUtils_js_1 = __nccwpck_require__(8185);
 const logger = (0, logging_js_1.credentialLogger)("AzureDeveloperCliCredential");
+/**
+ * Messages to use when throwing in this credential.
+ * @internal
+ */
+exports.azureDeveloperCliPublicErrorMessages = {
+    notInstalled: "Azure Developer CLI couldn't be found. To mitigate this issue, see the troubleshooting guidelines at https://aka.ms/azsdk/js/identity/azdevclicredential/troubleshoot.",
+    login: "Please run 'azd auth login' from a command prompt to authenticate before using this credential. For more information, see the troubleshooting guidelines at https://aka.ms/azsdk/js/identity/azdevclicredential/troubleshoot.",
+    unknown: "Unknown error while trying to retrieve the access token",
+    claim: "This credential doesn't support claims challenges. To authenticate with the required claims, please run the following command:",
+};
 /**
  * Mockable reference to the Developer CLI credential cliCredentialFunctions
  * @internal
@@ -25184,10 +25217,15 @@ exports.developerCliCredentialInternals = {
      * @param scopes - The scopes to use when getting the token
      * @internal
      */
-    async getAzdAccessToken(scopes, tenantId, timeout) {
+    async getAzdAccessToken(scopes, tenantId, timeout, claims) {
         let tenantSection = [];
         if (tenantId) {
             tenantSection = ["--tenant-id", tenantId];
+        }
+        let claimsSections = [];
+        if (claims) {
+            const encodedClaims = btoa(claims);
+            claimsSections = ["--claims", encodedClaims];
         }
         return new Promise((resolve, reject) => {
             try {
@@ -25196,8 +25234,10 @@ exports.developerCliCredentialInternals = {
                     "token",
                     "--output",
                     "json",
+                    "--no-prompt",
                     ...scopes.reduce((previous, current) => previous.concat("--scope", current), []),
                     ...tenantSection,
+                    ...claimsSections,
                 ];
                 const command = ["azd", ...args].join(" ");
                 child_process_1.default.exec(command, {
@@ -25284,18 +25324,29 @@ class AzureDeveloperCliCredential {
                 scopeList.forEach((scope) => {
                     (0, scopeUtils_js_1.ensureValidScopeForDevTimeCreds)(scope, logger);
                 });
-                const obj = await exports.developerCliCredentialInternals.getAzdAccessToken(scopeList, tenantId, this.timeout);
+                const obj = await exports.developerCliCredentialInternals.getAzdAccessToken(scopeList, tenantId, this.timeout, options.claims);
+                const isMFARequiredError = obj.stderr?.match("must use multi-factor authentication") ||
+                    obj.stderr?.match("reauthentication required");
                 const isNotLoggedInError = obj.stderr?.match("not logged in, run `azd login` to login") ||
                     obj.stderr?.match("not logged in, run `azd auth login` to login");
                 const isNotInstallError = obj.stderr?.match("azd:(.*)not found") ||
                     obj.stderr?.startsWith("'azd' is not recognized");
                 if (isNotInstallError || (obj.error && obj.error.code === "ENOENT")) {
-                    const error = new errors_js_1.CredentialUnavailableError("Azure Developer CLI couldn't be found. To mitigate this issue, see the troubleshooting guidelines at https://aka.ms/azsdk/js/identity/azdevclicredential/troubleshoot.");
+                    const error = new errors_js_1.CredentialUnavailableError(exports.azureDeveloperCliPublicErrorMessages.notInstalled);
                     logger.getToken.info((0, logging_js_1.formatError)(scopes, error));
                     throw error;
                 }
                 if (isNotLoggedInError) {
-                    const error = new errors_js_1.CredentialUnavailableError("Please run 'azd auth login' from a command prompt to authenticate before using this credential. For more information, see the troubleshooting guidelines at https://aka.ms/azsdk/js/identity/azdevclicredential/troubleshoot.");
+                    const error = new errors_js_1.CredentialUnavailableError(exports.azureDeveloperCliPublicErrorMessages.login);
+                    logger.getToken.info((0, logging_js_1.formatError)(scopes, error));
+                    throw error;
+                }
+                if (isMFARequiredError) {
+                    const scope = scopeList
+                        .reduce((previous, current) => previous.concat("--scope", current), [])
+                        .join(" ");
+                    const loginCmd = `azd auth login ${scope}`;
+                    const error = new errors_js_1.CredentialUnavailableError(`${exports.azureDeveloperCliPublicErrorMessages.claim} ${loginCmd}`);
                     logger.getToken.info((0, logging_js_1.formatError)(scopes, error));
                     throw error;
                 }
@@ -25318,7 +25369,7 @@ class AzureDeveloperCliCredential {
             catch (err) {
                 const error = err.name === "CredentialUnavailableError"
                     ? err
-                    : new errors_js_1.CredentialUnavailableError(err.message || "Unknown error while trying to retrieve the access token");
+                    : new errors_js_1.CredentialUnavailableError(err.message || exports.azureDeveloperCliPublicErrorMessages.unknown);
                 logger.getToken.info((0, logging_js_1.formatError)(scopes, error));
                 throw error;
             }
@@ -25551,6 +25602,7 @@ exports.powerShellErrors = {
 exports.powerShellPublicErrorMessages = {
     login: "Please run 'Connect-AzAccount' from PowerShell to authenticate before using this credential.",
     installed: `The 'Az.Account' module >= 2.2.0 is not installed. Install the Azure Az PowerShell module with: "Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force".`,
+    claim: "This credential doesn't support claims challenges. To authenticate with the required claims, please run the following command:",
     troubleshoot: `To troubleshoot, visit https://aka.ms/azsdk/js/identity/powershellcredential/troubleshoot.`,
 };
 // PowerShell Azure User not logged in error check.
@@ -25673,8 +25725,20 @@ class AzurePowerShellCredential {
      */
     async getToken(scopes, options = {}) {
         return tracing_js_1.tracingClient.withSpan(`${this.constructor.name}.getToken`, options, async () => {
-            const tenantId = (0, tenantIdUtils_js_1.processMultiTenantRequest)(this.tenantId, options, this.additionallyAllowedTenantIds);
             const scope = typeof scopes === "string" ? scopes : scopes[0];
+            const claimsValue = options.claims;
+            if (claimsValue && claimsValue.trim()) {
+                const encodedClaims = btoa(claimsValue);
+                let loginCmd = `Connect-AzAccount -ClaimsChallenge ${encodedClaims}`;
+                const tenantIdFromOptions = options.tenantId;
+                if (tenantIdFromOptions) {
+                    loginCmd += ` -Tenant ${tenantIdFromOptions}`;
+                }
+                const error = new errors_js_1.CredentialUnavailableError(`${exports.powerShellPublicErrorMessages.claim} ${loginCmd}`);
+                logger.getToken.info((0, logging_js_1.formatError)(scope, error));
+                throw error;
+            }
+            const tenantId = (0, tenantIdUtils_js_1.processMultiTenantRequest)(this.tenantId, options, this.additionallyAllowedTenantIds);
             if (tenantId) {
                 (0, tenantIdUtils_js_1.checkTenantId)(logger, tenantId);
             }
@@ -25764,7 +25828,7 @@ const errors_js_1 = __nccwpck_require__(6242);
 const logger = (0, logging_js_1.credentialLogger)("BrokerCredential");
 /**
  * Enables authentication to Microsoft Entra ID using WAM (Web Account Manager) broker.
- * This credential extends InteractiveBrowserCredential and provides additional broker-specific functionality.
+ * This credential uses the default account logged into the OS via a broker.
  */
 class BrokerCredential {
     brokerMsalClient;
@@ -26276,23 +26340,31 @@ exports.UnavailableDefaultCredential = UnavailableDefaultCredential;
  * - {@link AzureCliCredential}
  * - {@link AzurePowerShellCredential}
  * - {@link AzureDeveloperCliCredential}
+ * - BrokerCredential (a broker-enabled credential that requires \@azure/identity-broker is installed)
  *
  * Consult the documentation of these credential types for more information
  * on how they attempt authentication.
  *
- * Selecting credentials
+ * The following example demonstrates how to use the `requiredEnvVars` option to ensure that certain environment variables are set before the `DefaultAzureCredential` is instantiated.
+ * If any of the specified environment variables are missing or empty, an error will be thrown, preventing the application from continuing execution without the necessary configuration.
+ * It also demonstrates how to set the `AZURE_TOKEN_CREDENTIALS` environment variable to control which credentials are included in the chain.
+ 
+ * ```ts snippet:defaultazurecredential_requiredEnvVars
+ * import { DefaultAzureCredential } from "@azure/identity";
  *
- * Set environment variable AZURE_TOKEN_CREDENTIALS to select a subset of the credential chain.
- * DefaultAzureCredential will try only the specified credential(s), but its other behavior remains the same.
- * Valid values for AZURE_TOKEN_CREDENTIALS are the name of any single type in the above chain, for example
- * "EnvironmentCredential" or "AzureCliCredential", and these special values:
- *
- *   - "dev": try [VisualStudioCodeCredential], [AzureCliCredential], [AzurePowerShellCredential] and [AzureDeveloperCliCredential], in that order
- *   - "prod": try [EnvironmentCredential], [WorkloadIdentityCredential], and [ManagedIdentityCredential], in that order
- *
+ * const credential = new DefaultAzureCredential({
+ *   requiredEnvVars: [
+ *     "AZURE_CLIENT_ID",
+ *     "AZURE_TENANT_ID",
+ *     "AZURE_CLIENT_SECRET",
+ *     "AZURE_TOKEN_CREDENTIALS",
+ *   ],
+ * });
+ * ```
  */
 class DefaultAzureCredential extends chainedTokenCredential_js_1.ChainedTokenCredential {
     constructor(options) {
+        validateRequiredEnvVars(options);
         // If AZURE_TOKEN_CREDENTIALS is not set, use the default credential chain.
         const azureTokenCredentials = process.env.AZURE_TOKEN_CREDENTIALS
             ? process.env.AZURE_TOKEN_CREDENTIALS.trim().toLowerCase()
@@ -26328,7 +26400,11 @@ class DefaultAzureCredential extends chainedTokenCredential_js_1.ChainedTokenCre
                     credentialFunctions = [defaultAzureCredentialFunctions_js_1.createDefaultWorkloadIdentityCredential];
                     break;
                 case "managedidentitycredential":
-                    credentialFunctions = [defaultAzureCredentialFunctions_js_1.createDefaultManagedIdentityCredential];
+                    // Setting `sendProbeRequest` to false to ensure ManagedIdentityCredential behavior
+                    // is consistent when used standalone in DAC chain or used directly.
+                    credentialFunctions = [
+                        () => (0, defaultAzureCredentialFunctions_js_1.createDefaultManagedIdentityCredential)({ sendProbeRequest: false }),
+                    ];
                     break;
                 case "visualstudiocodecredential":
                     credentialFunctions = [defaultAzureCredentialFunctions_js_1.createDefaultVisualStudioCodeCredential];
@@ -26362,7 +26438,7 @@ class DefaultAzureCredential extends chainedTokenCredential_js_1.ChainedTokenCre
         // 3. Returning a UnavailableDefaultCredential from the factory function if a credential is unavailable for any reason
         const credentials = credentialFunctions.map((createCredentialFn) => {
             try {
-                return createCredentialFn(options);
+                return createCredentialFn(options ?? {});
             }
             catch (err) {
                 logger.warning(`Skipped ${createCredentialFn.name} because of an error creating the credential: ${err}`);
@@ -26373,6 +26449,23 @@ class DefaultAzureCredential extends chainedTokenCredential_js_1.ChainedTokenCre
     }
 }
 exports.DefaultAzureCredential = DefaultAzureCredential;
+/**
+ * This function checks that all environment variables in `options.requiredEnvVars` are set and non-empty.
+ * If any are missing or empty, it throws an error.
+ */
+function validateRequiredEnvVars(options) {
+    if (options?.requiredEnvVars) {
+        const requiredVars = Array.isArray(options.requiredEnvVars)
+            ? options.requiredEnvVars
+            : [options.requiredEnvVars];
+        const missing = requiredVars.filter((envVar) => !process.env[envVar]);
+        if (missing.length > 0) {
+            const errorMessage = `Required environment ${missing.length === 1 ? "variable" : "variables"} '${missing.join(", ")}' for DefaultAzureCredential ${missing.length === 1 ? "is" : "are"} not set or empty.`;
+            logger.warning(errorMessage);
+            throw new Error(errorMessage);
+        }
+    }
+}
 //# sourceMappingURL=defaultAzureCredential.js.map
 
 /***/ }),
@@ -26433,6 +26526,10 @@ function createDefaultManagedIdentityCredential(options = {}) {
         maxRetries: 5,
         retryDelayInMs: 800,
     };
+    // ManagedIdentityCredential inside DAC chain should send a probe request by default.
+    // This is different from standalone ManagedIdentityCredential behavior
+    // or when AZURE_TOKEN_CREDENTIALS is set to only ManagedIdentityCredential.
+    options.sendProbeRequest ??= true;
     const managedIdentityClientId = options?.managedIdentityClientId ??
         process.env.AZURE_CLIENT_ID;
     const workloadIdentityClientId = options?.workloadIdentityClientId ??
@@ -27116,6 +27213,7 @@ class ManagedIdentityCredential {
         intervalIncrement: 2,
     };
     isAvailableIdentityClient;
+    sendProbeRequest;
     /**
      * @internal
      * @hidden
@@ -27132,6 +27230,8 @@ class ManagedIdentityCredential {
         }
         this.resourceId = _options?.resourceId;
         this.objectId = _options?.objectId;
+        this.sendProbeRequest =
+            _options?.sendProbeRequest ?? false;
         // For JavaScript users.
         const providedIds = [
             { key: "clientId", value: this.clientId },
@@ -27243,7 +27343,7 @@ class ManagedIdentityCredential {
                     }
                     return result;
                 }
-                else if (isImdsMsi) {
+                else if (isImdsMsi && this.sendProbeRequest) {
                     // In the IMDS scenario we will probe the IMDS endpoint to ensure it's available before trying to get a token.
                     // If the IMDS endpoint is not available and this is the source that MSAL will use, we will fail-fast with an error that tells DAC to move to the next credential.
                     logger.getToken.info("Using the IMDS endpoint to probe for availability.");
@@ -27260,7 +27360,8 @@ class ManagedIdentityCredential {
                 }
                 // If we got this far, it means:
                 // - This is not a tokenExchangeMsi,
-                // - We already probed for IMDS endpoint availability and failed-fast if it's unreachable.
+                // - We already probed for IMDS endpoint availability and failed-fast if it's unreachable,
+                // or we skip probing because the credential is set in DAC.
                 // We can proceed normally by calling MSAL for a token.
                 logger.getToken.info("Calling into MSAL for managed identity token.");
                 const token = await this.managedIdentityApp.acquireToken({
@@ -27826,7 +27927,11 @@ class VisualStudioCodeCredential {
                 " signed into Azure via VS Code, installed the @azure/identity-vscode package," +
                 " and properly configured the extension.");
         }
-        return this.msalClient.getTokenByInteractiveRequest(scopeArray, options || {});
+        // Disable automatic authentication to ensure that the user is not prompted interactively if no token is available
+        return this.msalClient.getTokenByInteractiveRequest(scopeArray, {
+            ...options,
+            disableAutomaticAuthentication: true,
+        });
     }
     /**
      * Loads the authentication record from the specified path.
@@ -28613,8 +28718,6 @@ function createMsalClient(clientId, tenantId, createMsalClientOptions = {}) {
     /**
      * Creates a base interactive request configuration for MSAL interactive authentication.
      * This is shared between interactive and brokered authentication flows.
-     *
-     * @internal
      */
     function createBaseInteractiveRequest(scopes, options) {
         return {
@@ -28847,30 +28950,58 @@ function generatePluginConfiguration(options) {
         });
     }
     if (options.brokerOptions?.enabled) {
-        if (options.isVSCodeCredential) {
-            if (exports.vsCodeBrokerInfo === undefined) {
-                throw new Error([
-                    "Visual Studio Code Credential was requested, but no plugin was configured or no authentication record was found.",
-                    "You must install the identity-vscode plugin package (`npm install --save @azure/identity-vscode`)",
-                    "and enable it by importing `useIdentityPlugin` from `@azure/identity` and calling",
-                    "`useIdentityPlugin(vsCodePlugin)` before using `enableBroker`.",
-                ].join(" "));
-            }
-            config.broker.nativeBrokerPlugin = exports.vsCodeBrokerInfo.broker;
-        }
-        else {
-            if (exports.nativeBrokerInfo === undefined) {
-                throw new Error([
-                    "Broker for WAM was requested to be enabled, but no native broker was configured.",
-                    "You must install the identity-broker plugin package (`npm install --save @azure/identity-broker`)",
-                    "and enable it by importing `useIdentityPlugin` from `@azure/identity` and calling",
-                    "`useIdentityPlugin(brokerPlugin)` before using `enableBroker`.",
-                ].join(" "));
-            }
-            config.broker.nativeBrokerPlugin = exports.nativeBrokerInfo.broker;
-        }
+        config.broker.nativeBrokerPlugin = getBrokerPlugin(options.isVSCodeCredential || false);
     }
     return config;
+}
+// Broker error message templates with variables for credential and package names
+const brokerErrorTemplates = {
+    missing: (credentialName, packageName, pluginVar) => [
+        `${credentialName} was requested, but no plugin was configured or no authentication record was found.`,
+        `You must install the ${packageName} plugin package (npm install --save ${packageName})`,
+        "and enable it by importing `useIdentityPlugin` from `@azure/identity` and calling",
+        `useIdentityPlugin(${pluginVar}) before using enableBroker.`,
+    ].join(" "),
+    unavailable: (credentialName, packageName) => [
+        `${credentialName} was requested, and the plugin is configured, but the broker is unavailable.`,
+        `Ensure the ${credentialName} plugin is properly installed and configured.`,
+        "Check for missing native dependencies and ensure the package is properly installed.",
+        `See the README for prerequisites on installing and using ${packageName}.`,
+    ].join(" "),
+};
+// Values for VSCode and native broker configurations for error message
+const brokerConfig = {
+    vsCode: {
+        credentialName: "Visual Studio Code Credential",
+        packageName: "@azure/identity-vscode",
+        pluginVar: "vsCodePlugin",
+        get brokerInfo() {
+            return exports.vsCodeBrokerInfo;
+        },
+    },
+    native: {
+        credentialName: "Broker for WAM",
+        packageName: "@azure/identity-broker",
+        pluginVar: "nativeBrokerPlugin",
+        get brokerInfo() {
+            return exports.nativeBrokerInfo;
+        },
+    },
+};
+/**
+ * Set appropriate broker plugin based on whether VSCode or native broker is requested.
+ * @param isVSCodePlugin - true for VSCode broker, false for native broker
+ * @returns the broker plugin if available
+ */
+function getBrokerPlugin(isVSCodePlugin) {
+    const { credentialName, packageName, pluginVar, brokerInfo } = brokerConfig[isVSCodePlugin ? "vsCode" : "native"];
+    if (brokerInfo === undefined) {
+        throw new Error(brokerErrorTemplates.missing(credentialName, packageName, pluginVar));
+    }
+    if (brokerInfo.broker.isBrokerAvailable === false) {
+        throw new Error(brokerErrorTemplates.unavailable(credentialName, packageName));
+    }
+    return brokerInfo.broker;
 }
 /**
  * Wraps generatePluginConfiguration as a writeable property for test stubbing purposes.
@@ -28908,13 +29039,9 @@ const constants_js_1 = __nccwpck_require__(516);
 const core_util_1 = __nccwpck_require__(7779);
 const abort_controller_1 = __nccwpck_require__(3134);
 const msal_js_1 = __nccwpck_require__(4062);
-/**
- * @internal
- */
 const logger = (0, logging_js_1.credentialLogger)("IdentityUtils");
 /**
  * Latest AuthenticationRecord version
- * @internal
  */
 const LatestAuthenticationRecordVersion = "1.0";
 /**
@@ -29154,7 +29281,6 @@ const msalPlugins_js_1 = __nccwpck_require__(7326);
 /**
  * The context passed to an Identity plugin. This contains objects that
  * plugins can use to set backend implementations.
- * @internal
  */
 const pluginContext = {
     cachePluginControl: msalPlugins_js_1.msalNodeFlowCacheControl,
