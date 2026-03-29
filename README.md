@@ -15,9 +15,11 @@ Values fetched will be set as [outputs](https://help.github.com/en/actions/autom
 ## Example
 
 ```yaml
-- uses: Azure/login@v1
+- uses: Azure/login@v3
   with:
-    creds: ${{ secrets.AZURE_CREDENTIALS }}
+    client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
 - uses: flcdrg/get-azure-app-configuration-action@v2
   id: get-app-configuration
