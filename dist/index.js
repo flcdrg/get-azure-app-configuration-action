@@ -29022,18 +29022,6 @@ PERFORMANCE OF THIS SOFTWARE.
 /* global Reflect, Promise, SuppressedError, Symbol, Iterator */
 
 
-function __rest(s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-}
-
 function __values(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
@@ -30077,7 +30065,7 @@ function stringToUint8Array$1(value, format) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$p = createClientLogger$1("ts-http-runtime");
+const logger$o = createClientLogger$1("ts-http-runtime");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -30154,7 +30142,7 @@ class NodeHttpClient {
         if (request.timeout > 0) {
             timeoutId = setTimeout(() => {
                 const sanitizer = new Sanitizer();
-                logger$p.info(`request to '${sanitizer.sanitizeUrl(request.url)}' timed out. canceling...`);
+                logger$o.info(`request to '${sanitizer.sanitizeUrl(request.url)}' timed out. canceling...`);
                 abortController.abort();
             }, request.timeout);
         }
@@ -30173,7 +30161,7 @@ class NodeHttpClient {
                 const onUploadProgress = request.onUploadProgress;
                 const uploadReportStream = new ReportTransform(onUploadProgress);
                 uploadReportStream.on("error", (e) => {
-                    logger$p.error("Error in upload progress", e);
+                    logger$o.error("Error in upload progress", e);
                 });
                 if (isReadableStream$1(body)) {
                     body.pipe(uploadReportStream);
@@ -30207,7 +30195,7 @@ class NodeHttpClient {
             if (onDownloadProgress) {
                 const downloadReportStream = new ReportTransform(onDownloadProgress);
                 downloadReportStream.on("error", (e) => {
-                    logger$p.error("Error in download progress", e);
+                    logger$o.error("Error in download progress", e);
                 });
                 responseStream.pipe(downloadReportStream);
                 responseStream = downloadReportStream;
@@ -30243,7 +30231,7 @@ class NodeHttpClient {
                     }
                 })
                     .catch((e) => {
-                    logger$p.warning("Error when cleaning up abortListener on httpRequest", e);
+                    logger$o.warning("Error when cleaning up abortListener on httpRequest", e);
                 });
             }
         }
@@ -30279,7 +30267,7 @@ class NodeHttpClient {
                     req.end(ArrayBuffer.isView(body) ? Buffer.from(body.buffer) : Buffer.from(body));
                 }
                 else {
-                    logger$p.error("Unrecognized body type", body);
+                    logger$o.error("Unrecognized body type", body);
                     reject(new RestError$1("Unrecognized body type"));
                 }
             }
@@ -30318,7 +30306,7 @@ class NodeHttpClient {
             if (agent && agent.options.keepAlive === !disableKeepAlive) {
                 return agent;
             }
-            logger$p.info("No cached TLS Agent exist, creating a new Agent");
+            logger$o.info("No cached TLS Agent exist, creating a new Agent");
             agent = new https__namespace.Agent(Object.assign({ 
                 // keepAlive is true if disableKeepAlive is false.
                 keepAlive: !disableKeepAlive }, tlsSettings));
@@ -30432,7 +30420,7 @@ const logPolicyName = "logPolicy";
  */
 function logPolicy$1(options = {}) {
     var _a;
-    const logger = (_a = options.logger) !== null && _a !== void 0 ? _a : logger$p.info;
+    const logger = (_a = options.logger) !== null && _a !== void 0 ? _a : logger$o.info;
     const sanitizer = new Sanitizer({
         additionalAllowedHeaderNames: options.additionalAllowedHeaderNames,
         additionalAllowedQueryParameters: options.additionalAllowedQueryParameters,
@@ -33139,7 +33127,7 @@ function setProxyAgentOnRequest(request, cachedAgents, proxyUrl) {
     const url = new URL(request.url);
     const isInsecure = url.protocol !== "https:";
     if (request.tlsSettings) {
-        logger$p.warning("TLS settings are not supported in combination with custom Proxy, certificates provided to the client will be ignored.");
+        logger$o.warning("TLS settings are not supported in combination with custom Proxy, certificates provided to the client will be ignored.");
     }
     const headers = request.headers.toJSON();
     if (isInsecure) {
@@ -33559,7 +33547,7 @@ function allowInsecureConnection(request, options) {
  */
 function emitInsecureConnectionWarning() {
     const warning = "Sending token over insecure transport. Assume any token issued is compromised.";
-    logger$p.warning(warning);
+    logger$o.warning(warning);
     if (typeof (process === null || process === void 0 ? void 0 : process.emitWarning) === "function" && !insecureConnectionWarningEmmitted) {
         insecureConnectionWarningEmmitted = true;
         process.emitWarning(warning);
@@ -34514,7 +34502,7 @@ function isAzureLogLevel(logLevel) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$o = createClientLogger("core-rest-pipeline");
+const logger$n = createClientLogger("core-rest-pipeline");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -34523,7 +34511,7 @@ const logger$o = createClientLogger("core-rest-pipeline");
  * @param options - Options to configure logPolicy.
  */
 function logPolicy(options = {}) {
-    return logPolicy$1(Object.assign({ logger: logger$o.info }, options));
+    return logPolicy$1(Object.assign({ logger: logger$n.info }, options));
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -35349,7 +35337,7 @@ function tryCreateTracingClient() {
         });
     }
     catch (e) {
-        logger$o.warning(`Error when creating the TracingClient: ${getErrorMessage(e)}`);
+        logger$n.warning(`Error when creating the TracingClient: ${getErrorMessage(e)}`);
         return undefined;
     }
 }
@@ -35373,7 +35361,7 @@ function tryCreateSpan(tracingClient, request, spanAttributes) {
         return { span, tracingContext: updatedOptions.tracingOptions.tracingContext };
     }
     catch (e) {
-        logger$o.warning(`Skipping creating a tracing span due to an error: ${getErrorMessage(e)}`);
+        logger$n.warning(`Skipping creating a tracing span due to an error: ${getErrorMessage(e)}`);
         return undefined;
     }
 }
@@ -35389,7 +35377,7 @@ function tryProcessError(span, error) {
         span.end();
     }
     catch (e) {
-        logger$o.warning(`Skipping tracing span processing due to an error: ${getErrorMessage(e)}`);
+        logger$n.warning(`Skipping tracing span processing due to an error: ${getErrorMessage(e)}`);
     }
 }
 function tryProcessResponse(span, response) {
@@ -35410,7 +35398,7 @@ function tryProcessResponse(span, response) {
         span.end();
     }
     catch (e) {
-        logger$o.warning(`Skipping tracing span processing due to an error: ${getErrorMessage(e)}`);
+        logger$n.warning(`Skipping tracing span processing due to an error: ${getErrorMessage(e)}`);
     }
 }
 
@@ -35814,7 +35802,7 @@ async function authorizeRequestOnCaeChallenge(onChallengeOptions, caeClaims) {
 function bearerTokenAuthenticationPolicy(options) {
     var _a, _b, _c;
     const { credential, scopes, challengeCallbacks } = options;
-    const logger = options.logger || logger$o;
+    const logger = options.logger || logger$n;
     const callbacks = {
         authorizeRequest: (_b = (_a = challengeCallbacks === null || challengeCallbacks === void 0 ? void 0 : challengeCallbacks.authorizeRequest) === null || _a === void 0 ? void 0 : _a.bind(challengeCallbacks)) !== null && _b !== void 0 ? _b : defaultAuthorizeRequest,
         authorizeRequestOnChallenge: (_c = challengeCallbacks === null || challengeCallbacks === void 0 ? void 0 : challengeCallbacks.authorizeRequestOnChallenge) === null || _c === void 0 ? void 0 : _c.bind(challengeCallbacks),
@@ -36009,7 +35997,7 @@ function audienceErrorHandlingPolicy(isAudienceConfigured) {
  * The `@azure/logger` configuration for this package.
  * @internal
  */
-const logger$n = createClientLogger("app-config");
+const logger$m = createClientLogger("app-config");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -36030,7 +36018,7 @@ function syncTokenPolicy(syncTokens) {
         async sendRequest(request, next) {
             const syncTokenHeaderValue = syncTokens.getSyncTokenHeaderValue();
             if (syncTokenHeaderValue) {
-                logger$n.info(`[syncTokenPolicy] Setting headers with ${SyncTokenHeaderName} and ${syncTokenHeaderValue}`);
+                logger$m.info(`[syncTokenPolicy] Setting headers with ${SyncTokenHeaderName} and ${syncTokenHeaderValue}`);
                 request.headers.set(SyncTokenHeaderName, syncTokenHeaderValue);
             }
             const response = await next(request);
@@ -36144,7 +36132,7 @@ function queryParamPolicy() {
             }
             catch (error) {
                 if (error instanceof TypeError) {
-                    logger$n.warning(`"[queryParamPolicy] Could not parse URL: ${request.url}"`);
+                    logger$m.warning(`"[queryParamPolicy] Could not parse URL: ${request.url}"`);
                     return next(request);
                 }
                 throw error;
@@ -38197,7 +38185,7 @@ function appendQueryParams(url, queryParams, sequenceParams, noOverwrite = false
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$m = createClientLogger("core-client");
+const logger$l = createClientLogger("core-client");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -38214,7 +38202,7 @@ class ServiceClient {
         this._requestContentType = options.requestContentType;
         this._endpoint = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri;
         if (options.baseUri) {
-            logger$m.warning("The baseUri option for SDK Clients has been deprecated, please use endpoint instead.");
+            logger$l.warning("The baseUri option for SDK Clients has been deprecated, please use endpoint instead.");
         }
         this._allowInsecureConnection = options.allowInsecureConnection;
         this._httpClient = options.httpClient || getCachedDefaultHttpClient();
@@ -38601,7 +38589,7 @@ class ExtendedServiceClient extends ServiceClient {
  * The `@azure/logger` configuration for this package.
  * @internal
  */
-const logger$l = createClientLogger("core-lro");
+const logger$k = createClientLogger("core-lro");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
@@ -38675,7 +38663,7 @@ function processOperationStatus(result) {
             const errStr = `The long-running operation has failed${postfix}`;
             stateProxy.setError(state, new Error(errStr));
             stateProxy.setFailed(state);
-            logger$l.warning(errStr);
+            logger$k.warning(errStr);
             break;
         }
         case "canceled": {
@@ -38710,7 +38698,7 @@ async function initOperation(inputs) {
         operationLocation,
         resourceLocation,
     };
-    logger$l.verbose(`LRO: Operation description:`, config);
+    logger$k.verbose(`LRO: Operation description:`, config);
     const state = stateProxy.initState(config);
     const status = getOperationStatus({ response, state, operationLocation });
     processOperationStatus({ state, status, stateProxy, response, setErrorAsResult, processResult });
@@ -38724,7 +38712,7 @@ async function pollOperationHelper(inputs) {
         isOperationError,
     }));
     const status = getOperationStatus(response, state);
-    logger$l.verbose(`LRO: Status:\n\tPolling from: ${state.config.operationLocation}\n\tOperation status: ${status}\n\tPolling status: ${terminalStates.includes(status) ? "Stopped" : "Running"}`);
+    logger$k.verbose(`LRO: Status:\n\tPolling from: ${state.config.operationLocation}\n\tOperation status: ${status}\n\tPolling status: ${terminalStates.includes(status) ? "Stopped" : "Running"}`);
     if (status === "succeeded") {
         const resourceLocation = getResourceLocation(response, state);
         if (resourceLocation !== undefined) {
@@ -38882,7 +38870,7 @@ function transformStatus(inputs) {
         case "cancelled":
             return "canceled";
         default: {
-            logger$l.verbose(`LRO: unrecognized operation status: ${status}`);
+            logger$k.verbose(`LRO: unrecognized operation status: ${status}`);
             return status;
         }
     }
@@ -38923,11 +38911,11 @@ function parseRetryAfter({ rawResponse }) {
 function getErrorFromResponse(response) {
     const error = accessBodyProperty(response, "error");
     if (!error) {
-        logger$l.warning(`The long-running operation failed but there is no error property in the response's body`);
+        logger$k.warning(`The long-running operation failed but there is no error property in the response's body`);
         return;
     }
     if (!error.code || !error.message) {
-        logger$l.warning(`The long-running operation failed but the error property in the response's body doesn't contain code or message`);
+        logger$k.warning(`The long-running operation failed but the error property in the response's body doesn't contain code or message`);
         return;
     }
     return error;
@@ -41948,9 +41936,9 @@ const FeatureFlagHelper = {
      * Takes the FeatureFlag (JSON) and returns a ConfigurationSetting (with the props encodeed in the value).
      */
     toConfigurationSettingParam: (featureFlag) => {
-        logger$n.info("Encoding FeatureFlag value in a ConfigurationSetting:", featureFlag);
+        logger$m.info("Encoding FeatureFlag value in a ConfigurationSetting:", featureFlag);
         if (!featureFlag.value) {
-            logger$n.error("FeatureFlag has an unexpected value", featureFlag);
+            logger$m.error("FeatureFlag has an unexpected value", featureFlag);
             throw new TypeError(`FeatureFlag has an unexpected value - ${featureFlag.value}`);
         }
         let key = featureFlag.key;
@@ -41990,9 +41978,9 @@ const SecretReferenceHelper = {
      * Takes the SecretReference (JSON) and returns a ConfigurationSetting (with the props encoded in the value).
      */
     toConfigurationSettingParam: (secretReference) => {
-        logger$n.info("Encoding SecretReference value in a ConfigurationSetting:", secretReference);
+        logger$m.info("Encoding SecretReference value in a ConfigurationSetting:", secretReference);
         if (!secretReference.value) {
-            logger$n.error(`SecretReference has an unexpected value`, secretReference);
+            logger$m.error(`SecretReference has an unexpected value`, secretReference);
             throw new TypeError(`SecretReference has an unexpected value - ${secretReference.value}`);
         }
         const jsonSecretReferenceValue = {
@@ -42009,9 +41997,9 @@ const SecretReferenceHelper = {
  * Takes the ConfigurationSetting as input and returns the ConfigurationSetting<SecretReferenceValue> by parsing the value string.
  */
 function parseSecretReference(setting) {
-    logger$n.info("[parseSecretReference] Parsing the value to return the SecretReferenceValue", setting);
+    logger$m.info("[parseSecretReference] Parsing the value to return the SecretReferenceValue", setting);
     if (!isSecretReference(setting)) {
-        logger$n.error("Invalid SecretReference input", setting);
+        logger$m.error("Invalid SecretReference input", setting);
         throw TypeError(`Setting with key ${setting.key} is not a valid SecretReference, make sure to have the correct content-type and a valid non-null value.`);
     }
     const jsonSecretReferenceValue = JSON.parse(setting.value);
@@ -42046,9 +42034,9 @@ const SnapshotReferenceHelper = {
      * Takes the SnapshotReference (JSON) and returns a ConfigurationSetting (with the props encoded in the value).
      */
     toConfigurationSettingParam: (snapshotReference) => {
-        logger$n.info("Encoding SnapshotReference value in a ConfigurationSetting:", snapshotReference);
+        logger$m.info("Encoding SnapshotReference value in a ConfigurationSetting:", snapshotReference);
         if (!snapshotReference.value) {
-            logger$n.error(`SnapshotReference has an unexpected value`, snapshotReference);
+            logger$m.error(`SnapshotReference has an unexpected value`, snapshotReference);
             throw new TypeError(`SnapshotReference has an unexpected value - ${snapshotReference.value}`);
         }
         const jsonSnapshotReferenceValue = {
@@ -42089,7 +42077,7 @@ function quoteETag(etag) {
  */
 function checkAndFormatIfAndIfNoneMatch(objectWithEtag, options) {
     if (options.onlyIfChanged && options.onlyIfUnchanged) {
-        logger$n.error("onlyIfChanged and onlyIfUnchanged are both specified", options.onlyIfChanged, options.onlyIfUnchanged);
+        logger$m.error("onlyIfChanged and onlyIfUnchanged are both specified", options.onlyIfChanged, options.onlyIfUnchanged);
         throw new Error("onlyIfChanged and onlyIfUnchanged are mutually-exclusive");
     }
     let ifMatch;
@@ -42191,7 +42179,7 @@ function extractAfterTokenFromNextLink(nextLink) {
     const searchParams = new URLSearchParams(nextLink);
     const afterToken = searchParams.get("after");
     if (afterToken == null || Array.isArray(afterToken)) {
-        logger$n.error("Invalid nextLink - invalid after token", afterToken, Array.isArray(afterToken));
+        logger$m.error("Invalid nextLink - invalid after token", afterToken, Array.isArray(afterToken));
         throw new Error("Invalid nextLink - invalid after token");
     }
     return decodeURIComponent(afterToken);
@@ -42306,7 +42294,7 @@ function serializeAsConfigurationSettingParam(setting) {
     catch (error) {
         return setting;
     }
-    logger$n.error("Unable to serialize to a configuration setting", setting);
+    logger$m.error("Unable to serialize to a configuration setting", setting);
     throw new TypeError(`Unable to serialize the setting with key "${setting.key}" as a configuration setting`);
 }
 /**
@@ -42425,14 +42413,14 @@ function appConfigKeyCredentialPolicy(credential, secret) {
         async sendRequest(request, next) {
             const verb = request.method;
             const utcNow = new Date().toUTCString();
-            logger$n.info("[appConfigKeyCredentialPolicy] Computing SHA-256 from the request body");
+            logger$m.info("[appConfigKeyCredentialPolicy] Computing SHA-256 from the request body");
             const contentHash = await computeSha256Hash(request.body?.toString() || "", "base64");
             const signedHeaders = "x-ms-date;host;x-ms-content-sha256";
             const url = new URL(request.url);
             const query = url.search;
             const urlPathAndQuery = query ? `${url.pathname}${query}` : url.pathname;
             const stringToSign = `${verb}\n${urlPathAndQuery}\n${utcNow};${url.host};${contentHash}`;
-            logger$n.info("[appConfigKeyCredentialPolicy] Computing a SHA-256 Hmac signature");
+            logger$m.info("[appConfigKeyCredentialPolicy] Computing a SHA-256 Hmac signature");
             const signature = await computeSha256Hmac(secret, stringToSign, "base64");
             request.headers.set("x-ms-date", utcNow);
             request.headers.set("x-ms-content-sha256", contentHash);
@@ -42519,7 +42507,7 @@ class AppConfigurationClient {
         const internalClientPipelineOptions = {
             ...appConfigOptions,
             loggingOptions: {
-                logger: logger$n.info,
+                logger: logger$m.info,
             },
             deserializationOptions: {
                 expectedContentTypes: deserializationContentTypes,
@@ -42561,7 +42549,7 @@ class AppConfigurationClient {
     addConfigurationSetting(configurationSetting, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.addConfigurationSetting", options, async (updatedOptions) => {
             const keyValue = serializeAsConfigurationSettingParam(configurationSetting);
-            logger$n.info("[addConfigurationSetting] Creating a key value pair");
+            logger$m.info("[addConfigurationSetting] Creating a key value pair");
             try {
                 const originalResponse = await this.client.putKeyValue(configurationSetting.key, {
                     ifNoneMatch: "*",
@@ -42608,7 +42596,7 @@ class AppConfigurationClient {
     deleteConfigurationSetting(id, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.deleteConfigurationSetting", options, async (updatedOptions) => {
             let status;
-            logger$n.info("[deleteConfigurationSetting] Deleting key value pair");
+            logger$m.info("[deleteConfigurationSetting] Deleting key value pair");
             const originalResponse = await this.client.deleteKeyValue(id.key, {
                 label: id.label,
                 ...updatedOptions,
@@ -42643,7 +42631,7 @@ class AppConfigurationClient {
     async getConfigurationSetting(id, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.getConfigurationSetting", options, async (updatedOptions) => {
             let status;
-            logger$n.info("[getConfigurationSetting] Getting key value pair");
+            logger$m.info("[getConfigurationSetting] Getting key value pair");
             const originalResponse = await this.client.getKeyValue(id.key, {
                 ...updatedOptions,
                 label: id.label,
@@ -42714,7 +42702,7 @@ class AppConfigurationClient {
                     const continuationToken = link ? extractAfterTokenFromLinkHeader(link) : undefined;
                     if (err.statusCode === 304) {
                         err.message = `Status 304: No updates for this page`;
-                        logger$n.info(`[listConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
+                        logger$m.info(`[listConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
                         return {
                             page: {
                                 items: [],
@@ -42778,7 +42766,7 @@ class AppConfigurationClient {
                     const continuationToken = link ? extractAfterTokenFromLinkHeader(link) : undefined;
                     if (err.statusCode === 304) {
                         err.message = `Status 304: No updates for this page`;
-                        logger$n.info(`[checkConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
+                        logger$m.info(`[checkConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
                         return {
                             page: {
                                 items: [],
@@ -42983,7 +42971,7 @@ class AppConfigurationClient {
     async setConfigurationSetting(configurationSetting, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.setConfigurationSetting", options, async (updatedOptions) => {
             const keyValue = serializeAsConfigurationSettingParam(configurationSetting);
-            logger$n.info("[setConfigurationSetting] Setting new key value");
+            logger$m.info("[setConfigurationSetting] Setting new key value");
             const response = transformKeyValueResponse(await this.client.putKeyValue(configurationSetting.key, {
                 ...updatedOptions,
                 label: configurationSetting.label,
@@ -43002,7 +42990,7 @@ class AppConfigurationClient {
         return tracingClient$2.withSpan("AppConfigurationClient.setReadOnly", options, async (newOptions) => {
             let response;
             if (readOnly) {
-                logger$n.info("[setReadOnly] Setting read-only status to ${readOnly}");
+                logger$m.info("[setReadOnly] Setting read-only status to ${readOnly}");
                 response = await this.client.putLock(id.key, {
                     ...newOptions,
                     label: id.label,
@@ -43010,7 +42998,7 @@ class AppConfigurationClient {
                 });
             }
             else {
-                logger$n.info("[setReadOnly] Deleting read-only lock");
+                logger$m.info("[setReadOnly] Deleting read-only lock");
                 response = await this.client.deleteLock(id.key, {
                     ...newOptions,
                     label: id.label,
@@ -43069,7 +43057,7 @@ class AppConfigurationClient {
      */
     getSnapshot(name, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.getSnapshot", options, async (updatedOptions) => {
-            logger$n.info("[getSnapshot] Get a snapshot");
+            logger$m.info("[getSnapshot] Get a snapshot");
             const originalResponse = await this.client.getSnapshot(name, {
                 ...updatedOptions,
             });
@@ -43100,7 +43088,7 @@ class AppConfigurationClient {
     // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
     options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.recoverSnapshot", options, async (updatedOptions) => {
-            logger$n.info("[recoverSnapshot] Recover a snapshot");
+            logger$m.info("[recoverSnapshot] Recover a snapshot");
             const originalResponse = await this.client.updateSnapshot(name, { status: "ready" }, {
                 ...updatedOptions,
                 ...checkAndFormatIfAndIfNoneMatch({ etag: options.etag }, { onlyIfUnchanged: true, ...options }),
@@ -43132,7 +43120,7 @@ class AppConfigurationClient {
     // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
     options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.archiveSnapshot", options, async (updatedOptions) => {
-            logger$n.info("[archiveSnapshot] Archive a snapshot");
+            logger$m.info("[archiveSnapshot] Archive a snapshot");
             const originalResponse = await this.client.updateSnapshot(name, { status: "archived" }, {
                 ...updatedOptions,
                 ...checkAndFormatIfAndIfNoneMatch({ etag: options.etag }, { onlyIfUnchanged: true, ...options }),
@@ -43234,10 +43222,6 @@ async function getKeys(resourceGroup, appConfigurationName, filter) {
 /**
  * The \@azure/logger configuration for this package.
  */
-const logger$k = createClientLogger("keyvault-secrets");
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
 const logger$j = createClientLogger("keyvault-secrets");
 
 // Copyright (c) Microsoft Corporation.
@@ -43406,23 +43390,29 @@ function isCredential(param) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-/** The key vault client performs cryptographic key operations and vault operations against the Key Vault service. */
+const SDK_VERSION$1 = "4.11.2";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/** Creates a new Azure Key Vault Secrets client context. */
 function createKeyVault(endpointParam, credential, options = {}) {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    const endpointUrl = (_b = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUrl) !== null && _b !== void 0 ? _b : String(endpointParam);
-    const prefixFromOptions = (_c = options === null || options === void 0 ? void 0 : options.userAgentOptions) === null || _c === void 0 ? void 0 : _c.userAgentPrefix;
-    const userAgentInfo = `azsdk-js-keyvault-secrets/1.0.0-beta.1`;
+    const endpointUrl = options.endpoint ?? options.baseUrl ?? String(endpointParam);
+    const prefixFromOptions = options?.userAgentOptions?.userAgentPrefix;
+    const userAgentInfo = `azsdk-js-keyvault-secrets/${SDK_VERSION$1}`;
     const userAgentPrefix = prefixFromOptions
         ? `${prefixFromOptions} azsdk-js-api ${userAgentInfo}`
         : `azsdk-js-api ${userAgentInfo}`;
-    const _j = Object.assign(Object.assign({}, options), { userAgentOptions: { userAgentPrefix }, loggingOptions: { logger: (_e = (_d = options.loggingOptions) === null || _d === void 0 ? void 0 : _d.logger) !== null && _e !== void 0 ? _e : logger$j.info }, credentials: {
-            scopes: (_g = (_f = options.credentials) === null || _f === void 0 ? void 0 : _f.scopes) !== null && _g !== void 0 ? _g : [
-                "https://vault.azure.net/.default",
-            ],
-        } }), { apiVersion: _ } = _j, updatedOptions = __rest(_j, ["apiVersion"]);
+    const { apiVersion: _, ...updatedOptions } = {
+        ...options,
+        userAgentOptions: { userAgentPrefix },
+        loggingOptions: { logger: options.loggingOptions?.logger ?? logger$j.info },
+        credentials: {
+            scopes: options.credentials?.scopes ?? ["https://vault.azure.net/.default"],
+        },
+    };
     const clientContext = getClient(endpointUrl, credential, updatedOptions);
     clientContext.pipeline.removePolicy({ name: "ApiVersionPolicy" });
-    const apiVersion = (_h = options.apiVersion) !== null && _h !== void 0 ? _h : "7.6";
+    const apiVersion = options.apiVersion ?? "2025-07-01";
     clientContext.pipeline.addPolicy({
         name: "ClientApiVersionPolicy",
         sendRequest: (req, next) => {
@@ -43435,7 +43425,7 @@ function createKeyVault(endpointParam, credential, options = {}) {
             return next(req);
         },
     });
-    return Object.assign(Object.assign({}, clientContext), { apiVersion });
+    return { ...clientContext, apiVersion };
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -43453,12 +43443,8 @@ function secretSetParametersSerializer(item) {
 function secretAttributesSerializer(item) {
     return {
         enabled: item["enabled"],
-        nbf: !item["notBefore"]
-            ? item["notBefore"]
-            : (item["notBefore"].getTime() / 1000) | 0,
-        exp: !item["expires"]
-            ? item["expires"]
-            : (item["expires"].getTime() / 1000) | 0,
+        nbf: !item["notBefore"] ? item["notBefore"] : (item["notBefore"].getTime() / 1000) | 0,
+        exp: !item["expires"] ? item["expires"] : (item["expires"].getTime() / 1000) | 0,
     };
 }
 function secretAttributesDeserializer(item) {
@@ -43466,12 +43452,8 @@ function secretAttributesDeserializer(item) {
         enabled: item["enabled"],
         notBefore: !item["nbf"] ? item["nbf"] : new Date(item["nbf"] * 1000),
         expires: !item["exp"] ? item["exp"] : new Date(item["exp"] * 1000),
-        created: !item["created"]
-            ? item["created"]
-            : new Date(item["created"] * 1000),
-        updated: !item["updated"]
-            ? item["updated"]
-            : new Date(item["updated"] * 1000),
+        created: !item["created"] ? item["created"] : new Date(item["created"] * 1000),
+        updated: !item["updated"] ? item["updated"] : new Date(item["updated"] * 1000),
         recoverableDays: item["recoverableDays"],
         recoveryLevel: item["recoveryLevel"],
     };
@@ -43505,13 +43487,12 @@ function secretBundleDeserializer(item) {
         tags: item["tags"],
         kid: item["kid"],
         managed: item["managed"],
+        previousVersion: item["previousVersion"],
     };
 }
 function keyVaultErrorDeserializer(item) {
     return {
-        error: !item["error"]
-            ? item["error"]
-            : _keyVaultErrorErrorDeserializer(item["error"]),
+        error: !item["error"] ? item["error"] : _keyVaultErrorErrorDeserializer(item["error"]),
     };
 }
 function _keyVaultErrorErrorDeserializer(item) {
@@ -43534,13 +43515,12 @@ function deletedSecretBundleDeserializer(item) {
         tags: item["tags"],
         kid: item["kid"],
         managed: item["managed"],
+        previousVersion: item["previousVersion"],
         recoveryId: item["recoveryId"],
         scheduledPurgeDate: !item["scheduledPurgeDate"]
             ? item["scheduledPurgeDate"]
             : new Date(item["scheduledPurgeDate"] * 1000),
-        deletedDate: !item["deletedDate"]
-            ? item["deletedDate"]
-            : new Date(item["deletedDate"] * 1000),
+        deletedDate: !item["deletedDate"] ? item["deletedDate"] : new Date(item["deletedDate"] * 1000),
     };
 }
 function secretUpdateParametersSerializer(item) {
@@ -43554,9 +43534,7 @@ function secretUpdateParametersSerializer(item) {
 }
 function _secretListResultDeserializer(item) {
     return {
-        value: !item["value"]
-            ? item["value"]
-            : secretItemArrayDeserializer(item["value"]),
+        value: !item["value"] ? item["value"] : secretItemArrayDeserializer(item["value"]),
         nextLink: item["nextLink"],
     };
 }
@@ -43578,9 +43556,7 @@ function secretItemDeserializer(item) {
 }
 function _deletedSecretListResultDeserializer(item) {
     return {
-        value: !item["value"]
-            ? item["value"]
-            : deletedSecretItemArrayDeserializer(item["value"]),
+        value: !item["value"] ? item["value"] : deletedSecretItemArrayDeserializer(item["value"]),
         nextLink: item["nextLink"],
     };
 }
@@ -43602,9 +43578,7 @@ function deletedSecretItemDeserializer(item) {
         scheduledPurgeDate: !item["scheduledPurgeDate"]
             ? item["scheduledPurgeDate"]
             : new Date(item["scheduledPurgeDate"] * 1000),
-        deletedDate: !item["deletedDate"]
-            ? item["deletedDate"]
-            : new Date(item["deletedDate"] * 1000),
+        deletedDate: !item["deletedDate"] ? item["deletedDate"] : new Date(item["deletedDate"] * 1000),
     };
 }
 function backupSecretResultDeserializer(item) {
@@ -43619,6 +43593,14 @@ function backupSecretResultDeserializer(item) {
 function secretRestoreParametersSerializer(item) {
     return { value: uint8ArrayToString(item["secretBundleBackup"], "base64url") };
 }
+/** Known values of {@link ContentType} that the service accepts. */
+var KnownContentType;
+(function (KnownContentType) {
+    /** The PKCS#12 (PFX) certificate format. */
+    KnownContentType["PFX"] = "application/x-pkcs12";
+    /** The PEM certificate format. */
+    KnownContentType["PEM"] = "application/x-pem-file";
+})(KnownContentType || (KnownContentType = {}));
 /** The available API versions. */
 var KnownVersions;
 (function (KnownVersions) {
@@ -43628,6 +43610,8 @@ var KnownVersions;
     KnownVersions["V76Preview2"] = "7.6-preview.2";
     /** The 7.6 API version. */
     KnownVersions["V76"] = "7.6";
+    /** The 2025-07-01 API version. */
+    KnownVersions["V20250701"] = "2025-07-01";
 })(KnownVersions || (KnownVersions = {}));
 
 // Copyright (c) Microsoft Corporation.
@@ -43636,9 +43620,8 @@ var KnownVersions;
  * Helper to paginate results in a generic way and return a PagedAsyncIterableIterator
  */
 function buildPagedAsyncIterator(client, getInitialResponse, processResponseBody, expectedStatuses, options = {}) {
-    var _a, _b;
-    const itemName = (_a = options.itemName) !== null && _a !== void 0 ? _a : "value";
-    const nextLinkName = (_b = options.nextLinkName) !== null && _b !== void 0 ? _b : "nextLink";
+    const itemName = options.itemName ?? "value";
+    const nextLinkName = options.nextLinkName ?? "nextLink";
     const pagedResult = {
         getPage: async (pageLink) => {
             const result = pageLink === undefined
@@ -43654,7 +43637,7 @@ function buildPagedAsyncIterator(client, getInitialResponse, processResponseBody
             };
         },
         byPage: (settings) => {
-            const { continuationToken } = settings !== null && settings !== void 0 ? settings : {};
+            const { continuationToken } = settings ?? {};
             return getPageAsyncIterator(pagedResult, {
                 pageLink: continuationToken,
             });
@@ -43670,7 +43653,6 @@ function buildPagedAsyncIterator(client, getInitialResponse, processResponseBody
  * @returns a paged async iterator that iterates over results.
  */
 function getPagedAsyncIterator(pagedResult) {
-    var _a;
     const iter = getItemAsyncIterator(pagedResult);
     return {
         next() {
@@ -43679,55 +43661,39 @@ function getPagedAsyncIterator(pagedResult) {
         [Symbol.asyncIterator]() {
             return this;
         },
-        byPage: (_a = pagedResult === null || pagedResult === void 0 ? void 0 : pagedResult.byPage) !== null && _a !== void 0 ? _a : ((settings) => {
-            const { continuationToken } = settings !== null && settings !== void 0 ? settings : {};
-            return getPageAsyncIterator(pagedResult, {
-                pageLink: continuationToken,
-            });
-        }),
+        byPage: pagedResult?.byPage ??
+            ((settings) => {
+                const { continuationToken } = settings ?? {};
+                return getPageAsyncIterator(pagedResult, {
+                    pageLink: continuationToken,
+                });
+            }),
     };
 }
-function getItemAsyncIterator(pagedResult) {
-    return __asyncGenerator(this, arguments, function* getItemAsyncIterator_1() {
-        var _a, e_1, _b, _c;
-        const pages = getPageAsyncIterator(pagedResult);
-        try {
-            for (var _d = true, pages_1 = __asyncValues(pages), pages_1_1; pages_1_1 = yield __await(pages_1.next()), _a = pages_1_1.done, !_a; _d = true) {
-                _c = pages_1_1.value;
-                _d = false;
-                const page = _c;
-                yield __await(yield* __asyncDelegator(__asyncValues(page)));
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (!_d && !_a && (_b = pages_1.return)) yield __await(_b.call(pages_1));
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-    });
+async function* getItemAsyncIterator(pagedResult) {
+    const pages = getPageAsyncIterator(pagedResult);
+    for await (const page of pages) {
+        yield* page;
+    }
 }
-function getPageAsyncIterator(pagedResult_1) {
-    return __asyncGenerator(this, arguments, function* getPageAsyncIterator_1(pagedResult, options = {}) {
-        const { pageLink } = options;
-        let response = yield __await(pagedResult.getPage(pageLink !== null && pageLink !== void 0 ? pageLink : pagedResult.firstPageLink));
+async function* getPageAsyncIterator(pagedResult, options = {}) {
+    const { pageLink } = options;
+    let response = await pagedResult.getPage(pageLink ?? pagedResult.firstPageLink);
+    if (!response) {
+        return;
+    }
+    let result = response.page;
+    result.continuationToken = response.nextPageLink;
+    yield result;
+    while (response.nextPageLink) {
+        response = await pagedResult.getPage(response.nextPageLink);
         if (!response) {
-            return yield __await(void 0);
+            return;
         }
-        let result = response.page;
+        result = response.page;
         result.continuationToken = response.nextPageLink;
-        yield yield __await(result);
-        while (response.nextPageLink) {
-            response = yield __await(pagedResult.getPage(response.nextPageLink));
-            if (!response) {
-                return yield __await(void 0);
-            }
-            result = response.page;
-            result.continuationToken = response.nextPageLink;
-            yield yield __await(result);
-        }
-    });
+        yield result;
+    }
 }
 /**
  * Gets for the value of nextLink in the body
@@ -43737,9 +43703,7 @@ function getNextLink(body, nextLinkName) {
         return undefined;
     }
     const nextLink = body[nextLinkName];
-    if (typeof nextLink !== "string" &&
-        typeof nextLink !== "undefined" &&
-        nextLink !== null) {
+    if (typeof nextLink !== "string" && typeof nextLink !== "undefined" && nextLink !== null) {
         throw new RestError(`Body Property ${nextLinkName} should be a string or undefined or null but got ${typeof nextLink}`);
     }
     if (nextLink === null) {
@@ -43755,7 +43719,7 @@ function getElements(body, itemName) {
     if (!Array.isArray(value)) {
         throw new RestError(`Couldn't paginate response\n Body doesn't contain an array property with name: ${itemName}`);
     }
-    return value !== null && value !== void 0 ? value : [];
+    return value ?? [];
 }
 /**
  * Checks if a request failed
@@ -43772,7 +43736,7 @@ function checkPagingRequest(response, expectedStatuses) {
 // helpers
 // ---------------------
 function encodeComponent(val, reserved, op) {
-    return (reserved !== null && reserved !== void 0 ? reserved : op === "+") || op === "#"
+    return (reserved ?? op === "+") || op === "#"
         ? encodeReservedComponent(val)
         : encodeRFC3986URIComponent(val);
 }
@@ -43789,10 +43753,7 @@ function isDefined(val) {
     return val !== undefined && val !== null;
 }
 function getNamedAndIfEmpty(op) {
-    return [
-        !!op && [";", "?", "&"].includes(op),
-        !!op && ["?", "&"].includes(op) ? "=" : "",
-    ];
+    return [!!op && [";", "?", "&"].includes(op), !!op && ["?", "&"].includes(op) ? "=" : ""];
 }
 function getFirstOrSep(op, isFirst = false) {
     if (isFirst) {
@@ -43913,7 +43874,7 @@ function expandUrlTemplate(template, context, option) {
         }
         let op;
         if (["+", "#", ".", "/", ";", "?", "&"].includes(expr[0])) {
-            (op = expr[0]), (expr = expr.slice(1));
+            ((op = expr[0]), (expr = expr.slice(1)));
         }
         const varList = expr.split(/,/g);
         const result = [];
@@ -43928,7 +43889,7 @@ function expandUrlTemplate(template, context, option) {
                 varValue: context[varMatch[1]],
                 varName: varMatch[1],
                 modifier: varMatch[2] || varMatch[3],
-                reserved: option === null || option === void 0 ? void 0 : option.allowReserved,
+                reserved: option?.allowReserved,
             });
             if (varValue) {
                 result.push(varValue);
@@ -43941,15 +43902,20 @@ function expandUrlTemplate(template, context, option) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 function _restoreSecretSend(context, parameters, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/secrets/restore{?api%2Dversion}", {
         "api%2Dversion": context.apiVersion,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .post(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { contentType: "application/json", headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers), body: secretRestoreParametersSerializer(parameters) }));
+    return context.path(path).post({
+        ...operationOptionsToRequestParameters(options),
+        contentType: "application/json",
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+        body: secretRestoreParametersSerializer(parameters),
+    });
 }
 async function _restoreSecretDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -43966,16 +43932,19 @@ async function restoreSecret(context, parameters, options = { requestOptions: {}
     return _restoreSecretDeserialize(result);
 }
 function _backupSecretSend(context, secretName, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/secrets/{secret-name}/backup{?api%2Dversion}", {
         "secret-name": secretName,
         "api%2Dversion": context.apiVersion,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .post(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers) }));
+    return context.path(path).post({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
 }
 async function _backupSecretDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -43992,16 +43961,19 @@ async function backupSecret(context, secretName, options = { requestOptions: {} 
     return _backupSecretDeserialize(result);
 }
 function _recoverDeletedSecretSend(context, secretName, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/deletedsecrets/{secret-name}/recover{?api%2Dversion}", {
         "secret-name": secretName,
         "api%2Dversion": context.apiVersion,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .post(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers) }));
+    return context.path(path).post({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
 }
 async function _recoverDeletedSecretDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -44018,16 +43990,19 @@ async function recoverDeletedSecret(context, secretName, options = { requestOpti
     return _recoverDeletedSecretDeserialize(result);
 }
 function _purgeDeletedSecretSend(context, secretName, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/deletedsecrets/{secret-name}{?api%2Dversion}", {
         "secret-name": secretName,
         "api%2Dversion": context.apiVersion,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .delete(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers) }));
+    return context.path(path).delete({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
 }
 async function _purgeDeletedSecretDeserialize(result) {
     const expectedStatuses = ["204"];
@@ -44044,16 +44019,19 @@ async function purgeDeletedSecret(context, secretName, options = { requestOption
     return _purgeDeletedSecretDeserialize(result);
 }
 function _getDeletedSecretSend(context, secretName, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/deletedsecrets/{secret-name}{?api%2Dversion}", {
         "secret-name": secretName,
         "api%2Dversion": context.apiVersion,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .get(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers) }));
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
 }
 async function _getDeletedSecretDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -44070,16 +44048,19 @@ async function getDeletedSecret(context, secretName, options = { requestOptions:
     return _getDeletedSecretDeserialize(result);
 }
 function _getDeletedSecretsSend(context, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/deletedsecrets{?api%2Dversion,maxresults}", {
         "api%2Dversion": context.apiVersion,
-        maxresults: options === null || options === void 0 ? void 0 : options.maxresults,
+        maxresults: options?.maxresults,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .get(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers) }));
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
 }
 async function _getDeletedSecretsDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -44095,17 +44076,20 @@ function getDeletedSecrets(context, options = { requestOptions: {} }) {
     return buildPagedAsyncIterator(context, () => _getDeletedSecretsSend(context, options), _getDeletedSecretsDeserialize, ["200"], { itemName: "value", nextLinkName: "nextLink" });
 }
 function _getSecretVersionsSend(context, secretName, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/secrets/{secret-name}/versions{?api%2Dversion,maxresults}", {
         "secret-name": secretName,
         "api%2Dversion": context.apiVersion,
-        maxresults: options === null || options === void 0 ? void 0 : options.maxresults,
+        maxresults: options?.maxresults,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .get(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers) }));
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
 }
 async function _getSecretVersionsDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -44121,16 +44105,19 @@ function getSecretVersions(context, secretName, options = { requestOptions: {} }
     return buildPagedAsyncIterator(context, () => _getSecretVersionsSend(context, secretName, options), _getSecretVersionsDeserialize, ["200"], { itemName: "value", nextLinkName: "nextLink" });
 }
 function _getSecretsSend(context, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/secrets{?api%2Dversion,maxresults}", {
         "api%2Dversion": context.apiVersion,
-        maxresults: options === null || options === void 0 ? void 0 : options.maxresults,
+        maxresults: options?.maxresults,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .get(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers) }));
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
 }
 async function _getSecretsDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -44146,17 +44133,21 @@ function getSecrets(context, options = { requestOptions: {} }) {
     return buildPagedAsyncIterator(context, () => _getSecretsSend(context, options), _getSecretsDeserialize, ["200"], { itemName: "value", nextLinkName: "nextLink" });
 }
 function _getSecretSend(context, secretName, secretVersion, options = { requestOptions: {} }) {
-    var _a, _b;
-    const path = expandUrlTemplate("/secrets/{secret-name}/{secret-version}{?api%2Dversion}", {
+    const path = expandUrlTemplate("/secrets/{secret-name}/{secret-version}{?api%2Dversion,outContentType}", {
         "secret-name": secretName,
         "secret-version": secretVersion,
         "api%2Dversion": context.apiVersion,
+        outContentType: options?.outContentType,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .get(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers) }));
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
 }
 async function _getSecretDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -44173,17 +44164,22 @@ async function getSecret(context, secretName, secretVersion, options = { request
     return _getSecretDeserialize(result);
 }
 function _updateSecretSend(context, secretName, secretVersion, parameters, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/secrets/{secret-name}/{secret-version}{?api%2Dversion}", {
         "secret-name": secretName,
         "secret-version": secretVersion,
         "api%2Dversion": context.apiVersion,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .patch(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { contentType: "application/json", headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers), body: secretUpdateParametersSerializer(parameters) }));
+    return context.path(path).patch({
+        ...operationOptionsToRequestParameters(options),
+        contentType: "application/json",
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+        body: secretUpdateParametersSerializer(parameters),
+    });
 }
 async function _updateSecretDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -44200,16 +44196,19 @@ async function updateSecret(context, secretName, secretVersion, parameters, opti
     return _updateSecretDeserialize(result);
 }
 function _deleteSecretSend(context, secretName, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/secrets/{secret-name}{?api%2Dversion}", {
         "secret-name": secretName,
         "api%2Dversion": context.apiVersion,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .delete(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers) }));
+    return context.path(path).delete({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
 }
 async function _deleteSecretDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -44226,16 +44225,21 @@ async function deleteSecret(context, secretName, options = { requestOptions: {} 
     return _deleteSecretDeserialize(result);
 }
 function _setSecretSend(context, secretName, parameters, options = { requestOptions: {} }) {
-    var _a, _b;
     const path = expandUrlTemplate("/secrets/{secret-name}{?api%2Dversion}", {
         "secret-name": secretName,
         "api%2Dversion": context.apiVersion,
     }, {
-        allowReserved: (_a = options === null || options === void 0 ? void 0 : options.requestOptions) === null || _a === void 0 ? void 0 : _a.skipUrlEncoding,
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
     });
-    return context
-        .path(path)
-        .put(Object.assign(Object.assign({}, operationOptionsToRequestParameters(options)), { contentType: "application/json", headers: Object.assign({ accept: "application/json" }, (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.headers), body: secretSetParametersSerializer(parameters) }));
+    return context.path(path).put({
+        ...operationOptionsToRequestParameters(options),
+        contentType: "application/json",
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+        body: secretSetParametersSerializer(parameters),
+    });
 }
 async function _setSecretDeserialize(result) {
     const expectedStatuses = ["200"];
@@ -44255,14 +44259,19 @@ async function setSecret(context, secretName, parameters, options = { requestOpt
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 class KeyVaultClient {
+    _client;
+    /** The pipeline used by this client to make requests */
+    pipeline;
     /** The key vault client performs cryptographic key operations and vault operations against the Key Vault service. */
     constructor(endpointParam, credential, options = {}) {
-        var _a;
-        const prefixFromOptions = (_a = options === null || options === void 0 ? void 0 : options.userAgentOptions) === null || _a === void 0 ? void 0 : _a.userAgentPrefix;
+        const prefixFromOptions = options?.userAgentOptions?.userAgentPrefix;
         const userAgentPrefix = prefixFromOptions
             ? `${prefixFromOptions} azsdk-js-client`
             : `azsdk-js-client`;
-        this._client = createKeyVault(endpointParam, credential, Object.assign(Object.assign({}, options), { userAgentOptions: { userAgentPrefix } }));
+        this._client = createKeyVault(endpointParam, credential, {
+            ...options,
+            userAgentOptions: { userAgentPrefix },
+        });
         this.pipeline = this._client.pipeline;
     }
     /** Restores a backed up secret, and all its versions, to a vault. This operation requires the secrets/restore permission. */
@@ -44342,7 +44351,7 @@ function parseWWWAuthenticateHeader(headerValue) {
             const [key, ...value] = p.split("=");
             if (validWWWAuthenticateProperties.includes(key)) {
                 // The values will be wrapped in quotes, which need to be stripped out.
-                return Object.assign(Object.assign({}, kvPairs), { [key]: value.join("=").slice(1, -1) });
+                return { ...kvPairs, [key]: value.join("=").slice(1, -1) };
             }
         }
         return kvPairs;
@@ -44388,7 +44397,7 @@ async function beginRefresh(getAccessToken, retryIntervalInMs, refreshTimeout) {
             try {
                 return await getAccessToken();
             }
-            catch (_a) {
+            catch {
                 return null;
             }
         }
@@ -44426,7 +44435,10 @@ function createTokenCycler(credential, tokenCyclerOptions) {
     let refreshWorker = null;
     let token = null;
     let tenantId;
-    const options = Object.assign(Object.assign({}, DEFAULT_CYCLER_OPTIONS), tokenCyclerOptions);
+    const options = {
+        ...DEFAULT_CYCLER_OPTIONS,
+        ...tokenCyclerOptions,
+    };
     /**
      * This little holder defines several predicates that we use to construct
      * the rules of refreshing the token.
@@ -44443,14 +44455,13 @@ function createTokenCycler(credential, tokenCyclerOptions) {
          * window and not already refreshing)
          */
         get shouldRefresh() {
-            var _a;
             if (cycler.isRefreshing) {
                 return false;
             }
-            if ((token === null || token === void 0 ? void 0 : token.refreshAfterTimestamp) && token.refreshAfterTimestamp < Date.now()) {
+            if (token?.refreshAfterTimestamp && token.refreshAfterTimestamp < Date.now()) {
                 return true;
             }
-            return ((_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : 0) - options.refreshWindowInMs < Date.now();
+            return (token?.expiresOnTimestamp ?? 0) - options.refreshWindowInMs < Date.now();
         },
         /**
          * Produces true if the cycler MUST refresh (null or nearly-expired
@@ -44465,7 +44476,6 @@ function createTokenCycler(credential, tokenCyclerOptions) {
      * running.
      */
     function refresh(scopes, getTokenOptions) {
-        var _a;
         if (!cycler.isRefreshing) {
             // We bind `scopes` here to avoid passing it around a lot
             const tryGetAccessToken = () => credential.getToken(scopes, getTokenOptions);
@@ -44473,7 +44483,7 @@ function createTokenCycler(credential, tokenCyclerOptions) {
             // before the refresh can be considered done.
             refreshWorker = beginRefresh(tryGetAccessToken, options.retryIntervalInMs, 
             // If we don't have a token, then we should timeout immediately
-            (_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : Date.now())
+            token?.expiresOnTimestamp ?? Date.now())
                 .then((_token) => {
                 refreshWorker = null;
                 token = _token;
@@ -44585,7 +44595,11 @@ function keyVaultAuthenticationPolicy(credential, options = {}) {
             case "started":
                 break; // Retry, we should not overwrite the original body
             case "complete": {
-                const token = await getAccessToken(challengeState.scopes, Object.assign(Object.assign({}, requestOptions), { enableCae: true, tenantId: challengeState.tenantId }));
+                const token = await getAccessToken(challengeState.scopes, {
+                    ...requestOptions,
+                    enableCae: true,
+                    tenantId: challengeState.tenantId,
+                });
                 if (token) {
                     request.headers.set("authorization", `Bearer ${token.token}`);
                 }
@@ -44621,7 +44635,11 @@ function keyVaultAuthenticationPolicy(credential, options = {}) {
         if (!disableChallengeResourceVerification) {
             verifyChallengeResource(scope, request);
         }
-        const accessToken = await getAccessToken([scope], Object.assign(Object.assign({}, getTokenOptions), { enableCae: true, tenantId: parsedChallenge.tenantId }));
+        const accessToken = await getAccessToken([scope], {
+            ...getTokenOptions,
+            enableCae: true,
+            tenantId: parsedChallenge.tenantId,
+        });
         if (!accessToken) {
             // No access token provided, treat as no-op
             return response;
@@ -44654,7 +44672,12 @@ function keyVaultAuthenticationPolicy(credential, options = {}) {
             return response;
         }
         const claims = atob(base64EncodedClaims);
-        const accessToken = await getAccessToken(challengeState.scopes, Object.assign(Object.assign({}, getTokenOptions), { enableCae: true, tenantId: challengeState.tenantId, claims }));
+        const accessToken = await getAccessToken(challengeState.scopes, {
+            ...getTokenOptions,
+            enableCae: true,
+            tenantId: challengeState.tenantId,
+            claims,
+        });
         request.headers.set("Authorization", `Bearer ${accessToken.token}`);
         return next(request);
     }
@@ -44720,7 +44743,7 @@ function parseKeyVaultIdentifier(collection, identifier) {
 /**
  * The latest supported KeyVault service API version
  */
-const LATEST_API_VERSION = "7.6";
+const LATEST_API_VERSION = "2025-07-01";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -44743,7 +44766,10 @@ const LATEST_API_VERSION = "7.6";
 function parseKeyVaultSecretIdentifier(id) {
     const urlParts = id.split("/");
     const collection = urlParts[3];
-    return Object.assign({ sourceId: id }, parseKeyVaultIdentifier(collection, id));
+    return {
+        sourceId: id,
+        ...parseKeyVaultIdentifier(collection, id),
+    };
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -44762,17 +44788,18 @@ function getSecretFromSecretBundle(bundle) {
         value: secretBundle.value,
         name: parsedId.name,
         properties: {
-            expiresOn: attributes === null || attributes === void 0 ? void 0 : attributes.expires,
-            createdOn: attributes === null || attributes === void 0 ? void 0 : attributes.created,
-            updatedOn: attributes === null || attributes === void 0 ? void 0 : attributes.updated,
-            enabled: attributes === null || attributes === void 0 ? void 0 : attributes.enabled,
-            notBefore: attributes === null || attributes === void 0 ? void 0 : attributes.notBefore,
-            recoverableDays: attributes === null || attributes === void 0 ? void 0 : attributes.recoverableDays,
-            recoveryLevel: attributes === null || attributes === void 0 ? void 0 : attributes.recoveryLevel,
+            expiresOn: attributes?.expires,
+            createdOn: attributes?.created,
+            updatedOn: attributes?.updated,
+            enabled: attributes?.enabled,
+            notBefore: attributes?.notBefore,
+            recoverableDays: attributes?.recoverableDays,
+            recoveryLevel: attributes?.recoveryLevel,
             id: secretBundle.id,
             contentType: secretBundle.contentType,
             tags: secretBundle.tags,
             managed: secretBundle.managed,
+            previousVersion: secretBundle.previousVersion,
             vaultUrl: parsedId.vaultUrl,
             version: parsedId.version,
             name: parsedId.name,
@@ -44816,41 +44843,28 @@ function mapPagedAsyncIterable(operation, operationOptions, mapper) {
     let iter = undefined;
     return {
         async next() {
-            iter !== null && iter !== void 0 ? iter : (iter = operation(Object.assign(Object.assign({}, operationOptions), { maxresults: undefined })));
+            iter ??= operation({ ...operationOptions, maxresults: undefined });
             const result = await iter.next();
-            return Object.assign(Object.assign({}, result), { value: result.value && mapper(result.value) });
+            return {
+                ...result,
+                value: result.value && mapper(result.value),
+            };
         },
         [Symbol.asyncIterator]() {
             return this;
         },
-        byPage(settings) {
-            return __asyncGenerator(this, arguments, function* byPage_1() {
-                var _a, e_1, _b, _c;
-                // Pass the maxPageSize value to the underlying page operation
-                const iteratorByPage = operation(Object.assign(Object.assign({}, operationOptions), { maxresults: settings === null || settings === void 0 ? void 0 : settings.maxPageSize })).byPage(settings);
-                try {
-                    for (var _d = true, iteratorByPage_1 = __asyncValues(iteratorByPage), iteratorByPage_1_1; iteratorByPage_1_1 = yield __await(iteratorByPage_1.next()), _a = iteratorByPage_1_1.done, !_a; _d = true) {
-                        _c = iteratorByPage_1_1.value;
-                        _d = false;
-                        const page = _c;
-                        yield yield __await(page.map(mapper));
-                    }
-                }
-                catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                finally {
-                    try {
-                        if (!_d && !_a && (_b = iteratorByPage_1.return)) yield __await(_b.call(iteratorByPage_1));
-                    }
-                    finally { if (e_1) throw e_1.error; }
-                }
-            });
+        async *byPage(settings) {
+            // Pass the maxPageSize value to the underlying page operation
+            const iteratorByPage = operation({
+                ...operationOptions,
+                maxresults: settings?.maxPageSize,
+            }).byPage(settings);
+            for await (const page of iteratorByPage) {
+                yield page.map(mapper);
+            }
         },
     };
 }
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const SDK_VERSION$1 = "4.10.0";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -44866,13 +44880,10 @@ const tracingClient$1 = createTracingClient({
  * Common properties and methods of the Key Vault Secret Pollers.
  */
 class KeyVaultSecretPoller extends Poller {
-    constructor() {
-        super(...arguments);
-        /**
-         * Defines how much time the poller is going to wait before making a new request to the service.
-         */
-        this.intervalInMs = 2000;
-    }
+    /**
+     * Defines how much time the poller is going to wait before making a new request to the service.
+     */
+    intervalInMs = 2000;
     /**
      * The method used by the poller to wait before attempting to update its operation.
      */
@@ -44885,9 +44896,10 @@ class KeyVaultSecretPoller extends Poller {
  */
 // eslint-disable-next-next no-use-before-define
 class KeyVaultSecretPollOperation {
+    state;
+    cancelMessage = "";
     constructor(state, options = {}) {
         this.state = state;
-        this.cancelMessage = "";
         if (options.cancelMessage) {
             this.cancelMessage = options.cancelMessage;
         }
@@ -44922,6 +44934,9 @@ class KeyVaultSecretPollOperation {
  * An interface representing a delete secret's poll operation
  */
 class DeleteSecretPollOperation extends KeyVaultSecretPollOperation {
+    state;
+    client;
+    operationOptions;
     constructor(state, client, operationOptions = {}) {
         super(state, { cancelMessage: "Canceling the deletion of a secret is not supported." });
         this.state = state;
@@ -44998,7 +45013,10 @@ class DeleteSecretPoller extends KeyVaultSecretPoller {
         if (resumeFrom) {
             state = JSON.parse(resumeFrom).state;
         }
-        const operation = new DeleteSecretPollOperation(Object.assign(Object.assign({}, state), { name }), client, operationOptions);
+        const operation = new DeleteSecretPollOperation({
+            ...state,
+            name,
+        }, client, operationOptions);
         super(operation);
         this.intervalInMs = intervalInMs;
     }
@@ -45010,6 +45028,9 @@ class DeleteSecretPoller extends KeyVaultSecretPoller {
  * An interface representing a delete secret's poll operation
  */
 class RecoverDeletedSecretPollOperation extends KeyVaultSecretPollOperation {
+    state;
+    client;
+    options;
     constructor(state, client, options = {}) {
         super(state, { cancelMessage: "Canceling the recovery of a deleted secret is not supported." });
         this.state = state;
@@ -45050,7 +45071,7 @@ class RecoverDeletedSecretPollOperation extends KeyVaultSecretPollOperation {
                 state.result = (await this.getSecret(name, this.options)).properties;
                 state.isCompleted = true;
             }
-            catch (_a) {
+            catch {
                 // Nothing to do here.
             }
             if (!state.isCompleted) {
@@ -45091,7 +45112,10 @@ class RecoverDeletedSecretPoller extends KeyVaultSecretPoller {
         if (resumeFrom) {
             state = JSON.parse(resumeFrom).state;
         }
-        const operation = new RecoverDeletedSecretPollOperation(Object.assign(Object.assign({}, state), { name }), client, operationOptions);
+        const operation = new RecoverDeletedSecretPollOperation({
+            ...state,
+            name,
+        }, client, operationOptions);
         super(operation);
         this.intervalInMs = intervalInMs;
     }
@@ -45109,6 +45133,14 @@ class RecoverDeletedSecretPoller extends KeyVaultSecretPoller {
  */
 class SecretClient {
     /**
+     * The base URL to the vault
+     */
+    vaultUrl;
+    /**
+     * A reference to the auto-generated KeyVault HTTP client.
+     */
+    client;
+    /**
      * Creates an instance of SecretClient.
      *
      * Example usage:
@@ -45122,7 +45154,7 @@ class SecretClient {
      * const vaultName = "<YOUR KEYVAULT NAME>";
      * const url = `https://${vaultName}.vault.azure.net`;
      *
-     * // Lastly, create our keys client and connect to the service
+     * // Lastly, create our secrets client and connect to the service
      * const client = new SecretClient(url, credential);
      * ```
      * @param vaultUrl - The base URL to the vault. You should validate that this URL references a valid Key Vault resource. See https://aka.ms/azsdk/blog/vault-uri for details.
@@ -45131,18 +45163,22 @@ class SecretClient {
      *                          Omit this parameter to use the default pipeline configuration.
      */
     constructor(vaultUrl, credential, pipelineOptions = {}) {
-        var _a, _b;
         this.vaultUrl = vaultUrl;
-        const internalPipelineOptions = Object.assign(Object.assign({}, pipelineOptions), { userAgentOptions: {
-                userAgentPrefix: `${(_b = (_a = pipelineOptions.userAgentOptions) === null || _a === void 0 ? void 0 : _a.userAgentPrefix) !== null && _b !== void 0 ? _b : ""} azsdk-js-keyvault-secrets/${SDK_VERSION$1}`,
-            }, apiVersion: pipelineOptions.serviceVersion || LATEST_API_VERSION, loggingOptions: {
-                logger: logger$k.info,
+        const internalPipelineOptions = {
+            ...pipelineOptions,
+            userAgentOptions: {
+                userAgentPrefix: `${pipelineOptions.userAgentOptions?.userAgentPrefix ?? ""} azsdk-js-keyvault-secrets/${SDK_VERSION$1}`,
+            },
+            apiVersion: pipelineOptions.serviceVersion || LATEST_API_VERSION,
+            loggingOptions: {
+                logger: logger$j.info,
                 additionalAllowedHeaderNames: [
                     "x-ms-keyvault-region",
                     "x-ms-keyvault-network-info",
                     "x-ms-keyvault-service-version",
                 ],
-            } });
+            },
+        };
         this.client = new KeyVaultClient(this.vaultUrl, credential, internalPipelineOptions);
         // Key vault has its own authentication policy that needs to be added to the pipeline, replacing the default bearerTokenAuthenticationPolicy.
         this.client.pipeline.removePolicy({ name: bearerTokenAuthenticationPolicyName });
@@ -45151,8 +45187,7 @@ class SecretClient {
         this.client.pipeline.addPolicy({
             name: "ContentTypePolicy",
             sendRequest(request, next) {
-                var _a;
-                const contentType = (_a = request.headers.get("Content-Type")) !== null && _a !== void 0 ? _a : "";
+                const contentType = request.headers.get("Content-Type") ?? "";
                 if (contentType.startsWith("application/json")) {
                     request.headers.set("Content-Type", "application/json");
                 }
@@ -45188,9 +45223,9 @@ class SecretClient {
      * @param options - The optional parameters.
      */
     setSecret(secretName, value, options = {}) {
-        const { enabled, notBefore, expiresOn: expires, tags } = options, remainingOptions = __rest(options, ["enabled", "notBefore", "expiresOn", "tags"]);
+        const { contentType, enabled, notBefore, expiresOn: expires, tags, ...remainingOptions } = options;
         return tracingClient$1.withSpan("SecretClient.setSecret", remainingOptions, async (updatedOptions) => {
-            const response = await this.client.setSecret(secretName, { value, secretAttributes: { enabled, notBefore, expires }, tags }, updatedOptions);
+            const response = await this.client.setSecret(secretName, { value, contentType, secretAttributes: { enabled, notBefore, expires }, tags }, updatedOptions);
             return getSecretFromSecretBundle(response);
         });
     }
@@ -45221,7 +45256,12 @@ class SecretClient {
      * @param options - The optional parameters.
      */
     async beginDeleteSecret(name, options = {}) {
-        const poller = new DeleteSecretPoller(Object.assign(Object.assign({ name, client: this.client }, options), { operationOptions: options }));
+        const poller = new DeleteSecretPoller({
+            name,
+            client: this.client,
+            ...options,
+            operationOptions: options,
+        });
         // This will initialize the poller's operation (the deletion of the secret).
         await poller.poll();
         return poller;
@@ -45254,9 +45294,9 @@ class SecretClient {
      * @param options - The optional parameters.
      */
     async updateSecretProperties(secretName, secretVersion, options = {}) {
-        const { enabled, notBefore, expiresOn: expires, tags } = options, remainingOptions = __rest(options, ["enabled", "notBefore", "expiresOn", "tags"]);
+        const { contentType, enabled, notBefore, expiresOn: expires, tags, ...remainingOptions } = options;
         return tracingClient$1.withSpan("SecretClient.updateSecretProperties", remainingOptions, async (updatedOptions) => {
-            const response = await this.client.updateSecret(secretName, secretVersion, { secretAttributes: { enabled, notBefore, expires }, tags }, updatedOptions);
+            const response = await this.client.updateSecret(secretName, secretVersion, { contentType, secretAttributes: { enabled, notBefore, expires }, tags }, updatedOptions);
             return getSecretFromSecretBundle(response).properties;
         });
     }
@@ -45394,7 +45434,12 @@ class SecretClient {
      * @param options - The optional parameters.
      */
     async beginRecoverDeletedSecret(name, options = {}) {
-        const poller = new RecoverDeletedSecretPoller(Object.assign(Object.assign({ name, client: this.client }, options), { operationOptions: options }));
+        const poller = new RecoverDeletedSecretPoller({
+            name,
+            client: this.client,
+            ...options,
+            operationOptions: options,
+        });
         // This will initialize the poller's operation (the recovery of the deleted secret).
         await poller.poll();
         return poller;
