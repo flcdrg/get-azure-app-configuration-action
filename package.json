@@ -27,7 +27,7 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^3.0.0",
-    "@actions/exec": "^1.1.1",
+    "@actions/exec": "^3.0.0",
     "@actions/io": "^3.0.2",
     "@azure/app-configuration": "^1.11.0",
     "@azure/identity": "^4.13.0",
