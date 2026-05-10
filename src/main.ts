@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
 
-import { getKeys } from './appConfiguration';
+import { getKeys } from './appConfiguration.js';
 
-import { getKeyVaultSecret } from './kv';
+import { getKeyVaultSecret } from './kv.js';
 import {
   isSecretReference,
   parseSecretReference

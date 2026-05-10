@@ -34,7 +34,7 @@ export default defineConfig([
 
             parser: tsParser,
             ecmaVersion: "latest",
-            sourceType: "commonjs",
+            sourceType: "module",
 
             parserOptions: {
                 project: "./tsconfig.json",
