@@ -9,18 +9,24 @@ import {
   PageSettings
 } from '@azure/app-configuration';
 import { executeAzCliCommand } from './executeAzCliCommand.js';
+import { DefaultAzureCredential } from '@azure/identity';
 
-export async function getKeys(
-  resourceGroup: string,
-  appConfigurationName: string,
-  filter: ListConfigurationSettingsOptions
-): Promise<
-  PagedAsyncIterableIterator<
-    ConfigurationSetting<string>,
-    ListConfigurationSettingPage,
-    PageSettings
-  >
-> {
+export type AppConfigurationAuthMode = 'managedIdentity' | 'connectionString';
+
+function getAppConfigurationEndpoint(appConfigurationName: string): string {
+  return `https://${appConfigurationName}.azconfig.io`;
+}
+
+async function getConnectionString(
+  resourceGroup: string | undefined,
+  appConfigurationName: string
+): Promise<string> {
+  if (!resourceGroup) {
+    throw new Error(
+      'resourceGroup is required when authMode is connectionString'
+    );
+  }
+
   const azPath = await io.which('az', true);
   const connectionString = await executeAzCliCommand(
     azPath,
@@ -29,7 +35,30 @@ export async function getKeys(
 
   core.setSecret(connectionString);
 
-  const client = new AppConfigurationClient(connectionString);
+  return connectionString;
+}
+
+export async function getKeys(
+  resourceGroup: string | undefined,
+  appConfigurationName: string,
+  filter: ListConfigurationSettingsOptions,
+  authMode: AppConfigurationAuthMode = 'managedIdentity'
+): Promise<
+  PagedAsyncIterableIterator<
+    ConfigurationSetting<string>,
+    ListConfigurationSettingPage,
+    PageSettings
+  >
+> {
+  const client =
+    authMode === 'connectionString'
+      ? new AppConfigurationClient(
+          await getConnectionString(resourceGroup, appConfigurationName)
+        )
+      : new AppConfigurationClient(
+          getAppConfigurationEndpoint(appConfigurationName),
+          new DefaultAzureCredential()
+        );
 
   return client.listConfigurationSettings(filter);
 }
