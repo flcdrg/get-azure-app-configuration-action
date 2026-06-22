@@ -14,6 +14,8 @@ Values fetched will be set as [outputs](https://help.github.com/en/actions/autom
 
 ## Example
 
+The action uses Azure SDK authentication against the App Configuration endpoint by default, so it works with managed identity and workload identity through `DefaultAzureCredential`. The legacy access-key flow is still available as an explicit fallback.
+
 ```yaml
 - uses: Azure/login@v3
   with:
@@ -24,23 +26,35 @@ Values fetched will be set as [outputs](https://help.github.com/en/actions/autom
 - uses: flcdrg/get-azure-app-configuration-action@v2
   id: get-app-configuration
   with:
-    resourceGroup: ${{ secrets.RESOURCE_GROUP }}
     appConfigurationName: ${{ secrets.APP_CONFIGURATION }}
     keyFilter: 'key1'
 
 - run: echo ${{ steps.get-app-configuration.outputs.key1 }}
 ```
 
+If you need the legacy connection-string flow, set `authMode` to `connectionString` and provide `resourceGroup`:
+
+```yaml
+- uses: flcdrg/get-azure-app-configuration-action@v2
+  id: get-app-configuration
+  with:
+    authMode: connectionString
+    resourceGroup: ${{ secrets.RESOURCE_GROUP }}
+    appConfigurationName: ${{ secrets.APP_CONFIGURATION }}
+    keyFilter: 'key1'
+```
+
 ## Inputs
 
 Various inputs are defined in [`action.yml`](action.yml) to let you configure this action:
 
-| Name | Description |
-| - | - |
-| `resourceGroup` | The name of the resource group that contains the App Configuration resource |
-| `appConfigurationName` | The name of the App Configuration resource |
-| `keyFilter` | See below |
-| `labelFilter` | See below |
+| Name                   | Description                                                                                                                      |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `resourceGroup`        | The name of the resource group that contains the App Configuration resource. Required only when `authMode` is `connectionString` |
+| `appConfigurationName` | The name of the App Configuration resource                                                                                       |
+| `authMode`             | Authentication mode for App Configuration. Defaults to `managedIdentity`                                                         |
+| `keyFilter`            | See below                                                                                                                        |
+| `labelFilter`          | See below                                                                                                                        |
 
 ### keyFilter
 
@@ -50,7 +64,7 @@ Filters for keys. There are two types of matching:
 2. Wildcard matching. A single wildcard expression can be specified.
 
 | Value          | Matches                               |
-|----------------|---------------------------------------|
+| -------------- | ------------------------------------- |
 | omitted or `*` | Matches any key                       |
 | `abc`          | Matches a key named abc               |
 | `abc*`         | Matches key names that start with abc |
@@ -65,7 +79,7 @@ Filters for labels. There are two types of matching:
 2. Wildcard matching. A single wildcard expression can be specified.
 
 | Value          | Matches                                           |
-|----------------|---------------------------------------------------|
+| -------------- | ------------------------------------------------- |
 | omitted or `*` | Matches any key                                   |
 | `%00`          | Matches any key without a label                   |
 | `prod`         | Matches a key with label named prod               |
@@ -83,7 +97,9 @@ Azure App Configuration can reference Key Vault secrets. In order for this to wo
 
 ## Other notes
 
-Create a new service principal with contributor access to a resource group.
+For the managed-identity path, make sure the workflow identity has the `App Configuration Data Reader` role on the store.
+
+Create a new service principal with contributor access to a resource group only if you need the legacy connection-string path.
 
 ```powershell
 az ad sp create-for-rbac --name "app-config-action" --role contributor `
