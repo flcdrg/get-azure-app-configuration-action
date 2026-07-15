@@ -11,20 +11,33 @@ import { parseKeyVaultSecretIdentifier } from '@azure/keyvault-secrets';
 
 export async function run(): Promise<void> {
   try {
-    const resourceGroup = core.getInput('resourceGroup', {
-      required: true
-    });
+    const resourceGroup = core.getInput('resourceGroup');
     const appConfigurationName = core.getInput('appConfigurationName', {
       required: true
     });
+    const authMode =
+      core.getInput('authMode') === 'connectionString'
+        ? 'connectionString'
+        : 'managedIdentity';
+
+    if (authMode === 'connectionString' && !resourceGroup) {
+      throw new Error(
+        'resourceGroup is required when authMode is connectionString'
+      );
+    }
 
     const keyFilter = core.getInput('keyFilter');
     const labelFilter = core.getInput('labelFilter') || '\0'; // default to keys with no label
 
-    const keys = await getKeys(resourceGroup, appConfigurationName, {
-      keyFilter,
-      labelFilter
-    });
+    const keys = await getKeys(
+      resourceGroup,
+      appConfigurationName,
+      {
+        keyFilter,
+        labelFilter
+      },
+      authMode
+    );
 
     for await (const setting of keys) {
       // https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/appconfiguration/app-configuration/samples-dev/secretReference.ts
