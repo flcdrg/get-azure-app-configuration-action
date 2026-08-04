@@ -43209,2419 +43209,12 @@ async function executeAzCliCommand(azPath, command) {
     return stdout;
 }
 
-async function getKeys(resourceGroup, appConfigurationName, filter) {
-    const azPath = await which('az', true);
-    const connectionString = await executeAzCliCommand(azPath, `appconfig credential list -g ${resourceGroup} -n ${appConfigurationName} --query "([?name=='Primary Read Only'].connectionString)[0]"`);
-    setSecret$1(connectionString);
-    const client = new AppConfigurationClient(connectionString);
-    return client.listConfigurationSettings(filter);
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * The \@azure/logger configuration for this package.
- */
-const logger$j = createClientLogger("keyvault-secrets");
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-function createRestError(messageOrResponse, response) {
-    if (typeof messageOrResponse === "string") {
-        return createRestError$1(messageOrResponse, response);
-    }
-    else {
-        return createRestError$1(messageOrResponse);
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const apiVersionPolicyName = "ApiVersionPolicy";
-/**
- * Creates a policy that sets the apiVersion as a query parameter on every request
- * @param options - Client options
- * @returns Pipeline policy that sets the apiVersion as a query parameter on every request
- */
-function apiVersionPolicy(options) {
-    return {
-        name: apiVersionPolicyName,
-        sendRequest: (req, next) => {
-            // Use the apiVesion defined in request url directly
-            // Append one if there is no apiVesion and we have one at client options
-            const url = new URL(req.url);
-            if (!url.searchParams.get("api-version") && options.apiVersion) {
-                req.url = `${req.url}${Array.from(url.searchParams.keys()).length > 0 ? "&" : "?"}api-version=${options.apiVersion}`;
-            }
-            return next(req);
-        },
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * The programmatic identifier of the bearerTokenAuthenticationPolicy.
- */
-const keyCredentialAuthenticationPolicyName = "keyCredentialAuthenticationPolicy";
-function keyCredentialAuthenticationPolicy(credential, apiKeyHeaderName) {
-    return {
-        name: keyCredentialAuthenticationPolicyName,
-        async sendRequest(request, next) {
-            request.headers.set(apiKeyHeaderName, credential.key);
-            return next(request);
-        },
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Adds a credential policy to the pipeline if a credential is provided. If none is provided, no policy is added.
- */
-function addCredentialPipelinePolicy(pipeline, endpoint, options = {}) {
-    var _a, _b, _c, _d;
-    const { credential, clientOptions } = options;
-    if (!credential) {
-        return;
-    }
-    if (isTokenCredential(credential)) {
-        const tokenPolicy = bearerTokenAuthenticationPolicy({
-            credential,
-            scopes: (_b = (_a = clientOptions === null || clientOptions === void 0 ? void 0 : clientOptions.credentials) === null || _a === void 0 ? void 0 : _a.scopes) !== null && _b !== void 0 ? _b : `${endpoint}/.default`,
-        });
-        pipeline.addPolicy(tokenPolicy);
-    }
-    else if (isKeyCredential(credential)) {
-        if (!((_c = clientOptions === null || clientOptions === void 0 ? void 0 : clientOptions.credentials) === null || _c === void 0 ? void 0 : _c.apiKeyHeaderName)) {
-            throw new Error(`Missing API Key Header Name`);
-        }
-        const keyPolicy = keyCredentialAuthenticationPolicy(credential, (_d = clientOptions === null || clientOptions === void 0 ? void 0 : clientOptions.credentials) === null || _d === void 0 ? void 0 : _d.apiKeyHeaderName);
-        pipeline.addPolicy(keyPolicy);
-    }
-}
-/**
- * Creates a default rest pipeline to re-use accross Rest Level Clients
- */
-function createDefaultPipeline(endpoint, credential, options = {}) {
-    const pipeline = createPipelineFromOptions(options);
-    pipeline.addPolicy(apiVersionPolicy(options));
-    addCredentialPipelinePolicy(pipeline, endpoint, { credential, clientOptions: options });
-    return pipeline;
-}
-function isKeyCredential(credential) {
-    return credential.key !== undefined;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Helper function to convert OperationOptions to RequestParameters
- * @param options - the options that are used by Modular layer to send the request
- * @returns the result of the conversion in RequestParameters of RLC layer
- */
-function operationOptionsToRequestParameters(options) {
-    return operationOptionsToRequestParameters$1(options);
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Function to wrap RequestParameters so that we get the legacy onResponse behavior in core-client-rest
- */
-function wrapRequestParameters(parameters) {
-    if (parameters.onResponse) {
-        return Object.assign(Object.assign({}, parameters), { onResponse(rawResponse, error) {
-                var _a;
-                (_a = parameters.onResponse) === null || _a === void 0 ? void 0 : _a.call(parameters, rawResponse, error, error);
-            } });
-    }
-    return parameters;
-}
-function getClient(endpoint, credentialsOrPipelineOptions, clientOptions = {}) {
-    let credentials;
-    if (credentialsOrPipelineOptions) {
-        if (isCredential(credentialsOrPipelineOptions)) {
-            credentials = credentialsOrPipelineOptions;
-        }
-        else {
-            clientOptions = credentialsOrPipelineOptions !== null && credentialsOrPipelineOptions !== void 0 ? credentialsOrPipelineOptions : {};
-        }
-    }
-    const pipeline = createDefaultPipeline(endpoint, credentials, clientOptions);
-    const tspClient = getClient$1(endpoint, Object.assign(Object.assign({}, clientOptions), { pipeline }));
-    const client = (path, ...args) => {
-        return {
-            get: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).get(wrapRequestParameters(requestOptions));
-            },
-            post: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).post(wrapRequestParameters(requestOptions));
-            },
-            put: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).put(wrapRequestParameters(requestOptions));
-            },
-            patch: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).patch(wrapRequestParameters(requestOptions));
-            },
-            delete: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).delete(wrapRequestParameters(requestOptions));
-            },
-            head: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).head(wrapRequestParameters(requestOptions));
-            },
-            options: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).options(wrapRequestParameters(requestOptions));
-            },
-            trace: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).trace(wrapRequestParameters(requestOptions));
-            },
-        };
-    };
-    return {
-        path: client,
-        pathUnchecked: client,
-        pipeline: tspClient.pipeline,
-    };
-}
-function isCredential(param) {
-    return isKeyCredential$1(param) || isTokenCredential(param);
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const SDK_VERSION$1 = "4.11.2";
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/** Creates a new Azure Key Vault Secrets client context. */
-function createKeyVault(endpointParam, credential, options = {}) {
-    const endpointUrl = options.endpoint ?? options.baseUrl ?? String(endpointParam);
-    const prefixFromOptions = options?.userAgentOptions?.userAgentPrefix;
-    const userAgentInfo = `azsdk-js-keyvault-secrets/${SDK_VERSION$1}`;
-    const userAgentPrefix = prefixFromOptions
-        ? `${prefixFromOptions} azsdk-js-api ${userAgentInfo}`
-        : `azsdk-js-api ${userAgentInfo}`;
-    const { apiVersion: _, ...updatedOptions } = {
-        ...options,
-        userAgentOptions: { userAgentPrefix },
-        loggingOptions: { logger: options.loggingOptions?.logger ?? logger$j.info },
-        credentials: {
-            scopes: options.credentials?.scopes ?? ["https://vault.azure.net/.default"],
-        },
-    };
-    const clientContext = getClient(endpointUrl, credential, updatedOptions);
-    clientContext.pipeline.removePolicy({ name: "ApiVersionPolicy" });
-    const apiVersion = options.apiVersion ?? "2025-07-01";
-    clientContext.pipeline.addPolicy({
-        name: "ClientApiVersionPolicy",
-        sendRequest: (req, next) => {
-            // Use the apiVersion defined in request url directly
-            // Append one if there is no apiVersion and we have one at client options
-            const url = new URL(req.url);
-            if (!url.searchParams.get("api-version")) {
-                req.url = `${req.url}${Array.from(url.searchParams.keys()).length > 0 ? "&" : "?"}api-version=${apiVersion}`;
-            }
-            return next(req);
-        },
-    });
-    return { ...clientContext, apiVersion };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-function secretSetParametersSerializer(item) {
-    return {
-        value: item["value"],
-        tags: item["tags"],
-        contentType: item["contentType"],
-        attributes: !item["secretAttributes"]
-            ? item["secretAttributes"]
-            : secretAttributesSerializer(item["secretAttributes"]),
-    };
-}
-function secretAttributesSerializer(item) {
-    return {
-        enabled: item["enabled"],
-        nbf: !item["notBefore"] ? item["notBefore"] : (item["notBefore"].getTime() / 1000) | 0,
-        exp: !item["expires"] ? item["expires"] : (item["expires"].getTime() / 1000) | 0,
-    };
-}
-function secretAttributesDeserializer(item) {
-    return {
-        enabled: item["enabled"],
-        notBefore: !item["nbf"] ? item["nbf"] : new Date(item["nbf"] * 1000),
-        expires: !item["exp"] ? item["exp"] : new Date(item["exp"] * 1000),
-        created: !item["created"] ? item["created"] : new Date(item["created"] * 1000),
-        updated: !item["updated"] ? item["updated"] : new Date(item["updated"] * 1000),
-        recoverableDays: item["recoverableDays"],
-        recoveryLevel: item["recoveryLevel"],
-    };
-}
-/** Reflects the deletion recovery level currently in effect for secrets in the current vault. If it contains 'Purgeable', the secret can be permanently deleted by a privileged user; otherwise, only the system can purge the secret, at the end of the retention interval. */
-var KnownDeletionRecoveryLevel;
-(function (KnownDeletionRecoveryLevel) {
-    /** Denotes a vault state in which deletion is an irreversible operation, without the possibility for recovery. This level corresponds to no protection being available against a Delete operation; the data is irretrievably lost upon accepting a Delete operation at the entity level or higher (vault, resource group, subscription etc.) */
-    KnownDeletionRecoveryLevel["Purgeable"] = "Purgeable";
-    /** Denotes a vault state in which deletion is recoverable, and which also permits immediate and permanent deletion (i.e. purge). This level guarantees the recoverability of the deleted entity during the retention interval (90 days), unless a Purge operation is requested, or the subscription is cancelled. System wil permanently delete it after 90 days, if not recovered */
-    KnownDeletionRecoveryLevel["RecoverablePurgeable"] = "Recoverable+Purgeable";
-    /** Denotes a vault state in which deletion is recoverable without the possibility for immediate and permanent deletion (i.e. purge). This level guarantees the recoverability of the deleted entity during the retention interval (90 days) and while the subscription is still available. System wil permanently delete it after 90 days, if not recovered */
-    KnownDeletionRecoveryLevel["Recoverable"] = "Recoverable";
-    /** Denotes a vault and subscription state in which deletion is recoverable within retention interval (90 days), immediate and permanent deletion (i.e. purge) is not permitted, and in which the subscription itself  cannot be permanently canceled. System wil permanently delete it after 90 days, if not recovered */
-    KnownDeletionRecoveryLevel["RecoverableProtectedSubscription"] = "Recoverable+ProtectedSubscription";
-    /** Denotes a vault state in which deletion is recoverable, and which also permits immediate and permanent deletion (i.e. purge when 7 <= SoftDeleteRetentionInDays < 90). This level guarantees the recoverability of the deleted entity during the retention interval, unless a Purge operation is requested, or the subscription is cancelled. */
-    KnownDeletionRecoveryLevel["CustomizedRecoverablePurgeable"] = "CustomizedRecoverable+Purgeable";
-    /** Denotes a vault state in which deletion is recoverable without the possibility for immediate and permanent deletion (i.e. purge when 7 <= SoftDeleteRetentionInDays < 90).This level guarantees the recoverability of the deleted entity during the retention interval and while the subscription is still available. */
-    KnownDeletionRecoveryLevel["CustomizedRecoverable"] = "CustomizedRecoverable";
-    /** Denotes a vault and subscription state in which deletion is recoverable, immediate and permanent deletion (i.e. purge) is not permitted, and in which the subscription itself cannot be permanently canceled when 7 <= SoftDeleteRetentionInDays < 90. This level guarantees the recoverability of the deleted entity during the retention interval, and also reflects the fact that the subscription itself cannot be cancelled. */
-    KnownDeletionRecoveryLevel["CustomizedRecoverableProtectedSubscription"] = "CustomizedRecoverable+ProtectedSubscription";
-})(KnownDeletionRecoveryLevel || (KnownDeletionRecoveryLevel = {}));
-function secretBundleDeserializer(item) {
-    return {
-        value: item["value"],
-        id: item["id"],
-        contentType: item["contentType"],
-        attributes: !item["attributes"]
-            ? item["attributes"]
-            : secretAttributesDeserializer(item["attributes"]),
-        tags: item["tags"],
-        kid: item["kid"],
-        managed: item["managed"],
-        previousVersion: item["previousVersion"],
-    };
-}
-function keyVaultErrorDeserializer(item) {
-    return {
-        error: !item["error"] ? item["error"] : _keyVaultErrorErrorDeserializer(item["error"]),
-    };
-}
-function _keyVaultErrorErrorDeserializer(item) {
-    return {
-        code: item["code"],
-        message: item["message"],
-        innerError: !item["innererror"]
-            ? item["innererror"]
-            : _keyVaultErrorErrorDeserializer(item["innererror"]),
-    };
-}
-function deletedSecretBundleDeserializer(item) {
-    return {
-        value: item["value"],
-        id: item["id"],
-        contentType: item["contentType"],
-        attributes: !item["attributes"]
-            ? item["attributes"]
-            : secretAttributesDeserializer(item["attributes"]),
-        tags: item["tags"],
-        kid: item["kid"],
-        managed: item["managed"],
-        previousVersion: item["previousVersion"],
-        recoveryId: item["recoveryId"],
-        scheduledPurgeDate: !item["scheduledPurgeDate"]
-            ? item["scheduledPurgeDate"]
-            : new Date(item["scheduledPurgeDate"] * 1000),
-        deletedDate: !item["deletedDate"] ? item["deletedDate"] : new Date(item["deletedDate"] * 1000),
-    };
-}
-function secretUpdateParametersSerializer(item) {
-    return {
-        contentType: item["contentType"],
-        attributes: !item["secretAttributes"]
-            ? item["secretAttributes"]
-            : secretAttributesSerializer(item["secretAttributes"]),
-        tags: item["tags"],
-    };
-}
-function _secretListResultDeserializer(item) {
-    return {
-        value: !item["value"] ? item["value"] : secretItemArrayDeserializer(item["value"]),
-        nextLink: item["nextLink"],
-    };
-}
-function secretItemArrayDeserializer(result) {
-    return result.map((item) => {
-        return secretItemDeserializer(item);
-    });
-}
-function secretItemDeserializer(item) {
-    return {
-        id: item["id"],
-        attributes: !item["attributes"]
-            ? item["attributes"]
-            : secretAttributesDeserializer(item["attributes"]),
-        tags: item["tags"],
-        contentType: item["contentType"],
-        managed: item["managed"],
-    };
-}
-function _deletedSecretListResultDeserializer(item) {
-    return {
-        value: !item["value"] ? item["value"] : deletedSecretItemArrayDeserializer(item["value"]),
-        nextLink: item["nextLink"],
-    };
-}
-function deletedSecretItemArrayDeserializer(result) {
-    return result.map((item) => {
-        return deletedSecretItemDeserializer(item);
-    });
-}
-function deletedSecretItemDeserializer(item) {
-    return {
-        id: item["id"],
-        attributes: !item["attributes"]
-            ? item["attributes"]
-            : secretAttributesDeserializer(item["attributes"]),
-        tags: item["tags"],
-        contentType: item["contentType"],
-        managed: item["managed"],
-        recoveryId: item["recoveryId"],
-        scheduledPurgeDate: !item["scheduledPurgeDate"]
-            ? item["scheduledPurgeDate"]
-            : new Date(item["scheduledPurgeDate"] * 1000),
-        deletedDate: !item["deletedDate"] ? item["deletedDate"] : new Date(item["deletedDate"] * 1000),
-    };
-}
-function backupSecretResultDeserializer(item) {
-    return {
-        value: !item["value"]
-            ? item["value"]
-            : typeof item["value"] === "string"
-                ? stringToUint8Array(item["value"], "base64url")
-                : item["value"],
-    };
-}
-function secretRestoreParametersSerializer(item) {
-    return { value: uint8ArrayToString(item["secretBundleBackup"], "base64url") };
-}
-/** Known values of {@link ContentType} that the service accepts. */
-var KnownContentType;
-(function (KnownContentType) {
-    /** The PKCS#12 (PFX) certificate format. */
-    KnownContentType["PFX"] = "application/x-pkcs12";
-    /** The PEM certificate format. */
-    KnownContentType["PEM"] = "application/x-pem-file";
-})(KnownContentType || (KnownContentType = {}));
-/** The available API versions. */
-var KnownVersions;
-(function (KnownVersions) {
-    /** The 7.5 API version. */
-    KnownVersions["V75"] = "7.5";
-    /** The 7.6-preview.2 API version. */
-    KnownVersions["V76Preview2"] = "7.6-preview.2";
-    /** The 7.6 API version. */
-    KnownVersions["V76"] = "7.6";
-    /** The 2025-07-01 API version. */
-    KnownVersions["V20250701"] = "2025-07-01";
-})(KnownVersions || (KnownVersions = {}));
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Helper to paginate results in a generic way and return a PagedAsyncIterableIterator
- */
-function buildPagedAsyncIterator(client, getInitialResponse, processResponseBody, expectedStatuses, options = {}) {
-    const itemName = options.itemName ?? "value";
-    const nextLinkName = options.nextLinkName ?? "nextLink";
-    const pagedResult = {
-        getPage: async (pageLink) => {
-            const result = pageLink === undefined
-                ? await getInitialResponse()
-                : await client.pathUnchecked(pageLink).get();
-            checkPagingRequest(result, expectedStatuses);
-            const results = await processResponseBody(result);
-            const nextLink = getNextLink(results, nextLinkName);
-            const values = getElements(results, itemName);
-            return {
-                page: values,
-                nextPageLink: nextLink,
-            };
-        },
-        byPage: (settings) => {
-            const { continuationToken } = settings ?? {};
-            return getPageAsyncIterator(pagedResult, {
-                pageLink: continuationToken,
-            });
-        },
-    };
-    return getPagedAsyncIterator(pagedResult);
-}
-/**
- * returns an async iterator that iterates over results. It also has a `byPage`
- * method that returns pages of items at once.
- *
- * @param pagedResult - an object that specifies how to get pages.
- * @returns a paged async iterator that iterates over results.
- */
-function getPagedAsyncIterator(pagedResult) {
-    const iter = getItemAsyncIterator(pagedResult);
-    return {
-        next() {
-            return iter.next();
-        },
-        [Symbol.asyncIterator]() {
-            return this;
-        },
-        byPage: pagedResult?.byPage ??
-            ((settings) => {
-                const { continuationToken } = settings ?? {};
-                return getPageAsyncIterator(pagedResult, {
-                    pageLink: continuationToken,
-                });
-            }),
-    };
-}
-async function* getItemAsyncIterator(pagedResult) {
-    const pages = getPageAsyncIterator(pagedResult);
-    for await (const page of pages) {
-        yield* page;
-    }
-}
-async function* getPageAsyncIterator(pagedResult, options = {}) {
-    const { pageLink } = options;
-    let response = await pagedResult.getPage(pageLink ?? pagedResult.firstPageLink);
-    if (!response) {
-        return;
-    }
-    let result = response.page;
-    result.continuationToken = response.nextPageLink;
-    yield result;
-    while (response.nextPageLink) {
-        response = await pagedResult.getPage(response.nextPageLink);
-        if (!response) {
-            return;
-        }
-        result = response.page;
-        result.continuationToken = response.nextPageLink;
-        yield result;
-    }
-}
-/**
- * Gets for the value of nextLink in the body
- */
-function getNextLink(body, nextLinkName) {
-    if (!nextLinkName) {
-        return undefined;
-    }
-    const nextLink = body[nextLinkName];
-    if (typeof nextLink !== "string" && typeof nextLink !== "undefined" && nextLink !== null) {
-        throw new RestError(`Body Property ${nextLinkName} should be a string or undefined or null but got ${typeof nextLink}`);
-    }
-    if (nextLink === null) {
-        return undefined;
-    }
-    return nextLink;
-}
-/**
- * Gets the elements of the current request in the body.
- */
-function getElements(body, itemName) {
-    const value = body[itemName];
-    if (!Array.isArray(value)) {
-        throw new RestError(`Couldn't paginate response\n Body doesn't contain an array property with name: ${itemName}`);
-    }
-    return value ?? [];
-}
-/**
- * Checks if a request failed
- */
-function checkPagingRequest(response, expectedStatuses) {
-    if (!expectedStatuses.includes(response.status)) {
-        throw createRestError(`Pagination failed with unexpected statusCode ${response.status}`, response);
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-// ---------------------
-// helpers
-// ---------------------
-function encodeComponent(val, reserved, op) {
-    return (reserved ?? op === "+") || op === "#"
-        ? encodeReservedComponent(val)
-        : encodeRFC3986URIComponent(val);
-}
-function encodeReservedComponent(str) {
-    return str
-        .split(/(%[0-9A-Fa-f]{2})/g)
-        .map((part) => (!/%[0-9A-Fa-f]/.test(part) ? encodeURI(part) : part))
-        .join("");
-}
-function encodeRFC3986URIComponent(str) {
-    return encodeURIComponent(str).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
-}
-function isDefined(val) {
-    return val !== undefined && val !== null;
-}
-function getNamedAndIfEmpty(op) {
-    return [!!op && [";", "?", "&"].includes(op), !!op && ["?", "&"].includes(op) ? "=" : ""];
-}
-function getFirstOrSep(op, isFirst = false) {
-    if (isFirst) {
-        return !op || op === "+" ? "" : op;
-    }
-    else if (!op || op === "+" || op === "#") {
-        return ",";
-    }
-    else if (op === "?") {
-        return "&";
-    }
-    else {
-        return op;
-    }
-}
-function getExpandedValue(option) {
-    let isFirst = option.isFirst;
-    const { op, varName, varValue: value, reserved } = option;
-    const vals = [];
-    const [named, ifEmpty] = getNamedAndIfEmpty(op);
-    if (Array.isArray(value)) {
-        for (const val of value.filter(isDefined)) {
-            // prepare the following parts: separator, varName, value
-            vals.push(`${getFirstOrSep(op, isFirst)}`);
-            if (named && varName) {
-                vals.push(`${encodeURIComponent(varName)}`);
-                val === "" ? vals.push(ifEmpty) : vals.push("=");
-            }
-            vals.push(encodeComponent(val, reserved, op));
-            isFirst = false;
-        }
-    }
-    else if (typeof value === "object") {
-        for (const key of Object.keys(value)) {
-            const val = value[key];
-            if (!isDefined(val)) {
-                continue;
-            }
-            // prepare the following parts: separator, key, value
-            vals.push(`${getFirstOrSep(op, isFirst)}`);
-            if (key) {
-                vals.push(`${encodeURIComponent(key)}`);
-                named && val === "" ? vals.push(ifEmpty) : vals.push("=");
-            }
-            vals.push(encodeComponent(val, reserved, op));
-            isFirst = false;
-        }
-    }
-    return vals.join("");
-}
-function getNonExpandedValue(option) {
-    const { op, varName, varValue: value, isFirst, reserved } = option;
-    const vals = [];
-    const first = getFirstOrSep(op, isFirst);
-    const [named, ifEmpty] = getNamedAndIfEmpty(op);
-    if (named && varName) {
-        vals.push(encodeComponent(varName, reserved, op));
-        if (value === "") {
-            if (!ifEmpty) {
-                vals.push(ifEmpty);
-            }
-            return !vals.join("") ? undefined : `${first}${vals.join("")}`;
-        }
-        vals.push("=");
-    }
-    const items = [];
-    if (Array.isArray(value)) {
-        for (const val of value.filter(isDefined)) {
-            items.push(encodeComponent(val, reserved, op));
-        }
-    }
-    else if (typeof value === "object") {
-        for (const key of Object.keys(value)) {
-            if (!isDefined(value[key])) {
-                continue;
-            }
-            items.push(encodeRFC3986URIComponent(key));
-            items.push(encodeComponent(value[key], reserved, op));
-        }
-    }
-    vals.push(items.join(","));
-    return !vals.join(",") ? undefined : `${first}${vals.join("")}`;
-}
-function getVarValue(option) {
-    const { op, varName, modifier, isFirst, reserved, varValue: value } = option;
-    if (!isDefined(value)) {
-        return undefined;
-    }
-    else if (["string", "number", "boolean"].includes(typeof value)) {
-        let val = value.toString();
-        const [named, ifEmpty] = getNamedAndIfEmpty(op);
-        const vals = [getFirstOrSep(op, isFirst)];
-        if (named && varName) {
-            // No need to encode varName considering it is already encoded
-            vals.push(varName);
-            val === "" ? vals.push(ifEmpty) : vals.push("=");
-        }
-        if (modifier && modifier !== "*") {
-            val = val.substring(0, parseInt(modifier, 10));
-        }
-        vals.push(encodeComponent(val, reserved, op));
-        return vals.join("");
-    }
-    else if (modifier === "*") {
-        return getExpandedValue(option);
-    }
-    else {
-        return getNonExpandedValue(option);
-    }
-}
-// ---------------------------------------------------------------------------------------------------
-// This is an implementation of RFC 6570 URI Template: https://datatracker.ietf.org/doc/html/rfc6570.
-// ---------------------------------------------------------------------------------------------------
-function expandUrlTemplate(template, context, option) {
-    return template.replace(/\{([^\{\}]+)\}|([^\{\}]+)/g, (_, expr, text) => {
-        if (!expr) {
-            return encodeReservedComponent(text);
-        }
-        let op;
-        if (["+", "#", ".", "/", ";", "?", "&"].includes(expr[0])) {
-            ((op = expr[0]), (expr = expr.slice(1)));
-        }
-        const varList = expr.split(/,/g);
-        const result = [];
-        for (const varSpec of varList) {
-            const varMatch = /([^:\*]*)(?::(\d+)|(\*))?/.exec(varSpec);
-            if (!varMatch || !varMatch[1]) {
-                continue;
-            }
-            const varValue = getVarValue({
-                isFirst: result.length === 0,
-                op,
-                varValue: context[varMatch[1]],
-                varName: varMatch[1],
-                modifier: varMatch[2] || varMatch[3],
-                reserved: option?.allowReserved,
-            });
-            if (varValue) {
-                result.push(varValue);
-            }
-        }
-        return result.join("");
-    });
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-function _restoreSecretSend(context, parameters, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/secrets/restore{?api%2Dversion}", {
-        "api%2Dversion": context.apiVersion,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).post({
-        ...operationOptionsToRequestParameters(options),
-        contentType: "application/json",
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-        body: secretRestoreParametersSerializer(parameters),
-    });
-}
-async function _restoreSecretDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return secretBundleDeserializer(result.body);
-}
-/** Restores a backed up secret, and all its versions, to a vault. This operation requires the secrets/restore permission. */
-async function restoreSecret(context, parameters, options = { requestOptions: {} }) {
-    const result = await _restoreSecretSend(context, parameters, options);
-    return _restoreSecretDeserialize(result);
-}
-function _backupSecretSend(context, secretName, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/secrets/{secret-name}/backup{?api%2Dversion}", {
-        "secret-name": secretName,
-        "api%2Dversion": context.apiVersion,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).post({
-        ...operationOptionsToRequestParameters(options),
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-    });
-}
-async function _backupSecretDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return backupSecretResultDeserializer(result.body);
-}
-/** Requests that a backup of the specified secret be downloaded to the client. All versions of the secret will be downloaded. This operation requires the secrets/backup permission. */
-async function backupSecret(context, secretName, options = { requestOptions: {} }) {
-    const result = await _backupSecretSend(context, secretName, options);
-    return _backupSecretDeserialize(result);
-}
-function _recoverDeletedSecretSend(context, secretName, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/deletedsecrets/{secret-name}/recover{?api%2Dversion}", {
-        "secret-name": secretName,
-        "api%2Dversion": context.apiVersion,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).post({
-        ...operationOptionsToRequestParameters(options),
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-    });
-}
-async function _recoverDeletedSecretDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return secretBundleDeserializer(result.body);
-}
-/** Recovers the deleted secret in the specified vault. This operation can only be performed on a soft-delete enabled vault. This operation requires the secrets/recover permission. */
-async function recoverDeletedSecret(context, secretName, options = { requestOptions: {} }) {
-    const result = await _recoverDeletedSecretSend(context, secretName, options);
-    return _recoverDeletedSecretDeserialize(result);
-}
-function _purgeDeletedSecretSend(context, secretName, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/deletedsecrets/{secret-name}{?api%2Dversion}", {
-        "secret-name": secretName,
-        "api%2Dversion": context.apiVersion,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).delete({
-        ...operationOptionsToRequestParameters(options),
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-    });
-}
-async function _purgeDeletedSecretDeserialize(result) {
-    const expectedStatuses = ["204"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return;
-}
-/** The purge deleted secret operation removes the secret permanently, without the possibility of recovery. This operation can only be enabled on a soft-delete enabled vault. This operation requires the secrets/purge permission. */
-async function purgeDeletedSecret(context, secretName, options = { requestOptions: {} }) {
-    const result = await _purgeDeletedSecretSend(context, secretName, options);
-    return _purgeDeletedSecretDeserialize(result);
-}
-function _getDeletedSecretSend(context, secretName, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/deletedsecrets/{secret-name}{?api%2Dversion}", {
-        "secret-name": secretName,
-        "api%2Dversion": context.apiVersion,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).get({
-        ...operationOptionsToRequestParameters(options),
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-    });
-}
-async function _getDeletedSecretDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return deletedSecretBundleDeserializer(result.body);
-}
-/** The Get Deleted Secret operation returns the specified deleted secret along with its attributes. This operation requires the secrets/get permission. */
-async function getDeletedSecret(context, secretName, options = { requestOptions: {} }) {
-    const result = await _getDeletedSecretSend(context, secretName, options);
-    return _getDeletedSecretDeserialize(result);
-}
-function _getDeletedSecretsSend(context, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/deletedsecrets{?api%2Dversion,maxresults}", {
-        "api%2Dversion": context.apiVersion,
-        maxresults: options?.maxresults,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).get({
-        ...operationOptionsToRequestParameters(options),
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-    });
-}
-async function _getDeletedSecretsDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return _deletedSecretListResultDeserializer(result.body);
-}
-/** The Get Deleted Secrets operation returns the secrets that have been deleted for a vault enabled for soft-delete. This operation requires the secrets/list permission. */
-function getDeletedSecrets(context, options = { requestOptions: {} }) {
-    return buildPagedAsyncIterator(context, () => _getDeletedSecretsSend(context, options), _getDeletedSecretsDeserialize, ["200"], { itemName: "value", nextLinkName: "nextLink" });
-}
-function _getSecretVersionsSend(context, secretName, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/secrets/{secret-name}/versions{?api%2Dversion,maxresults}", {
-        "secret-name": secretName,
-        "api%2Dversion": context.apiVersion,
-        maxresults: options?.maxresults,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).get({
-        ...operationOptionsToRequestParameters(options),
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-    });
-}
-async function _getSecretVersionsDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return _secretListResultDeserializer(result.body);
-}
-/** The full secret identifier and attributes are provided in the response. No values are returned for the secrets. This operations requires the secrets/list permission. */
-function getSecretVersions(context, secretName, options = { requestOptions: {} }) {
-    return buildPagedAsyncIterator(context, () => _getSecretVersionsSend(context, secretName, options), _getSecretVersionsDeserialize, ["200"], { itemName: "value", nextLinkName: "nextLink" });
-}
-function _getSecretsSend(context, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/secrets{?api%2Dversion,maxresults}", {
-        "api%2Dversion": context.apiVersion,
-        maxresults: options?.maxresults,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).get({
-        ...operationOptionsToRequestParameters(options),
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-    });
-}
-async function _getSecretsDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return _secretListResultDeserializer(result.body);
-}
-/** The Get Secrets operation is applicable to the entire vault. However, only the base secret identifier and its attributes are provided in the response. Individual secret versions are not listed in the response. This operation requires the secrets/list permission. */
-function getSecrets(context, options = { requestOptions: {} }) {
-    return buildPagedAsyncIterator(context, () => _getSecretsSend(context, options), _getSecretsDeserialize, ["200"], { itemName: "value", nextLinkName: "nextLink" });
-}
-function _getSecretSend(context, secretName, secretVersion, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/secrets/{secret-name}/{secret-version}{?api%2Dversion,outContentType}", {
-        "secret-name": secretName,
-        "secret-version": secretVersion,
-        "api%2Dversion": context.apiVersion,
-        outContentType: options?.outContentType,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).get({
-        ...operationOptionsToRequestParameters(options),
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-    });
-}
-async function _getSecretDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return secretBundleDeserializer(result.body);
-}
-/** The GET operation is applicable to any secret stored in Azure Key Vault. This operation requires the secrets/get permission. */
-async function getSecret(context, secretName, secretVersion, options = { requestOptions: {} }) {
-    const result = await _getSecretSend(context, secretName, secretVersion, options);
-    return _getSecretDeserialize(result);
-}
-function _updateSecretSend(context, secretName, secretVersion, parameters, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/secrets/{secret-name}/{secret-version}{?api%2Dversion}", {
-        "secret-name": secretName,
-        "secret-version": secretVersion,
-        "api%2Dversion": context.apiVersion,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).patch({
-        ...operationOptionsToRequestParameters(options),
-        contentType: "application/json",
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-        body: secretUpdateParametersSerializer(parameters),
-    });
-}
-async function _updateSecretDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return secretBundleDeserializer(result.body);
-}
-/** The UPDATE operation changes specified attributes of an existing stored secret. Attributes that are not specified in the request are left unchanged. The value of a secret itself cannot be changed. This operation requires the secrets/set permission. */
-async function updateSecret(context, secretName, secretVersion, parameters, options = { requestOptions: {} }) {
-    const result = await _updateSecretSend(context, secretName, secretVersion, parameters, options);
-    return _updateSecretDeserialize(result);
-}
-function _deleteSecretSend(context, secretName, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/secrets/{secret-name}{?api%2Dversion}", {
-        "secret-name": secretName,
-        "api%2Dversion": context.apiVersion,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).delete({
-        ...operationOptionsToRequestParameters(options),
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-    });
-}
-async function _deleteSecretDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return deletedSecretBundleDeserializer(result.body);
-}
-/** The DELETE operation applies to any secret stored in Azure Key Vault. DELETE cannot be applied to an individual version of a secret. This operation requires the secrets/delete permission. */
-async function deleteSecret(context, secretName, options = { requestOptions: {} }) {
-    const result = await _deleteSecretSend(context, secretName, options);
-    return _deleteSecretDeserialize(result);
-}
-function _setSecretSend(context, secretName, parameters, options = { requestOptions: {} }) {
-    const path = expandUrlTemplate("/secrets/{secret-name}{?api%2Dversion}", {
-        "secret-name": secretName,
-        "api%2Dversion": context.apiVersion,
-    }, {
-        allowReserved: options?.requestOptions?.skipUrlEncoding,
-    });
-    return context.path(path).put({
-        ...operationOptionsToRequestParameters(options),
-        contentType: "application/json",
-        headers: {
-            accept: "application/json",
-            ...options.requestOptions?.headers,
-        },
-        body: secretSetParametersSerializer(parameters),
-    });
-}
-async function _setSecretDeserialize(result) {
-    const expectedStatuses = ["200"];
-    if (!expectedStatuses.includes(result.status)) {
-        const error = createRestError(result);
-        error.details = keyVaultErrorDeserializer(result.body);
-        throw error;
-    }
-    return secretBundleDeserializer(result.body);
-}
-/** The SET operation adds a secret to the Azure Key Vault. If the named secret already exists, Azure Key Vault creates a new version of that secret. This operation requires the secrets/set permission. */
-async function setSecret(context, secretName, parameters, options = { requestOptions: {} }) {
-    const result = await _setSecretSend(context, secretName, parameters, options);
-    return _setSecretDeserialize(result);
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-class KeyVaultClient {
-    _client;
-    /** The pipeline used by this client to make requests */
-    pipeline;
-    /** The key vault client performs cryptographic key operations and vault operations against the Key Vault service. */
-    constructor(endpointParam, credential, options = {}) {
-        const prefixFromOptions = options?.userAgentOptions?.userAgentPrefix;
-        const userAgentPrefix = prefixFromOptions
-            ? `${prefixFromOptions} azsdk-js-client`
-            : `azsdk-js-client`;
-        this._client = createKeyVault(endpointParam, credential, {
-            ...options,
-            userAgentOptions: { userAgentPrefix },
-        });
-        this.pipeline = this._client.pipeline;
-    }
-    /** Restores a backed up secret, and all its versions, to a vault. This operation requires the secrets/restore permission. */
-    restoreSecret(parameters, options = { requestOptions: {} }) {
-        return restoreSecret(this._client, parameters, options);
-    }
-    /** Requests that a backup of the specified secret be downloaded to the client. All versions of the secret will be downloaded. This operation requires the secrets/backup permission. */
-    backupSecret(secretName, options = { requestOptions: {} }) {
-        return backupSecret(this._client, secretName, options);
-    }
-    /** Recovers the deleted secret in the specified vault. This operation can only be performed on a soft-delete enabled vault. This operation requires the secrets/recover permission. */
-    recoverDeletedSecret(secretName, options = { requestOptions: {} }) {
-        return recoverDeletedSecret(this._client, secretName, options);
-    }
-    /** The purge deleted secret operation removes the secret permanently, without the possibility of recovery. This operation can only be enabled on a soft-delete enabled vault. This operation requires the secrets/purge permission. */
-    purgeDeletedSecret(secretName, options = { requestOptions: {} }) {
-        return purgeDeletedSecret(this._client, secretName, options);
-    }
-    /** The Get Deleted Secret operation returns the specified deleted secret along with its attributes. This operation requires the secrets/get permission. */
-    getDeletedSecret(secretName, options = { requestOptions: {} }) {
-        return getDeletedSecret(this._client, secretName, options);
-    }
-    /** The Get Deleted Secrets operation returns the secrets that have been deleted for a vault enabled for soft-delete. This operation requires the secrets/list permission. */
-    getDeletedSecrets(options = { requestOptions: {} }) {
-        return getDeletedSecrets(this._client, options);
-    }
-    /** The full secret identifier and attributes are provided in the response. No values are returned for the secrets. This operations requires the secrets/list permission. */
-    getSecretVersions(secretName, options = { requestOptions: {} }) {
-        return getSecretVersions(this._client, secretName, options);
-    }
-    /** The Get Secrets operation is applicable to the entire vault. However, only the base secret identifier and its attributes are provided in the response. Individual secret versions are not listed in the response. This operation requires the secrets/list permission. */
-    getSecrets(options = { requestOptions: {} }) {
-        return getSecrets(this._client, options);
-    }
-    /** The GET operation is applicable to any secret stored in Azure Key Vault. This operation requires the secrets/get permission. */
-    getSecret(secretName, secretVersion, options = { requestOptions: {} }) {
-        return getSecret(this._client, secretName, secretVersion, options);
-    }
-    /** The UPDATE operation changes specified attributes of an existing stored secret. Attributes that are not specified in the request are left unchanged. The value of a secret itself cannot be changed. This operation requires the secrets/set permission. */
-    updateSecret(secretName, secretVersion, parameters, options = { requestOptions: {} }) {
-        return updateSecret(this._client, secretName, secretVersion, parameters, options);
-    }
-    /** The DELETE operation applies to any secret stored in Azure Key Vault. DELETE cannot be applied to an individual version of a secret. This operation requires the secrets/delete permission. */
-    deleteSecret(secretName, options = { requestOptions: {} }) {
-        return deleteSecret(this._client, secretName, options);
-    }
-    /** The SET operation adds a secret to the Azure Key Vault. If the named secret already exists, Azure Key Vault creates a new version of that secret. This operation requires the secrets/set permission. */
-    setSecret(secretName, parameters, options = { requestOptions: {} }) {
-        return setSecret(this._client, secretName, parameters, options);
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const validWWWAuthenticateProperties = [
-    "authorization",
-    "authorization_url",
-    "resource",
-    "scope",
-    "tenantId",
-    "claims",
-    "error",
-];
-/**
- * Parses an WWW-Authenticate response header.
- * This transforms a string value like:
- * `Bearer authorization="https://some.url/tenantId", resource="https://some.url"`
- * into an object like:
- * `{ authorization: "https://some.url/tenantId", resource: "https://some.url" }`
- * @param headerValue - String value in the WWW-Authenticate header
- */
-function parseWWWAuthenticateHeader(headerValue) {
-    const pairDelimiter = /,? +/;
-    const parsed = headerValue.split(pairDelimiter).reduce((kvPairs, p) => {
-        if (p.match(/\w="/)) {
-            // 'sampleKey="sample_value"' -> [sampleKey, "sample_value"] -> { sampleKey: sample_value }
-            const [key, ...value] = p.split("=");
-            if (validWWWAuthenticateProperties.includes(key)) {
-                // The values will be wrapped in quotes, which need to be stripped out.
-                return { ...kvPairs, [key]: value.join("=").slice(1, -1) };
-            }
-        }
-        return kvPairs;
-    }, {});
-    // Finally, we pull the tenantId from the authorization header to support multi-tenant authentication.
-    if (parsed.authorization) {
-        try {
-            const tenantId = new URL(parsed.authorization).pathname.substring(1);
-            if (tenantId) {
-                parsed.tenantId = tenantId;
-            }
-        }
-        catch (_) {
-            throw new Error(`The challenge authorization URI '${parsed.authorization}' is invalid.`);
-        }
-    }
-    return parsed;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-// Default options for the cycler if none are provided
-const DEFAULT_CYCLER_OPTIONS = {
-    forcedRefreshWindowInMs: 1000, // Force waiting for a refresh 1s before the token expires
-    retryIntervalInMs: 3000, // Allow refresh attempts every 3s
-    refreshWindowInMs: 1000 * 60 * 2, // Start refreshing 2m before expiry
-};
-/**
- * Converts an an unreliable access token getter (which may resolve with null)
- * into an AccessTokenGetter by retrying the unreliable getter in a regular
- * interval.
- *
- * @param getAccessToken - A function that produces a promise of an access token that may fail by returning null.
- * @param retryIntervalInMs - The time (in milliseconds) to wait between retry attempts.
- * @param refreshTimeout - The timestamp after which the refresh attempt will fail, throwing an exception.
- * @returns - A promise that, if it resolves, will resolve with an access token.
- */
-async function beginRefresh(getAccessToken, retryIntervalInMs, refreshTimeout) {
-    // This wrapper handles exceptions gracefully as long as we haven't exceeded
-    // the timeout.
-    async function tryGetAccessToken() {
-        if (Date.now() < refreshTimeout) {
-            try {
-                return await getAccessToken();
-            }
-            catch {
-                return null;
-            }
-        }
-        else {
-            const finalToken = await getAccessToken();
-            // Timeout is up, so throw if it's still null
-            if (finalToken === null) {
-                throw new Error("Failed to refresh access token.");
-            }
-            return finalToken;
-        }
-    }
-    let token = await tryGetAccessToken();
-    while (token === null) {
-        await delay$1(retryIntervalInMs);
-        token = await tryGetAccessToken();
-    }
-    return token;
-}
-/**
- * Creates a token cycler from a credential, scopes, and optional settings.
- *
- * A token cycler represents a way to reliably retrieve a valid access token
- * from a TokenCredential. It will handle initializing the token, refreshing it
- * when it nears expiration, and synchronizes refresh attempts to avoid
- * concurrency hazards.
- *
- * @param credential - the underlying TokenCredential that provides the access
- * token
- * @param tokenCyclerOptions - optionally override default settings for the cycler
- *
- * @returns - a function that reliably produces a valid access token
- */
-function createTokenCycler(credential, tokenCyclerOptions) {
-    let refreshWorker = null;
-    let token = null;
-    let tenantId;
-    const options = {
-        ...DEFAULT_CYCLER_OPTIONS,
-        ...tokenCyclerOptions,
-    };
-    /**
-     * This little holder defines several predicates that we use to construct
-     * the rules of refreshing the token.
-     */
-    const cycler = {
-        /**
-         * Produces true if a refresh job is currently in progress.
-         */
-        get isRefreshing() {
-            return refreshWorker !== null;
-        },
-        /**
-         * Produces true if the cycler SHOULD refresh (we are within the refresh
-         * window and not already refreshing)
-         */
-        get shouldRefresh() {
-            if (cycler.isRefreshing) {
-                return false;
-            }
-            if (token?.refreshAfterTimestamp && token.refreshAfterTimestamp < Date.now()) {
-                return true;
-            }
-            return (token?.expiresOnTimestamp ?? 0) - options.refreshWindowInMs < Date.now();
-        },
-        /**
-         * Produces true if the cycler MUST refresh (null or nearly-expired
-         * token).
-         */
-        get mustRefresh() {
-            return (token === null || token.expiresOnTimestamp - options.forcedRefreshWindowInMs < Date.now());
-        },
-    };
-    /**
-     * Starts a refresh job or returns the existing job if one is already
-     * running.
-     */
-    function refresh(scopes, getTokenOptions) {
-        if (!cycler.isRefreshing) {
-            // We bind `scopes` here to avoid passing it around a lot
-            const tryGetAccessToken = () => credential.getToken(scopes, getTokenOptions);
-            // Take advantage of promise chaining to insert an assignment to `token`
-            // before the refresh can be considered done.
-            refreshWorker = beginRefresh(tryGetAccessToken, options.retryIntervalInMs, 
-            // If we don't have a token, then we should timeout immediately
-            token?.expiresOnTimestamp ?? Date.now())
-                .then((_token) => {
-                refreshWorker = null;
-                token = _token;
-                tenantId = getTokenOptions.tenantId;
-                return token;
-            })
-                .catch((reason) => {
-                // We also should reset the refresher if we enter a failed state.  All
-                // existing awaiters will throw, but subsequent requests will start a
-                // new retry chain.
-                refreshWorker = null;
-                token = null;
-                tenantId = undefined;
-                throw reason;
-            });
-        }
-        return refreshWorker;
-    }
-    return async (scopes, tokenOptions) => {
-        //
-        // Simple rules:
-        // - If we MUST refresh, then return the refresh task, blocking
-        //   the pipeline until a token is available.
-        // - If we SHOULD refresh, then run refresh but don't return it
-        //   (we can still use the cached token).
-        // - Return the token, since it's fine if we didn't return in
-        //   step 1.
-        //
-        const hasClaimChallenge = Boolean(tokenOptions.claims);
-        const tenantIdChanged = tenantId !== tokenOptions.tenantId;
-        if (hasClaimChallenge) {
-            // If we've received a claim, we know the existing token isn't valid
-            // We want to clear it so that that refresh worker won't use the old expiration time as a timeout
-            token = null;
-        }
-        // If the tenantId passed in token options is different to the one we have
-        // Or if we are in claim challenge and the token was rejected and a new access token need to be issued, we need to
-        // refresh the token with the new tenantId or token.
-        const mustRefresh = tenantIdChanged || hasClaimChallenge || cycler.mustRefresh;
-        if (mustRefresh) {
-            return refresh(scopes, tokenOptions);
-        }
-        if (cycler.shouldRefresh) {
-            refresh(scopes, tokenOptions);
-        }
-        return token;
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const logger$i = createClientLogger("keyvault-common");
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-function verifyChallengeResource(scope, request) {
-    let scopeAsUrl;
-    try {
-        scopeAsUrl = new URL(scope);
-    }
-    catch (e) {
-        throw new Error(`The challenge contains invalid scope '${scope}'`);
-    }
-    const requestUrl = new URL(request.url);
-    if (!requestUrl.hostname.endsWith(`.${scopeAsUrl.hostname}`)) {
-        throw new Error(`The challenge resource '${scopeAsUrl.hostname}' does not match the requested domain. Set disableChallengeResourceVerification to true in your client options to disable. See https://aka.ms/azsdk/blog/vault-uri for more information.`);
-    }
-}
-/**
- * Name of the Key Vault authentication policy.
- */
-const keyVaultAuthenticationPolicyName = "keyVaultAuthenticationPolicy";
-/**
- * A custom implementation of the bearer-token authentication policy that handles Key Vault and CAE challenges.
- *
- * Key Vault supports other authentication schemes, but we ensure challenge authentication
- * is used by first sending a copy of the request, without authorization or content.
- *
- * when the challenge is received, it will be authenticated and used to send the original
- * request with authorization.
- *
- * Following the first request of a client, follow-up requests will get the cached token
- * if possible.
- *
- */
-function keyVaultAuthenticationPolicy(credential, options = {}) {
-    const { disableChallengeResourceVerification } = options;
-    let challengeState = { status: "none" };
-    const getAccessToken = createTokenCycler(credential);
-    function requestToOptions(request) {
-        return {
-            abortSignal: request.abortSignal,
-            requestOptions: {
-                timeout: request.timeout > 0 ? request.timeout : undefined,
-            },
-            tracingOptions: request.tracingOptions,
-        };
-    }
-    async function authorizeRequest(request) {
-        const requestOptions = requestToOptions(request);
-        switch (challengeState.status) {
-            case "none":
-                challengeState = {
-                    status: "started",
-                    originalBody: request.body,
-                };
-                request.body = null;
-                break;
-            case "started":
-                break; // Retry, we should not overwrite the original body
-            case "complete": {
-                const token = await getAccessToken(challengeState.scopes, {
-                    ...requestOptions,
-                    enableCae: true,
-                    tenantId: challengeState.tenantId,
-                });
-                if (token) {
-                    request.headers.set("authorization", `Bearer ${token.token}`);
-                }
-                break;
-            }
-        }
-    }
-    async function handleChallenge(request, response, next) {
-        // If status is not 401, this is a no-op
-        if (response.status !== 401) {
-            return response;
-        }
-        if (request.body === null && challengeState.status === "started") {
-            // Reset the original body before doing anything else.
-            // Note: If successful status will be "complete", otherwise "none" will
-            // restart the process.
-            request.body = challengeState.originalBody;
-        }
-        const getTokenOptions = requestToOptions(request);
-        const challenge = response.headers.get("WWW-Authenticate");
-        if (!challenge) {
-            logger$i.warning("keyVaultAuthentication policy encountered a 401 response without a corresponding WWW-Authenticate header. This is unexpected. Not handling the 401 response.");
-            return response;
-        }
-        const parsedChallenge = parseWWWAuthenticateHeader(challenge);
-        const scope = parsedChallenge.resource
-            ? parsedChallenge.resource + "/.default"
-            : parsedChallenge.scope;
-        if (!scope) {
-            // Cannot handle this kind of challenge here (if scope is not present, may be a CAE challenge)
-            return response;
-        }
-        if (!disableChallengeResourceVerification) {
-            verifyChallengeResource(scope, request);
-        }
-        const accessToken = await getAccessToken([scope], {
-            ...getTokenOptions,
-            enableCae: true,
-            tenantId: parsedChallenge.tenantId,
-        });
-        if (!accessToken) {
-            // No access token provided, treat as no-op
-            return response;
-        }
-        request.headers.set("Authorization", `Bearer ${accessToken.token}`);
-        challengeState = {
-            status: "complete",
-            scopes: [scope],
-            tenantId: parsedChallenge.tenantId,
-        };
-        // We have a token now, so try send the request again
-        return next(request);
-    }
-    async function handleCaeChallenge(request, response, next) {
-        // Cannot handle CAE challenge if a regular challenge has not been completed first
-        if (challengeState.status !== "complete") {
-            return response;
-        }
-        // If status is not 401, this is a no-op
-        if (response.status !== 401) {
-            return response;
-        }
-        const getTokenOptions = requestToOptions(request);
-        const challenge = response.headers.get("WWW-Authenticate");
-        if (!challenge) {
-            return response;
-        }
-        const { claims: base64EncodedClaims, error } = parseWWWAuthenticateHeader(challenge);
-        if (error !== "insufficient_claims" || base64EncodedClaims === undefined) {
-            return response;
-        }
-        const claims = atob(base64EncodedClaims);
-        const accessToken = await getAccessToken(challengeState.scopes, {
-            ...getTokenOptions,
-            enableCae: true,
-            tenantId: challengeState.tenantId,
-            claims,
-        });
-        request.headers.set("Authorization", `Bearer ${accessToken.token}`);
-        return next(request);
-    }
-    async function sendRequest(request, next) {
-        // Add token if possible
-        await authorizeRequest(request);
-        // Try send request (first attempt)
-        let response = await next(request);
-        // Handle standard challenge if present
-        response = await handleChallenge(request, response, next);
-        // Handle CAE challenge if present
-        response = await handleCaeChallenge(request, response, next);
-        return response;
-    }
-    return {
-        name: keyVaultAuthenticationPolicyName,
-        sendRequest,
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Parses a Key Vault identifier into its components.
- *
- * @param collection - The collection of the Key Vault identifier.
- * @param identifier - The Key Vault identifier to be parsed.
- */
-function parseKeyVaultIdentifier(collection, identifier) {
-    if (typeof collection !== "string" || !(collection = collection.trim())) {
-        throw new Error("Invalid collection argument");
-    }
-    if (typeof identifier !== "string" || !(identifier = identifier.trim())) {
-        throw new Error("Invalid identifier argument");
-    }
-    let baseUri;
-    try {
-        baseUri = new URL(identifier);
-    }
-    catch (e) {
-        throw new Error(`Invalid ${collection} identifier: ${identifier}. Not a valid URI`);
-    }
-    // Path is of the form '/collection/name[/version]'
-    const segments = (baseUri.pathname || "").split("/");
-    if (segments.length !== 3 && segments.length !== 4) {
-        throw new Error(`Invalid ${collection} identifier: ${identifier}. Bad number of segments: ${segments.length}`);
-    }
-    if (collection !== segments[1]) {
-        throw new Error(`Invalid ${collection} identifier: ${identifier}. segment [1] should be "${collection}", found "${segments[1]}"`);
-    }
-    const vaultUrl = `${baseUri.protocol}//${baseUri.host}`;
-    const name = segments[2];
-    const version = segments.length === 4 ? segments[3] : undefined;
-    return {
-        vaultUrl,
-        name,
-        version,
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * The latest supported KeyVault service API version
- */
-const LATEST_API_VERSION = "2025-07-01";
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Parses the given Key Vault Secret Id. An example is:
- *
- *   https://<keyvault-name>.vault.azure.net/secrets/<secret-name>/<unique-version-id>
- *
- * On parsing the above Id, this function returns:
- *```ts snippet:ignore
- *   {
- *      sourceId: "https://<keyvault-name>.vault.azure.net/secrets/<secret-name>/<unique-version-id>",
- *      vaultUrl: "https://<keyvault-name>.vault.azure.net",
- *      version: "<unique-version-id>",
- *      name: "<secret-name>"
- *   }
- *```
- * @param id - The Id of the Key Vault Secret.
- */
-function parseKeyVaultSecretIdentifier(id) {
-    const urlParts = id.split("/");
-    const collection = urlParts[3];
-    return {
-        sourceId: id,
-        ...parseKeyVaultIdentifier(collection, id),
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * @internal
- * Shapes the exposed {@link KeyVaultKey} based on either a received secret bundle or deleted secret bundle.
- */
-function getSecretFromSecretBundle(bundle) {
-    const secretBundle = bundle;
-    const deletedSecretBundle = bundle;
-    const parsedId = parseKeyVaultSecretIdentifier(secretBundle.id);
-    const attributes = secretBundle.attributes;
-    delete secretBundle.attributes;
-    const resultObject = {
-        value: secretBundle.value,
-        name: parsedId.name,
-        properties: {
-            expiresOn: attributes?.expires,
-            createdOn: attributes?.created,
-            updatedOn: attributes?.updated,
-            enabled: attributes?.enabled,
-            notBefore: attributes?.notBefore,
-            recoverableDays: attributes?.recoverableDays,
-            recoveryLevel: attributes?.recoveryLevel,
-            id: secretBundle.id,
-            contentType: secretBundle.contentType,
-            tags: secretBundle.tags,
-            managed: secretBundle.managed,
-            previousVersion: secretBundle.previousVersion,
-            vaultUrl: parsedId.vaultUrl,
-            version: parsedId.version,
-            name: parsedId.name,
-            certificateKeyId: secretBundle.kid,
-        },
-    };
-    if (deletedSecretBundle.recoveryId) {
-        resultObject.properties.recoveryId = deletedSecretBundle.recoveryId;
-        resultObject.properties.scheduledPurgeDate = deletedSecretBundle.scheduledPurgeDate;
-        resultObject.properties.deletedOn = deletedSecretBundle.deletedDate;
-        resultObject.recoveryId = deletedSecretBundle.recoveryId;
-        resultObject.scheduledPurgeDate = deletedSecretBundle.scheduledPurgeDate;
-        resultObject.deletedOn = deletedSecretBundle.deletedDate;
-    }
-    if (attributes) {
-        if (attributes.vaultUrl) {
-            delete resultObject.properties.vaultUrl;
-        }
-        if (attributes.expires) {
-            delete resultObject.properties.expires;
-        }
-        if (attributes.created) {
-            delete resultObject.properties.created;
-        }
-        if (attributes.updated) {
-            delete resultObject.properties.updated;
-        }
-    }
-    return resultObject;
-}
-/**
- * A helper supporting compatibility between modular and legacy paged async iterables.
- *
- * Provides the following compatibility:
- * 1. Maps the values of the paged async iterable using the provided mapper function.
- * 2. Supports `maxPageSize` operation on the paged async iterable.
- *
- * TODO: move this to keyvault-common once everything is merged
- */
-function mapPagedAsyncIterable(operation, operationOptions, mapper) {
-    let iter = undefined;
-    return {
-        async next() {
-            iter ??= operation({ ...operationOptions, maxresults: undefined });
-            const result = await iter.next();
-            return {
-                ...result,
-                value: result.value && mapper(result.value),
-            };
-        },
-        [Symbol.asyncIterator]() {
-            return this;
-        },
-        async *byPage(settings) {
-            // Pass the maxPageSize value to the underlying page operation
-            const iteratorByPage = operation({
-                ...operationOptions,
-                maxresults: settings?.maxPageSize,
-            }).byPage(settings);
-            for await (const page of iteratorByPage) {
-                yield page.map(mapper);
-            }
-        },
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const tracingClient$1 = createTracingClient({
-    namespace: "Microsoft.KeyVault",
-    packageName: "@azure/keyvault-secrets",
-    packageVersion: SDK_VERSION$1,
-});
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Common properties and methods of the Key Vault Secret Pollers.
- */
-class KeyVaultSecretPoller extends Poller {
-    /**
-     * Defines how much time the poller is going to wait before making a new request to the service.
-     */
-    intervalInMs = 2000;
-    /**
-     * The method used by the poller to wait before attempting to update its operation.
-     */
-    async delay() {
-        return delay$1(this.intervalInMs);
-    }
-}
-/**
- * Common properties and methods of the Key Vault Secret Poller operations.
- */
-// eslint-disable-next-next no-use-before-define
-class KeyVaultSecretPollOperation {
-    state;
-    cancelMessage = "";
-    constructor(state, options = {}) {
-        this.state = state;
-        if (options.cancelMessage) {
-            this.cancelMessage = options.cancelMessage;
-        }
-    }
-    /**
-     * Meant to reach to the service and update the Poller operation.
-     * @param options - The optional parameters, which is only an abortSignal from \@azure/abort-controller
-     */
-    async update() {
-        throw new Error("Operation not supported.");
-    }
-    /**
-     * Meant to reach to the service and cancel the Poller operation.
-     * @param options - The optional parameters, which is only an abortSignal from \@azure/abort-controller
-     */
-    async cancel() {
-        throw new Error(this.cancelMessage);
-    }
-    /**
-     * Serializes the Poller operation.
-     */
-    toString() {
-        return JSON.stringify({
-            state: this.state,
-        });
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * An interface representing a delete secret's poll operation
- */
-class DeleteSecretPollOperation extends KeyVaultSecretPollOperation {
-    state;
-    client;
-    operationOptions;
-    constructor(state, client, operationOptions = {}) {
-        super(state, { cancelMessage: "Canceling the deletion of a secret is not supported." });
-        this.state = state;
-        this.client = client;
-        this.operationOptions = operationOptions;
-    }
-    /**
-     * Sends a delete request for the given Key Vault Key's name to the Key Vault service.
-     * Since the Key Vault Key won't be immediately deleted, we have {@link beginDeleteKey}.
-     */
-    deleteSecret(name, options = {}) {
-        return tracingClient$1.withSpan("DeleteSecretPoller.deleteSecret", options, async (updatedOptions) => {
-            const response = await this.client.deleteSecret(name, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * The getDeletedSecret method returns the specified deleted secret along with its properties.
-     * This operation requires the secrets/get permission.
-     */
-    getDeletedSecret(name, options = {}) {
-        return tracingClient$1.withSpan("DeleteSecretPoller.getDeletedSecret", options, async (updatedOptions) => {
-            const response = await this.client.getDeletedSecret(name, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * Reaches to the service and updates the delete secret's poll operation.
-     */
-    async update(options = {}) {
-        const state = this.state;
-        const { name } = state;
-        if (options.abortSignal) {
-            this.operationOptions.abortSignal = options.abortSignal;
-        }
-        if (!state.isStarted) {
-            const deletedSecret = await this.deleteSecret(name, this.operationOptions);
-            state.isStarted = true;
-            state.result = deletedSecret;
-            if (!deletedSecret.properties.recoveryId) {
-                state.isCompleted = true;
-            }
-        }
-        if (!state.isCompleted) {
-            try {
-                state.result = await this.getDeletedSecret(name, this.operationOptions);
-                state.isCompleted = true;
-            }
-            catch (error) {
-                if (error.statusCode === 403) {
-                    // At this point, the resource exists but the user doesn't have access to it.
-                    state.isCompleted = true;
-                }
-                else if (error.statusCode !== 404) {
-                    state.error = error;
-                    state.isCompleted = true;
-                    throw error;
-                }
-            }
-        }
-        return this;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Class that creates a poller that waits until a secret finishes being deleted.
- */
-class DeleteSecretPoller extends KeyVaultSecretPoller {
-    constructor(options) {
-        const { client, name, operationOptions, intervalInMs = 2000, resumeFrom } = options;
-        let state;
-        if (resumeFrom) {
-            state = JSON.parse(resumeFrom).state;
-        }
-        const operation = new DeleteSecretPollOperation({
-            ...state,
-            name,
-        }, client, operationOptions);
-        super(operation);
-        this.intervalInMs = intervalInMs;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * An interface representing a delete secret's poll operation
- */
-class RecoverDeletedSecretPollOperation extends KeyVaultSecretPollOperation {
-    state;
-    client;
-    options;
-    constructor(state, client, options = {}) {
-        super(state, { cancelMessage: "Canceling the recovery of a deleted secret is not supported." });
-        this.state = state;
-        this.client = client;
-        this.options = options;
-    }
-    /**
-     * The getSecret method returns the specified secret along with its properties.
-     * This operation requires the secrets/get permission.
-     */
-    getSecret(name, options = {}) {
-        return tracingClient$1.withSpan("RecoverDeletedSecretPoller.getSecret", options, async (updatedOptions) => {
-            const response = await this.client.getSecret(name, options && options.version ? options.version : "", updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * The recoverDeletedSecret method recovers the specified deleted secret along with its properties.
-     * This operation requires the secrets/recover permission.
-     */
-    recoverDeletedSecret(name, options = {}) {
-        return tracingClient$1.withSpan("RecoverDeletedSecretPoller.recoverDeletedSecret", options, async (updatedOptions) => {
-            const response = await this.client.recoverDeletedSecret(name, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * Reaches to the service and updates the delete secret's poll operation.
-     */
-    async update(options = {}) {
-        const state = this.state;
-        const { name } = state;
-        if (options.abortSignal) {
-            this.options.abortSignal = options.abortSignal;
-        }
-        if (!state.isStarted) {
-            try {
-                state.result = (await this.getSecret(name, this.options)).properties;
-                state.isCompleted = true;
-            }
-            catch {
-                // Nothing to do here.
-            }
-            if (!state.isCompleted) {
-                state.result = (await this.recoverDeletedSecret(name, this.options)).properties;
-                state.isStarted = true;
-            }
-        }
-        if (!state.isCompleted) {
-            try {
-                state.result = (await this.getSecret(name, this.options)).properties;
-                state.isCompleted = true;
-            }
-            catch (error) {
-                if (error.statusCode === 403) {
-                    // At this point, the resource exists but the user doesn't have access to it.
-                    state.isCompleted = true;
-                }
-                else if (error.statusCode !== 404) {
-                    state.error = error;
-                    state.isCompleted = true;
-                    throw error;
-                }
-            }
-        }
-        return this;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Class that deletes a poller that waits until a secret finishes being deleted
- */
-class RecoverDeletedSecretPoller extends KeyVaultSecretPoller {
-    constructor(options) {
-        const { client, name, operationOptions, intervalInMs = 2000, resumeFrom } = options;
-        let state;
-        if (resumeFrom) {
-            state = JSON.parse(resumeFrom).state;
-        }
-        const operation = new RecoverDeletedSecretPollOperation({
-            ...state,
-            name,
-        }, client, operationOptions);
-        super(operation);
-        this.intervalInMs = intervalInMs;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/// <reference lib="esnext.asynciterable" />
-/**
- * The SecretClient provides methods to manage {@link KeyVaultSecret} in
- * the Azure Key Vault. The client supports creating, retrieving, updating,
- * deleting, purging, backing up, restoring and listing KeyVaultSecrets. The
- * client also supports listing {@link DeletedSecret} for a soft-delete enabled Azure
- * Key Vault.
- */
-class SecretClient {
-    /**
-     * The base URL to the vault
-     */
-    vaultUrl;
-    /**
-     * A reference to the auto-generated KeyVault HTTP client.
-     */
-    client;
-    /**
-     * Creates an instance of SecretClient.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleCreateClient
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * // Build the URL to reach your key vault
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * // Lastly, create our secrets client and connect to the service
-     * const client = new SecretClient(url, credential);
-     * ```
-     * @param vaultUrl - The base URL to the vault. You should validate that this URL references a valid Key Vault resource. See https://aka.ms/azsdk/blog/vault-uri for details.
-     * @param credential - An object that implements the `TokenCredential` interface used to authenticate requests to the service. Use the \@azure/identity package to create a credential that suits your needs.
-     * @param pipelineOptions - Pipeline options used to configure Key Vault API requests.
-     *                          Omit this parameter to use the default pipeline configuration.
-     */
-    constructor(vaultUrl, credential, pipelineOptions = {}) {
-        this.vaultUrl = vaultUrl;
-        const internalPipelineOptions = {
-            ...pipelineOptions,
-            userAgentOptions: {
-                userAgentPrefix: `${pipelineOptions.userAgentOptions?.userAgentPrefix ?? ""} azsdk-js-keyvault-secrets/${SDK_VERSION$1}`,
-            },
-            apiVersion: pipelineOptions.serviceVersion || LATEST_API_VERSION,
-            loggingOptions: {
-                logger: logger$j.info,
-                additionalAllowedHeaderNames: [
-                    "x-ms-keyvault-region",
-                    "x-ms-keyvault-network-info",
-                    "x-ms-keyvault-service-version",
-                ],
-            },
-        };
-        this.client = new KeyVaultClient(this.vaultUrl, credential, internalPipelineOptions);
-        // Key vault has its own authentication policy that needs to be added to the pipeline, replacing the default bearerTokenAuthenticationPolicy.
-        this.client.pipeline.removePolicy({ name: bearerTokenAuthenticationPolicyName });
-        this.client.pipeline.addPolicy(keyVaultAuthenticationPolicy(credential, pipelineOptions), {});
-        // Workaround for: https://github.com/Azure/azure-sdk-for-js/issues/31843
-        this.client.pipeline.addPolicy({
-            name: "ContentTypePolicy",
-            sendRequest(request, next) {
-                const contentType = request.headers.get("Content-Type") ?? "";
-                if (contentType.startsWith("application/json")) {
-                    request.headers.set("Content-Type", "application/json");
-                }
-                return next(request);
-            },
-        });
-    }
-    /**
-     * The setSecret method adds a secret or secret version to the Azure Key Vault. If the named secret
-     * already exists, Azure Key Vault creates a new version of that secret.
-     * This operation requires the secrets/set permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleCreateSecret
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * const result = await client.setSecret(secretName, "MySecretValue");
-     * console.log("result: ", result);
-     * ```
-     * Adds a secret in a specified key vault.
-     * @param secretName - The name of the secret.
-     * @param value - The value of the secret.
-     * @param options - The optional parameters.
-     */
-    setSecret(secretName, value, options = {}) {
-        const { contentType, enabled, notBefore, expiresOn: expires, tags, ...remainingOptions } = options;
-        return tracingClient$1.withSpan("SecretClient.setSecret", remainingOptions, async (updatedOptions) => {
-            const response = await this.client.setSecret(secretName, { value, contentType, secretAttributes: { enabled, notBefore, expires }, tags }, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * Deletes a secret stored in Azure Key Vault.
-     * This function returns a Long Running Operation poller that allows you to wait indefinitely until the secret is deleted.
-     *
-     * This operation requires the secrets/delete permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleDeleteSecret
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * await client.beginDeleteSecret(secretName);
-     * ```
-     * Deletes a secret from a specified key vault.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    async beginDeleteSecret(name, options = {}) {
-        const poller = new DeleteSecretPoller({
-            name,
-            client: this.client,
-            ...options,
-            operationOptions: options,
-        });
-        // This will initialize the poller's operation (the deletion of the secret).
-        await poller.poll();
-        return poller;
-    }
-    /**
-     * The updateSecret method changes specified attributes of an existing stored secret. Properties that
-     * are not specified in the request are left unchanged. The value of a secret itself cannot be
-     * changed. This operation requires the secrets/set permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleUpdateSecretAttributes
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * const result = await client.getSecret(secretName);
-     * await client.updateSecretProperties(secretName, result.properties.version, { enabled: false });
-     * ```
-     * Updates the attributes associated with a specified secret in a given key vault.
-     * @param secretName - The name of the secret.
-     * @param secretVersion - The version of the secret.
-     * @param options - The optional parameters.
-     */
-    async updateSecretProperties(secretName, secretVersion, options = {}) {
-        const { contentType, enabled, notBefore, expiresOn: expires, tags, ...remainingOptions } = options;
-        return tracingClient$1.withSpan("SecretClient.updateSecretProperties", remainingOptions, async (updatedOptions) => {
-            const response = await this.client.updateSecret(secretName, secretVersion, { contentType, secretAttributes: { enabled, notBefore, expires }, tags }, updatedOptions);
-            return getSecretFromSecretBundle(response).properties;
-        });
-    }
-    /**
-     * The getSecret method is applicable to any secret stored in Azure Key Vault. This operation requires
-     * the secrets/get permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleGetSecret
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * const latestSecret = await client.getSecret(secretName);
-     * console.log(`Latest version of the secret ${secretName}: `, latestSecret);
-     *
-     * const specificSecret = await client.getSecret(secretName, {
-     *   version: latestSecret.properties.version!,
-     * });
-     * console.log(
-     *   `The secret ${secretName} at the version ${latestSecret.properties.version!}: `,
-     *   specificSecret,
-     * );
-     * ```
-     * Get a specified secret from a given key vault.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    getSecret(secretName, options = {}) {
-        return tracingClient$1.withSpan("SecretClient.getSecret", options, async (updatedOptions) => {
-            const response = await this.client.getSecret(secretName, options && options.version ? options.version : "", updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * The getDeletedSecret method returns the specified deleted secret along with its attributes.
-     * This operation requires the secrets/get permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleGetDeletedSecret
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * const result = await client.getDeletedSecret("MyDeletedSecret");
-     * ```
-     * Gets the specified deleted secret.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    getDeletedSecret(secretName, options = {}) {
-        return tracingClient$1.withSpan("SecretClient.getDeletedSecret", options, async (updatedOptions) => {
-            const response = await this.client.getDeletedSecret(secretName, updatedOptions);
-            return getSecretFromSecretBundle(response);
-        });
-    }
-    /**
-     * The purge deleted secret operation removes the secret permanently, without the possibility of
-     * recovery. This operation can only be enabled on a soft-delete enabled vault. This operation
-     * requires the secrets/purge permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSamplePurgeDeletedSecret
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * const deletePoller = await client.beginDeleteSecret(secretName);
-     * await deletePoller.pollUntilDone();
-     *
-     * await client.purgeDeletedSecret(secretName);
-     * ```
-     * Permanently deletes the specified secret.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    purgeDeletedSecret(secretName, options = {}) {
-        return tracingClient$1.withSpan("SecretClient.purgeDeletedSecret", options, async (updatedOptions) => {
-            await this.client.purgeDeletedSecret(secretName, updatedOptions);
-        });
-    }
-    /**
-     * Recovers the deleted secret in the specified vault.
-     * This function returns a Long Running Operation poller that allows you to wait indefinitely until the secret is recovered.
-     *
-     * This operation requires the secrets/recover permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleRecoverDeletedSecret
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * const deletePoller = await client.beginDeleteSecret(secretName);
-     * await deletePoller.pollUntilDone();
-     *
-     * const recoverPoller = await client.beginRecoverDeletedSecret(secretName);
-     * const deletedSecret = await recoverPoller.pollUntilDone();
-     * console.log(deletedSecret);
-     * ```
-     * Recovers the deleted secret to the latest version.
-     * @param secretName - The name of the deleted secret.
-     * @param options - The optional parameters.
-     */
-    async beginRecoverDeletedSecret(name, options = {}) {
-        const poller = new RecoverDeletedSecretPoller({
-            name,
-            client: this.client,
-            ...options,
-            operationOptions: options,
-        });
-        // This will initialize the poller's operation (the recovery of the deleted secret).
-        await poller.poll();
-        return poller;
-    }
-    /**
-     * Requests that a backup of the specified secret be downloaded to the client. All versions of the
-     * secret will be downloaded. This operation requires the secrets/backup permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleBackupSecret
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * const backupResult = await client.backupSecret(secretName);
-     * ```
-     * Backs up the specified secret.
-     * @param secretName - The name of the secret.
-     * @param options - The optional parameters.
-     */
-    backupSecret(secretName, options = {}) {
-        return tracingClient$1.withSpan("SecretClient.backupSecret", options, async (updatedOptions) => {
-            const response = await this.client.backupSecret(secretName, updatedOptions);
-            return response.value;
-        });
-    }
-    /**
-     * Restores a backed up secret, and all its versions, to a vault. This operation requires the
-     * secrets/restore permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleRestoreSecret
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * const backupResult = await client.backupSecret(secretName);
-     *
-     * await client.restoreSecretBackup(backupResult);
-     * ```
-     * Restores a backed up secret to a vault.
-     * @param secretBundleBackup - The backup blob associated with a secret bundle.
-     * @param options - The optional parameters.
-     */
-    restoreSecretBackup(secretBundleBackup, options = {}) {
-        return tracingClient$1.withSpan("SecretClient.restoreSecretBackup", options, async (updatedOptions) => {
-            const response = await this.client.restoreSecret({ secretBundleBackup }, updatedOptions);
-            return getSecretFromSecretBundle(response).properties;
-        });
-    }
-    /**
-     * Iterates all versions of the given secret in the vault. The full secret identifier and attributes are provided
-     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleListSecrets
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * for await (const secretProperties of client.listPropertiesOfSecrets()) {
-     *   console.log("Secret properties: ", secretProperties);
-     * }
-     *
-     * for await (const deletedSecret of client.listDeletedSecrets()) {
-     *   console.log("Deleted secret: ", deletedSecret);
-     * }
-     *
-     * for await (const versionProperties of client.listPropertiesOfSecretVersions(secretName)) {
-     *   console.log("Version properties: ", versionProperties);
-     * }
-     * ```
-     * @param secretName - Name of the secret to fetch versions for.
-     * @param options - The optional parameters.
-     */
-    listPropertiesOfSecretVersions(secretName, options = {}) {
-        return mapPagedAsyncIterable((updatedOptions) => this.client.getSecretVersions(secretName, updatedOptions), options, (item) => getSecretFromSecretBundle(item).properties);
-    }
-    /**
-     * Iterates the latest version of all secrets in the vault.  The full secret identifier and attributes are provided
-     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleListSecrets
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * for await (const secretProperties of client.listPropertiesOfSecrets()) {
-     *   console.log("Secret properties: ", secretProperties);
-     * }
-     *
-     * for await (const deletedSecret of client.listDeletedSecrets()) {
-     *   console.log("Deleted secret: ", deletedSecret);
-     * }
-     *
-     * for await (const versionProperties of client.listPropertiesOfSecretVersions(secretName)) {
-     *   console.log("Version properties: ", versionProperties);
-     * }
-     * ```
-     * List all secrets in the vault.
-     * @param options - The optional parameters.
-     */
-    listPropertiesOfSecrets(options = {}) {
-        return mapPagedAsyncIterable(this.client.getSecrets.bind(this.client), options, (item) => getSecretFromSecretBundle(item).properties);
-    }
-    /**
-     * Iterates the deleted secrets in the vault.  The full secret identifier and attributes are provided
-     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
-     *
-     * Example usage:
-     * ```ts snippet:ReadmeSampleListSecrets
-     * import { DefaultAzureCredential } from "@azure/identity";
-     * import { SecretClient } from "@azure/keyvault-secrets";
-     *
-     * const credential = new DefaultAzureCredential();
-     *
-     * const vaultName = "<YOUR KEYVAULT NAME>";
-     * const url = `https://${vaultName}.vault.azure.net`;
-     *
-     * const client = new SecretClient(url, credential);
-     *
-     * const secretName = "MySecretName";
-     *
-     * for await (const secretProperties of client.listPropertiesOfSecrets()) {
-     *   console.log("Secret properties: ", secretProperties);
-     * }
-     *
-     * for await (const deletedSecret of client.listDeletedSecrets()) {
-     *   console.log("Deleted secret: ", deletedSecret);
-     * }
-     *
-     * for await (const versionProperties of client.listPropertiesOfSecretVersions(secretName)) {
-     *   console.log("Version properties: ", versionProperties);
-     * }
-     * ```
-     * List all secrets in the vault.
-     * @param options - The optional parameters.
-     */
-    listDeletedSecrets(options = {}) {
-        return mapPagedAsyncIterable(this.client.getDeletedSecrets.bind(this.client), options, getSecretFromSecretBundle);
-    }
-}
-
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 /**
  * Current version of the `@azure/identity` package.
  */
-const SDK_VERSION = `4.13.0`;
+const SDK_VERSION$1 = `4.13.0`;
 /**
  * The default client ID for authentication
  * @internal
@@ -45920,7 +43513,7 @@ class AuthenticationRequiredError extends Error {
 /**
  * The AzureLogger used for all clients within the identity package
  */
-const logger$h = createClientLogger("identity");
+const logger$j = createClientLogger("identity");
 /**
  * Separates a list of environment variable names into a plain object with two arrays: an array of missing environment variables and another array with assigned environment variables.
  * @param supportedEnvVars - List of environment variable names
@@ -45960,7 +43553,7 @@ function formatError(scope, error) {
  *   `[title] => [message]`
  *
  */
-function credentialLoggerInstance(title, parent, log = logger$h) {
+function credentialLoggerInstance(title, parent, log = logger$j) {
     const fullTitle = parent ? `${parent.fullTitle} ${title}` : title;
     function info(message) {
         log.info(`${fullTitle} =>`, message);
@@ -45993,7 +43586,7 @@ function credentialLoggerInstance(title, parent, log = logger$h) {
  *   `[title] => getToken() => [message]`
  *
  */
-function credentialLogger(title, log = logger$h) {
+function credentialLogger(title, log = logger$j) {
     const credLogger = credentialLoggerInstance(title, undefined, log);
     return {
         ...credLogger,
@@ -46008,10 +43601,10 @@ function credentialLogger(title, log = logger$h) {
  * Creates a span using the global tracer.
  * @internal
  */
-const tracingClient = createTracingClient({
+const tracingClient$1 = createTracingClient({
     namespace: "Microsoft.AAD",
     packageName: "@azure/identity",
-    packageVersion: SDK_VERSION,
+    packageVersion: SDK_VERSION$1,
 });
 
 // Copyright (c) Microsoft Corporation.
@@ -46019,7 +43612,7 @@ const tracingClient = createTracingClient({
 /**
  * @internal
  */
-const logger$g = credentialLogger("ChainedTokenCredential");
+const logger$i = credentialLogger("ChainedTokenCredential");
 /**
  * Enables multiple `TokenCredential` implementations to be tried in order until
  * one of the getToken methods returns an access token. For more information, see
@@ -46072,7 +43665,7 @@ class ChainedTokenCredential {
         let token = null;
         let successfulCredential;
         const errors = [];
-        return tracingClient.withSpan("ChainedTokenCredential.getToken", options, async (updatedOptions) => {
+        return tracingClient$1.withSpan("ChainedTokenCredential.getToken", options, async (updatedOptions) => {
             for (let i = 0; i < this._sources.length && token === null; i++) {
                 try {
                     token = await this._sources[i].getToken(scopes, updatedOptions);
@@ -46084,17 +43677,17 @@ class ChainedTokenCredential {
                         errors.push(err);
                     }
                     else {
-                        logger$g.getToken.info(formatError(scopes, err));
+                        logger$i.getToken.info(formatError(scopes, err));
                         throw err;
                     }
                 }
             }
             if (!token && errors.length > 0) {
                 const err = new AggregateAuthenticationError(errors, "ChainedTokenCredential authentication failed.");
-                logger$g.getToken.info(formatError(scopes, err));
+                logger$i.getToken.info(formatError(scopes, err));
                 throw err;
             }
-            logger$g.getToken.info(`Result for ${successfulCredential.constructor.name}: ${formatSuccess(scopes)}`);
+            logger$i.getToken.info(`Result for ${successfulCredential.constructor.name}: ${formatSuccess(scopes)}`);
             if (token === null) {
                 throw new CredentialUnavailableError("Failed to retrieve a valid token");
             }
@@ -64756,7 +62349,7 @@ class ManagedIdentityApplication {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$f = credentialLogger("IdentityUtils");
+const logger$h = credentialLogger("IdentityUtils");
 /**
  * Latest AuthenticationRecord version
  */
@@ -64767,7 +62360,7 @@ const LatestAuthenticationRecordVersion = "1.0";
  */
 function ensureValidMsalToken(scopes, msalToken, getTokenOptions) {
     const error = (message) => {
-        logger$f.getToken.info(message);
+        logger$h.getToken.info(message);
         return new AuthenticationRequiredError({
             scopes: Array.isArray(scopes) ? scopes : [scopes],
             getTokenOptions,
@@ -64880,17 +62473,17 @@ function handleMsalError(scopes, error, getTokenOptions) {
         const msalError = error;
         switch (msalError.errorCode) {
             case "endpoints_resolution_error":
-                logger$f.info(formatError(scopes, error.message));
+                logger$h.info(formatError(scopes, error.message));
                 return new CredentialUnavailableError(error.message);
             case "device_code_polling_cancelled":
                 return new AbortError("The authentication has been aborted by the caller.");
             case "consent_required":
             case "interaction_required":
             case "login_required":
-                logger$f.info(formatError(scopes, `Authentication returned errorCode ${msalError.errorCode}`));
+                logger$h.info(formatError(scopes, `Authentication returned errorCode ${msalError.errorCode}`));
                 break;
             default:
-                logger$f.info(formatError(scopes, `Failed to acquire token: ${error.message}`));
+                logger$h.info(formatError(scopes, `Failed to acquire token: ${error.message}`));
                 break;
         }
     }
@@ -64901,7 +62494,7 @@ function handleMsalError(scopes, error, getTokenOptions) {
         return error;
     }
     if (error.name === "NativeAuthError") {
-        logger$f.info(formatError(scopes, `Error from the native broker: ${error.message} with status code: ${error.statusCode}`));
+        logger$h.info(formatError(scopes, `Error from the native broker: ${error.message} with status code: ${error.statusCode}`));
         return error;
     }
     return new AuthenticationRequiredError({ scopes, getTokenOptions, message: error.message });
@@ -65077,7 +62670,7 @@ class IdentityClient extends ServiceClient {
     // used for WorkloadIdentity
     tokenCredentialOptions;
     constructor(options) {
-        const packageDetails = `azsdk-js-identity/${SDK_VERSION}`;
+        const packageDetails = `azsdk-js-identity/${SDK_VERSION$1}`;
         const userAgentPrefix = options?.userAgentOptions?.userAgentPrefix
             ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
             : `${packageDetails}`;
@@ -65107,7 +62700,7 @@ class IdentityClient extends ServiceClient {
         }
     }
     async sendTokenRequest(request) {
-        logger$h.info(`IdentityClient: sending token request to [${request.url}]`);
+        logger$j.info(`IdentityClient: sending token request to [${request.url}]`);
         const response = await this.sendRequest(request);
         if (response.bodyAsText && (response.status === 200 || response.status === 201)) {
             const parsedBody = JSON.parse(response.bodyAsText);
@@ -65124,12 +62717,12 @@ class IdentityClient extends ServiceClient {
                 },
                 refreshToken: parsedBody.refresh_token,
             };
-            logger$h.info(`IdentityClient: [${request.url}] token acquired, expires on ${token.accessToken.expiresOnTimestamp}`);
+            logger$j.info(`IdentityClient: [${request.url}] token acquired, expires on ${token.accessToken.expiresOnTimestamp}`);
             return token;
         }
         else {
             const error = new AuthenticationError(response.status, response.bodyAsText);
-            logger$h.warning(`IdentityClient: authentication error. HTTP status: ${response.status}, ${error.errorResponse.errorDescription}`);
+            logger$j.warning(`IdentityClient: authentication error. HTTP status: ${response.status}, ${error.errorResponse.errorDescription}`);
             throw error;
         }
     }
@@ -65137,7 +62730,7 @@ class IdentityClient extends ServiceClient {
         if (refreshToken === undefined) {
             return null;
         }
-        logger$h.info(`IdentityClient: refreshing access token with client ID: ${clientId}, scopes: ${scopes} started`);
+        logger$j.info(`IdentityClient: refreshing access token with client ID: ${clientId}, scopes: ${scopes} started`);
         const refreshParams = {
             grant_type: "refresh_token",
             client_id: clientId,
@@ -65148,7 +62741,7 @@ class IdentityClient extends ServiceClient {
             refreshParams.client_secret = clientSecret;
         }
         const query = new URLSearchParams(refreshParams);
-        return tracingClient.withSpan("IdentityClient.refreshAccessToken", options, async (updatedOptions) => {
+        return tracingClient$1.withSpan("IdentityClient.refreshAccessToken", options, async (updatedOptions) => {
             try {
                 const urlSuffix = getIdentityTokenEndpointSuffix(tenantId);
                 const request = createPipelineRequest({
@@ -65163,7 +62756,7 @@ class IdentityClient extends ServiceClient {
                     tracingOptions: updatedOptions.tracingOptions,
                 });
                 const response = await this.sendTokenRequest(request);
-                logger$h.info(`IdentityClient: refreshed token for client ID: ${clientId}`);
+                logger$j.info(`IdentityClient: refreshed token for client ID: ${clientId}`);
                 return response;
             }
             catch (err) {
@@ -65172,11 +62765,11 @@ class IdentityClient extends ServiceClient {
                     // It's likely that the refresh token has expired, so
                     // return null so that the credential implementation will
                     // initiate the authentication flow again.
-                    logger$h.info(`IdentityClient: interaction required for client ID: ${clientId}`);
+                    logger$j.info(`IdentityClient: interaction required for client ID: ${clientId}`);
                     return null;
                 }
                 else {
-                    logger$h.warning(`IdentityClient: failed refreshing token for client ID: ${clientId}: ${err}`);
+                    logger$j.warning(`IdentityClient: failed refreshing token for client ID: ${clientId}: ${err}`);
                     throw err;
                 }
             }
@@ -65289,10 +62882,10 @@ class IdentityClient extends ServiceClient {
             }
             const base64Metadata = accessToken.split(".")[1];
             const { appid, upn, tid, oid } = JSON.parse(Buffer.from(base64Metadata, "base64").toString("utf8"));
-            logger$h.info(`[Authenticated account] Client ID: ${appid}. Tenant ID: ${tid}. User Principal Name: ${upn || unavailableUpn}. Object ID (user): ${oid}`);
+            logger$j.info(`[Authenticated account] Client ID: ${appid}. Tenant ID: ${tid}. User Principal Name: ${upn || unavailableUpn}. Object ID (user): ${oid}`);
         }
         catch (e) {
-            logger$h.warning("allowLoggingAccountIdentifiers was set, but we couldn't log the account information. Error:", e.message);
+            logger$j.warning("allowLoggingAccountIdentifiers was set, but we couldn't log the account information. Error:", e.message);
         }
     }
 }
@@ -66003,7 +63596,7 @@ function createMsalClient(clientId, tenantId, createMsalClientOptions = {}) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 const credentialName$2 = "ClientCertificateCredential";
-const logger$e = credentialLogger(credentialName$2);
+const logger$g = credentialLogger(credentialName$2);
 /**
  * Enables authentication to Microsoft Entra ID using a PEM-encoded
  * certificate that is assigned to an App Registration. More information
@@ -66044,7 +63637,7 @@ class ClientCertificateCredential {
         }
         this.msalClient = createMsalClient(clientId, tenantId, {
             ...options,
-            logger: logger$e,
+            logger: logger$g,
             tokenCredentialOptions: options,
         });
     }
@@ -66057,8 +63650,8 @@ class ClientCertificateCredential {
      *                TokenCredential implementation might make.
      */
     async getToken(scopes, options = {}) {
-        return tracingClient.withSpan(`${credentialName$2}.getToken`, options, async (newOptions) => {
-            newOptions.tenantId = processMultiTenantRequest(this.tenantId, newOptions, this.additionallyAllowedTenantIds, logger$e);
+        return tracingClient$1.withSpan(`${credentialName$2}.getToken`, options, async (newOptions) => {
+            newOptions.tenantId = processMultiTenantRequest(this.tenantId, newOptions, this.additionallyAllowedTenantIds, logger$g);
             const arrayScopes = Array.isArray(scopes) ? scopes : [scopes];
             const certificate = await this.buildClientCertificate();
             return this.msalClient.getTokenByClientCertificate(arrayScopes, certificate, newOptions);
@@ -66162,7 +63755,7 @@ function getScopeResource(scope) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$d = credentialLogger("ClientSecretCredential");
+const logger$f = credentialLogger("ClientSecretCredential");
 /**
  * Enables authentication to Microsoft Entra ID using a client secret
  * that was generated for an App Registration. More information on how
@@ -66201,7 +63794,7 @@ class ClientSecretCredential {
         this.additionallyAllowedTenantIds = resolveAdditionallyAllowedTenantIds(options?.additionallyAllowedTenants);
         this.msalClient = createMsalClient(clientId, tenantId, {
             ...options,
-            logger: logger$d,
+            logger: logger$f,
             tokenCredentialOptions: options,
         });
     }
@@ -66214,8 +63807,8 @@ class ClientSecretCredential {
      *                TokenCredential implementation might make.
      */
     async getToken(scopes, options = {}) {
-        return tracingClient.withSpan(`${this.constructor.name}.getToken`, options, async (newOptions) => {
-            newOptions.tenantId = processMultiTenantRequest(this.tenantId, newOptions, this.additionallyAllowedTenantIds, logger$d);
+        return tracingClient$1.withSpan(`${this.constructor.name}.getToken`, options, async (newOptions) => {
+            newOptions.tenantId = processMultiTenantRequest(this.tenantId, newOptions, this.additionallyAllowedTenantIds, logger$f);
             const arrayScopes = ensureScopes(scopes);
             return this.msalClient.getTokenByClientSecret(arrayScopes, this.clientSecret, newOptions);
         });
@@ -66224,7 +63817,7 @@ class ClientSecretCredential {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$c = credentialLogger("UsernamePasswordCredential");
+const logger$e = credentialLogger("UsernamePasswordCredential");
 /**
  * Enables authentication to Microsoft Entra ID with a user's
  * username and password. This credential requires a high degree of
@@ -66284,8 +63877,8 @@ class UsernamePasswordCredential {
      *                TokenCredential implementation might make.
      */
     async getToken(scopes, options = {}) {
-        return tracingClient.withSpan(`${this.constructor.name}.getToken`, options, async (newOptions) => {
-            newOptions.tenantId = processMultiTenantRequest(this.tenantId, newOptions, this.additionallyAllowedTenantIds, logger$c);
+        return tracingClient$1.withSpan(`${this.constructor.name}.getToken`, options, async (newOptions) => {
+            newOptions.tenantId = processMultiTenantRequest(this.tenantId, newOptions, this.additionallyAllowedTenantIds, logger$e);
             const arrayScopes = ensureScopes(scopes);
             return this.msalClient.getTokenByUsernamePassword(arrayScopes, this.username, this.password, newOptions);
         });
@@ -66317,11 +63910,11 @@ function getAdditionallyAllowedTenants() {
     return additionallyAllowedValues.split(";");
 }
 const credentialName$1 = "EnvironmentCredential";
-const logger$b = credentialLogger(credentialName$1);
+const logger$d = credentialLogger(credentialName$1);
 function getSendCertificateChain() {
     const sendCertificateChain = (process.env.AZURE_CLIENT_SEND_CERTIFICATE_CHAIN ?? "").toLowerCase();
     const result = sendCertificateChain === "true" || sendCertificateChain === "1";
-    logger$b.verbose(`AZURE_CLIENT_SEND_CERTIFICATE_CHAIN: ${process.env.AZURE_CLIENT_SEND_CERTIFICATE_CHAIN}; sendCertificateChain: ${result}`);
+    logger$d.verbose(`AZURE_CLIENT_SEND_CERTIFICATE_CHAIN: ${process.env.AZURE_CLIENT_SEND_CERTIFICATE_CHAIN}; sendCertificateChain: ${result}`);
     return result;
 }
 /**
@@ -66357,31 +63950,31 @@ class EnvironmentCredential {
     constructor(options) {
         // Keep track of any missing environment variables for error details
         const assigned = processEnvVars(AllSupportedEnvironmentVariables).assigned.join(", ");
-        logger$b.info(`Found the following environment variables: ${assigned}`);
+        logger$d.info(`Found the following environment variables: ${assigned}`);
         const tenantId = process.env.AZURE_TENANT_ID, clientId = process.env.AZURE_CLIENT_ID, clientSecret = process.env.AZURE_CLIENT_SECRET;
         const additionallyAllowedTenantIds = getAdditionallyAllowedTenants();
         const sendCertificateChain = getSendCertificateChain();
         const newOptions = { ...options, additionallyAllowedTenantIds, sendCertificateChain };
         if (tenantId) {
-            checkTenantId(logger$b, tenantId);
+            checkTenantId(logger$d, tenantId);
         }
         if (tenantId && clientId && clientSecret) {
-            logger$b.info(`Invoking ClientSecretCredential with tenant ID: ${tenantId}, clientId: ${clientId} and clientSecret: [REDACTED]`);
+            logger$d.info(`Invoking ClientSecretCredential with tenant ID: ${tenantId}, clientId: ${clientId} and clientSecret: [REDACTED]`);
             this._credential = new ClientSecretCredential(tenantId, clientId, clientSecret, newOptions);
             return;
         }
         const certificatePath = process.env.AZURE_CLIENT_CERTIFICATE_PATH;
         const certificatePassword = process.env.AZURE_CLIENT_CERTIFICATE_PASSWORD;
         if (tenantId && clientId && certificatePath) {
-            logger$b.info(`Invoking ClientCertificateCredential with tenant ID: ${tenantId}, clientId: ${clientId} and certificatePath: ${certificatePath}`);
+            logger$d.info(`Invoking ClientCertificateCredential with tenant ID: ${tenantId}, clientId: ${clientId} and certificatePath: ${certificatePath}`);
             this._credential = new ClientCertificateCredential(tenantId, clientId, { certificatePath, certificatePassword }, newOptions);
             return;
         }
         const username = process.env.AZURE_USERNAME;
         const password = process.env.AZURE_PASSWORD;
         if (tenantId && clientId && username && password) {
-            logger$b.info(`Invoking UsernamePasswordCredential with tenant ID: ${tenantId}, clientId: ${clientId} and username: ${username}`);
-            logger$b.warning("Environment is configured to use username and password authentication. This authentication method is deprecated, as it doesn't support multifactor authentication (MFA). Use a more secure credential. For more details, see https://aka.ms/azsdk/identity/mfa.");
+            logger$d.info(`Invoking UsernamePasswordCredential with tenant ID: ${tenantId}, clientId: ${clientId} and username: ${username}`);
+            logger$d.warning("Environment is configured to use username and password authentication. This authentication method is deprecated, as it doesn't support multifactor authentication (MFA). Use a more secure credential. For more details, see https://aka.ms/azsdk/identity/mfa.");
             this._credential = new UsernamePasswordCredential(tenantId, clientId, username, password, newOptions);
         }
     }
@@ -66392,11 +63985,11 @@ class EnvironmentCredential {
      * @param options - Optional parameters. See {@link GetTokenOptions}.
      */
     async getToken(scopes, options = {}) {
-        return tracingClient.withSpan(`${credentialName$1}.getToken`, options, async (newOptions) => {
+        return tracingClient$1.withSpan(`${credentialName$1}.getToken`, options, async (newOptions) => {
             if (this._credential) {
                 try {
                     const result = await this._credential.getToken(scopes, newOptions);
-                    logger$b.getToken.info(formatSuccess(scopes));
+                    logger$d.getToken.info(formatSuccess(scopes));
                     return result;
                 }
                 catch (err) {
@@ -66404,7 +63997,7 @@ class EnvironmentCredential {
                         error: `${credentialName$1} authentication failed. To troubleshoot, visit https://aka.ms/azsdk/js/identity/environmentcredential/troubleshoot.`,
                         error_description: err.message.toString().split("More details:").join(""),
                     });
-                    logger$b.getToken.info(formatError(scopes, authenticationError));
+                    logger$d.getToken.info(formatError(scopes, authenticationError));
                     throw authenticationError;
                 }
             }
@@ -66457,7 +64050,7 @@ function imdsRetryPolicy(msiRetryConfig) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 const msiName$1 = "ManagedIdentityCredential - IMDS";
-const logger$a = credentialLogger(msiName$1);
+const logger$c = credentialLogger(msiName$1);
 const imdsHost = "http://169.254.169.254";
 const imdsEndpointPath = "/metadata/identity/oauth2/token";
 /**
@@ -66494,7 +64087,7 @@ const imdsMsi = {
         const { scopes, identityClient, getTokenOptions } = options;
         const resource = mapScopesToResource(scopes);
         if (!resource) {
-            logger$a.info(`${msiName$1}: Unavailable. Multiple scopes are not supported.`);
+            logger$c.info(`${msiName$1}: Unavailable. Multiple scopes are not supported.`);
             return false;
         }
         // if the PodIdentityEndpoint environment variable was set no need to probe the endpoint, it can be assumed to exist
@@ -66505,7 +64098,7 @@ const imdsMsi = {
             throw new Error("Missing IdentityClient");
         }
         const requestOptions = prepareInvalidRequestOptions(resource);
-        return tracingClient.withSpan("ManagedIdentityCredential-pingImdsEndpoint", getTokenOptions ?? {}, async (updatedOptions) => {
+        return tracingClient$1.withSpan("ManagedIdentityCredential-pingImdsEndpoint", getTokenOptions ?? {}, async (updatedOptions) => {
             requestOptions.tracingOptions = updatedOptions.tracingOptions;
             // Create a request with a timeout since we expect that
             // not having a "Metadata" header should cause an error to be
@@ -66518,29 +64111,29 @@ const imdsMsi = {
             request.allowInsecureConnection = true;
             let response;
             try {
-                logger$a.info(`${msiName$1}: Pinging the Azure IMDS endpoint`);
+                logger$c.info(`${msiName$1}: Pinging the Azure IMDS endpoint`);
                 response = await identityClient.sendRequest(request);
             }
             catch (err) {
                 // If the request failed, or Node.js was unable to establish a connection,
                 // or the host was down, we'll assume the IMDS endpoint isn't available.
                 if (isError(err)) {
-                    logger$a.verbose(`${msiName$1}: Caught error ${err.name}: ${err.message}`);
+                    logger$c.verbose(`${msiName$1}: Caught error ${err.name}: ${err.message}`);
                 }
                 // This is a special case for Docker Desktop which responds with a 403 with a message that contains "A socket operation was attempted to an unreachable network" or "A socket operation was attempted to an unreachable host"
                 // rather than just timing out, as expected.
-                logger$a.info(`${msiName$1}: The Azure IMDS endpoint is unavailable`);
+                logger$c.info(`${msiName$1}: The Azure IMDS endpoint is unavailable`);
                 return false;
             }
             if (response.status === 403) {
                 if (response.bodyAsText?.includes("unreachable")) {
-                    logger$a.info(`${msiName$1}: The Azure IMDS endpoint is unavailable`);
-                    logger$a.info(`${msiName$1}: ${response.bodyAsText}`);
+                    logger$c.info(`${msiName$1}: The Azure IMDS endpoint is unavailable`);
+                    logger$c.info(`${msiName$1}: ${response.bodyAsText}`);
                     return false;
                 }
             }
             // If we received any response, the endpoint is available
-            logger$a.info(`${msiName$1}: The Azure IMDS endpoint is available`);
+            logger$c.info(`${msiName$1}: The Azure IMDS endpoint is available`);
             return true;
         });
     },
@@ -66548,7 +64141,7 @@ const imdsMsi = {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$9 = credentialLogger("ClientAssertionCredential");
+const logger$b = credentialLogger("ClientAssertionCredential");
 /**
  * Authenticates a service principal with a JWT assertion.
  */
@@ -66584,7 +64177,7 @@ class ClientAssertionCredential {
         this.getAssertion = getAssertion;
         this.msalClient = createMsalClient(clientId, tenantId, {
             ...options,
-            logger: logger$9,
+            logger: logger$b,
             tokenCredentialOptions: this.options,
         });
     }
@@ -66597,8 +64190,8 @@ class ClientAssertionCredential {
      *                TokenCredential implementation might make.
      */
     async getToken(scopes, options = {}) {
-        return tracingClient.withSpan(`${this.constructor.name}.getToken`, options, async (newOptions) => {
-            newOptions.tenantId = processMultiTenantRequest(this.tenantId, newOptions, this.additionallyAllowedTenantIds, logger$9);
+        return tracingClient$1.withSpan(`${this.constructor.name}.getToken`, options, async (newOptions) => {
+            newOptions.tenantId = processMultiTenantRequest(this.tenantId, newOptions, this.additionallyAllowedTenantIds, logger$b);
             const arrayScopes = Array.isArray(scopes) ? scopes : [scopes];
             return this.msalClient.getTokenByClientAssertion(arrayScopes, this.getAssertion, newOptions);
         });
@@ -66620,7 +64213,7 @@ const SupportedWorkloadEnvironmentVariables = [
     "AZURE_CLIENT_ID",
     "AZURE_FEDERATED_TOKEN_FILE",
 ];
-const logger$8 = credentialLogger(credentialName);
+const logger$a = credentialLogger(credentialName);
 /**
  * Workload Identity authentication is a feature in Azure that allows applications running on virtual machines (VMs)
  * to access other Azure resources without the need for a service principal or managed identity. With Workload Identity
@@ -66648,14 +64241,14 @@ class WorkloadIdentityCredential {
     constructor(options) {
         // Logging environment variables for error details
         const assignedEnv = processEnvVars(SupportedWorkloadEnvironmentVariables).assigned.join(", ");
-        logger$8.info(`Found the following environment variables: ${assignedEnv}`);
+        logger$a.info(`Found the following environment variables: ${assignedEnv}`);
         const workloadIdentityCredentialOptions = options ?? {};
         const tenantId = workloadIdentityCredentialOptions.tenantId || process.env.AZURE_TENANT_ID;
         const clientId = workloadIdentityCredentialOptions.clientId || process.env.AZURE_CLIENT_ID;
         this.federatedTokenFilePath =
             workloadIdentityCredentialOptions.tokenFilePath || process.env.AZURE_FEDERATED_TOKEN_FILE;
         if (tenantId) {
-            checkTenantId(logger$8, tenantId);
+            checkTenantId(logger$a, tenantId);
         }
         if (!clientId) {
             throw new CredentialUnavailableError(`${credentialName}: is unavailable. clientId is a required parameter. In DefaultAzureCredential and ManagedIdentityCredential, this can be provided as an environment variable - "AZURE_CLIENT_ID".
@@ -66669,7 +64262,7 @@ class WorkloadIdentityCredential {
             throw new CredentialUnavailableError(`${credentialName}: is unavailable. federatedTokenFilePath is a required parameter. In DefaultAzureCredential and ManagedIdentityCredential, this can be provided as an environment variable - "AZURE_FEDERATED_TOKEN_FILE".
         See the troubleshooting guide for more information: https://aka.ms/azsdk/js/identity/workloadidentitycredential/troubleshoot`);
         }
-        logger$8.info(`Invoking ClientAssertionCredential with tenant ID: ${tenantId}, clientId: ${workloadIdentityCredentialOptions.clientId} and federated token path: [REDACTED]`);
+        logger$a.info(`Invoking ClientAssertionCredential with tenant ID: ${tenantId}, clientId: ${workloadIdentityCredentialOptions.clientId} and federated token path: [REDACTED]`);
         this.client = new ClientAssertionCredential(tenantId, clientId, this.readFileContents.bind(this), options);
     }
     /**
@@ -66687,10 +64280,10 @@ class WorkloadIdentityCredential {
       "AZURE_TENANT_ID",
       "AZURE_CLIENT_ID",
       "AZURE_FEDERATED_TOKEN_FILE". See the troubleshooting guide for more information: https://aka.ms/azsdk/js/identity/workloadidentitycredential/troubleshoot`;
-            logger$8.info(errorMessage);
+            logger$a.info(errorMessage);
             throw new CredentialUnavailableError(errorMessage);
         }
-        logger$8.info("Invoking getToken() of Client Assertion Credential");
+        logger$a.info("Invoking getToken() of Client Assertion Credential");
         return this.client.getToken(scopes, options);
     }
     async readFileContents() {
@@ -66719,7 +64312,7 @@ class WorkloadIdentityCredential {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 const msiName = "ManagedIdentityCredential - Token Exchange";
-const logger$7 = credentialLogger(msiName);
+const logger$9 = credentialLogger(msiName);
 /**
  * Defines how to determine whether the token exchange MSI is available, and also how to retrieve a token from the token exchange MSI.
  *
@@ -66734,7 +64327,7 @@ const tokenExchangeMsi = {
             env.AZURE_TENANT_ID &&
             process.env.AZURE_FEDERATED_TOKEN_FILE);
         if (!result) {
-            logger$7.info(`${msiName}: Unavailable. The environment variables needed are: AZURE_CLIENT_ID (or the client ID sent through the parameters), AZURE_TENANT_ID and AZURE_FEDERATED_TOKEN_FILE`);
+            logger$9.info(`${msiName}: Unavailable. The environment variables needed are: AZURE_CLIENT_ID (or the client ID sent through the parameters), AZURE_TENANT_ID and AZURE_FEDERATED_TOKEN_FILE`);
         }
         return result;
     },
@@ -66754,7 +64347,7 @@ const tokenExchangeMsi = {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$6 = credentialLogger("ManagedIdentityCredential");
+const logger$8 = credentialLogger("ManagedIdentityCredential");
 /**
  * Attempts authentication using a managed identity available at the deployment environment.
  * This authentication type works in Azure VMs, App Service instances, Azure Functions applications,
@@ -66824,7 +64417,7 @@ class ManagedIdentityCredential {
                 loggerOptions: {
                     logLevel: getMSALLogLevel(getLogLevel()),
                     piiLoggingEnabled: _options.loggingOptions?.enableUnsafeSupportLogging,
-                    loggerCallback: defaultLoggerCallback(logger$6),
+                    loggerCallback: defaultLoggerCallback(logger$8),
                 },
             },
         });
@@ -66838,7 +64431,7 @@ class ManagedIdentityCredential {
         // CloudShell MSI will ignore any user-assigned identity passed as parameters. To avoid confusion, we prevent this from happening as early as possible.
         if (managedIdentitySource === "CloudShell") {
             if (this.clientId || this.resourceId || this.objectId) {
-                logger$6.warning(`CloudShell MSI detected with user-provided IDs - throwing. Received values: ${JSON.stringify({
+                logger$8.warning(`CloudShell MSI detected with user-provided IDs - throwing. Received values: ${JSON.stringify({
                     clientId: this.clientId,
                     resourceId: this.resourceId,
                     objectId: this.objectId,
@@ -66849,7 +64442,7 @@ class ManagedIdentityCredential {
         // ServiceFabric does not support specifying user-assigned managed identity by client ID or resource ID. The managed identity selected is based on the resource configuration.
         if (managedIdentitySource === "ServiceFabric") {
             if (this.clientId || this.resourceId || this.objectId) {
-                logger$6.warning(`Service Fabric detected with user-provided IDs - throwing. Received values: ${JSON.stringify({
+                logger$8.warning(`Service Fabric detected with user-provided IDs - throwing. Received values: ${JSON.stringify({
                     clientId: this.clientId,
                     resourceId: this.resourceId,
                     objectId: this.objectId,
@@ -66857,11 +64450,11 @@ class ManagedIdentityCredential {
                 throw new CredentialUnavailableError(`ManagedIdentityCredential: ${serviceFabricErrorMessage}`);
             }
         }
-        logger$6.info(`Using ${managedIdentitySource} managed identity.`);
+        logger$8.info(`Using ${managedIdentitySource} managed identity.`);
         // Check if either clientId, resourceId or objectId was provided and log the value used
         if (providedIds.length === 1) {
             const { key, value } = providedIds[0];
-            logger$6.info(`${managedIdentitySource} with ${key}: ${value}`);
+            logger$8.info(`${managedIdentitySource} with ${key}: ${value}`);
         }
     }
     /**
@@ -66874,12 +64467,12 @@ class ManagedIdentityCredential {
      *                TokenCredential implementation might make.
      */
     async getToken(scopes, options = {}) {
-        logger$6.getToken.info("Using the MSAL provider for Managed Identity.");
+        logger$8.getToken.info("Using the MSAL provider for Managed Identity.");
         const resource = mapScopesToResource(scopes);
         if (!resource) {
             throw new CredentialUnavailableError(`ManagedIdentityCredential: Multiple scopes are not supported. Scopes: ${JSON.stringify(scopes)}`);
         }
-        return tracingClient.withSpan("ManagedIdentityCredential.getToken", options, async () => {
+        return tracingClient$1.withSpan("ManagedIdentityCredential.getToken", options, async () => {
             try {
                 const isTokenExchangeMsi = await tokenExchangeMsi.isAvailable(this.clientId);
                 // Most scenarios are handled by MSAL except for two:
@@ -66889,10 +64482,10 @@ class ManagedIdentityCredential {
                 // We will continue to implement these features in the Identity library.
                 const identitySource = this.managedIdentityApp.getManagedIdentitySource();
                 const isImdsMsi = identitySource === "DefaultToImds" || identitySource === "Imds"; // Neither actually checks that IMDS endpoint is available, just that it's the source the MSAL _would_ try to use.
-                logger$6.getToken.info(`MSAL Identity source: ${identitySource}`);
+                logger$8.getToken.info(`MSAL Identity source: ${identitySource}`);
                 if (isTokenExchangeMsi) {
                     // In the AKS scenario we will use the existing tokenExchangeMsi indefinitely.
-                    logger$6.getToken.info("Using the token exchange managed identity.");
+                    logger$8.getToken.info("Using the token exchange managed identity.");
                     const result = await tokenExchangeMsi.getToken({
                         scopes,
                         clientId: this.clientId,
@@ -66908,7 +64501,7 @@ class ManagedIdentityCredential {
                 else if (isImdsMsi && this.sendProbeRequest) {
                     // In the IMDS scenario we will probe the IMDS endpoint to ensure it's available before trying to get a token.
                     // If the IMDS endpoint is not available and this is the source that MSAL will use, we will fail-fast with an error that tells DAC to move to the next credential.
-                    logger$6.getToken.info("Using the IMDS endpoint to probe for availability.");
+                    logger$8.getToken.info("Using the IMDS endpoint to probe for availability.");
                     const isAvailable = await imdsMsi.isAvailable({
                         scopes,
                         clientId: this.clientId,
@@ -66925,12 +64518,12 @@ class ManagedIdentityCredential {
                 // - We already probed for IMDS endpoint availability and failed-fast if it's unreachable,
                 // or we skip probing because the credential is set in DAC.
                 // We can proceed normally by calling MSAL for a token.
-                logger$6.getToken.info("Calling into MSAL for managed identity token.");
+                logger$8.getToken.info("Calling into MSAL for managed identity token.");
                 const token = await this.managedIdentityApp.acquireToken({
                     resource,
                 });
                 this.ensureValidMsalToken(scopes, token, options);
-                logger$6.getToken.info(formatSuccess(scopes));
+                logger$8.getToken.info(formatSuccess(scopes));
                 return {
                     expiresOnTimestamp: token.expiresOn.getTime(),
                     token: token.accessToken,
@@ -66939,7 +64532,7 @@ class ManagedIdentityCredential {
                 };
             }
             catch (err) {
-                logger$6.getToken.error(formatError(scopes, err));
+                logger$8.getToken.error(formatError(scopes, err));
                 // AuthenticationRequiredError described as Error to enforce authentication after trying to retrieve a token silently.
                 // TODO: why would this _ever_ happen considering we're not trying the silent request in this flow?
                 if (err.name === "AuthenticationRequiredError") {
@@ -66957,7 +64550,7 @@ class ManagedIdentityCredential {
      */
     ensureValidMsalToken(scopes, msalToken, getTokenOptions) {
         const createError = (message) => {
-            logger$6.getToken.info(message);
+            logger$8.getToken.info(message);
             return new AuthenticationRequiredError({
                 scopes: Array.isArray(scopes) ? scopes : [scopes],
                 getTokenOptions,
@@ -66996,7 +64589,7 @@ function isNetworkError(err) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$5 = credentialLogger("AzureDeveloperCliCredential");
+const logger$7 = credentialLogger("AzureDeveloperCliCredential");
 /**
  * Messages to use when throwing in this credential.
  * @internal
@@ -67019,7 +64612,7 @@ const developerCliCredentialInternals = {
         if (process.platform === "win32") {
             let systemRoot = process.env.SystemRoot || process.env["SYSTEMROOT"];
             if (!systemRoot) {
-                logger$5.getToken.warning("The SystemRoot environment variable is not set. This may cause issues when using the Azure Developer CLI credential.");
+                logger$7.getToken.warning("The SystemRoot environment variable is not set. This may cause issues when using the Azure Developer CLI credential.");
                 systemRoot = "C:\\Windows";
             }
             return systemRoot;
@@ -67108,7 +64701,7 @@ class AzureDeveloperCliCredential {
      */
     constructor(options) {
         if (options?.tenantId) {
-            checkTenantId(logger$5, options?.tenantId);
+            checkTenantId(logger$7, options?.tenantId);
             this.tenantId = options?.tenantId;
         }
         this.additionallyAllowedTenantIds = resolveAdditionallyAllowedTenantIds(options?.additionallyAllowedTenants);
@@ -67125,7 +64718,7 @@ class AzureDeveloperCliCredential {
     async getToken(scopes, options = {}) {
         const tenantId = processMultiTenantRequest(this.tenantId, options, this.additionallyAllowedTenantIds);
         if (tenantId) {
-            checkTenantId(logger$5, tenantId);
+            checkTenantId(logger$7, tenantId);
         }
         let scopeList;
         if (typeof scopes === "string") {
@@ -67134,11 +64727,11 @@ class AzureDeveloperCliCredential {
         else {
             scopeList = scopes;
         }
-        logger$5.getToken.info(`Using the scopes ${scopes}`);
-        return tracingClient.withSpan(`${this.constructor.name}.getToken`, options, async () => {
+        logger$7.getToken.info(`Using the scopes ${scopes}`);
+        return tracingClient$1.withSpan(`${this.constructor.name}.getToken`, options, async () => {
             try {
                 scopeList.forEach((scope) => {
-                    ensureValidScopeForDevTimeCreds(scope, logger$5);
+                    ensureValidScopeForDevTimeCreds(scope, logger$7);
                 });
                 const obj = await developerCliCredentialInternals.getAzdAccessToken(scopeList, tenantId, this.timeout, options.claims);
                 const isMFARequiredError = obj.stderr?.match("must use multi-factor authentication") ||
@@ -67149,12 +64742,12 @@ class AzureDeveloperCliCredential {
                     obj.stderr?.startsWith("'azd' is not recognized");
                 if (isNotInstallError || (obj.error && obj.error.code === "ENOENT")) {
                     const error = new CredentialUnavailableError(azureDeveloperCliPublicErrorMessages.notInstalled);
-                    logger$5.getToken.info(formatError(scopes, error));
+                    logger$7.getToken.info(formatError(scopes, error));
                     throw error;
                 }
                 if (isNotLoggedInError) {
                     const error = new CredentialUnavailableError(azureDeveloperCliPublicErrorMessages.login);
-                    logger$5.getToken.info(formatError(scopes, error));
+                    logger$7.getToken.info(formatError(scopes, error));
                     throw error;
                 }
                 if (isMFARequiredError) {
@@ -67163,12 +64756,12 @@ class AzureDeveloperCliCredential {
                         .join(" ");
                     const loginCmd = `azd auth login ${scope}`;
                     const error = new CredentialUnavailableError(`${azureDeveloperCliPublicErrorMessages.claim} ${loginCmd}`);
-                    logger$5.getToken.info(formatError(scopes, error));
+                    logger$7.getToken.info(formatError(scopes, error));
                     throw error;
                 }
                 try {
                     const resp = JSON.parse(obj.stdout);
-                    logger$5.getToken.info(formatSuccess(scopes));
+                    logger$7.getToken.info(formatSuccess(scopes));
                     return {
                         token: resp.token,
                         expiresOnTimestamp: new Date(resp.expiresOn).getTime(),
@@ -67186,7 +64779,7 @@ class AzureDeveloperCliCredential {
                 const error = err.name === "CredentialUnavailableError"
                     ? err
                     : new CredentialUnavailableError(err.message || azureDeveloperCliPublicErrorMessages.unknown);
-                logger$5.getToken.info(formatError(scopes, error));
+                logger$7.getToken.info(formatError(scopes, error));
                 throw error;
             }
         });
@@ -67210,7 +64803,7 @@ function checkSubscription(logger, subscription) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$4 = credentialLogger("AzureCliCredential");
+const logger$6 = credentialLogger("AzureCliCredential");
 /**
  * Messages to use when throwing in this credential.
  * @internal
@@ -67234,7 +64827,7 @@ const cliCredentialInternals = {
         if (process.platform === "win32") {
             let systemRoot = process.env.SystemRoot || process.env["SYSTEMROOT"];
             if (!systemRoot) {
-                logger$4.getToken.warning("The SystemRoot environment variable is not set. This may cause issues when using the Azure CLI credential.");
+                logger$6.getToken.warning("The SystemRoot environment variable is not set. This may cause issues when using the Azure CLI credential.");
                 systemRoot = "C:\\Windows";
             }
             return systemRoot;
@@ -67302,11 +64895,11 @@ class AzureCliCredential {
      */
     constructor(options) {
         if (options?.tenantId) {
-            checkTenantId(logger$4, options?.tenantId);
+            checkTenantId(logger$6, options?.tenantId);
             this.tenantId = options?.tenantId;
         }
         if (options?.subscription) {
-            checkSubscription(logger$4, options?.subscription);
+            checkSubscription(logger$6, options?.subscription);
             this.subscription = options?.subscription;
         }
         this.additionallyAllowedTenantIds = resolveAdditionallyAllowedTenantIds(options?.additionallyAllowedTenants);
@@ -67331,20 +64924,20 @@ class AzureCliCredential {
                 loginCmd += ` --tenant ${tenantIdFromOptions}`;
             }
             const error = new CredentialUnavailableError(`${azureCliPublicErrorMessages.claim} ${loginCmd}`);
-            logger$4.getToken.info(formatError(scope, error));
+            logger$6.getToken.info(formatError(scope, error));
             throw error;
         }
         const tenantId = processMultiTenantRequest(this.tenantId, options, this.additionallyAllowedTenantIds);
         if (tenantId) {
-            checkTenantId(logger$4, tenantId);
+            checkTenantId(logger$6, tenantId);
         }
         if (this.subscription) {
-            checkSubscription(logger$4, this.subscription);
+            checkSubscription(logger$6, this.subscription);
         }
-        logger$4.getToken.info(`Using the scope ${scope}`);
-        return tracingClient.withSpan(`${this.constructor.name}.getToken`, options, async () => {
+        logger$6.getToken.info(`Using the scope ${scope}`);
+        return tracingClient$1.withSpan(`${this.constructor.name}.getToken`, options, async () => {
             try {
-                ensureValidScopeForDevTimeCreds(scope, logger$4);
+                ensureValidScopeForDevTimeCreds(scope, logger$6);
                 const resource = getScopeResource(scope);
                 const obj = await cliCredentialInternals.getAzureCliAccessToken(resource, tenantId, this.subscription, this.timeout);
                 const specificScope = obj.stderr?.match("(.*)az login --scope(.*)");
@@ -67352,18 +64945,18 @@ class AzureCliCredential {
                 const isNotInstallError = obj.stderr?.match("az:(.*)not found") || obj.stderr?.startsWith("'az' is not recognized");
                 if (isNotInstallError) {
                     const error = new CredentialUnavailableError(azureCliPublicErrorMessages.notInstalled);
-                    logger$4.getToken.info(formatError(scopes, error));
+                    logger$6.getToken.info(formatError(scopes, error));
                     throw error;
                 }
                 if (isLoginError) {
                     const error = new CredentialUnavailableError(azureCliPublicErrorMessages.login);
-                    logger$4.getToken.info(formatError(scopes, error));
+                    logger$6.getToken.info(formatError(scopes, error));
                     throw error;
                 }
                 try {
                     const responseData = obj.stdout;
                     const response = this.parseRawResponse(responseData);
-                    logger$4.getToken.info(formatSuccess(scopes));
+                    logger$6.getToken.info(formatSuccess(scopes));
                     return response;
                 }
                 catch (e) {
@@ -67377,7 +64970,7 @@ class AzureCliCredential {
                 const error = err.name === "CredentialUnavailableError"
                     ? err
                     : new CredentialUnavailableError(err.message || azureCliPublicErrorMessages.unknown);
-                logger$4.getToken.info(formatError(scopes, error));
+                logger$6.getToken.info(formatError(scopes, error));
                 throw error;
             }
         });
@@ -67399,7 +64992,7 @@ class AzureCliCredential {
         // ensure it's a number or NaN
         let expiresOnTimestamp = Number.parseInt(response.expires_on, 10) * 1000;
         if (!isNaN(expiresOnTimestamp)) {
-            logger$4.getToken.info("expires_on is available and is valid, using it");
+            logger$6.getToken.info("expires_on is available and is valid, using it");
             return {
                 token,
                 expiresOnTimestamp,
@@ -67453,7 +65046,7 @@ const processUtils = {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$3 = credentialLogger("AzurePowerShellCredential");
+const logger$5 = credentialLogger("AzurePowerShellCredential");
 const isWindows = process.platform === "win32";
 /**
  * Returns a platform-appropriate command name by appending ".exe" on Windows.
@@ -67538,7 +65131,7 @@ class AzurePowerShellCredential {
      */
     constructor(options) {
         if (options?.tenantId) {
-            checkTenantId(logger$3, options?.tenantId);
+            checkTenantId(logger$5, options?.tenantId);
             this.tenantId = options?.tenantId;
         }
         this.additionallyAllowedTenantIds = resolveAdditionallyAllowedTenantIds(options?.additionallyAllowedTenants);
@@ -67622,7 +65215,7 @@ class AzurePowerShellCredential {
      * @param options - The options used to configure any requests this TokenCredential implementation might make.
      */
     async getToken(scopes, options = {}) {
-        return tracingClient.withSpan(`${this.constructor.name}.getToken`, options, async () => {
+        return tracingClient$1.withSpan(`${this.constructor.name}.getToken`, options, async () => {
             const scope = typeof scopes === "string" ? scopes : scopes[0];
             const claimsValue = options.claims;
             if (claimsValue && claimsValue.trim()) {
@@ -67633,19 +65226,19 @@ class AzurePowerShellCredential {
                     loginCmd += ` -Tenant ${tenantIdFromOptions}`;
                 }
                 const error = new CredentialUnavailableError(`${powerShellPublicErrorMessages.claim} ${loginCmd}`);
-                logger$3.getToken.info(formatError(scope, error));
+                logger$5.getToken.info(formatError(scope, error));
                 throw error;
             }
             const tenantId = processMultiTenantRequest(this.tenantId, options, this.additionallyAllowedTenantIds);
             if (tenantId) {
-                checkTenantId(logger$3, tenantId);
+                checkTenantId(logger$5, tenantId);
             }
             try {
-                ensureValidScopeForDevTimeCreds(scope, logger$3);
-                logger$3.getToken.info(`Using the scope ${scope}`);
+                ensureValidScopeForDevTimeCreds(scope, logger$5);
+                logger$5.getToken.info(`Using the scope ${scope}`);
                 const resource = getScopeResource(scope);
                 const response = await this.getAzurePowerShellAccessToken(resource, tenantId, this.timeout);
-                logger$3.getToken.info(formatSuccess(scopes));
+                logger$5.getToken.info(formatSuccess(scopes));
                 return {
                     token: response.Token,
                     expiresOnTimestamp: new Date(response.ExpiresOn).getTime(),
@@ -67655,16 +65248,16 @@ class AzurePowerShellCredential {
             catch (err) {
                 if (isNotInstalledError(err)) {
                     const error = new CredentialUnavailableError(powerShellPublicErrorMessages.installed);
-                    logger$3.getToken.info(formatError(scope, error));
+                    logger$5.getToken.info(formatError(scope, error));
                     throw error;
                 }
                 else if (isLoginError(err)) {
                     const error = new CredentialUnavailableError(powerShellPublicErrorMessages.login);
-                    logger$3.getToken.info(formatError(scope, error));
+                    logger$5.getToken.info(formatError(scope, error));
                     throw error;
                 }
                 const error = new CredentialUnavailableError(`${err}. ${powerShellPublicErrorMessages.troubleshoot}`);
-                logger$3.getToken.info(formatError(scope, error));
+                logger$5.getToken.info(formatError(scope, error));
                 throw error;
             }
         });
@@ -67686,7 +65279,7 @@ async function parseJsonToken(result) {
                     if (jsonContent?.Token) {
                         resultWithoutToken = resultWithoutToken.replace(item, "");
                         if (resultWithoutToken) {
-                            logger$3.getToken.warning(resultWithoutToken);
+                            logger$5.getToken.warning(resultWithoutToken);
                         }
                         return jsonContent;
                     }
@@ -67706,7 +65299,7 @@ async function parseJsonToken(result) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 const CommonTenantId = "common";
-const logger$2 = credentialLogger("VisualStudioCodeCredential");
+const logger$4 = credentialLogger("VisualStudioCodeCredential");
 // Map of unsupported Tenant IDs and the errors we will be throwing.
 const unsupportedTenantIds = {
     adfs: "The VisualStudioCodeCredential does not support authentication with ADFS tenants.",
@@ -67740,7 +65333,7 @@ class VisualStudioCodeCredential {
     constructor(options) {
         this.options = options || {};
         if (options && options.tenantId) {
-            checkTenantId(logger$2, options.tenantId);
+            checkTenantId(logger$4, options.tenantId);
             this.tenantId = options.tenantId;
         }
         else {
@@ -67756,7 +65349,7 @@ class VisualStudioCodeCredential {
      *   - Creates the MSAL client with the loaded plugin and authentication record.
      */
     async prepare(scopes) {
-        processMultiTenantRequest(this.tenantId, this.options, this.additionallyAllowedTenantIds, logger$2) || this.tenantId;
+        processMultiTenantRequest(this.tenantId, this.options, this.additionallyAllowedTenantIds, logger$4) || this.tenantId;
         {
             throw new CredentialUnavailableError("Visual Studio Code Authentication is not available." +
                 " Ensure you have have Azure Resources Extension installed in VS Code," +
@@ -67813,7 +65406,7 @@ class VisualStudioCodeCredential {
             return deserializeAuthenticationRecord(authRecordContent);
         }
         catch (error) {
-            logger$2.getToken.info(formatError(scopes, error));
+            logger$4.getToken.info(formatError(scopes, error));
             throw new CredentialUnavailableError("Cannot load authentication record in Visual Studio Code." +
                 " Ensure you have have Azure Resources Extension installed in VS Code," +
                 " signed into Azure via VS Code, installed the @azure/identity-vscode package," +
@@ -67824,7 +65417,7 @@ class VisualStudioCodeCredential {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$1 = credentialLogger("BrokerCredential");
+const logger$3 = credentialLogger("BrokerCredential");
 /**
  * Enables authentication to Microsoft Entra ID using WAM (Web Account Manager) broker.
  * This credential uses the default account logged into the OS via a broker.
@@ -67842,12 +65435,12 @@ class BrokerCredential {
      * @param options - Options for configuring the broker credential, including required broker options.
      */
     constructor(options) {
-        this.brokerTenantId = resolveTenantId(logger$1, options.tenantId);
+        this.brokerTenantId = resolveTenantId(logger$3, options.tenantId);
         this.brokerAdditionallyAllowedTenantIds = resolveAdditionallyAllowedTenantIds(options?.additionallyAllowedTenants);
         const msalClientOptions = {
             ...options,
             tokenCredentialOptions: options,
-            logger: logger$1,
+            logger: logger$3,
             brokerOptions: {
                 enabled: true,
                 parentWindowHandle: new Uint8Array(0),
@@ -67867,8 +65460,8 @@ class BrokerCredential {
      * @param options - The options used to configure the token request, including silentAuthenticationOnly option.
      */
     async getToken(scopes, options = {}) {
-        return tracingClient.withSpan(`${this.constructor.name}.getToken`, options, async (newOptions) => {
-            newOptions.tenantId = processMultiTenantRequest(this.brokerTenantId, newOptions, this.brokerAdditionallyAllowedTenantIds, logger$1);
+        return tracingClient$1.withSpan(`${this.constructor.name}.getToken`, options, async (newOptions) => {
+            newOptions.tenantId = processMultiTenantRequest(this.brokerTenantId, newOptions, this.brokerAdditionallyAllowedTenantIds, logger$3);
             const arrayScopes = ensureScopes(scopes);
             try {
                 return this.brokerMsalClient.getBrokeredToken(arrayScopes, true, {
@@ -67877,7 +65470,7 @@ class BrokerCredential {
                 });
             }
             catch (e) {
-                logger$1.getToken.info(formatError(arrayScopes, e));
+                logger$3.getToken.info(formatError(arrayScopes, e));
                 throw new CredentialUnavailableError("Failed to acquire token using broker authentication", { cause: e });
             }
         });
@@ -68025,7 +65618,7 @@ function createDefaultEnvironmentCredential(options = {}) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger = credentialLogger("DefaultAzureCredential");
+const logger$2 = credentialLogger("DefaultAzureCredential");
 /**
  * A no-op credential that logs the reason it was skipped if getToken is called.
  * @internal
@@ -68038,7 +65631,7 @@ class UnavailableDefaultCredential {
         this.credentialUnavailableErrorMessage = message;
     }
     getToken() {
-        logger.getToken.info(`Skipping ${this.credentialName}, reason: ${this.credentialUnavailableErrorMessage}`);
+        logger$2.getToken.info(`Skipping ${this.credentialName}, reason: ${this.credentialUnavailableErrorMessage}`);
         return Promise.resolve(null);
     }
 }
@@ -68138,7 +65731,7 @@ class DefaultAzureCredential extends ChainedTokenCredential {
                     // If AZURE_TOKEN_CREDENTIALS is set to an unsupported value, throw an error.
                     // This will prevent the creation of the DefaultAzureCredential.
                     const errorMessage = `Invalid value for AZURE_TOKEN_CREDENTIALS = ${process.env.AZURE_TOKEN_CREDENTIALS}. Valid values are 'prod' or 'dev' or any of these credentials - ${validCredentialNames}.`;
-                    logger.warning(errorMessage);
+                    logger$2.warning(errorMessage);
                     throw new Error(errorMessage);
                 }
             }
@@ -68157,7 +65750,7 @@ class DefaultAzureCredential extends ChainedTokenCredential {
                 return createCredentialFn(options ?? {});
             }
             catch (err) {
-                logger.warning(`Skipped ${createCredentialFn.name} because of an error creating the credential: ${err}`);
+                logger$2.warning(`Skipped ${createCredentialFn.name} because of an error creating the credential: ${err}`);
                 return new UnavailableDefaultCredential(createCredentialFn.name, err.message);
             }
         });
@@ -68176,9 +65769,2427 @@ function validateRequiredEnvVars(options) {
         const missing = requiredVars.filter((envVar) => !process.env[envVar]);
         if (missing.length > 0) {
             const errorMessage = `Required environment ${missing.length === 1 ? "variable" : "variables"} '${missing.join(", ")}' for DefaultAzureCredential ${missing.length === 1 ? "is" : "are"} not set or empty.`;
-            logger.warning(errorMessage);
+            logger$2.warning(errorMessage);
             throw new Error(errorMessage);
         }
+    }
+}
+
+function getAppConfigurationEndpoint(appConfigurationName) {
+    return `https://${appConfigurationName}.azconfig.io`;
+}
+async function getConnectionString(resourceGroup, appConfigurationName) {
+    if (!resourceGroup) {
+        throw new Error('resourceGroup is required when authMode is connectionString');
+    }
+    const azPath = await which('az', true);
+    const connectionString = await executeAzCliCommand(azPath, `appconfig credential list -g ${resourceGroup} -n ${appConfigurationName} --query "([?name=='Primary Read Only'].connectionString)[0]"`);
+    setSecret$1(connectionString);
+    return connectionString;
+}
+async function getKeys(resourceGroup, appConfigurationName, filter, authMode = 'managedIdentity') {
+    const client = authMode === 'connectionString'
+        ? new AppConfigurationClient(await getConnectionString(resourceGroup, appConfigurationName))
+        : new AppConfigurationClient(getAppConfigurationEndpoint(appConfigurationName), new DefaultAzureCredential());
+    return client.listConfigurationSettings(filter);
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * The \@azure/logger configuration for this package.
+ */
+const logger$1 = createClientLogger("keyvault-secrets");
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+function createRestError(messageOrResponse, response) {
+    if (typeof messageOrResponse === "string") {
+        return createRestError$1(messageOrResponse, response);
+    }
+    else {
+        return createRestError$1(messageOrResponse);
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const apiVersionPolicyName = "ApiVersionPolicy";
+/**
+ * Creates a policy that sets the apiVersion as a query parameter on every request
+ * @param options - Client options
+ * @returns Pipeline policy that sets the apiVersion as a query parameter on every request
+ */
+function apiVersionPolicy(options) {
+    return {
+        name: apiVersionPolicyName,
+        sendRequest: (req, next) => {
+            // Use the apiVesion defined in request url directly
+            // Append one if there is no apiVesion and we have one at client options
+            const url = new URL(req.url);
+            if (!url.searchParams.get("api-version") && options.apiVersion) {
+                req.url = `${req.url}${Array.from(url.searchParams.keys()).length > 0 ? "&" : "?"}api-version=${options.apiVersion}`;
+            }
+            return next(req);
+        },
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * The programmatic identifier of the bearerTokenAuthenticationPolicy.
+ */
+const keyCredentialAuthenticationPolicyName = "keyCredentialAuthenticationPolicy";
+function keyCredentialAuthenticationPolicy(credential, apiKeyHeaderName) {
+    return {
+        name: keyCredentialAuthenticationPolicyName,
+        async sendRequest(request, next) {
+            request.headers.set(apiKeyHeaderName, credential.key);
+            return next(request);
+        },
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Adds a credential policy to the pipeline if a credential is provided. If none is provided, no policy is added.
+ */
+function addCredentialPipelinePolicy(pipeline, endpoint, options = {}) {
+    var _a, _b, _c, _d;
+    const { credential, clientOptions } = options;
+    if (!credential) {
+        return;
+    }
+    if (isTokenCredential(credential)) {
+        const tokenPolicy = bearerTokenAuthenticationPolicy({
+            credential,
+            scopes: (_b = (_a = clientOptions === null || clientOptions === void 0 ? void 0 : clientOptions.credentials) === null || _a === void 0 ? void 0 : _a.scopes) !== null && _b !== void 0 ? _b : `${endpoint}/.default`,
+        });
+        pipeline.addPolicy(tokenPolicy);
+    }
+    else if (isKeyCredential(credential)) {
+        if (!((_c = clientOptions === null || clientOptions === void 0 ? void 0 : clientOptions.credentials) === null || _c === void 0 ? void 0 : _c.apiKeyHeaderName)) {
+            throw new Error(`Missing API Key Header Name`);
+        }
+        const keyPolicy = keyCredentialAuthenticationPolicy(credential, (_d = clientOptions === null || clientOptions === void 0 ? void 0 : clientOptions.credentials) === null || _d === void 0 ? void 0 : _d.apiKeyHeaderName);
+        pipeline.addPolicy(keyPolicy);
+    }
+}
+/**
+ * Creates a default rest pipeline to re-use accross Rest Level Clients
+ */
+function createDefaultPipeline(endpoint, credential, options = {}) {
+    const pipeline = createPipelineFromOptions(options);
+    pipeline.addPolicy(apiVersionPolicy(options));
+    addCredentialPipelinePolicy(pipeline, endpoint, { credential, clientOptions: options });
+    return pipeline;
+}
+function isKeyCredential(credential) {
+    return credential.key !== undefined;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Helper function to convert OperationOptions to RequestParameters
+ * @param options - the options that are used by Modular layer to send the request
+ * @returns the result of the conversion in RequestParameters of RLC layer
+ */
+function operationOptionsToRequestParameters(options) {
+    return operationOptionsToRequestParameters$1(options);
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Function to wrap RequestParameters so that we get the legacy onResponse behavior in core-client-rest
+ */
+function wrapRequestParameters(parameters) {
+    if (parameters.onResponse) {
+        return Object.assign(Object.assign({}, parameters), { onResponse(rawResponse, error) {
+                var _a;
+                (_a = parameters.onResponse) === null || _a === void 0 ? void 0 : _a.call(parameters, rawResponse, error, error);
+            } });
+    }
+    return parameters;
+}
+function getClient(endpoint, credentialsOrPipelineOptions, clientOptions = {}) {
+    let credentials;
+    if (credentialsOrPipelineOptions) {
+        if (isCredential(credentialsOrPipelineOptions)) {
+            credentials = credentialsOrPipelineOptions;
+        }
+        else {
+            clientOptions = credentialsOrPipelineOptions !== null && credentialsOrPipelineOptions !== void 0 ? credentialsOrPipelineOptions : {};
+        }
+    }
+    const pipeline = createDefaultPipeline(endpoint, credentials, clientOptions);
+    const tspClient = getClient$1(endpoint, Object.assign(Object.assign({}, clientOptions), { pipeline }));
+    const client = (path, ...args) => {
+        return {
+            get: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).get(wrapRequestParameters(requestOptions));
+            },
+            post: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).post(wrapRequestParameters(requestOptions));
+            },
+            put: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).put(wrapRequestParameters(requestOptions));
+            },
+            patch: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).patch(wrapRequestParameters(requestOptions));
+            },
+            delete: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).delete(wrapRequestParameters(requestOptions));
+            },
+            head: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).head(wrapRequestParameters(requestOptions));
+            },
+            options: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).options(wrapRequestParameters(requestOptions));
+            },
+            trace: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).trace(wrapRequestParameters(requestOptions));
+            },
+        };
+    };
+    return {
+        path: client,
+        pathUnchecked: client,
+        pipeline: tspClient.pipeline,
+    };
+}
+function isCredential(param) {
+    return isKeyCredential$1(param) || isTokenCredential(param);
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const SDK_VERSION = "4.11.2";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/** Creates a new Azure Key Vault Secrets client context. */
+function createKeyVault(endpointParam, credential, options = {}) {
+    const endpointUrl = options.endpoint ?? options.baseUrl ?? String(endpointParam);
+    const prefixFromOptions = options?.userAgentOptions?.userAgentPrefix;
+    const userAgentInfo = `azsdk-js-keyvault-secrets/${SDK_VERSION}`;
+    const userAgentPrefix = prefixFromOptions
+        ? `${prefixFromOptions} azsdk-js-api ${userAgentInfo}`
+        : `azsdk-js-api ${userAgentInfo}`;
+    const { apiVersion: _, ...updatedOptions } = {
+        ...options,
+        userAgentOptions: { userAgentPrefix },
+        loggingOptions: { logger: options.loggingOptions?.logger ?? logger$1.info },
+        credentials: {
+            scopes: options.credentials?.scopes ?? ["https://vault.azure.net/.default"],
+        },
+    };
+    const clientContext = getClient(endpointUrl, credential, updatedOptions);
+    clientContext.pipeline.removePolicy({ name: "ApiVersionPolicy" });
+    const apiVersion = options.apiVersion ?? "2025-07-01";
+    clientContext.pipeline.addPolicy({
+        name: "ClientApiVersionPolicy",
+        sendRequest: (req, next) => {
+            // Use the apiVersion defined in request url directly
+            // Append one if there is no apiVersion and we have one at client options
+            const url = new URL(req.url);
+            if (!url.searchParams.get("api-version")) {
+                req.url = `${req.url}${Array.from(url.searchParams.keys()).length > 0 ? "&" : "?"}api-version=${apiVersion}`;
+            }
+            return next(req);
+        },
+    });
+    return { ...clientContext, apiVersion };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+function secretSetParametersSerializer(item) {
+    return {
+        value: item["value"],
+        tags: item["tags"],
+        contentType: item["contentType"],
+        attributes: !item["secretAttributes"]
+            ? item["secretAttributes"]
+            : secretAttributesSerializer(item["secretAttributes"]),
+    };
+}
+function secretAttributesSerializer(item) {
+    return {
+        enabled: item["enabled"],
+        nbf: !item["notBefore"] ? item["notBefore"] : (item["notBefore"].getTime() / 1000) | 0,
+        exp: !item["expires"] ? item["expires"] : (item["expires"].getTime() / 1000) | 0,
+    };
+}
+function secretAttributesDeserializer(item) {
+    return {
+        enabled: item["enabled"],
+        notBefore: !item["nbf"] ? item["nbf"] : new Date(item["nbf"] * 1000),
+        expires: !item["exp"] ? item["exp"] : new Date(item["exp"] * 1000),
+        created: !item["created"] ? item["created"] : new Date(item["created"] * 1000),
+        updated: !item["updated"] ? item["updated"] : new Date(item["updated"] * 1000),
+        recoverableDays: item["recoverableDays"],
+        recoveryLevel: item["recoveryLevel"],
+    };
+}
+/** Reflects the deletion recovery level currently in effect for secrets in the current vault. If it contains 'Purgeable', the secret can be permanently deleted by a privileged user; otherwise, only the system can purge the secret, at the end of the retention interval. */
+var KnownDeletionRecoveryLevel;
+(function (KnownDeletionRecoveryLevel) {
+    /** Denotes a vault state in which deletion is an irreversible operation, without the possibility for recovery. This level corresponds to no protection being available against a Delete operation; the data is irretrievably lost upon accepting a Delete operation at the entity level or higher (vault, resource group, subscription etc.) */
+    KnownDeletionRecoveryLevel["Purgeable"] = "Purgeable";
+    /** Denotes a vault state in which deletion is recoverable, and which also permits immediate and permanent deletion (i.e. purge). This level guarantees the recoverability of the deleted entity during the retention interval (90 days), unless a Purge operation is requested, or the subscription is cancelled. System wil permanently delete it after 90 days, if not recovered */
+    KnownDeletionRecoveryLevel["RecoverablePurgeable"] = "Recoverable+Purgeable";
+    /** Denotes a vault state in which deletion is recoverable without the possibility for immediate and permanent deletion (i.e. purge). This level guarantees the recoverability of the deleted entity during the retention interval (90 days) and while the subscription is still available. System wil permanently delete it after 90 days, if not recovered */
+    KnownDeletionRecoveryLevel["Recoverable"] = "Recoverable";
+    /** Denotes a vault and subscription state in which deletion is recoverable within retention interval (90 days), immediate and permanent deletion (i.e. purge) is not permitted, and in which the subscription itself  cannot be permanently canceled. System wil permanently delete it after 90 days, if not recovered */
+    KnownDeletionRecoveryLevel["RecoverableProtectedSubscription"] = "Recoverable+ProtectedSubscription";
+    /** Denotes a vault state in which deletion is recoverable, and which also permits immediate and permanent deletion (i.e. purge when 7 <= SoftDeleteRetentionInDays < 90). This level guarantees the recoverability of the deleted entity during the retention interval, unless a Purge operation is requested, or the subscription is cancelled. */
+    KnownDeletionRecoveryLevel["CustomizedRecoverablePurgeable"] = "CustomizedRecoverable+Purgeable";
+    /** Denotes a vault state in which deletion is recoverable without the possibility for immediate and permanent deletion (i.e. purge when 7 <= SoftDeleteRetentionInDays < 90).This level guarantees the recoverability of the deleted entity during the retention interval and while the subscription is still available. */
+    KnownDeletionRecoveryLevel["CustomizedRecoverable"] = "CustomizedRecoverable";
+    /** Denotes a vault and subscription state in which deletion is recoverable, immediate and permanent deletion (i.e. purge) is not permitted, and in which the subscription itself cannot be permanently canceled when 7 <= SoftDeleteRetentionInDays < 90. This level guarantees the recoverability of the deleted entity during the retention interval, and also reflects the fact that the subscription itself cannot be cancelled. */
+    KnownDeletionRecoveryLevel["CustomizedRecoverableProtectedSubscription"] = "CustomizedRecoverable+ProtectedSubscription";
+})(KnownDeletionRecoveryLevel || (KnownDeletionRecoveryLevel = {}));
+function secretBundleDeserializer(item) {
+    return {
+        value: item["value"],
+        id: item["id"],
+        contentType: item["contentType"],
+        attributes: !item["attributes"]
+            ? item["attributes"]
+            : secretAttributesDeserializer(item["attributes"]),
+        tags: item["tags"],
+        kid: item["kid"],
+        managed: item["managed"],
+        previousVersion: item["previousVersion"],
+    };
+}
+function keyVaultErrorDeserializer(item) {
+    return {
+        error: !item["error"] ? item["error"] : _keyVaultErrorErrorDeserializer(item["error"]),
+    };
+}
+function _keyVaultErrorErrorDeserializer(item) {
+    return {
+        code: item["code"],
+        message: item["message"],
+        innerError: !item["innererror"]
+            ? item["innererror"]
+            : _keyVaultErrorErrorDeserializer(item["innererror"]),
+    };
+}
+function deletedSecretBundleDeserializer(item) {
+    return {
+        value: item["value"],
+        id: item["id"],
+        contentType: item["contentType"],
+        attributes: !item["attributes"]
+            ? item["attributes"]
+            : secretAttributesDeserializer(item["attributes"]),
+        tags: item["tags"],
+        kid: item["kid"],
+        managed: item["managed"],
+        previousVersion: item["previousVersion"],
+        recoveryId: item["recoveryId"],
+        scheduledPurgeDate: !item["scheduledPurgeDate"]
+            ? item["scheduledPurgeDate"]
+            : new Date(item["scheduledPurgeDate"] * 1000),
+        deletedDate: !item["deletedDate"] ? item["deletedDate"] : new Date(item["deletedDate"] * 1000),
+    };
+}
+function secretUpdateParametersSerializer(item) {
+    return {
+        contentType: item["contentType"],
+        attributes: !item["secretAttributes"]
+            ? item["secretAttributes"]
+            : secretAttributesSerializer(item["secretAttributes"]),
+        tags: item["tags"],
+    };
+}
+function _secretListResultDeserializer(item) {
+    return {
+        value: !item["value"] ? item["value"] : secretItemArrayDeserializer(item["value"]),
+        nextLink: item["nextLink"],
+    };
+}
+function secretItemArrayDeserializer(result) {
+    return result.map((item) => {
+        return secretItemDeserializer(item);
+    });
+}
+function secretItemDeserializer(item) {
+    return {
+        id: item["id"],
+        attributes: !item["attributes"]
+            ? item["attributes"]
+            : secretAttributesDeserializer(item["attributes"]),
+        tags: item["tags"],
+        contentType: item["contentType"],
+        managed: item["managed"],
+    };
+}
+function _deletedSecretListResultDeserializer(item) {
+    return {
+        value: !item["value"] ? item["value"] : deletedSecretItemArrayDeserializer(item["value"]),
+        nextLink: item["nextLink"],
+    };
+}
+function deletedSecretItemArrayDeserializer(result) {
+    return result.map((item) => {
+        return deletedSecretItemDeserializer(item);
+    });
+}
+function deletedSecretItemDeserializer(item) {
+    return {
+        id: item["id"],
+        attributes: !item["attributes"]
+            ? item["attributes"]
+            : secretAttributesDeserializer(item["attributes"]),
+        tags: item["tags"],
+        contentType: item["contentType"],
+        managed: item["managed"],
+        recoveryId: item["recoveryId"],
+        scheduledPurgeDate: !item["scheduledPurgeDate"]
+            ? item["scheduledPurgeDate"]
+            : new Date(item["scheduledPurgeDate"] * 1000),
+        deletedDate: !item["deletedDate"] ? item["deletedDate"] : new Date(item["deletedDate"] * 1000),
+    };
+}
+function backupSecretResultDeserializer(item) {
+    return {
+        value: !item["value"]
+            ? item["value"]
+            : typeof item["value"] === "string"
+                ? stringToUint8Array(item["value"], "base64url")
+                : item["value"],
+    };
+}
+function secretRestoreParametersSerializer(item) {
+    return { value: uint8ArrayToString(item["secretBundleBackup"], "base64url") };
+}
+/** Known values of {@link ContentType} that the service accepts. */
+var KnownContentType;
+(function (KnownContentType) {
+    /** The PKCS#12 (PFX) certificate format. */
+    KnownContentType["PFX"] = "application/x-pkcs12";
+    /** The PEM certificate format. */
+    KnownContentType["PEM"] = "application/x-pem-file";
+})(KnownContentType || (KnownContentType = {}));
+/** The available API versions. */
+var KnownVersions;
+(function (KnownVersions) {
+    /** The 7.5 API version. */
+    KnownVersions["V75"] = "7.5";
+    /** The 7.6-preview.2 API version. */
+    KnownVersions["V76Preview2"] = "7.6-preview.2";
+    /** The 7.6 API version. */
+    KnownVersions["V76"] = "7.6";
+    /** The 2025-07-01 API version. */
+    KnownVersions["V20250701"] = "2025-07-01";
+})(KnownVersions || (KnownVersions = {}));
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Helper to paginate results in a generic way and return a PagedAsyncIterableIterator
+ */
+function buildPagedAsyncIterator(client, getInitialResponse, processResponseBody, expectedStatuses, options = {}) {
+    const itemName = options.itemName ?? "value";
+    const nextLinkName = options.nextLinkName ?? "nextLink";
+    const pagedResult = {
+        getPage: async (pageLink) => {
+            const result = pageLink === undefined
+                ? await getInitialResponse()
+                : await client.pathUnchecked(pageLink).get();
+            checkPagingRequest(result, expectedStatuses);
+            const results = await processResponseBody(result);
+            const nextLink = getNextLink(results, nextLinkName);
+            const values = getElements(results, itemName);
+            return {
+                page: values,
+                nextPageLink: nextLink,
+            };
+        },
+        byPage: (settings) => {
+            const { continuationToken } = settings ?? {};
+            return getPageAsyncIterator(pagedResult, {
+                pageLink: continuationToken,
+            });
+        },
+    };
+    return getPagedAsyncIterator(pagedResult);
+}
+/**
+ * returns an async iterator that iterates over results. It also has a `byPage`
+ * method that returns pages of items at once.
+ *
+ * @param pagedResult - an object that specifies how to get pages.
+ * @returns a paged async iterator that iterates over results.
+ */
+function getPagedAsyncIterator(pagedResult) {
+    const iter = getItemAsyncIterator(pagedResult);
+    return {
+        next() {
+            return iter.next();
+        },
+        [Symbol.asyncIterator]() {
+            return this;
+        },
+        byPage: pagedResult?.byPage ??
+            ((settings) => {
+                const { continuationToken } = settings ?? {};
+                return getPageAsyncIterator(pagedResult, {
+                    pageLink: continuationToken,
+                });
+            }),
+    };
+}
+async function* getItemAsyncIterator(pagedResult) {
+    const pages = getPageAsyncIterator(pagedResult);
+    for await (const page of pages) {
+        yield* page;
+    }
+}
+async function* getPageAsyncIterator(pagedResult, options = {}) {
+    const { pageLink } = options;
+    let response = await pagedResult.getPage(pageLink ?? pagedResult.firstPageLink);
+    if (!response) {
+        return;
+    }
+    let result = response.page;
+    result.continuationToken = response.nextPageLink;
+    yield result;
+    while (response.nextPageLink) {
+        response = await pagedResult.getPage(response.nextPageLink);
+        if (!response) {
+            return;
+        }
+        result = response.page;
+        result.continuationToken = response.nextPageLink;
+        yield result;
+    }
+}
+/**
+ * Gets for the value of nextLink in the body
+ */
+function getNextLink(body, nextLinkName) {
+    if (!nextLinkName) {
+        return undefined;
+    }
+    const nextLink = body[nextLinkName];
+    if (typeof nextLink !== "string" && typeof nextLink !== "undefined" && nextLink !== null) {
+        throw new RestError(`Body Property ${nextLinkName} should be a string or undefined or null but got ${typeof nextLink}`);
+    }
+    if (nextLink === null) {
+        return undefined;
+    }
+    return nextLink;
+}
+/**
+ * Gets the elements of the current request in the body.
+ */
+function getElements(body, itemName) {
+    const value = body[itemName];
+    if (!Array.isArray(value)) {
+        throw new RestError(`Couldn't paginate response\n Body doesn't contain an array property with name: ${itemName}`);
+    }
+    return value ?? [];
+}
+/**
+ * Checks if a request failed
+ */
+function checkPagingRequest(response, expectedStatuses) {
+    if (!expectedStatuses.includes(response.status)) {
+        throw createRestError(`Pagination failed with unexpected statusCode ${response.status}`, response);
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+// ---------------------
+// helpers
+// ---------------------
+function encodeComponent(val, reserved, op) {
+    return (reserved ?? op === "+") || op === "#"
+        ? encodeReservedComponent(val)
+        : encodeRFC3986URIComponent(val);
+}
+function encodeReservedComponent(str) {
+    return str
+        .split(/(%[0-9A-Fa-f]{2})/g)
+        .map((part) => (!/%[0-9A-Fa-f]/.test(part) ? encodeURI(part) : part))
+        .join("");
+}
+function encodeRFC3986URIComponent(str) {
+    return encodeURIComponent(str).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+}
+function isDefined(val) {
+    return val !== undefined && val !== null;
+}
+function getNamedAndIfEmpty(op) {
+    return [!!op && [";", "?", "&"].includes(op), !!op && ["?", "&"].includes(op) ? "=" : ""];
+}
+function getFirstOrSep(op, isFirst = false) {
+    if (isFirst) {
+        return !op || op === "+" ? "" : op;
+    }
+    else if (!op || op === "+" || op === "#") {
+        return ",";
+    }
+    else if (op === "?") {
+        return "&";
+    }
+    else {
+        return op;
+    }
+}
+function getExpandedValue(option) {
+    let isFirst = option.isFirst;
+    const { op, varName, varValue: value, reserved } = option;
+    const vals = [];
+    const [named, ifEmpty] = getNamedAndIfEmpty(op);
+    if (Array.isArray(value)) {
+        for (const val of value.filter(isDefined)) {
+            // prepare the following parts: separator, varName, value
+            vals.push(`${getFirstOrSep(op, isFirst)}`);
+            if (named && varName) {
+                vals.push(`${encodeURIComponent(varName)}`);
+                val === "" ? vals.push(ifEmpty) : vals.push("=");
+            }
+            vals.push(encodeComponent(val, reserved, op));
+            isFirst = false;
+        }
+    }
+    else if (typeof value === "object") {
+        for (const key of Object.keys(value)) {
+            const val = value[key];
+            if (!isDefined(val)) {
+                continue;
+            }
+            // prepare the following parts: separator, key, value
+            vals.push(`${getFirstOrSep(op, isFirst)}`);
+            if (key) {
+                vals.push(`${encodeURIComponent(key)}`);
+                named && val === "" ? vals.push(ifEmpty) : vals.push("=");
+            }
+            vals.push(encodeComponent(val, reserved, op));
+            isFirst = false;
+        }
+    }
+    return vals.join("");
+}
+function getNonExpandedValue(option) {
+    const { op, varName, varValue: value, isFirst, reserved } = option;
+    const vals = [];
+    const first = getFirstOrSep(op, isFirst);
+    const [named, ifEmpty] = getNamedAndIfEmpty(op);
+    if (named && varName) {
+        vals.push(encodeComponent(varName, reserved, op));
+        if (value === "") {
+            if (!ifEmpty) {
+                vals.push(ifEmpty);
+            }
+            return !vals.join("") ? undefined : `${first}${vals.join("")}`;
+        }
+        vals.push("=");
+    }
+    const items = [];
+    if (Array.isArray(value)) {
+        for (const val of value.filter(isDefined)) {
+            items.push(encodeComponent(val, reserved, op));
+        }
+    }
+    else if (typeof value === "object") {
+        for (const key of Object.keys(value)) {
+            if (!isDefined(value[key])) {
+                continue;
+            }
+            items.push(encodeRFC3986URIComponent(key));
+            items.push(encodeComponent(value[key], reserved, op));
+        }
+    }
+    vals.push(items.join(","));
+    return !vals.join(",") ? undefined : `${first}${vals.join("")}`;
+}
+function getVarValue(option) {
+    const { op, varName, modifier, isFirst, reserved, varValue: value } = option;
+    if (!isDefined(value)) {
+        return undefined;
+    }
+    else if (["string", "number", "boolean"].includes(typeof value)) {
+        let val = value.toString();
+        const [named, ifEmpty] = getNamedAndIfEmpty(op);
+        const vals = [getFirstOrSep(op, isFirst)];
+        if (named && varName) {
+            // No need to encode varName considering it is already encoded
+            vals.push(varName);
+            val === "" ? vals.push(ifEmpty) : vals.push("=");
+        }
+        if (modifier && modifier !== "*") {
+            val = val.substring(0, parseInt(modifier, 10));
+        }
+        vals.push(encodeComponent(val, reserved, op));
+        return vals.join("");
+    }
+    else if (modifier === "*") {
+        return getExpandedValue(option);
+    }
+    else {
+        return getNonExpandedValue(option);
+    }
+}
+// ---------------------------------------------------------------------------------------------------
+// This is an implementation of RFC 6570 URI Template: https://datatracker.ietf.org/doc/html/rfc6570.
+// ---------------------------------------------------------------------------------------------------
+function expandUrlTemplate(template, context, option) {
+    return template.replace(/\{([^\{\}]+)\}|([^\{\}]+)/g, (_, expr, text) => {
+        if (!expr) {
+            return encodeReservedComponent(text);
+        }
+        let op;
+        if (["+", "#", ".", "/", ";", "?", "&"].includes(expr[0])) {
+            ((op = expr[0]), (expr = expr.slice(1)));
+        }
+        const varList = expr.split(/,/g);
+        const result = [];
+        for (const varSpec of varList) {
+            const varMatch = /([^:\*]*)(?::(\d+)|(\*))?/.exec(varSpec);
+            if (!varMatch || !varMatch[1]) {
+                continue;
+            }
+            const varValue = getVarValue({
+                isFirst: result.length === 0,
+                op,
+                varValue: context[varMatch[1]],
+                varName: varMatch[1],
+                modifier: varMatch[2] || varMatch[3],
+                reserved: option?.allowReserved,
+            });
+            if (varValue) {
+                result.push(varValue);
+            }
+        }
+        return result.join("");
+    });
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+function _restoreSecretSend(context, parameters, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/secrets/restore{?api%2Dversion}", {
+        "api%2Dversion": context.apiVersion,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).post({
+        ...operationOptionsToRequestParameters(options),
+        contentType: "application/json",
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+        body: secretRestoreParametersSerializer(parameters),
+    });
+}
+async function _restoreSecretDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return secretBundleDeserializer(result.body);
+}
+/** Restores a backed up secret, and all its versions, to a vault. This operation requires the secrets/restore permission. */
+async function restoreSecret(context, parameters, options = { requestOptions: {} }) {
+    const result = await _restoreSecretSend(context, parameters, options);
+    return _restoreSecretDeserialize(result);
+}
+function _backupSecretSend(context, secretName, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/secrets/{secret-name}/backup{?api%2Dversion}", {
+        "secret-name": secretName,
+        "api%2Dversion": context.apiVersion,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).post({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _backupSecretDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return backupSecretResultDeserializer(result.body);
+}
+/** Requests that a backup of the specified secret be downloaded to the client. All versions of the secret will be downloaded. This operation requires the secrets/backup permission. */
+async function backupSecret(context, secretName, options = { requestOptions: {} }) {
+    const result = await _backupSecretSend(context, secretName, options);
+    return _backupSecretDeserialize(result);
+}
+function _recoverDeletedSecretSend(context, secretName, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/deletedsecrets/{secret-name}/recover{?api%2Dversion}", {
+        "secret-name": secretName,
+        "api%2Dversion": context.apiVersion,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).post({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _recoverDeletedSecretDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return secretBundleDeserializer(result.body);
+}
+/** Recovers the deleted secret in the specified vault. This operation can only be performed on a soft-delete enabled vault. This operation requires the secrets/recover permission. */
+async function recoverDeletedSecret(context, secretName, options = { requestOptions: {} }) {
+    const result = await _recoverDeletedSecretSend(context, secretName, options);
+    return _recoverDeletedSecretDeserialize(result);
+}
+function _purgeDeletedSecretSend(context, secretName, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/deletedsecrets/{secret-name}{?api%2Dversion}", {
+        "secret-name": secretName,
+        "api%2Dversion": context.apiVersion,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).delete({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _purgeDeletedSecretDeserialize(result) {
+    const expectedStatuses = ["204"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return;
+}
+/** The purge deleted secret operation removes the secret permanently, without the possibility of recovery. This operation can only be enabled on a soft-delete enabled vault. This operation requires the secrets/purge permission. */
+async function purgeDeletedSecret(context, secretName, options = { requestOptions: {} }) {
+    const result = await _purgeDeletedSecretSend(context, secretName, options);
+    return _purgeDeletedSecretDeserialize(result);
+}
+function _getDeletedSecretSend(context, secretName, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/deletedsecrets/{secret-name}{?api%2Dversion}", {
+        "secret-name": secretName,
+        "api%2Dversion": context.apiVersion,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getDeletedSecretDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return deletedSecretBundleDeserializer(result.body);
+}
+/** The Get Deleted Secret operation returns the specified deleted secret along with its attributes. This operation requires the secrets/get permission. */
+async function getDeletedSecret(context, secretName, options = { requestOptions: {} }) {
+    const result = await _getDeletedSecretSend(context, secretName, options);
+    return _getDeletedSecretDeserialize(result);
+}
+function _getDeletedSecretsSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/deletedsecrets{?api%2Dversion,maxresults}", {
+        "api%2Dversion": context.apiVersion,
+        maxresults: options?.maxresults,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getDeletedSecretsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return _deletedSecretListResultDeserializer(result.body);
+}
+/** The Get Deleted Secrets operation returns the secrets that have been deleted for a vault enabled for soft-delete. This operation requires the secrets/list permission. */
+function getDeletedSecrets(context, options = { requestOptions: {} }) {
+    return buildPagedAsyncIterator(context, () => _getDeletedSecretsSend(context, options), _getDeletedSecretsDeserialize, ["200"], { itemName: "value", nextLinkName: "nextLink" });
+}
+function _getSecretVersionsSend(context, secretName, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/secrets/{secret-name}/versions{?api%2Dversion,maxresults}", {
+        "secret-name": secretName,
+        "api%2Dversion": context.apiVersion,
+        maxresults: options?.maxresults,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getSecretVersionsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return _secretListResultDeserializer(result.body);
+}
+/** The full secret identifier and attributes are provided in the response. No values are returned for the secrets. This operations requires the secrets/list permission. */
+function getSecretVersions(context, secretName, options = { requestOptions: {} }) {
+    return buildPagedAsyncIterator(context, () => _getSecretVersionsSend(context, secretName, options), _getSecretVersionsDeserialize, ["200"], { itemName: "value", nextLinkName: "nextLink" });
+}
+function _getSecretsSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/secrets{?api%2Dversion,maxresults}", {
+        "api%2Dversion": context.apiVersion,
+        maxresults: options?.maxresults,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getSecretsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return _secretListResultDeserializer(result.body);
+}
+/** The Get Secrets operation is applicable to the entire vault. However, only the base secret identifier and its attributes are provided in the response. Individual secret versions are not listed in the response. This operation requires the secrets/list permission. */
+function getSecrets(context, options = { requestOptions: {} }) {
+    return buildPagedAsyncIterator(context, () => _getSecretsSend(context, options), _getSecretsDeserialize, ["200"], { itemName: "value", nextLinkName: "nextLink" });
+}
+function _getSecretSend(context, secretName, secretVersion, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/secrets/{secret-name}/{secret-version}{?api%2Dversion,outContentType}", {
+        "secret-name": secretName,
+        "secret-version": secretVersion,
+        "api%2Dversion": context.apiVersion,
+        outContentType: options?.outContentType,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getSecretDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return secretBundleDeserializer(result.body);
+}
+/** The GET operation is applicable to any secret stored in Azure Key Vault. This operation requires the secrets/get permission. */
+async function getSecret(context, secretName, secretVersion, options = { requestOptions: {} }) {
+    const result = await _getSecretSend(context, secretName, secretVersion, options);
+    return _getSecretDeserialize(result);
+}
+function _updateSecretSend(context, secretName, secretVersion, parameters, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/secrets/{secret-name}/{secret-version}{?api%2Dversion}", {
+        "secret-name": secretName,
+        "secret-version": secretVersion,
+        "api%2Dversion": context.apiVersion,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).patch({
+        ...operationOptionsToRequestParameters(options),
+        contentType: "application/json",
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+        body: secretUpdateParametersSerializer(parameters),
+    });
+}
+async function _updateSecretDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return secretBundleDeserializer(result.body);
+}
+/** The UPDATE operation changes specified attributes of an existing stored secret. Attributes that are not specified in the request are left unchanged. The value of a secret itself cannot be changed. This operation requires the secrets/set permission. */
+async function updateSecret(context, secretName, secretVersion, parameters, options = { requestOptions: {} }) {
+    const result = await _updateSecretSend(context, secretName, secretVersion, parameters, options);
+    return _updateSecretDeserialize(result);
+}
+function _deleteSecretSend(context, secretName, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/secrets/{secret-name}{?api%2Dversion}", {
+        "secret-name": secretName,
+        "api%2Dversion": context.apiVersion,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).delete({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _deleteSecretDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return deletedSecretBundleDeserializer(result.body);
+}
+/** The DELETE operation applies to any secret stored in Azure Key Vault. DELETE cannot be applied to an individual version of a secret. This operation requires the secrets/delete permission. */
+async function deleteSecret(context, secretName, options = { requestOptions: {} }) {
+    const result = await _deleteSecretSend(context, secretName, options);
+    return _deleteSecretDeserialize(result);
+}
+function _setSecretSend(context, secretName, parameters, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate("/secrets/{secret-name}{?api%2Dversion}", {
+        "secret-name": secretName,
+        "api%2Dversion": context.apiVersion,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context.path(path).put({
+        ...operationOptionsToRequestParameters(options),
+        contentType: "application/json",
+        headers: {
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+        body: secretSetParametersSerializer(parameters),
+    });
+}
+async function _setSecretDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        error.details = keyVaultErrorDeserializer(result.body);
+        throw error;
+    }
+    return secretBundleDeserializer(result.body);
+}
+/** The SET operation adds a secret to the Azure Key Vault. If the named secret already exists, Azure Key Vault creates a new version of that secret. This operation requires the secrets/set permission. */
+async function setSecret(context, secretName, parameters, options = { requestOptions: {} }) {
+    const result = await _setSecretSend(context, secretName, parameters, options);
+    return _setSecretDeserialize(result);
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+class KeyVaultClient {
+    _client;
+    /** The pipeline used by this client to make requests */
+    pipeline;
+    /** The key vault client performs cryptographic key operations and vault operations against the Key Vault service. */
+    constructor(endpointParam, credential, options = {}) {
+        const prefixFromOptions = options?.userAgentOptions?.userAgentPrefix;
+        const userAgentPrefix = prefixFromOptions
+            ? `${prefixFromOptions} azsdk-js-client`
+            : `azsdk-js-client`;
+        this._client = createKeyVault(endpointParam, credential, {
+            ...options,
+            userAgentOptions: { userAgentPrefix },
+        });
+        this.pipeline = this._client.pipeline;
+    }
+    /** Restores a backed up secret, and all its versions, to a vault. This operation requires the secrets/restore permission. */
+    restoreSecret(parameters, options = { requestOptions: {} }) {
+        return restoreSecret(this._client, parameters, options);
+    }
+    /** Requests that a backup of the specified secret be downloaded to the client. All versions of the secret will be downloaded. This operation requires the secrets/backup permission. */
+    backupSecret(secretName, options = { requestOptions: {} }) {
+        return backupSecret(this._client, secretName, options);
+    }
+    /** Recovers the deleted secret in the specified vault. This operation can only be performed on a soft-delete enabled vault. This operation requires the secrets/recover permission. */
+    recoverDeletedSecret(secretName, options = { requestOptions: {} }) {
+        return recoverDeletedSecret(this._client, secretName, options);
+    }
+    /** The purge deleted secret operation removes the secret permanently, without the possibility of recovery. This operation can only be enabled on a soft-delete enabled vault. This operation requires the secrets/purge permission. */
+    purgeDeletedSecret(secretName, options = { requestOptions: {} }) {
+        return purgeDeletedSecret(this._client, secretName, options);
+    }
+    /** The Get Deleted Secret operation returns the specified deleted secret along with its attributes. This operation requires the secrets/get permission. */
+    getDeletedSecret(secretName, options = { requestOptions: {} }) {
+        return getDeletedSecret(this._client, secretName, options);
+    }
+    /** The Get Deleted Secrets operation returns the secrets that have been deleted for a vault enabled for soft-delete. This operation requires the secrets/list permission. */
+    getDeletedSecrets(options = { requestOptions: {} }) {
+        return getDeletedSecrets(this._client, options);
+    }
+    /** The full secret identifier and attributes are provided in the response. No values are returned for the secrets. This operations requires the secrets/list permission. */
+    getSecretVersions(secretName, options = { requestOptions: {} }) {
+        return getSecretVersions(this._client, secretName, options);
+    }
+    /** The Get Secrets operation is applicable to the entire vault. However, only the base secret identifier and its attributes are provided in the response. Individual secret versions are not listed in the response. This operation requires the secrets/list permission. */
+    getSecrets(options = { requestOptions: {} }) {
+        return getSecrets(this._client, options);
+    }
+    /** The GET operation is applicable to any secret stored in Azure Key Vault. This operation requires the secrets/get permission. */
+    getSecret(secretName, secretVersion, options = { requestOptions: {} }) {
+        return getSecret(this._client, secretName, secretVersion, options);
+    }
+    /** The UPDATE operation changes specified attributes of an existing stored secret. Attributes that are not specified in the request are left unchanged. The value of a secret itself cannot be changed. This operation requires the secrets/set permission. */
+    updateSecret(secretName, secretVersion, parameters, options = { requestOptions: {} }) {
+        return updateSecret(this._client, secretName, secretVersion, parameters, options);
+    }
+    /** The DELETE operation applies to any secret stored in Azure Key Vault. DELETE cannot be applied to an individual version of a secret. This operation requires the secrets/delete permission. */
+    deleteSecret(secretName, options = { requestOptions: {} }) {
+        return deleteSecret(this._client, secretName, options);
+    }
+    /** The SET operation adds a secret to the Azure Key Vault. If the named secret already exists, Azure Key Vault creates a new version of that secret. This operation requires the secrets/set permission. */
+    setSecret(secretName, parameters, options = { requestOptions: {} }) {
+        return setSecret(this._client, secretName, parameters, options);
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const validWWWAuthenticateProperties = [
+    "authorization",
+    "authorization_url",
+    "resource",
+    "scope",
+    "tenantId",
+    "claims",
+    "error",
+];
+/**
+ * Parses an WWW-Authenticate response header.
+ * This transforms a string value like:
+ * `Bearer authorization="https://some.url/tenantId", resource="https://some.url"`
+ * into an object like:
+ * `{ authorization: "https://some.url/tenantId", resource: "https://some.url" }`
+ * @param headerValue - String value in the WWW-Authenticate header
+ */
+function parseWWWAuthenticateHeader(headerValue) {
+    const pairDelimiter = /,? +/;
+    const parsed = headerValue.split(pairDelimiter).reduce((kvPairs, p) => {
+        if (p.match(/\w="/)) {
+            // 'sampleKey="sample_value"' -> [sampleKey, "sample_value"] -> { sampleKey: sample_value }
+            const [key, ...value] = p.split("=");
+            if (validWWWAuthenticateProperties.includes(key)) {
+                // The values will be wrapped in quotes, which need to be stripped out.
+                return { ...kvPairs, [key]: value.join("=").slice(1, -1) };
+            }
+        }
+        return kvPairs;
+    }, {});
+    // Finally, we pull the tenantId from the authorization header to support multi-tenant authentication.
+    if (parsed.authorization) {
+        try {
+            const tenantId = new URL(parsed.authorization).pathname.substring(1);
+            if (tenantId) {
+                parsed.tenantId = tenantId;
+            }
+        }
+        catch (_) {
+            throw new Error(`The challenge authorization URI '${parsed.authorization}' is invalid.`);
+        }
+    }
+    return parsed;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+// Default options for the cycler if none are provided
+const DEFAULT_CYCLER_OPTIONS = {
+    forcedRefreshWindowInMs: 1000, // Force waiting for a refresh 1s before the token expires
+    retryIntervalInMs: 3000, // Allow refresh attempts every 3s
+    refreshWindowInMs: 1000 * 60 * 2, // Start refreshing 2m before expiry
+};
+/**
+ * Converts an an unreliable access token getter (which may resolve with null)
+ * into an AccessTokenGetter by retrying the unreliable getter in a regular
+ * interval.
+ *
+ * @param getAccessToken - A function that produces a promise of an access token that may fail by returning null.
+ * @param retryIntervalInMs - The time (in milliseconds) to wait between retry attempts.
+ * @param refreshTimeout - The timestamp after which the refresh attempt will fail, throwing an exception.
+ * @returns - A promise that, if it resolves, will resolve with an access token.
+ */
+async function beginRefresh(getAccessToken, retryIntervalInMs, refreshTimeout) {
+    // This wrapper handles exceptions gracefully as long as we haven't exceeded
+    // the timeout.
+    async function tryGetAccessToken() {
+        if (Date.now() < refreshTimeout) {
+            try {
+                return await getAccessToken();
+            }
+            catch {
+                return null;
+            }
+        }
+        else {
+            const finalToken = await getAccessToken();
+            // Timeout is up, so throw if it's still null
+            if (finalToken === null) {
+                throw new Error("Failed to refresh access token.");
+            }
+            return finalToken;
+        }
+    }
+    let token = await tryGetAccessToken();
+    while (token === null) {
+        await delay$1(retryIntervalInMs);
+        token = await tryGetAccessToken();
+    }
+    return token;
+}
+/**
+ * Creates a token cycler from a credential, scopes, and optional settings.
+ *
+ * A token cycler represents a way to reliably retrieve a valid access token
+ * from a TokenCredential. It will handle initializing the token, refreshing it
+ * when it nears expiration, and synchronizes refresh attempts to avoid
+ * concurrency hazards.
+ *
+ * @param credential - the underlying TokenCredential that provides the access
+ * token
+ * @param tokenCyclerOptions - optionally override default settings for the cycler
+ *
+ * @returns - a function that reliably produces a valid access token
+ */
+function createTokenCycler(credential, tokenCyclerOptions) {
+    let refreshWorker = null;
+    let token = null;
+    let tenantId;
+    const options = {
+        ...DEFAULT_CYCLER_OPTIONS,
+        ...tokenCyclerOptions,
+    };
+    /**
+     * This little holder defines several predicates that we use to construct
+     * the rules of refreshing the token.
+     */
+    const cycler = {
+        /**
+         * Produces true if a refresh job is currently in progress.
+         */
+        get isRefreshing() {
+            return refreshWorker !== null;
+        },
+        /**
+         * Produces true if the cycler SHOULD refresh (we are within the refresh
+         * window and not already refreshing)
+         */
+        get shouldRefresh() {
+            if (cycler.isRefreshing) {
+                return false;
+            }
+            if (token?.refreshAfterTimestamp && token.refreshAfterTimestamp < Date.now()) {
+                return true;
+            }
+            return (token?.expiresOnTimestamp ?? 0) - options.refreshWindowInMs < Date.now();
+        },
+        /**
+         * Produces true if the cycler MUST refresh (null or nearly-expired
+         * token).
+         */
+        get mustRefresh() {
+            return (token === null || token.expiresOnTimestamp - options.forcedRefreshWindowInMs < Date.now());
+        },
+    };
+    /**
+     * Starts a refresh job or returns the existing job if one is already
+     * running.
+     */
+    function refresh(scopes, getTokenOptions) {
+        if (!cycler.isRefreshing) {
+            // We bind `scopes` here to avoid passing it around a lot
+            const tryGetAccessToken = () => credential.getToken(scopes, getTokenOptions);
+            // Take advantage of promise chaining to insert an assignment to `token`
+            // before the refresh can be considered done.
+            refreshWorker = beginRefresh(tryGetAccessToken, options.retryIntervalInMs, 
+            // If we don't have a token, then we should timeout immediately
+            token?.expiresOnTimestamp ?? Date.now())
+                .then((_token) => {
+                refreshWorker = null;
+                token = _token;
+                tenantId = getTokenOptions.tenantId;
+                return token;
+            })
+                .catch((reason) => {
+                // We also should reset the refresher if we enter a failed state.  All
+                // existing awaiters will throw, but subsequent requests will start a
+                // new retry chain.
+                refreshWorker = null;
+                token = null;
+                tenantId = undefined;
+                throw reason;
+            });
+        }
+        return refreshWorker;
+    }
+    return async (scopes, tokenOptions) => {
+        //
+        // Simple rules:
+        // - If we MUST refresh, then return the refresh task, blocking
+        //   the pipeline until a token is available.
+        // - If we SHOULD refresh, then run refresh but don't return it
+        //   (we can still use the cached token).
+        // - Return the token, since it's fine if we didn't return in
+        //   step 1.
+        //
+        const hasClaimChallenge = Boolean(tokenOptions.claims);
+        const tenantIdChanged = tenantId !== tokenOptions.tenantId;
+        if (hasClaimChallenge) {
+            // If we've received a claim, we know the existing token isn't valid
+            // We want to clear it so that that refresh worker won't use the old expiration time as a timeout
+            token = null;
+        }
+        // If the tenantId passed in token options is different to the one we have
+        // Or if we are in claim challenge and the token was rejected and a new access token need to be issued, we need to
+        // refresh the token with the new tenantId or token.
+        const mustRefresh = tenantIdChanged || hasClaimChallenge || cycler.mustRefresh;
+        if (mustRefresh) {
+            return refresh(scopes, tokenOptions);
+        }
+        if (cycler.shouldRefresh) {
+            refresh(scopes, tokenOptions);
+        }
+        return token;
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const logger = createClientLogger("keyvault-common");
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+function verifyChallengeResource(scope, request) {
+    let scopeAsUrl;
+    try {
+        scopeAsUrl = new URL(scope);
+    }
+    catch (e) {
+        throw new Error(`The challenge contains invalid scope '${scope}'`);
+    }
+    const requestUrl = new URL(request.url);
+    if (!requestUrl.hostname.endsWith(`.${scopeAsUrl.hostname}`)) {
+        throw new Error(`The challenge resource '${scopeAsUrl.hostname}' does not match the requested domain. Set disableChallengeResourceVerification to true in your client options to disable. See https://aka.ms/azsdk/blog/vault-uri for more information.`);
+    }
+}
+/**
+ * Name of the Key Vault authentication policy.
+ */
+const keyVaultAuthenticationPolicyName = "keyVaultAuthenticationPolicy";
+/**
+ * A custom implementation of the bearer-token authentication policy that handles Key Vault and CAE challenges.
+ *
+ * Key Vault supports other authentication schemes, but we ensure challenge authentication
+ * is used by first sending a copy of the request, without authorization or content.
+ *
+ * when the challenge is received, it will be authenticated and used to send the original
+ * request with authorization.
+ *
+ * Following the first request of a client, follow-up requests will get the cached token
+ * if possible.
+ *
+ */
+function keyVaultAuthenticationPolicy(credential, options = {}) {
+    const { disableChallengeResourceVerification } = options;
+    let challengeState = { status: "none" };
+    const getAccessToken = createTokenCycler(credential);
+    function requestToOptions(request) {
+        return {
+            abortSignal: request.abortSignal,
+            requestOptions: {
+                timeout: request.timeout > 0 ? request.timeout : undefined,
+            },
+            tracingOptions: request.tracingOptions,
+        };
+    }
+    async function authorizeRequest(request) {
+        const requestOptions = requestToOptions(request);
+        switch (challengeState.status) {
+            case "none":
+                challengeState = {
+                    status: "started",
+                    originalBody: request.body,
+                };
+                request.body = null;
+                break;
+            case "started":
+                break; // Retry, we should not overwrite the original body
+            case "complete": {
+                const token = await getAccessToken(challengeState.scopes, {
+                    ...requestOptions,
+                    enableCae: true,
+                    tenantId: challengeState.tenantId,
+                });
+                if (token) {
+                    request.headers.set("authorization", `Bearer ${token.token}`);
+                }
+                break;
+            }
+        }
+    }
+    async function handleChallenge(request, response, next) {
+        // If status is not 401, this is a no-op
+        if (response.status !== 401) {
+            return response;
+        }
+        if (request.body === null && challengeState.status === "started") {
+            // Reset the original body before doing anything else.
+            // Note: If successful status will be "complete", otherwise "none" will
+            // restart the process.
+            request.body = challengeState.originalBody;
+        }
+        const getTokenOptions = requestToOptions(request);
+        const challenge = response.headers.get("WWW-Authenticate");
+        if (!challenge) {
+            logger.warning("keyVaultAuthentication policy encountered a 401 response without a corresponding WWW-Authenticate header. This is unexpected. Not handling the 401 response.");
+            return response;
+        }
+        const parsedChallenge = parseWWWAuthenticateHeader(challenge);
+        const scope = parsedChallenge.resource
+            ? parsedChallenge.resource + "/.default"
+            : parsedChallenge.scope;
+        if (!scope) {
+            // Cannot handle this kind of challenge here (if scope is not present, may be a CAE challenge)
+            return response;
+        }
+        if (!disableChallengeResourceVerification) {
+            verifyChallengeResource(scope, request);
+        }
+        const accessToken = await getAccessToken([scope], {
+            ...getTokenOptions,
+            enableCae: true,
+            tenantId: parsedChallenge.tenantId,
+        });
+        if (!accessToken) {
+            // No access token provided, treat as no-op
+            return response;
+        }
+        request.headers.set("Authorization", `Bearer ${accessToken.token}`);
+        challengeState = {
+            status: "complete",
+            scopes: [scope],
+            tenantId: parsedChallenge.tenantId,
+        };
+        // We have a token now, so try send the request again
+        return next(request);
+    }
+    async function handleCaeChallenge(request, response, next) {
+        // Cannot handle CAE challenge if a regular challenge has not been completed first
+        if (challengeState.status !== "complete") {
+            return response;
+        }
+        // If status is not 401, this is a no-op
+        if (response.status !== 401) {
+            return response;
+        }
+        const getTokenOptions = requestToOptions(request);
+        const challenge = response.headers.get("WWW-Authenticate");
+        if (!challenge) {
+            return response;
+        }
+        const { claims: base64EncodedClaims, error } = parseWWWAuthenticateHeader(challenge);
+        if (error !== "insufficient_claims" || base64EncodedClaims === undefined) {
+            return response;
+        }
+        const claims = atob(base64EncodedClaims);
+        const accessToken = await getAccessToken(challengeState.scopes, {
+            ...getTokenOptions,
+            enableCae: true,
+            tenantId: challengeState.tenantId,
+            claims,
+        });
+        request.headers.set("Authorization", `Bearer ${accessToken.token}`);
+        return next(request);
+    }
+    async function sendRequest(request, next) {
+        // Add token if possible
+        await authorizeRequest(request);
+        // Try send request (first attempt)
+        let response = await next(request);
+        // Handle standard challenge if present
+        response = await handleChallenge(request, response, next);
+        // Handle CAE challenge if present
+        response = await handleCaeChallenge(request, response, next);
+        return response;
+    }
+    return {
+        name: keyVaultAuthenticationPolicyName,
+        sendRequest,
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Parses a Key Vault identifier into its components.
+ *
+ * @param collection - The collection of the Key Vault identifier.
+ * @param identifier - The Key Vault identifier to be parsed.
+ */
+function parseKeyVaultIdentifier(collection, identifier) {
+    if (typeof collection !== "string" || !(collection = collection.trim())) {
+        throw new Error("Invalid collection argument");
+    }
+    if (typeof identifier !== "string" || !(identifier = identifier.trim())) {
+        throw new Error("Invalid identifier argument");
+    }
+    let baseUri;
+    try {
+        baseUri = new URL(identifier);
+    }
+    catch (e) {
+        throw new Error(`Invalid ${collection} identifier: ${identifier}. Not a valid URI`);
+    }
+    // Path is of the form '/collection/name[/version]'
+    const segments = (baseUri.pathname || "").split("/");
+    if (segments.length !== 3 && segments.length !== 4) {
+        throw new Error(`Invalid ${collection} identifier: ${identifier}. Bad number of segments: ${segments.length}`);
+    }
+    if (collection !== segments[1]) {
+        throw new Error(`Invalid ${collection} identifier: ${identifier}. segment [1] should be "${collection}", found "${segments[1]}"`);
+    }
+    const vaultUrl = `${baseUri.protocol}//${baseUri.host}`;
+    const name = segments[2];
+    const version = segments.length === 4 ? segments[3] : undefined;
+    return {
+        vaultUrl,
+        name,
+        version,
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * The latest supported KeyVault service API version
+ */
+const LATEST_API_VERSION = "2025-07-01";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Parses the given Key Vault Secret Id. An example is:
+ *
+ *   https://<keyvault-name>.vault.azure.net/secrets/<secret-name>/<unique-version-id>
+ *
+ * On parsing the above Id, this function returns:
+ *```ts snippet:ignore
+ *   {
+ *      sourceId: "https://<keyvault-name>.vault.azure.net/secrets/<secret-name>/<unique-version-id>",
+ *      vaultUrl: "https://<keyvault-name>.vault.azure.net",
+ *      version: "<unique-version-id>",
+ *      name: "<secret-name>"
+ *   }
+ *```
+ * @param id - The Id of the Key Vault Secret.
+ */
+function parseKeyVaultSecretIdentifier(id) {
+    const urlParts = id.split("/");
+    const collection = urlParts[3];
+    return {
+        sourceId: id,
+        ...parseKeyVaultIdentifier(collection, id),
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * @internal
+ * Shapes the exposed {@link KeyVaultKey} based on either a received secret bundle or deleted secret bundle.
+ */
+function getSecretFromSecretBundle(bundle) {
+    const secretBundle = bundle;
+    const deletedSecretBundle = bundle;
+    const parsedId = parseKeyVaultSecretIdentifier(secretBundle.id);
+    const attributes = secretBundle.attributes;
+    delete secretBundle.attributes;
+    const resultObject = {
+        value: secretBundle.value,
+        name: parsedId.name,
+        properties: {
+            expiresOn: attributes?.expires,
+            createdOn: attributes?.created,
+            updatedOn: attributes?.updated,
+            enabled: attributes?.enabled,
+            notBefore: attributes?.notBefore,
+            recoverableDays: attributes?.recoverableDays,
+            recoveryLevel: attributes?.recoveryLevel,
+            id: secretBundle.id,
+            contentType: secretBundle.contentType,
+            tags: secretBundle.tags,
+            managed: secretBundle.managed,
+            previousVersion: secretBundle.previousVersion,
+            vaultUrl: parsedId.vaultUrl,
+            version: parsedId.version,
+            name: parsedId.name,
+            certificateKeyId: secretBundle.kid,
+        },
+    };
+    if (deletedSecretBundle.recoveryId) {
+        resultObject.properties.recoveryId = deletedSecretBundle.recoveryId;
+        resultObject.properties.scheduledPurgeDate = deletedSecretBundle.scheduledPurgeDate;
+        resultObject.properties.deletedOn = deletedSecretBundle.deletedDate;
+        resultObject.recoveryId = deletedSecretBundle.recoveryId;
+        resultObject.scheduledPurgeDate = deletedSecretBundle.scheduledPurgeDate;
+        resultObject.deletedOn = deletedSecretBundle.deletedDate;
+    }
+    if (attributes) {
+        if (attributes.vaultUrl) {
+            delete resultObject.properties.vaultUrl;
+        }
+        if (attributes.expires) {
+            delete resultObject.properties.expires;
+        }
+        if (attributes.created) {
+            delete resultObject.properties.created;
+        }
+        if (attributes.updated) {
+            delete resultObject.properties.updated;
+        }
+    }
+    return resultObject;
+}
+/**
+ * A helper supporting compatibility between modular and legacy paged async iterables.
+ *
+ * Provides the following compatibility:
+ * 1. Maps the values of the paged async iterable using the provided mapper function.
+ * 2. Supports `maxPageSize` operation on the paged async iterable.
+ *
+ * TODO: move this to keyvault-common once everything is merged
+ */
+function mapPagedAsyncIterable(operation, operationOptions, mapper) {
+    let iter = undefined;
+    return {
+        async next() {
+            iter ??= operation({ ...operationOptions, maxresults: undefined });
+            const result = await iter.next();
+            return {
+                ...result,
+                value: result.value && mapper(result.value),
+            };
+        },
+        [Symbol.asyncIterator]() {
+            return this;
+        },
+        async *byPage(settings) {
+            // Pass the maxPageSize value to the underlying page operation
+            const iteratorByPage = operation({
+                ...operationOptions,
+                maxresults: settings?.maxPageSize,
+            }).byPage(settings);
+            for await (const page of iteratorByPage) {
+                yield page.map(mapper);
+            }
+        },
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const tracingClient = createTracingClient({
+    namespace: "Microsoft.KeyVault",
+    packageName: "@azure/keyvault-secrets",
+    packageVersion: SDK_VERSION,
+});
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Common properties and methods of the Key Vault Secret Pollers.
+ */
+class KeyVaultSecretPoller extends Poller {
+    /**
+     * Defines how much time the poller is going to wait before making a new request to the service.
+     */
+    intervalInMs = 2000;
+    /**
+     * The method used by the poller to wait before attempting to update its operation.
+     */
+    async delay() {
+        return delay$1(this.intervalInMs);
+    }
+}
+/**
+ * Common properties and methods of the Key Vault Secret Poller operations.
+ */
+// eslint-disable-next-next no-use-before-define
+class KeyVaultSecretPollOperation {
+    state;
+    cancelMessage = "";
+    constructor(state, options = {}) {
+        this.state = state;
+        if (options.cancelMessage) {
+            this.cancelMessage = options.cancelMessage;
+        }
+    }
+    /**
+     * Meant to reach to the service and update the Poller operation.
+     * @param options - The optional parameters, which is only an abortSignal from \@azure/abort-controller
+     */
+    async update() {
+        throw new Error("Operation not supported.");
+    }
+    /**
+     * Meant to reach to the service and cancel the Poller operation.
+     * @param options - The optional parameters, which is only an abortSignal from \@azure/abort-controller
+     */
+    async cancel() {
+        throw new Error(this.cancelMessage);
+    }
+    /**
+     * Serializes the Poller operation.
+     */
+    toString() {
+        return JSON.stringify({
+            state: this.state,
+        });
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * An interface representing a delete secret's poll operation
+ */
+class DeleteSecretPollOperation extends KeyVaultSecretPollOperation {
+    state;
+    client;
+    operationOptions;
+    constructor(state, client, operationOptions = {}) {
+        super(state, { cancelMessage: "Canceling the deletion of a secret is not supported." });
+        this.state = state;
+        this.client = client;
+        this.operationOptions = operationOptions;
+    }
+    /**
+     * Sends a delete request for the given Key Vault Key's name to the Key Vault service.
+     * Since the Key Vault Key won't be immediately deleted, we have {@link beginDeleteKey}.
+     */
+    deleteSecret(name, options = {}) {
+        return tracingClient.withSpan("DeleteSecretPoller.deleteSecret", options, async (updatedOptions) => {
+            const response = await this.client.deleteSecret(name, updatedOptions);
+            return getSecretFromSecretBundle(response);
+        });
+    }
+    /**
+     * The getDeletedSecret method returns the specified deleted secret along with its properties.
+     * This operation requires the secrets/get permission.
+     */
+    getDeletedSecret(name, options = {}) {
+        return tracingClient.withSpan("DeleteSecretPoller.getDeletedSecret", options, async (updatedOptions) => {
+            const response = await this.client.getDeletedSecret(name, updatedOptions);
+            return getSecretFromSecretBundle(response);
+        });
+    }
+    /**
+     * Reaches to the service and updates the delete secret's poll operation.
+     */
+    async update(options = {}) {
+        const state = this.state;
+        const { name } = state;
+        if (options.abortSignal) {
+            this.operationOptions.abortSignal = options.abortSignal;
+        }
+        if (!state.isStarted) {
+            const deletedSecret = await this.deleteSecret(name, this.operationOptions);
+            state.isStarted = true;
+            state.result = deletedSecret;
+            if (!deletedSecret.properties.recoveryId) {
+                state.isCompleted = true;
+            }
+        }
+        if (!state.isCompleted) {
+            try {
+                state.result = await this.getDeletedSecret(name, this.operationOptions);
+                state.isCompleted = true;
+            }
+            catch (error) {
+                if (error.statusCode === 403) {
+                    // At this point, the resource exists but the user doesn't have access to it.
+                    state.isCompleted = true;
+                }
+                else if (error.statusCode !== 404) {
+                    state.error = error;
+                    state.isCompleted = true;
+                    throw error;
+                }
+            }
+        }
+        return this;
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Class that creates a poller that waits until a secret finishes being deleted.
+ */
+class DeleteSecretPoller extends KeyVaultSecretPoller {
+    constructor(options) {
+        const { client, name, operationOptions, intervalInMs = 2000, resumeFrom } = options;
+        let state;
+        if (resumeFrom) {
+            state = JSON.parse(resumeFrom).state;
+        }
+        const operation = new DeleteSecretPollOperation({
+            ...state,
+            name,
+        }, client, operationOptions);
+        super(operation);
+        this.intervalInMs = intervalInMs;
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * An interface representing a delete secret's poll operation
+ */
+class RecoverDeletedSecretPollOperation extends KeyVaultSecretPollOperation {
+    state;
+    client;
+    options;
+    constructor(state, client, options = {}) {
+        super(state, { cancelMessage: "Canceling the recovery of a deleted secret is not supported." });
+        this.state = state;
+        this.client = client;
+        this.options = options;
+    }
+    /**
+     * The getSecret method returns the specified secret along with its properties.
+     * This operation requires the secrets/get permission.
+     */
+    getSecret(name, options = {}) {
+        return tracingClient.withSpan("RecoverDeletedSecretPoller.getSecret", options, async (updatedOptions) => {
+            const response = await this.client.getSecret(name, options && options.version ? options.version : "", updatedOptions);
+            return getSecretFromSecretBundle(response);
+        });
+    }
+    /**
+     * The recoverDeletedSecret method recovers the specified deleted secret along with its properties.
+     * This operation requires the secrets/recover permission.
+     */
+    recoverDeletedSecret(name, options = {}) {
+        return tracingClient.withSpan("RecoverDeletedSecretPoller.recoverDeletedSecret", options, async (updatedOptions) => {
+            const response = await this.client.recoverDeletedSecret(name, updatedOptions);
+            return getSecretFromSecretBundle(response);
+        });
+    }
+    /**
+     * Reaches to the service and updates the delete secret's poll operation.
+     */
+    async update(options = {}) {
+        const state = this.state;
+        const { name } = state;
+        if (options.abortSignal) {
+            this.options.abortSignal = options.abortSignal;
+        }
+        if (!state.isStarted) {
+            try {
+                state.result = (await this.getSecret(name, this.options)).properties;
+                state.isCompleted = true;
+            }
+            catch {
+                // Nothing to do here.
+            }
+            if (!state.isCompleted) {
+                state.result = (await this.recoverDeletedSecret(name, this.options)).properties;
+                state.isStarted = true;
+            }
+        }
+        if (!state.isCompleted) {
+            try {
+                state.result = (await this.getSecret(name, this.options)).properties;
+                state.isCompleted = true;
+            }
+            catch (error) {
+                if (error.statusCode === 403) {
+                    // At this point, the resource exists but the user doesn't have access to it.
+                    state.isCompleted = true;
+                }
+                else if (error.statusCode !== 404) {
+                    state.error = error;
+                    state.isCompleted = true;
+                    throw error;
+                }
+            }
+        }
+        return this;
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Class that deletes a poller that waits until a secret finishes being deleted
+ */
+class RecoverDeletedSecretPoller extends KeyVaultSecretPoller {
+    constructor(options) {
+        const { client, name, operationOptions, intervalInMs = 2000, resumeFrom } = options;
+        let state;
+        if (resumeFrom) {
+            state = JSON.parse(resumeFrom).state;
+        }
+        const operation = new RecoverDeletedSecretPollOperation({
+            ...state,
+            name,
+        }, client, operationOptions);
+        super(operation);
+        this.intervalInMs = intervalInMs;
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/// <reference lib="esnext.asynciterable" />
+/**
+ * The SecretClient provides methods to manage {@link KeyVaultSecret} in
+ * the Azure Key Vault. The client supports creating, retrieving, updating,
+ * deleting, purging, backing up, restoring and listing KeyVaultSecrets. The
+ * client also supports listing {@link DeletedSecret} for a soft-delete enabled Azure
+ * Key Vault.
+ */
+class SecretClient {
+    /**
+     * The base URL to the vault
+     */
+    vaultUrl;
+    /**
+     * A reference to the auto-generated KeyVault HTTP client.
+     */
+    client;
+    /**
+     * Creates an instance of SecretClient.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleCreateClient
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * // Build the URL to reach your key vault
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * // Lastly, create our secrets client and connect to the service
+     * const client = new SecretClient(url, credential);
+     * ```
+     * @param vaultUrl - The base URL to the vault. You should validate that this URL references a valid Key Vault resource. See https://aka.ms/azsdk/blog/vault-uri for details.
+     * @param credential - An object that implements the `TokenCredential` interface used to authenticate requests to the service. Use the \@azure/identity package to create a credential that suits your needs.
+     * @param pipelineOptions - Pipeline options used to configure Key Vault API requests.
+     *                          Omit this parameter to use the default pipeline configuration.
+     */
+    constructor(vaultUrl, credential, pipelineOptions = {}) {
+        this.vaultUrl = vaultUrl;
+        const internalPipelineOptions = {
+            ...pipelineOptions,
+            userAgentOptions: {
+                userAgentPrefix: `${pipelineOptions.userAgentOptions?.userAgentPrefix ?? ""} azsdk-js-keyvault-secrets/${SDK_VERSION}`,
+            },
+            apiVersion: pipelineOptions.serviceVersion || LATEST_API_VERSION,
+            loggingOptions: {
+                logger: logger$1.info,
+                additionalAllowedHeaderNames: [
+                    "x-ms-keyvault-region",
+                    "x-ms-keyvault-network-info",
+                    "x-ms-keyvault-service-version",
+                ],
+            },
+        };
+        this.client = new KeyVaultClient(this.vaultUrl, credential, internalPipelineOptions);
+        // Key vault has its own authentication policy that needs to be added to the pipeline, replacing the default bearerTokenAuthenticationPolicy.
+        this.client.pipeline.removePolicy({ name: bearerTokenAuthenticationPolicyName });
+        this.client.pipeline.addPolicy(keyVaultAuthenticationPolicy(credential, pipelineOptions), {});
+        // Workaround for: https://github.com/Azure/azure-sdk-for-js/issues/31843
+        this.client.pipeline.addPolicy({
+            name: "ContentTypePolicy",
+            sendRequest(request, next) {
+                const contentType = request.headers.get("Content-Type") ?? "";
+                if (contentType.startsWith("application/json")) {
+                    request.headers.set("Content-Type", "application/json");
+                }
+                return next(request);
+            },
+        });
+    }
+    /**
+     * The setSecret method adds a secret or secret version to the Azure Key Vault. If the named secret
+     * already exists, Azure Key Vault creates a new version of that secret.
+     * This operation requires the secrets/set permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleCreateSecret
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * const result = await client.setSecret(secretName, "MySecretValue");
+     * console.log("result: ", result);
+     * ```
+     * Adds a secret in a specified key vault.
+     * @param secretName - The name of the secret.
+     * @param value - The value of the secret.
+     * @param options - The optional parameters.
+     */
+    setSecret(secretName, value, options = {}) {
+        const { contentType, enabled, notBefore, expiresOn: expires, tags, ...remainingOptions } = options;
+        return tracingClient.withSpan("SecretClient.setSecret", remainingOptions, async (updatedOptions) => {
+            const response = await this.client.setSecret(secretName, { value, contentType, secretAttributes: { enabled, notBefore, expires }, tags }, updatedOptions);
+            return getSecretFromSecretBundle(response);
+        });
+    }
+    /**
+     * Deletes a secret stored in Azure Key Vault.
+     * This function returns a Long Running Operation poller that allows you to wait indefinitely until the secret is deleted.
+     *
+     * This operation requires the secrets/delete permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleDeleteSecret
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * await client.beginDeleteSecret(secretName);
+     * ```
+     * Deletes a secret from a specified key vault.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    async beginDeleteSecret(name, options = {}) {
+        const poller = new DeleteSecretPoller({
+            name,
+            client: this.client,
+            ...options,
+            operationOptions: options,
+        });
+        // This will initialize the poller's operation (the deletion of the secret).
+        await poller.poll();
+        return poller;
+    }
+    /**
+     * The updateSecret method changes specified attributes of an existing stored secret. Properties that
+     * are not specified in the request are left unchanged. The value of a secret itself cannot be
+     * changed. This operation requires the secrets/set permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleUpdateSecretAttributes
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * const result = await client.getSecret(secretName);
+     * await client.updateSecretProperties(secretName, result.properties.version, { enabled: false });
+     * ```
+     * Updates the attributes associated with a specified secret in a given key vault.
+     * @param secretName - The name of the secret.
+     * @param secretVersion - The version of the secret.
+     * @param options - The optional parameters.
+     */
+    async updateSecretProperties(secretName, secretVersion, options = {}) {
+        const { contentType, enabled, notBefore, expiresOn: expires, tags, ...remainingOptions } = options;
+        return tracingClient.withSpan("SecretClient.updateSecretProperties", remainingOptions, async (updatedOptions) => {
+            const response = await this.client.updateSecret(secretName, secretVersion, { contentType, secretAttributes: { enabled, notBefore, expires }, tags }, updatedOptions);
+            return getSecretFromSecretBundle(response).properties;
+        });
+    }
+    /**
+     * The getSecret method is applicable to any secret stored in Azure Key Vault. This operation requires
+     * the secrets/get permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleGetSecret
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * const latestSecret = await client.getSecret(secretName);
+     * console.log(`Latest version of the secret ${secretName}: `, latestSecret);
+     *
+     * const specificSecret = await client.getSecret(secretName, {
+     *   version: latestSecret.properties.version!,
+     * });
+     * console.log(
+     *   `The secret ${secretName} at the version ${latestSecret.properties.version!}: `,
+     *   specificSecret,
+     * );
+     * ```
+     * Get a specified secret from a given key vault.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    getSecret(secretName, options = {}) {
+        return tracingClient.withSpan("SecretClient.getSecret", options, async (updatedOptions) => {
+            const response = await this.client.getSecret(secretName, options && options.version ? options.version : "", updatedOptions);
+            return getSecretFromSecretBundle(response);
+        });
+    }
+    /**
+     * The getDeletedSecret method returns the specified deleted secret along with its attributes.
+     * This operation requires the secrets/get permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleGetDeletedSecret
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * const result = await client.getDeletedSecret("MyDeletedSecret");
+     * ```
+     * Gets the specified deleted secret.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    getDeletedSecret(secretName, options = {}) {
+        return tracingClient.withSpan("SecretClient.getDeletedSecret", options, async (updatedOptions) => {
+            const response = await this.client.getDeletedSecret(secretName, updatedOptions);
+            return getSecretFromSecretBundle(response);
+        });
+    }
+    /**
+     * The purge deleted secret operation removes the secret permanently, without the possibility of
+     * recovery. This operation can only be enabled on a soft-delete enabled vault. This operation
+     * requires the secrets/purge permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSamplePurgeDeletedSecret
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * const deletePoller = await client.beginDeleteSecret(secretName);
+     * await deletePoller.pollUntilDone();
+     *
+     * await client.purgeDeletedSecret(secretName);
+     * ```
+     * Permanently deletes the specified secret.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    purgeDeletedSecret(secretName, options = {}) {
+        return tracingClient.withSpan("SecretClient.purgeDeletedSecret", options, async (updatedOptions) => {
+            await this.client.purgeDeletedSecret(secretName, updatedOptions);
+        });
+    }
+    /**
+     * Recovers the deleted secret in the specified vault.
+     * This function returns a Long Running Operation poller that allows you to wait indefinitely until the secret is recovered.
+     *
+     * This operation requires the secrets/recover permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleRecoverDeletedSecret
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * const deletePoller = await client.beginDeleteSecret(secretName);
+     * await deletePoller.pollUntilDone();
+     *
+     * const recoverPoller = await client.beginRecoverDeletedSecret(secretName);
+     * const deletedSecret = await recoverPoller.pollUntilDone();
+     * console.log(deletedSecret);
+     * ```
+     * Recovers the deleted secret to the latest version.
+     * @param secretName - The name of the deleted secret.
+     * @param options - The optional parameters.
+     */
+    async beginRecoverDeletedSecret(name, options = {}) {
+        const poller = new RecoverDeletedSecretPoller({
+            name,
+            client: this.client,
+            ...options,
+            operationOptions: options,
+        });
+        // This will initialize the poller's operation (the recovery of the deleted secret).
+        await poller.poll();
+        return poller;
+    }
+    /**
+     * Requests that a backup of the specified secret be downloaded to the client. All versions of the
+     * secret will be downloaded. This operation requires the secrets/backup permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleBackupSecret
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * const backupResult = await client.backupSecret(secretName);
+     * ```
+     * Backs up the specified secret.
+     * @param secretName - The name of the secret.
+     * @param options - The optional parameters.
+     */
+    backupSecret(secretName, options = {}) {
+        return tracingClient.withSpan("SecretClient.backupSecret", options, async (updatedOptions) => {
+            const response = await this.client.backupSecret(secretName, updatedOptions);
+            return response.value;
+        });
+    }
+    /**
+     * Restores a backed up secret, and all its versions, to a vault. This operation requires the
+     * secrets/restore permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleRestoreSecret
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * const backupResult = await client.backupSecret(secretName);
+     *
+     * await client.restoreSecretBackup(backupResult);
+     * ```
+     * Restores a backed up secret to a vault.
+     * @param secretBundleBackup - The backup blob associated with a secret bundle.
+     * @param options - The optional parameters.
+     */
+    restoreSecretBackup(secretBundleBackup, options = {}) {
+        return tracingClient.withSpan("SecretClient.restoreSecretBackup", options, async (updatedOptions) => {
+            const response = await this.client.restoreSecret({ secretBundleBackup }, updatedOptions);
+            return getSecretFromSecretBundle(response).properties;
+        });
+    }
+    /**
+     * Iterates all versions of the given secret in the vault. The full secret identifier and attributes are provided
+     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleListSecrets
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * for await (const secretProperties of client.listPropertiesOfSecrets()) {
+     *   console.log("Secret properties: ", secretProperties);
+     * }
+     *
+     * for await (const deletedSecret of client.listDeletedSecrets()) {
+     *   console.log("Deleted secret: ", deletedSecret);
+     * }
+     *
+     * for await (const versionProperties of client.listPropertiesOfSecretVersions(secretName)) {
+     *   console.log("Version properties: ", versionProperties);
+     * }
+     * ```
+     * @param secretName - Name of the secret to fetch versions for.
+     * @param options - The optional parameters.
+     */
+    listPropertiesOfSecretVersions(secretName, options = {}) {
+        return mapPagedAsyncIterable((updatedOptions) => this.client.getSecretVersions(secretName, updatedOptions), options, (item) => getSecretFromSecretBundle(item).properties);
+    }
+    /**
+     * Iterates the latest version of all secrets in the vault.  The full secret identifier and attributes are provided
+     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleListSecrets
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * for await (const secretProperties of client.listPropertiesOfSecrets()) {
+     *   console.log("Secret properties: ", secretProperties);
+     * }
+     *
+     * for await (const deletedSecret of client.listDeletedSecrets()) {
+     *   console.log("Deleted secret: ", deletedSecret);
+     * }
+     *
+     * for await (const versionProperties of client.listPropertiesOfSecretVersions(secretName)) {
+     *   console.log("Version properties: ", versionProperties);
+     * }
+     * ```
+     * List all secrets in the vault.
+     * @param options - The optional parameters.
+     */
+    listPropertiesOfSecrets(options = {}) {
+        return mapPagedAsyncIterable(this.client.getSecrets.bind(this.client), options, (item) => getSecretFromSecretBundle(item).properties);
+    }
+    /**
+     * Iterates the deleted secrets in the vault.  The full secret identifier and attributes are provided
+     * in the response. No values are returned for the secrets. This operations requires the secrets/list permission.
+     *
+     * Example usage:
+     * ```ts snippet:ReadmeSampleListSecrets
+     * import { DefaultAzureCredential } from "@azure/identity";
+     * import { SecretClient } from "@azure/keyvault-secrets";
+     *
+     * const credential = new DefaultAzureCredential();
+     *
+     * const vaultName = "<YOUR KEYVAULT NAME>";
+     * const url = `https://${vaultName}.vault.azure.net`;
+     *
+     * const client = new SecretClient(url, credential);
+     *
+     * const secretName = "MySecretName";
+     *
+     * for await (const secretProperties of client.listPropertiesOfSecrets()) {
+     *   console.log("Secret properties: ", secretProperties);
+     * }
+     *
+     * for await (const deletedSecret of client.listDeletedSecrets()) {
+     *   console.log("Deleted secret: ", deletedSecret);
+     * }
+     *
+     * for await (const versionProperties of client.listPropertiesOfSecretVersions(secretName)) {
+     *   console.log("Version properties: ", versionProperties);
+     * }
+     * ```
+     * List all secrets in the vault.
+     * @param options - The optional parameters.
+     */
+    listDeletedSecrets(options = {}) {
+        return mapPagedAsyncIterable(this.client.getDeletedSecrets.bind(this.client), options, getSecretFromSecretBundle);
     }
 }
 
@@ -68194,18 +68205,22 @@ async function getKeyVaultSecret(vaultUrl, secretName) {
 
 async function run() {
     try {
-        const resourceGroup = getInput('resourceGroup', {
-            required: true
-        });
+        const resourceGroup = getInput('resourceGroup');
         const appConfigurationName = getInput('appConfigurationName', {
             required: true
         });
+        const authMode = getInput('authMode') === 'connectionString'
+            ? 'connectionString'
+            : 'managedIdentity';
+        if (authMode === 'connectionString' && !resourceGroup) {
+            throw new Error('resourceGroup is required when authMode is connectionString');
+        }
         const keyFilter = getInput('keyFilter');
         const labelFilter = getInput('labelFilter') || '\0'; // default to keys with no label
         const keys = await getKeys(resourceGroup, appConfigurationName, {
             keyFilter,
             labelFilter
-        });
+        }, authMode);
         for await (const setting of keys) {
             // https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/appconfiguration/app-configuration/samples-dev/secretReference.ts
             if (isSecretReference(setting)) {
