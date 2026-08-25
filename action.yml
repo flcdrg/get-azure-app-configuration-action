@@ -3,11 +3,15 @@ description: 'Pull information from Azure App Configuration'
 author: 'David Gardiner'
 inputs:
   resourceGroup:
-    required: true
+    required: false
     description: 'Resource Group that contains App Configuration resource'
   appConfigurationName:
     required: true
     description: 'Name of App Configuration resource'
+  authMode:
+    required: false
+    default: 'managedIdentity'
+    description: 'Authentication mode for App Configuration: managedIdentity or connectionString'
   keyFilter:
     required: false
     description: 'Key filter'
@@ -18,7 +22,7 @@ inputs:
 branding:
   icon: 'download-cloud'
   color: 'blue'
-  
+
 runs:
   using: 'node20'
   main: 'dist/index.js'
