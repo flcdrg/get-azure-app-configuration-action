@@ -34,10 +34,10 @@ var child_process = require('child_process');
 var timers$1 = require('timers');
 var os$1 = require('node:os');
 var process$1 = require('node:process');
-var node_crypto = require('node:crypto');
 var require$$3 = require('stream');
 var require$$1$5 = require('tty');
 var require$$5$6 = require('url');
+var node_crypto = require('node:crypto');
 var https$1 = require('node:https');
 var require$$0$7 = require('buffer');
 var fs$1 = require('node:fs/promises');
@@ -68,12 +68,7 @@ var crypto__namespace = /*#__PURE__*/_interopNamespaceDefault(crypto);
 var fs__namespace = /*#__PURE__*/_interopNamespaceDefault(fs);
 var path__namespace = /*#__PURE__*/_interopNamespaceDefault(path);
 var events__namespace = /*#__PURE__*/_interopNamespaceDefault(events$1);
-var http__namespace = /*#__PURE__*/_interopNamespaceDefault(http$1);
-var zlib__namespace = /*#__PURE__*/_interopNamespaceDefault(zlib);
 var child_process__namespace = /*#__PURE__*/_interopNamespaceDefault(child_process);
-var os__namespace$1 = /*#__PURE__*/_interopNamespaceDefault(os$1);
-var process__namespace = /*#__PURE__*/_interopNamespaceDefault(process$1);
-var https__namespace = /*#__PURE__*/_interopNamespaceDefault(https$1);
 
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -29079,9 +29074,9 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
  * @param pagedResult - an object that specifies how to get pages.
  * @returns a paged async iterator that iterates over results.
  */
-function getPagedAsyncIterator$1(pagedResult) {
+function getPagedAsyncIterator$2(pagedResult) {
     var _a;
-    const iter = getItemAsyncIterator$1(pagedResult);
+    const iter = getItemAsyncIterator$2(pagedResult);
     return {
         next() {
             return iter.next();
@@ -29091,17 +29086,17 @@ function getPagedAsyncIterator$1(pagedResult) {
         },
         byPage: (_a = pagedResult === null || pagedResult === void 0 ? void 0 : pagedResult.byPage) !== null && _a !== void 0 ? _a : ((settings) => {
             const { continuationToken, maxPageSize } = settings !== null && settings !== void 0 ? settings : {};
-            return getPageAsyncIterator$1(pagedResult, {
+            return getPageAsyncIterator$2(pagedResult, {
                 pageLink: continuationToken,
                 maxPageSize,
             });
         }),
     };
 }
-function getItemAsyncIterator$1(pagedResult) {
+function getItemAsyncIterator$2(pagedResult) {
     return __asyncGenerator(this, arguments, function* getItemAsyncIterator_1() {
         var _a, e_1, _b, _c, _d, e_2, _e, _f;
-        const pages = getPageAsyncIterator$1(pagedResult);
+        const pages = getPageAsyncIterator$2(pagedResult);
         const firstVal = yield __await(pages.next());
         // if the result does not have an array shape, i.e. TPage = TElement, then we return it as is
         if (!Array.isArray(firstVal.value)) {
@@ -29153,7 +29148,7 @@ function getItemAsyncIterator$1(pagedResult) {
         }
     });
 }
-function getPageAsyncIterator$1(pagedResult, options = {}) {
+function getPageAsyncIterator$2(pagedResult, options = {}) {
     return __asyncGenerator(this, arguments, function* getPageAsyncIterator_1() {
         const { pageLink, maxPageSize } = options;
         let response = yield __await(pagedResult.getPage(pageLink !== null && pageLink !== void 0 ? pageLink : pagedResult.firstPageLink, maxPageSize));
@@ -29211,74 +29206,197 @@ let AbortError$1 = class AbortError extends Error {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-function log$1(message, ...args) {
-    process__namespace.stderr.write(`${require$$0$4.format(message, ...args)}${os$1.EOL}`);
+function log(message, ...args) {
+    process$1.stderr.write(`${require$$0$4.format(message, ...args)}${os$1.EOL}`);
 }
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const debugEnvVariable$1 = (typeof process !== "undefined" && process.env && process.env.DEBUG) || undefined;
-let enabledString$1;
-let enabledNamespaces$1 = [];
-let skippedNamespaces$1 = [];
-const debuggers$1 = [];
-if (debugEnvVariable$1) {
-    enable$1(debugEnvVariable$1);
+/**
+ * Returns the value of the specified environment variable.
+ *
+ * @internal
+ */
+function getEnvironmentVariable(name) {
+    return process$1.env[name];
 }
-const debugObj$1 = Object.assign((namespace) => {
-    return createDebugger$1(namespace);
+/**
+ * Emits a Node.js process warning.
+ *
+ * @internal
+ */
+function emitNodeWarning(warning) {
+    process$1.emitWarning(warning);
+}
+/**
+ * A constant that indicates whether the environment the code is running is Deno.
+ */
+typeof process$1.versions.deno === "string" && process$1.versions.deno.length > 0;
+/**
+ * A constant that indicates whether the environment the code is running is Bun.sh.
+ */
+typeof process$1.versions.bun === "string" && process$1.versions.bun.length > 0;
+/**
+ * A constant that indicates whether the environment the code is running is a Node.js compatible environment.
+ */
+const isNodeLike$1 = true;
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const debugEnvVariable = getEnvironmentVariable("DEBUG");
+let enabledString;
+let enabledNamespaces = [];
+let skippedNamespaces = [];
+const debuggers = [];
+if (debugEnvVariable) {
+    enable(debugEnvVariable);
+}
+const debugObj = Object.assign((namespace) => {
+    return createDebugger(namespace);
 }, {
-    enable: enable$1,
-    enabled: enabled$1,
-    disable: disable$1,
-    log: log$1,
+    enable,
+    enabled,
+    disable,
+    log,
 });
-function enable$1(namespaces) {
-    enabledString$1 = namespaces;
-    enabledNamespaces$1 = [];
-    skippedNamespaces$1 = [];
-    const wildcard = /\*/g;
-    const namespaceList = namespaces.split(",").map((ns) => ns.trim().replace(wildcard, ".*?"));
+function enable(namespaces) {
+    enabledString = namespaces;
+    enabledNamespaces = [];
+    skippedNamespaces = [];
+    const namespaceList = namespaces.split(",").map((ns) => ns.trim());
     for (const ns of namespaceList) {
         if (ns.startsWith("-")) {
-            skippedNamespaces$1.push(new RegExp(`^${ns.substr(1)}$`));
+            skippedNamespaces.push(ns.substring(1));
         }
         else {
-            enabledNamespaces$1.push(new RegExp(`^${ns}$`));
+            enabledNamespaces.push(ns);
         }
     }
-    for (const instance of debuggers$1) {
-        instance.enabled = enabled$1(instance.namespace);
+    for (const instance of debuggers) {
+        instance.enabled = enabled(instance.namespace);
     }
 }
-function enabled$1(namespace) {
+function enabled(namespace) {
     if (namespace.endsWith("*")) {
         return true;
     }
-    for (const skipped of skippedNamespaces$1) {
-        if (skipped.test(namespace)) {
+    for (const skipped of skippedNamespaces) {
+        if (namespaceMatches(namespace, skipped)) {
             return false;
         }
     }
-    for (const enabledNamespace of enabledNamespaces$1) {
-        if (enabledNamespace.test(namespace)) {
+    for (const enabledNamespace of enabledNamespaces) {
+        if (namespaceMatches(namespace, enabledNamespace)) {
             return true;
         }
     }
     return false;
 }
-function disable$1() {
-    const result = enabledString$1 || "";
-    enable$1("");
+/**
+ * Given a namespace, check if it matches a pattern.
+ * Patterns only have a single wildcard character which is *.
+ * The behavior of * is that it matches zero or more other characters.
+ */
+function namespaceMatches(namespace, patternToMatch) {
+    // simple case, no pattern matching required
+    if (patternToMatch.indexOf("*") === -1) {
+        return namespace === patternToMatch;
+    }
+    let pattern = patternToMatch;
+    // normalize successive * if needed
+    if (patternToMatch.indexOf("**") !== -1) {
+        const patternParts = [];
+        let lastCharacter = "";
+        for (const character of patternToMatch) {
+            if (character === "*" && lastCharacter === "*") {
+                continue;
+            }
+            else {
+                lastCharacter = character;
+                patternParts.push(character);
+            }
+        }
+        pattern = patternParts.join("");
+    }
+    let namespaceIndex = 0;
+    let patternIndex = 0;
+    const patternLength = pattern.length;
+    const namespaceLength = namespace.length;
+    let lastWildcard = -1;
+    let lastWildcardNamespace = -1;
+    while (namespaceIndex < namespaceLength && patternIndex < patternLength) {
+        if (pattern[patternIndex] === "*") {
+            lastWildcard = patternIndex;
+            patternIndex++;
+            if (patternIndex === patternLength) {
+                // if wildcard is the last character, it will match the remaining namespace string
+                return true;
+            }
+            // now we let the wildcard eat characters until we match the next literal in the pattern
+            while (namespace[namespaceIndex] !== pattern[patternIndex]) {
+                namespaceIndex++;
+                // reached the end of the namespace without a match
+                if (namespaceIndex === namespaceLength) {
+                    return false;
+                }
+            }
+            // now that we have a match, let's try to continue on
+            // however, it's possible we could find a later match
+            // so keep a reference in case we have to backtrack
+            lastWildcardNamespace = namespaceIndex;
+            namespaceIndex++;
+            patternIndex++;
+            continue;
+        }
+        else if (pattern[patternIndex] === namespace[namespaceIndex]) {
+            // simple case: literal pattern matches so keep going
+            patternIndex++;
+            namespaceIndex++;
+        }
+        else if (lastWildcard >= 0) {
+            // special case: we don't have a literal match, but there is a previous wildcard
+            // which we can backtrack to and try having the wildcard eat the match instead
+            patternIndex = lastWildcard + 1;
+            namespaceIndex = lastWildcardNamespace + 1;
+            // we've reached the end of the namespace without a match
+            if (namespaceIndex === namespaceLength) {
+                return false;
+            }
+            // similar to the previous logic, let's keep going until we find the next literal match
+            while (namespace[namespaceIndex] !== pattern[patternIndex]) {
+                namespaceIndex++;
+                if (namespaceIndex === namespaceLength) {
+                    return false;
+                }
+            }
+            lastWildcardNamespace = namespaceIndex;
+            namespaceIndex++;
+            patternIndex++;
+            continue;
+        }
+        else {
+            return false;
+        }
+    }
+    const namespaceDone = namespaceIndex === namespace.length;
+    const patternDone = patternIndex === pattern.length;
+    // this is to detect the case of an unneeded final wildcard
+    // e.g. the pattern `ab*` should match the string `ab`
+    const trailingWildCard = patternIndex === pattern.length - 1 && pattern[patternIndex] === "*";
+    return namespaceDone && (patternDone || trailingWildCard);
+}
+function disable() {
+    const result = enabledString || "";
+    enable("");
     return result;
 }
-function createDebugger$1(namespace) {
+function createDebugger(namespace) {
     const newDebugger = Object.assign(debug, {
-        enabled: enabled$1(namespace),
-        destroy: destroy$1,
-        log: debugObj$1.log,
+        enabled: enabled(namespace),
+        destroy,
+        log: debugObj.log,
         namespace,
-        extend: extend$1,
+        extend,
     });
     function debug(...args) {
         if (!newDebugger.enabled) {
@@ -29289,19 +29407,19 @@ function createDebugger$1(namespace) {
         }
         newDebugger.log(...args);
     }
-    debuggers$1.push(newDebugger);
+    debuggers.push(newDebugger);
     return newDebugger;
 }
-function destroy$1() {
-    const index = debuggers$1.indexOf(this);
+function destroy() {
+    const index = debuggers.indexOf(this);
     if (index >= 0) {
-        debuggers$1.splice(index, 1);
+        debuggers.splice(index, 1);
         return true;
     }
     return false;
 }
-function extend$1(namespace) {
-    const newDebugger = createDebugger$1(`${this.namespace}:${namespace}`);
+function extend(namespace) {
+    const newDebugger = createDebugger(`${this.namespace}:${namespace}`);
     newDebugger.log = this.log;
     return newDebugger;
 }
@@ -29309,13 +29427,13 @@ function extend$1(namespace) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 const TYPESPEC_RUNTIME_LOG_LEVELS = ["verbose", "info", "warning", "error"];
-const levelMap$1 = {
+const levelMap = {
     verbose: 400,
     info: 300,
     warning: 200,
     error: 100,
 };
-function patchLogMethod$1(parent, child) {
+function patchLogMethod(parent, child) {
     child.log = (...args) => {
         parent.log(...args);
     };
@@ -29330,12 +29448,11 @@ function isTypeSpecRuntimeLogLevel(level) {
  */
 function createLoggerContext(options) {
     const registeredLoggers = new Set();
-    const logLevelFromEnv = (typeof process !== "undefined" && process.env && process.env[options.logLevelEnvVarName]) ||
-        undefined;
+    const logLevelFromEnv = getEnvironmentVariable(options.logLevelEnvVarName);
     let logLevel;
-    const clientLogger = debugObj$1(options.namespace);
+    const clientLogger = debugObj(options.namespace);
     clientLogger.log = (...args) => {
-        debugObj$1.log(...args);
+        debugObj.log(...args);
     };
     function contextSetLogLevel(level) {
         if (level && !isTypeSpecRuntimeLogLevel(level)) {
@@ -29348,7 +29465,7 @@ function createLoggerContext(options) {
                 enabledNamespaces.push(logger.namespace);
             }
         }
-        debugObj$1.enable(enabledNamespaces.join(","));
+        debugObj.enable(enabledNamespaces.join(","));
     }
     if (logLevelFromEnv) {
         // avoid calling setLogLevel because we don't want a mis-set environment variable to crash
@@ -29360,16 +29477,16 @@ function createLoggerContext(options) {
         }
     }
     function shouldEnable(logger) {
-        return Boolean(logLevel && levelMap$1[logger.level] <= levelMap$1[logLevel]);
+        return Boolean(logLevel && levelMap[logger.level] <= levelMap[logLevel]);
     }
     function createLogger(parent, level) {
         const logger = Object.assign(parent.extend(level), {
             level,
         });
-        patchLogMethod$1(parent, logger);
+        patchLogMethod(parent, logger);
         if (shouldEnable(logger)) {
-            const enabledNamespaces = debugObj$1.disable();
-            debugObj$1.enable(enabledNamespaces + "," + logger.namespace);
+            const enabledNamespaces = debugObj.disable();
+            debugObj.enable(enabledNamespaces + "," + logger.namespace);
         }
         registeredLoggers.add(logger);
         return logger;
@@ -29379,7 +29496,7 @@ function createLoggerContext(options) {
     }
     function contextCreateClientLogger(namespace) {
         const clientRootLogger = clientLogger.extend(namespace);
-        patchLogMethod$1(clientLogger, clientRootLogger);
+        patchLogMethod(clientLogger, clientRootLogger);
         return {
             error: createLogger(clientRootLogger, "error"),
             warning: createLogger(clientRootLogger, "warning"),
@@ -29394,7 +29511,7 @@ function createLoggerContext(options) {
         logger: clientLogger,
     };
 }
-const context = createLoggerContext({
+const context$1 = createLoggerContext({
     logLevelEnvVarName: "TYPESPEC_RUNTIME_LOG_LEVEL",
     namespace: "typeSpecRuntime",
 });
@@ -29404,7 +29521,7 @@ const context = createLoggerContext({
  * @hidden
  */
 function createClientLogger$1(namespace) {
-    return context.createClientLogger(namespace);
+    return context$1.createClientLogger(namespace);
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -29412,12 +29529,23 @@ function createClientLogger$1(namespace) {
 function normalizeName(name) {
     return name.toLowerCase();
 }
+/**
+ * Removes CR and LF characters from a header value to prevent obs-fold
+ * (line folding) sequences, as forbidden by RFC 7230 §3.2.4.
+ * @param value - The header value to sanitize.
+ */
+function normalizeValue(value) {
+    return String(value)
+        .trim()
+        .replace(/[\r\n]/g, "");
+}
 function* headerIterator(map) {
     for (const entry of map.values()) {
         yield [entry.name, entry.value];
     }
 }
 class HttpHeadersImpl {
+    _headersMap;
     constructor(rawHeaders) {
         this._headersMap = new Map();
         if (rawHeaders) {
@@ -29433,7 +29561,7 @@ class HttpHeadersImpl {
      * @param value - The value of the header to set.
      */
     set(name, value) {
-        this._headersMap.set(normalizeName(name), { name, value: String(value).trim() });
+        this._headersMap.set(normalizeName(name), { name, value: normalizeValue(value) });
     }
     /**
      * Get the header value for the provided header name, or undefined if no header exists in this
@@ -29441,8 +29569,7 @@ class HttpHeadersImpl {
      * @param name - The name of the header. This value is case-insensitive.
      */
     get(name) {
-        var _a;
-        return (_a = this._headersMap.get(normalizeName(name))) === null || _a === void 0 ? void 0 : _a.value;
+        return this._headersMap.get(normalizeName(name))?.value;
     }
     /**
      * Get whether or not this header collection contains a header entry for the provided header name.
@@ -29498,42 +29625,55 @@ function createHttpHeaders$1(rawHeaders) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-var _a$2;
-// NOTE: This is a workaround until we can use `globalThis.crypto.randomUUID` in Node.js 19+.
-const uuidFunction = typeof ((_a$2 = globalThis === null || globalThis === void 0 ? void 0 : globalThis.crypto) === null || _a$2 === void 0 ? void 0 : _a$2.randomUUID) === "function"
-    ? globalThis.crypto.randomUUID.bind(globalThis.crypto)
-    : node_crypto.randomUUID;
 /**
  * Generated Universally Unique Identifier
  *
  * @returns RFC4122 v4 UUID.
  */
 function randomUUID() {
-    return uuidFunction();
+    return globalThis.crypto.randomUUID();
 }
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 class PipelineRequestImpl {
+    url;
+    method;
+    headers;
+    timeout;
+    withCredentials;
+    body;
+    multipartBody;
+    formData;
+    streamResponseStatusCodes;
+    enableBrowserStreams;
+    proxySettings;
+    disableKeepAlive;
+    abortSignal;
+    requestId;
+    allowInsecureConnection;
+    onUploadProgress;
+    onDownloadProgress;
+    requestOverrides;
+    authSchemes;
     constructor(options) {
-        var _a, _b, _c, _d, _e, _f, _g;
         this.url = options.url;
         this.body = options.body;
-        this.headers = (_a = options.headers) !== null && _a !== void 0 ? _a : createHttpHeaders$1();
-        this.method = (_b = options.method) !== null && _b !== void 0 ? _b : "GET";
-        this.timeout = (_c = options.timeout) !== null && _c !== void 0 ? _c : 0;
+        this.headers = options.headers ?? createHttpHeaders$1();
+        this.method = options.method ?? "GET";
+        this.timeout = options.timeout ?? 0;
         this.multipartBody = options.multipartBody;
         this.formData = options.formData;
-        this.disableKeepAlive = (_d = options.disableKeepAlive) !== null && _d !== void 0 ? _d : false;
+        this.disableKeepAlive = options.disableKeepAlive ?? false;
         this.proxySettings = options.proxySettings;
         this.streamResponseStatusCodes = options.streamResponseStatusCodes;
-        this.withCredentials = (_e = options.withCredentials) !== null && _e !== void 0 ? _e : false;
+        this.withCredentials = options.withCredentials ?? false;
         this.abortSignal = options.abortSignal;
         this.onUploadProgress = options.onUploadProgress;
         this.onDownloadProgress = options.onDownloadProgress;
         this.requestId = options.requestId || randomUUID();
-        this.allowInsecureConnection = (_f = options.allowInsecureConnection) !== null && _f !== void 0 ? _f : false;
-        this.enableBrowserStreams = (_g = options.enableBrowserStreams) !== null && _g !== void 0 ? _g : false;
+        this.allowInsecureConnection = options.allowInsecureConnection ?? false;
+        this.enableBrowserStreams = options.enableBrowserStreams ?? false;
         this.requestOverrides = options.requestOverrides;
         this.authSchemes = options.authSchemes;
     }
@@ -29556,10 +29696,10 @@ const ValidPhaseNames = new Set(["Deserialize", "Serialize", "Retry", "Sign"]);
  * @internal
  */
 class HttpPipeline {
+    _policies = [];
+    _orderedPolicies;
     constructor(policies) {
-        var _a;
-        this._policies = [];
-        this._policies = (_a = policies === null || policies === void 0 ? void 0 : policies.slice(0)) !== null && _a !== void 0 ? _a : [];
+        this._policies = policies?.slice(0) ?? [];
         this._orderedPolicies = undefined;
     }
     addPolicy(policy, options = {}) {
@@ -29815,7 +29955,7 @@ function createEmptyPipeline$1() {
  * Helper to determine when an input is a generic JS object.
  * @returns true when input is an object type that is not null, Array, RegExp, or Date.
  */
-function isObject$1(input) {
+function isObject(input) {
     return (typeof input === "object" &&
         input !== null &&
         !Array.isArray(input) &&
@@ -29830,7 +29970,7 @@ function isObject$1(input) {
  * @param e - Something caught by a catch clause.
  */
 function isError$1(e) {
-    if (isObject$1(e)) {
+    if (isObject(e)) {
         const hasName = typeof e.name === "string";
         const hasMessage = typeof e.message === "string";
         return hasName && hasMessage;
@@ -29892,6 +30032,8 @@ const defaultAllowedQueryParameters = ["api-version"];
  * A utility class to sanitize objects for logging.
  */
 class Sanitizer {
+    allowedHeaderNames;
+    allowedQueryParameters;
     constructor({ additionalAllowedHeaderNames: allowedHeaderNames = [], additionalAllowedQueryParameters: allowedQueryParameters = [], } = {}) {
         allowedHeaderNames = defaultAllowedHeaderNames.concat(allowedHeaderNames);
         allowedQueryParameters = defaultAllowedQueryParameters.concat(allowedQueryParameters);
@@ -29908,15 +30050,19 @@ class Sanitizer {
         return JSON.stringify(obj, (key, value) => {
             // Ensure Errors include their interesting non-enumerable members
             if (value instanceof Error) {
-                return Object.assign(Object.assign({}, value), { name: value.name, message: value.message });
+                return {
+                    ...value,
+                    name: value.name,
+                    message: value.message,
+                };
             }
-            if (key === "headers") {
+            if (key === "headers" && isObject(value)) {
                 return this.sanitizeHeaders(value);
             }
-            else if (key === "url") {
+            else if (key === "url" && typeof value === "string") {
                 return this.sanitizeUrl(value);
             }
-            else if (key === "query") {
+            else if (key === "query" && isObject(value)) {
                 return this.sanitizeQuery(value);
             }
             else if (key === "body") {
@@ -29932,7 +30078,7 @@ class Sanitizer {
                 // field with the autorest spec. No need to log it.
                 return undefined;
             }
-            else if (Array.isArray(value) || isObject$1(value)) {
+            else if (Array.isArray(value) || isObject(value)) {
                 if (seen.has(value)) {
                     return "[Circular]";
                 }
@@ -29997,6 +30143,39 @@ const errorSanitizer = new Sanitizer();
  * A custom error type for failed pipeline requests.
  */
 let RestError$1 = class RestError extends Error {
+    /**
+     * Something went wrong when making the request.
+     * This means the actual request failed for some reason,
+     * such as a DNS issue or the connection being lost.
+     */
+    static REQUEST_SEND_ERROR = "REQUEST_SEND_ERROR";
+    /**
+     * This means that parsing the response from the server failed.
+     * It may have been malformed.
+     */
+    static PARSE_ERROR = "PARSE_ERROR";
+    /**
+     * The code of the error itself (use statics on RestError if possible.)
+     */
+    code;
+    /**
+     * The HTTP status code of the request (if applicable.)
+     */
+    statusCode;
+    /**
+     * The request that was made.
+     * This property is non-enumerable.
+     */
+    request;
+    /**
+     * The response received (if any.)
+     * This property is non-enumerable.
+     */
+    response;
+    /**
+     * Bonus property set by the throw site.
+     */
+    details;
     constructor(message, options = {}) {
         super(message);
         this.name = "RestError";
@@ -30008,29 +30187,30 @@ let RestError$1 = class RestError extends Error {
         // JSON.stringify and console.log.
         Object.defineProperty(this, "request", { value: options.request, enumerable: false });
         Object.defineProperty(this, "response", { value: options.response, enumerable: false });
+        // Only include useful agent information in the request for logging, as the full agent object
+        // may contain large binary data.
+        const agent = this.request?.agent
+            ? {
+                maxFreeSockets: this.request.agent.maxFreeSockets,
+                maxSockets: this.request.agent.maxSockets,
+            }
+            : undefined;
         // Logging method for util.inspect in Node
         Object.defineProperty(this, custom, {
             value: () => {
                 // Extract non-enumerable properties and add them back. This is OK since in this output the request and
                 // response get sanitized.
-                return `RestError: ${this.message} \n ${errorSanitizer.sanitize(Object.assign(Object.assign({}, this), { request: this.request, response: this.response }))}`;
+                return `RestError: ${this.message} \n ${errorSanitizer.sanitize({
+                    ...this,
+                    request: { ...this.request, agent },
+                    response: this.response,
+                })}`;
             },
             enumerable: false,
         });
         Object.setPrototypeOf(this, RestError.prototype);
     }
 };
-/**
- * Something went wrong when making the request.
- * This means the actual request failed for some reason,
- * such as a DNS issue or the connection being lost.
- */
-RestError$1.REQUEST_SEND_ERROR = "REQUEST_SEND_ERROR";
-/**
- * This means that parsing the response from the server failed.
- * It may have been malformed.
- */
-RestError$1.PARSE_ERROR = "PARSE_ERROR";
 /**
  * Typeguard for RestError
  * @param e - Something caught by a catch clause.
@@ -30065,7 +30245,7 @@ function stringToUint8Array$1(value, format) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$o = createClientLogger$1("ts-http-runtime");
+const logger$p = createClientLogger$1("ts-http-runtime");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -30093,6 +30273,8 @@ function isArrayBuffer(body) {
     return body && typeof body.byteLength === "number";
 }
 class ReportTransform extends require$$0$2.Transform {
+    loadedBytes = 0;
+    progressCallback;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     _transform(chunk, _encoding, callback) {
         this.push(chunk);
@@ -30107,7 +30289,6 @@ class ReportTransform extends require$$0$2.Transform {
     }
     constructor(progressCallback) {
         super();
-        this.loadedBytes = 0;
         this.progressCallback = progressCallback;
     }
 }
@@ -30116,15 +30297,13 @@ class ReportTransform extends require$$0$2.Transform {
  * @internal
  */
 class NodeHttpClient {
-    constructor() {
-        this.cachedHttpsAgents = new WeakMap();
-    }
+    cachedHttpAgent;
+    cachedHttpsAgents = new WeakMap();
     /**
      * Makes a request over an underlying transport layer and returns the response.
      * @param request - The request to be made.
      */
     async sendRequest(request) {
-        var _a, _b, _c;
         const abortController = new AbortController();
         let abortListener;
         if (request.abortSignal) {
@@ -30142,12 +30321,12 @@ class NodeHttpClient {
         if (request.timeout > 0) {
             timeoutId = setTimeout(() => {
                 const sanitizer = new Sanitizer();
-                logger$o.info(`request to '${sanitizer.sanitizeUrl(request.url)}' timed out. canceling...`);
+                logger$p.info(`request to '${sanitizer.sanitizeUrl(request.url)}' timed out. canceling...`);
                 abortController.abort();
             }, request.timeout);
         }
         const acceptEncoding = request.headers.get("Accept-Encoding");
-        const shouldDecompress = (acceptEncoding === null || acceptEncoding === void 0 ? void 0 : acceptEncoding.includes("gzip")) || (acceptEncoding === null || acceptEncoding === void 0 ? void 0 : acceptEncoding.includes("deflate"));
+        const shouldDecompress = acceptEncoding?.includes("gzip") || acceptEncoding?.includes("deflate");
         let body = typeof request.body === "function" ? request.body() : request.body;
         if (body && !request.headers.has("Content-Length")) {
             const bodyLength = getBodyLength(body);
@@ -30161,7 +30340,7 @@ class NodeHttpClient {
                 const onUploadProgress = request.onUploadProgress;
                 const uploadReportStream = new ReportTransform(onUploadProgress);
                 uploadReportStream.on("error", (e) => {
-                    logger$o.error("Error in upload progress", e);
+                    logger$p.error("Error in upload progress", e);
                 });
                 if (isReadableStream$1(body)) {
                     body.pipe(uploadReportStream);
@@ -30172,11 +30351,8 @@ class NodeHttpClient {
                 body = uploadReportStream;
             }
             const res = await this.makeRequest(request, abortController, body);
-            if (timeoutId !== undefined) {
-                clearTimeout(timeoutId);
-            }
             const headers = getResponseHeaders(res);
-            const status = (_a = res.statusCode) !== null && _a !== void 0 ? _a : 0;
+            const status = res.statusCode ?? 0;
             const response = {
                 status,
                 headers,
@@ -30195,15 +30371,15 @@ class NodeHttpClient {
             if (onDownloadProgress) {
                 const downloadReportStream = new ReportTransform(onDownloadProgress);
                 downloadReportStream.on("error", (e) => {
-                    logger$o.error("Error in download progress", e);
+                    logger$p.error("Error in download progress", e);
                 });
                 responseStream.pipe(downloadReportStream);
                 responseStream = downloadReportStream;
             }
             if (
             // Value of POSITIVE_INFINITY in streamResponseStatusCodes is considered as any status code
-            ((_b = request.streamResponseStatusCodes) === null || _b === void 0 ? void 0 : _b.has(Number.POSITIVE_INFINITY)) ||
-                ((_c = request.streamResponseStatusCodes) === null || _c === void 0 ? void 0 : _c.has(response.status))) {
+            request.streamResponseStatusCodes?.has(Number.POSITIVE_INFINITY) ||
+                request.streamResponseStatusCodes?.has(response.status)) {
                 response.readableStreamBody = responseStream;
             }
             else {
@@ -30212,6 +30388,9 @@ class NodeHttpClient {
             return response;
         }
         finally {
+            if (timeoutId !== undefined) {
+                clearTimeout(timeoutId);
+            }
             // clean up event listener
             if (request.abortSignal && abortListener) {
                 let uploadStreamDone = Promise.resolve();
@@ -30224,32 +30403,37 @@ class NodeHttpClient {
                 }
                 Promise.all([uploadStreamDone, downloadStreamDone])
                     .then(() => {
-                    var _a;
                     // eslint-disable-next-line promise/always-return
                     if (abortListener) {
-                        (_a = request.abortSignal) === null || _a === void 0 ? void 0 : _a.removeEventListener("abort", abortListener);
+                        request.abortSignal?.removeEventListener("abort", abortListener);
                     }
                 })
                     .catch((e) => {
-                    logger$o.warning("Error when cleaning up abortListener on httpRequest", e);
+                    logger$p.warning("Error when cleaning up abortListener on httpRequest", e);
                 });
             }
         }
     }
     makeRequest(request, abortController, body) {
-        var _a;
         const url = new URL(request.url);
         const isInsecure = url.protocol !== "https:";
         if (isInsecure && !request.allowInsecureConnection) {
             throw new Error(`Cannot connect to ${request.url} while allowInsecureConnection is false.`);
         }
-        const agent = (_a = request.agent) !== null && _a !== void 0 ? _a : this.getOrCreateAgent(request, isInsecure);
-        const options = Object.assign({ agent, hostname: url.hostname, path: `${url.pathname}${url.search}`, port: url.port, method: request.method, headers: request.headers.toJSON({ preserveCase: true }) }, request.requestOverrides);
+        const agent = request.agent ?? this.getOrCreateAgent(request, isInsecure);
+        const options = {
+            agent,
+            hostname: url.hostname,
+            path: `${url.pathname}${url.search}`,
+            port: url.port,
+            method: request.method,
+            headers: request.headers.toJSON({ preserveCase: true }),
+            ...request.requestOverrides,
+        };
         return new Promise((resolve, reject) => {
-            const req = isInsecure ? http__namespace.request(options, resolve) : https__namespace.request(options, resolve);
+            const req = isInsecure ? http$1.request(options, resolve) : https$1.request(options, resolve);
             req.once("error", (err) => {
-                var _a;
-                reject(new RestError$1(err.message, { code: (_a = err.code) !== null && _a !== void 0 ? _a : RestError$1.REQUEST_SEND_ERROR, request }));
+                reject(new RestError$1(err.message, { code: err.code ?? RestError$1.REQUEST_SEND_ERROR, request }));
             });
             abortController.signal.addEventListener("abort", () => {
                 const abortError = new AbortError$1("The operation was aborted. Rejecting from abort signal callback while making request.");
@@ -30264,10 +30448,12 @@ class NodeHttpClient {
                     req.end(body);
                 }
                 else if (isArrayBuffer(body)) {
-                    req.end(ArrayBuffer.isView(body) ? Buffer.from(body.buffer) : Buffer.from(body));
+                    req.end(ArrayBuffer.isView(body)
+                        ? Buffer.from(body.buffer, body.byteOffset, body.byteLength)
+                        : Buffer.from(body));
                 }
                 else {
-                    logger$o.error("Unrecognized body type", body);
+                    logger$p.error("Unrecognized body type", body);
                     reject(new RestError$1("Unrecognized body type"));
                 }
             }
@@ -30278,17 +30464,16 @@ class NodeHttpClient {
         });
     }
     getOrCreateAgent(request, isInsecure) {
-        var _a;
         const disableKeepAlive = request.disableKeepAlive;
         // Handle Insecure requests first
         if (isInsecure) {
             if (disableKeepAlive) {
                 // keepAlive:false is the default so we don't need a custom Agent
-                return http__namespace.globalAgent;
+                return http$1.globalAgent;
             }
             if (!this.cachedHttpAgent) {
                 // If there is no cached agent create a new one and cache it.
-                this.cachedHttpAgent = new http__namespace.Agent({ keepAlive: true });
+                this.cachedHttpAgent = new http$1.Agent({ keepAlive: true });
             }
             return this.cachedHttpAgent;
         }
@@ -30296,20 +30481,23 @@ class NodeHttpClient {
             if (disableKeepAlive && !request.tlsSettings) {
                 // When there are no tlsSettings and keepAlive is false
                 // we don't need a custom agent
-                return https__namespace.globalAgent;
+                return https$1.globalAgent;
             }
             // We use the tlsSettings to index cached clients
-            const tlsSettings = (_a = request.tlsSettings) !== null && _a !== void 0 ? _a : DEFAULT_TLS_SETTINGS;
+            const tlsSettings = request.tlsSettings ?? DEFAULT_TLS_SETTINGS;
             // Get the cached agent or create a new one with the
             // provided values for keepAlive and tlsSettings
             let agent = this.cachedHttpsAgents.get(tlsSettings);
             if (agent && agent.options.keepAlive === !disableKeepAlive) {
                 return agent;
             }
-            logger$o.info("No cached TLS Agent exist, creating a new Agent");
-            agent = new https__namespace.Agent(Object.assign({ 
+            logger$p.info("No cached TLS Agent exist, creating a new Agent");
+            agent = new https$1.Agent({
                 // keepAlive is true if disableKeepAlive is false.
-                keepAlive: !disableKeepAlive }, tlsSettings));
+                keepAlive: !disableKeepAlive,
+                // Since we are spreading, if no tslSettings were provided, nothing is added to the agent options.
+                ...tlsSettings,
+            });
             this.cachedHttpsAgents.set(tlsSettings, agent);
             return agent;
         }
@@ -30333,12 +30521,12 @@ function getResponseHeaders(res) {
 function getDecodedResponseStream(stream, headers) {
     const contentEncoding = headers.get("Content-Encoding");
     if (contentEncoding === "gzip") {
-        const unzip = zlib__namespace.createGunzip();
+        const unzip = zlib.createGunzip();
         stream.pipe(unzip);
         return unzip;
     }
     else if (contentEncoding === "deflate") {
-        const inflate = zlib__namespace.createInflate();
+        const inflate = zlib.createInflate();
         stream.pipe(inflate);
         return inflate;
     }
@@ -30359,7 +30547,7 @@ function streamToText(stream) {
             resolve(Buffer.concat(buffer).toString("utf8"));
         });
         stream.on("error", (e) => {
-            if (e && (e === null || e === void 0 ? void 0 : e.name) === "AbortError") {
+            if (e && e?.name === "AbortError") {
                 reject(e);
             }
             else {
@@ -30419,8 +30607,7 @@ const logPolicyName = "logPolicy";
  * @param options - Options to configure logPolicy.
  */
 function logPolicy$1(options = {}) {
-    var _a;
-    const logger = (_a = options.logger) !== null && _a !== void 0 ? _a : logger$o.info;
+    const logger = options.logger ?? logger$p.info;
     const sanitizer = new Sanitizer({
         additionalAllowedHeaderNames: options.additionalAllowedHeaderNames,
         additionalAllowedQueryParameters: options.additionalAllowedQueryParameters,
@@ -30434,62 +30621,10 @@ function logPolicy$1(options = {}) {
             logger(`Request: ${sanitizer.sanitize(request)}`);
             const response = await next(request);
             logger(`Response status code: ${response.status}`);
-            logger(`Headers: ${sanitizer.sanitize(response.headers)}`);
+            logger(`Headers: ${sanitizer.sanitize({ headers: response.headers })}`);
             return response;
         },
     };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * The programmatic identifier of the redirectPolicy.
- */
-const redirectPolicyName$1 = "redirectPolicy";
-/**
- * Methods that are allowed to follow redirects 301 and 302
- */
-const allowedRedirect = ["GET", "HEAD"];
-/**
- * A policy to follow Location headers from the server in order
- * to support server-side redirection.
- * In the browser, this policy is not used.
- * @param options - Options to control policy behavior.
- */
-function redirectPolicy$1(options = {}) {
-    const { maxRetries = 20 } = options;
-    return {
-        name: redirectPolicyName$1,
-        async sendRequest(request, next) {
-            const response = await next(request);
-            return handleRedirect(next, response, maxRetries);
-        },
-    };
-}
-async function handleRedirect(next, response, maxRetries, currentRetries = 0) {
-    const { request, status, headers } = response;
-    const locationHeader = headers.get("location");
-    if (locationHeader &&
-        (status === 300 ||
-            (status === 301 && allowedRedirect.includes(request.method)) ||
-            (status === 302 && allowedRedirect.includes(request.method)) ||
-            (status === 303 && request.method === "POST") ||
-            status === 307) &&
-        currentRetries < maxRetries) {
-        const url = new URL(locationHeader, request.url);
-        request.url = url.toString();
-        // POST request with Status code 303 should be converted into a
-        // redirected GET request if the redirect url is present in the location header
-        if (status === 303) {
-            request.method = "GET";
-            request.headers.delete("Content-Length");
-            delete request.body;
-        }
-        request.headers.delete("Authorization");
-        const res = await next(request);
-        return handleRedirect(next, res, maxRetries, currentRetries + 1);
-    }
-    return response;
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -30504,24 +30639,23 @@ function getHeaderName$1() {
  * @internal
  */
 async function setPlatformSpecificData$1(map) {
-    if (process__namespace && process__namespace.versions) {
-        const versions = process__namespace.versions;
-        if (versions.bun) {
-            map.set("Bun", versions.bun);
+    if (process$1 && process$1.versions) {
+        const osInfo = `${os$1.type()} ${os$1.release()}; ${os$1.arch()}`;
+        if (process$1.versions.bun) {
+            map.set("Bun", `${process$1.versions.bun} (${osInfo})`);
         }
-        else if (versions.deno) {
-            map.set("Deno", versions.deno);
+        else if (process$1.versions.deno) {
+            map.set("Deno", `${process$1.versions.deno} (${osInfo})`);
         }
-        else if (versions.node) {
-            map.set("Node", versions.node);
+        else if (process$1.versions.node) {
+            map.set("Node", `${process$1.versions.node} (${osInfo})`);
         }
     }
-    map.set("OS", `(${os__namespace$1.arch()}-${os__namespace$1.type()}-${os__namespace$1.release()})`);
 }
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const SDK_VERSION$3 = "0.3.0";
+const SDK_VERSION$3 = "0.3.9";
 const DEFAULT_RETRY_POLICY_COUNT$1 = 3;
 
 // Copyright (c) Microsoft Corporation.
@@ -30580,29 +30714,6 @@ function userAgentPolicy$1(options = {}) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 /**
- * The programmatic identifier of the decompressResponsePolicy.
- */
-const decompressResponsePolicyName = "decompressResponsePolicy";
-/**
- * A policy to enable response decompression according to Accept-Encoding header
- * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Encoding
- */
-function decompressResponsePolicy$1() {
-    return {
-        name: decompressResponsePolicyName,
-        async sendRequest(request, next) {
-            // HEAD requests have no body
-            if (request.method !== "HEAD") {
-                request.headers.set("Accept-Encoding", "gzip,deflate");
-            }
-            return next(request);
-        },
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
  * Returns a random integer value between a lower and upper bound,
  * inclusive of both bounds.
  * Note that this uses Math.random and isn't secure. If you need to use
@@ -30610,7 +30721,7 @@ function decompressResponsePolicy$1() {
  * @param min - The smallest integer value allowed.
  * @param max - The largest integer value allowed.
  */
-function getRandomIntegerInclusive$1(min, max) {
+function getRandomIntegerInclusive(min, max) {
     // Make sure inputs are integers.
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -30636,7 +30747,7 @@ function calculateRetryDelay$1(retryAttempt, config) {
     const clampedDelay = Math.min(config.maxRetryDelayInMs, exponentialDelay);
     // Allow the final value to have some "jitter" (within 50% of the delay size) so
     // that retries across multiple clients don't occur simultaneously.
-    const retryAfterInMs = clampedDelay / 2 + getRandomIntegerInclusive$1(0, clampedDelay / 2);
+    const retryAfterInMs = clampedDelay / 2 + getRandomIntegerInclusive(0, clampedDelay / 2);
     return { retryAfterInMs };
 }
 
@@ -30657,10 +30768,10 @@ function delay$2(delayInMs, value, options) {
         let timer = undefined;
         let onAborted = undefined;
         const rejectOnAbort = () => {
-            return reject(new AbortError$1((options === null || options === void 0 ? void 0 : options.abortErrorMsg) ? options === null || options === void 0 ? void 0 : options.abortErrorMsg : StandardAbortMessage$1));
+            return reject(new AbortError$1(options?.abortErrorMsg ? options?.abortErrorMsg : StandardAbortMessage$1));
         };
         const removeListeners = () => {
-            if ((options === null || options === void 0 ? void 0 : options.abortSignal) && onAborted) {
+            if (options?.abortSignal && onAborted) {
                 options.abortSignal.removeEventListener("abort", onAborted);
             }
         };
@@ -30671,14 +30782,14 @@ function delay$2(delayInMs, value, options) {
             removeListeners();
             return rejectOnAbort();
         };
-        if ((options === null || options === void 0 ? void 0 : options.abortSignal) && options.abortSignal.aborted) {
+        if (options?.abortSignal && options.abortSignal.aborted) {
             return rejectOnAbort();
         }
         timer = setTimeout(() => {
             removeListeners();
             resolve(value);
         }, delayInMs);
-        if (options === null || options === void 0 ? void 0 : options.abortSignal) {
+        if (options?.abortSignal) {
             options.abortSignal.addEventListener("abort", onAborted);
         }
     });
@@ -30744,7 +30855,7 @@ function getRetryAfterInMs(response) {
         // negative diff would mean a date in the past, so retry asap with 0 milliseconds
         return Number.isFinite(diff) ? Math.max(0, diff) : undefined;
     }
-    catch (_a) {
+    catch {
         return undefined;
     }
 }
@@ -30781,9 +30892,8 @@ const DEFAULT_CLIENT_MAX_RETRY_INTERVAL$1 = 1000 * 64;
  * - Or otherwise if the outgoing request fails (408, greater or equal than 500, except for 501 and 505).
  */
 function exponentialRetryStrategy(options = {}) {
-    var _a, _b;
-    const retryInterval = (_a = options.retryDelayInMs) !== null && _a !== void 0 ? _a : DEFAULT_CLIENT_RETRY_INTERVAL;
-    const maxRetryInterval = (_b = options.maxRetryDelayInMs) !== null && _b !== void 0 ? _b : DEFAULT_CLIENT_MAX_RETRY_INTERVAL$1;
+    const retryInterval = options.retryDelayInMs ?? DEFAULT_CLIENT_RETRY_INTERVAL;
+    const maxRetryInterval = options.maxRetryDelayInMs ?? DEFAULT_CLIENT_MAX_RETRY_INTERVAL$1;
     return {
         name: "exponentialRetryStrategy",
         retry({ retryCount, response, responseError }) {
@@ -30847,13 +30957,11 @@ function retryPolicy$1(strategies, options = { maxRetries: DEFAULT_RETRY_POLICY_
     return {
         name: retryPolicyName,
         async sendRequest(request, next) {
-            var _a, _b;
             let response;
             let responseError;
             let retryCount = -1;
             retryRequest: while (true) {
                 retryCount += 1;
-                response = undefined;
                 responseError = undefined;
                 try {
                     logger.info(`Retry ${retryCount}: Attempting to send request`, request.requestId);
@@ -30865,18 +30973,18 @@ function retryPolicy$1(strategies, options = { maxRetries: DEFAULT_RETRY_POLICY_
                     // RestErrors are valid targets for the retry strategies.
                     // If none of the retry strategies can work with them, they will be thrown later in this policy.
                     // If the received error is not a RestError, it is immediately thrown.
-                    responseError = e;
-                    if (!e || responseError.name !== "RestError") {
+                    if (!isRestError$1(e)) {
                         throw e;
                     }
-                    response = responseError.response;
+                    responseError = e;
+                    response = e.response;
                 }
-                if ((_a = request.abortSignal) === null || _a === void 0 ? void 0 : _a.aborted) {
+                if (request.abortSignal?.aborted) {
                     logger.error(`Retry ${retryCount}: Request aborted.`);
                     const abortError = new AbortError$1();
                     throw abortError;
                 }
-                if (retryCount >= ((_b = options.maxRetries) !== null && _b !== void 0 ? _b : DEFAULT_RETRY_POLICY_COUNT$1)) {
+                if (retryCount >= (options.maxRetries ?? DEFAULT_RETRY_POLICY_COUNT$1)) {
                     logger.info(`Retry ${retryCount}: Maximum retries reached. Returning the last received response, or throwing the last received error.`);
                     if (responseError) {
                         throw responseError;
@@ -30946,42 +31054,39 @@ const defaultRetryPolicyName = "defaultRetryPolicy";
  * - Or otherwise if the outgoing request fails, it will retry with an exponentially increasing delay.
  */
 function defaultRetryPolicy$1(options = {}) {
-    var _a;
     return {
         name: defaultRetryPolicyName,
         sendRequest: retryPolicy$1([throttlingRetryStrategy(), exponentialRetryStrategy(options)], {
-            maxRetries: (_a = options.maxRetries) !== null && _a !== void 0 ? _a : DEFAULT_RETRY_POLICY_COUNT$1,
+            maxRetries: options.maxRetries ?? DEFAULT_RETRY_POLICY_COUNT$1,
         }).sendRequest,
     };
 }
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-var _a$1, _b$1, _c$1, _d$1;
 /**
- * A constant that indicates whether the environment the code is running is a Web Worker.
+ * If the request body is a native FormData, convert it to our FormDataMap
+ * representation and clear the body. Node.js's HTTP stack doesn't handle
+ * FormData natively, so the pipeline must serialize it later.
+ *
+ * @internal
  */
-typeof self === "object" &&
-    typeof (self === null || self === void 0 ? void 0 : self.importScripts) === "function" &&
-    (((_a$1 = self.constructor) === null || _a$1 === void 0 ? void 0 : _a$1.name) === "DedicatedWorkerGlobalScope" ||
-        ((_b$1 = self.constructor) === null || _b$1 === void 0 ? void 0 : _b$1.name) === "ServiceWorkerGlobalScope" ||
-        ((_c$1 = self.constructor) === null || _c$1 === void 0 ? void 0 : _c$1.name) === "SharedWorkerGlobalScope");
-/**
- * A constant that indicates whether the environment the code is running is Deno.
- */
-typeof Deno !== "undefined" &&
-    typeof Deno.version !== "undefined" &&
-    typeof Deno.version.deno !== "undefined";
-/**
- * A constant that indicates whether the environment the code is running is Bun.sh.
- */
-typeof Bun !== "undefined" && typeof Bun.version !== "undefined";
-/**
- * A constant that indicates whether the environment the code is running is a Node.js compatible environment.
- */
-const isNodeLike$1 = typeof globalThis.process !== "undefined" &&
-    Boolean(globalThis.process.version) &&
-    Boolean((_d$1 = globalThis.process.versions) === null || _d$1 === void 0 ? void 0 : _d$1.node);
+function convertBodyToFormDataMap(body) {
+    if (typeof FormData !== "undefined" && body instanceof FormData) {
+        const formDataMap = {};
+        for (const [key, value] of body.entries()) {
+            const existing = formDataMap[key];
+            if (Array.isArray(existing)) {
+                existing.push(value);
+            }
+            else {
+                formDataMap[key] = existing !== undefined ? [existing, value] : [value];
+            }
+        }
+        return formDataMap;
+    }
+    return undefined;
+}
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -30989,15 +31094,6 @@ const isNodeLike$1 = typeof globalThis.process !== "undefined" &&
  * The programmatic identifier of the formDataPolicy.
  */
 const formDataPolicyName = "formDataPolicy";
-function formDataToFormDataMap(formData) {
-    var _a;
-    const formDataMap = {};
-    for (const [key, value] of formData.entries()) {
-        (_a = formDataMap[key]) !== null && _a !== void 0 ? _a : (formDataMap[key] = []);
-        formDataMap[key].push(value);
-    }
-    return formDataMap;
-}
 /**
  * A policy that encodes FormData on the request into the body.
  */
@@ -31005,8 +31101,9 @@ function formDataPolicy$1() {
     return {
         name: formDataPolicyName,
         async sendRequest(request, next) {
-            if (isNodeLike$1 && typeof FormData !== "undefined" && request.body instanceof FormData) {
-                request.formData = formDataToFormDataMap(request.body);
+            const converted = convertBodyToFormDataMap(request.body);
+            if (converted) {
+                request.formData = converted;
                 request.body = undefined;
             }
             if (request.formData) {
@@ -31044,7 +31141,7 @@ async function prepareFormData(formData, request) {
         // content type is specified and is not multipart/form-data. Exit.
         return;
     }
-    request.headers.set("Content-Type", contentType !== null && contentType !== void 0 ? contentType : "multipart/form-data");
+    request.headers.set("Content-Type", contentType ?? "multipart/form-data");
     // set body to MultipartRequestBody using content from FormDataMap
     const parts = [];
     for (const [fieldName, values] of Object.entries(formData)) {
@@ -31075,6 +31172,50 @@ async function prepareFormData(formData, request) {
         }
     }
     request.multipartBody = { parts };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Name of the Agent Policy
+ */
+const agentPolicyName = "agentPolicy";
+/**
+ * Gets a pipeline policy that sets http.agent
+ */
+function agentPolicy$1(agent) {
+    return {
+        name: agentPolicyName,
+        sendRequest: async (req, next) => {
+            // Users may define an agent on the request, honor it over the client level one
+            if (!req.agent) {
+                req.agent = agent;
+            }
+            return next(req);
+        },
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Name of the TLS Policy
+ */
+const tlsPolicyName = "tlsPolicy";
+/**
+ * Gets a pipeline policy that adds the client certificate to the HttpClient agent for authentication.
+ */
+function tlsPolicy$1(tlsSettings) {
+    return {
+        name: tlsPolicyName,
+        sendRequest: async (req, next) => {
+            // Users may define a request tlsSettings, honor those over the client level one
+            if (!req.tlsSettings) {
+                req.tlsSettings = tlsSettings;
+            }
+            return next(req);
+        },
+    };
 }
 
 var dist$2 = {};
@@ -33056,7 +33197,7 @@ function isBypassed(uri, noProxyList, bypassedMap) {
         return false;
     }
     const host = new URL(uri).hostname;
-    if (bypassedMap === null || bypassedMap === void 0 ? void 0 : bypassedMap.has(host)) {
+    if (bypassedMap?.has(host)) {
         return bypassedMap.get(host);
     }
     let isBypassedFlag = false;
@@ -33079,7 +33220,7 @@ function isBypassed(uri, noProxyList, bypassedMap) {
             }
         }
     }
-    bypassedMap === null || bypassedMap === void 0 ? void 0 : bypassedMap.set(host, isBypassedFlag);
+    bypassedMap?.set(host, isBypassedFlag);
     return isBypassedFlag;
 }
 function loadNoProxy() {
@@ -33106,7 +33247,7 @@ function getUrlFromProxySettings(settings) {
     try {
         parsedProxyUrl = new URL(settings.host);
     }
-    catch (_a) {
+    catch {
         throw new Error(`Expecting a valid host string in proxy settings, but found "${settings.host}".`);
     }
     parsedProxyUrl.port = String(settings.port);
@@ -33127,18 +33268,17 @@ function setProxyAgentOnRequest(request, cachedAgents, proxyUrl) {
     const url = new URL(request.url);
     const isInsecure = url.protocol !== "https:";
     if (request.tlsSettings) {
-        logger$o.warning("TLS settings are not supported in combination with custom Proxy, certificates provided to the client will be ignored.");
+        logger$p.warning("TLS settings are not supported in combination with custom Proxy, certificates provided to the client will be ignored.");
     }
-    const headers = request.headers.toJSON();
     if (isInsecure) {
         if (!cachedAgents.httpProxyAgent) {
-            cachedAgents.httpProxyAgent = new distExports.HttpProxyAgent(proxyUrl, { headers });
+            cachedAgents.httpProxyAgent = new distExports.HttpProxyAgent(proxyUrl);
         }
         request.agent = cachedAgents.httpProxyAgent;
     }
     else {
         if (!cachedAgents.httpsProxyAgent) {
-            cachedAgents.httpsProxyAgent = new distExports$1.HttpsProxyAgent(proxyUrl, { headers });
+            cachedAgents.httpsProxyAgent = new distExports$1.HttpsProxyAgent(proxyUrl);
         }
         request.agent = cachedAgents.httpsProxyAgent;
     }
@@ -33161,10 +33301,9 @@ function proxyPolicy$1(proxySettings, options) {
     return {
         name: proxyPolicyName,
         async sendRequest(request, next) {
-            var _a;
             if (!request.proxySettings &&
                 defaultProxy &&
-                !isBypassed(request.url, (_a = void 0 ) !== null && _a !== void 0 ? _a : globalNoProxyList, globalBypassedMap)) {
+                !isBypassed(request.url, globalNoProxyList, globalBypassedMap)) {
                 setProxyAgentOnRequest(request, cachedAgents, defaultProxy);
             }
             else if (request.proxySettings) {
@@ -33178,21 +33317,22 @@ function proxyPolicy$1(proxySettings, options) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 /**
- * Name of the Agent Policy
+ * The programmatic identifier of the decompressResponsePolicy.
  */
-const agentPolicyName = "agentPolicy";
+const decompressResponsePolicyName = "decompressResponsePolicy";
 /**
- * Gets a pipeline policy that sets http.agent
+ * A policy to enable response decompression according to Accept-Encoding header
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Encoding
  */
-function agentPolicy$1(agent) {
+function decompressResponsePolicy$1() {
     return {
-        name: agentPolicyName,
-        sendRequest: async (req, next) => {
-            // Users may define an agent on the request, honor it over the client level one
-            if (!req.agent) {
-                req.agent = agent;
+        name: decompressResponsePolicyName,
+        async sendRequest(request, next) {
+            // HEAD requests have no body
+            if (request.method !== "HEAD") {
+                request.headers.set("Accept-Encoding", "gzip,deflate");
             }
-            return next(req);
+            return next(request);
         },
     };
 }
@@ -33200,35 +33340,109 @@ function agentPolicy$1(agent) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 /**
- * Name of the TLS Policy
+ * The programmatic identifier of the redirectPolicy.
  */
-const tlsPolicyName = "tlsPolicy";
+const redirectPolicyName = "redirectPolicy";
 /**
- * Gets a pipeline policy that adds the client certificate to the HttpClient agent for authentication.
+ * Methods that are allowed to follow redirects 301 and 302
  */
-function tlsPolicy$1(tlsSettings) {
+const allowedRedirect = ["GET", "HEAD"];
+/**
+ * A policy to follow Location headers from the server in order
+ * to support server-side redirection.
+ * In the browser, this policy is not used.
+ * @param options - Options to control policy behavior.
+ */
+function redirectPolicy$1(options = {}) {
+    const { maxRetries = 20, allowCrossOriginRedirects = false } = options;
     return {
-        name: tlsPolicyName,
-        sendRequest: async (req, next) => {
-            // Users may define a request tlsSettings, honor those over the client level one
-            if (!req.tlsSettings) {
-                req.tlsSettings = tlsSettings;
-            }
-            return next(req);
+        name: redirectPolicyName,
+        async sendRequest(request, next) {
+            const response = await next(request);
+            return handleRedirect(next, response, maxRetries, allowCrossOriginRedirects);
         },
     };
+}
+async function handleRedirect(next, response, maxRetries, allowCrossOriginRedirects, currentRetries = 0) {
+    const { request, status, headers } = response;
+    const locationHeader = headers.get("location");
+    if (locationHeader &&
+        (status === 300 ||
+            (status === 301 && allowedRedirect.includes(request.method)) ||
+            (status === 302 && allowedRedirect.includes(request.method)) ||
+            (status === 303 && request.method === "POST") ||
+            status === 307) &&
+        currentRetries < maxRetries) {
+        const url = new URL(locationHeader, request.url);
+        // Only follow redirects to the same origin by default.
+        if (!allowCrossOriginRedirects) {
+            const originalUrl = new URL(request.url);
+            if (url.origin !== originalUrl.origin) {
+                logger$p.verbose(`Skipping cross-origin redirect from ${originalUrl.origin} to ${url.origin}.`);
+                return response;
+            }
+        }
+        request.url = url.toString();
+        // POST request with Status code 303 should be converted into a
+        // redirected GET request if the redirect url is present in the location header
+        if (status === 303) {
+            request.method = "GET";
+            request.headers.delete("Content-Length");
+            delete request.body;
+        }
+        request.headers.delete("Authorization");
+        const res = await next(request);
+        return handleRedirect(next, res, maxRetries, allowCrossOriginRedirects, currentRetries + 1);
+    }
+    return response;
 }
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+/**
+ * Add platform-specific policies to the pipeline.
+ *
+ * On Node.js, this adds agent, TLS, proxy, decompression, and redirect
+ * policies. On browser and React Native these concerns are handled
+ * natively by the runtime, so this is a no-op.
+ *
+ * @internal
+ */
+function addPlatformPolicies(pipeline, options) {
+    if (options.agent) {
+        pipeline.addPolicy(agentPolicy$1(options.agent));
+    }
+    if (options.tlsOptions) {
+        pipeline.addPolicy(tlsPolicy$1(options.tlsOptions));
+    }
+    pipeline.addPolicy(proxyPolicy$1(options.proxyOptions));
+    pipeline.addPolicy(decompressResponsePolicy$1());
+    // Both XHR and Fetch expect to handle redirects automatically,
+    // so this only takes effect on Node.
+    pipeline.addPolicy(redirectPolicy$1(options.redirectOptions), { afterPhase: "Retry" });
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Checks if the given value is a Node.js readable stream.
+ *
+ * @internal
+ */
 function isNodeReadableStream(x) {
-    return Boolean(x && typeof x["pipe"] === "function");
+    return x instanceof require$$3.Readable;
 }
+/**
+ * Checks if the given value is a web ReadableStream.
+ *
+ * @internal
+ */
 function isWebReadableStream(x) {
-    return Boolean(x &&
-        typeof x.getReader === "function" &&
-        typeof x.tee === "function");
+    return x instanceof ReadableStream;
 }
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 function isBinaryBody(body) {
     return (body !== undefined &&
         (body instanceof Uint8Array ||
@@ -33240,27 +33454,25 @@ function isReadableStream(x) {
     return isNodeReadableStream(x) || isWebReadableStream(x);
 }
 function isBlob(x) {
-    return typeof x.stream === "function";
+    return x instanceof Blob;
 }
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-function streamAsyncIterator() {
-    return __asyncGenerator(this, arguments, function* streamAsyncIterator_1() {
-        const reader = this.getReader();
-        try {
-            while (true) {
-                const { done, value } = yield __await(reader.read());
-                if (done) {
-                    return yield __await(void 0);
-                }
-                yield yield __await(value);
+async function* streamAsyncIterator() {
+    const reader = this.getReader();
+    try {
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                return;
             }
+            yield value;
         }
-        finally {
-            reader.releaseLock();
-        }
-    });
+    }
+    finally {
+        reader.releaseLock();
+    }
 }
 function makeAsyncIterable(webStream) {
     if (!webStream[Symbol.asyncIterator]) {
@@ -33302,27 +33514,12 @@ function toStream(source) {
 async function concat(sources) {
     return function () {
         const streams = sources.map((x) => (typeof x === "function" ? x() : x)).map(toStream);
-        return require$$3.Readable.from((function () {
-            return __asyncGenerator(this, arguments, function* () {
-                var _a, e_1, _b, _c;
-                for (const stream of streams) {
-                    try {
-                        for (var _d = true, stream_1 = (e_1 = void 0, __asyncValues(stream)), stream_1_1; stream_1_1 = yield __await(stream_1.next()), _a = stream_1_1.done, !_a; _d = true) {
-                            _c = stream_1_1.value;
-                            _d = false;
-                            const chunk = _c;
-                            yield yield __await(chunk);
-                        }
-                    }
-                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                    finally {
-                        try {
-                            if (!_d && !_a && (_b = stream_1.return)) yield __await(_b.call(stream_1));
-                        }
-                        finally { if (e_1) throw e_1.error; }
-                    }
+        return require$$3.Readable.from((async function* () {
+            for (const stream of streams) {
+                for await (const chunk of stream) {
+                    yield chunk;
                 }
-            });
+            }
         })());
     };
 }
@@ -33380,6 +33577,10 @@ async function buildRequestBody(request, parts, boundary) {
     if (contentLength) {
         request.headers.set("Content-Length", contentLength);
     }
+    // The public BodyPart.body type uses Uint8Array (= Uint8Array<ArrayBufferLike>) for
+    // backward compatibility. Internally, concat requires Uint8Array<ArrayBuffer> to ensure
+    // SharedArrayBuffer-backed arrays don't flow into Blob construction. In practice, HTTP
+    // request bodies are always ArrayBuffer-backed, so this narrowing is safe.
     request.body = await concat(sources);
 }
 /**
@@ -33403,7 +33604,6 @@ function multipartPolicy$1() {
     return {
         name: multipartPolicyName$1,
         async sendRequest(request, next) {
-            var _a;
             if (!request.multipartBody) {
                 return next(request);
             }
@@ -33411,7 +33611,7 @@ function multipartPolicy$1() {
                 throw new Error("multipartBody and regular body cannot be set at the same time");
             }
             let boundary = request.multipartBody.boundary;
-            const contentTypeHeader = (_a = request.headers.get("Content-Type")) !== null && _a !== void 0 ? _a : "multipart/mixed";
+            const contentTypeHeader = request.headers.get("Content-Type") ?? "multipart/mixed";
             const parsedHeader = contentTypeHeader.match(/^(multipart\/[^ ;]+)(?:; *boundary=(.+))?$/);
             if (!parsedHeader) {
                 throw new Error(`Got multipart request body, but content-type header was not multipart: ${contentTypeHeader}`);
@@ -33420,7 +33620,7 @@ function multipartPolicy$1() {
             if (parsedBoundary && boundary && parsedBoundary !== boundary) {
                 throw new Error(`Multipart boundary was specified as ${parsedBoundary} in the header, but got ${boundary} in the request body`);
             }
-            boundary !== null && boundary !== void 0 ? boundary : (boundary = parsedBoundary);
+            boundary ??= parsedBoundary;
             if (boundary) {
                 assertValidBoundary(boundary);
             }
@@ -33443,16 +33643,7 @@ function multipartPolicy$1() {
  */
 function createPipelineFromOptions$1(options) {
     const pipeline = createEmptyPipeline$1();
-    if (isNodeLike$1) {
-        if (options.agent) {
-            pipeline.addPolicy(agentPolicy$1(options.agent));
-        }
-        if (options.tlsOptions) {
-            pipeline.addPolicy(tlsPolicy$1(options.tlsOptions));
-        }
-        pipeline.addPolicy(proxyPolicy$1(options.proxyOptions));
-        pipeline.addPolicy(decompressResponsePolicy$1());
-    }
+    addPlatformPolicies(pipeline, options);
     pipeline.addPolicy(formDataPolicy$1(), { beforePolicies: [multipartPolicyName$1] });
     pipeline.addPolicy(userAgentPolicy$1(options.userAgentOptions));
     // The multipart policy is added after policies with no phase, so that
@@ -33460,11 +33651,6 @@ function createPipelineFromOptions$1(options) {
     // properties (e.g., making the boundary constant in recorded tests).
     pipeline.addPolicy(multipartPolicy$1(), { afterPhase: "Deserialize" });
     pipeline.addPolicy(defaultRetryPolicy$1(options.retryOptions), { phase: "Retry" });
-    if (isNodeLike$1) {
-        // Both XHR and Fetch expect to handle redirects automatically,
-        // so only include this policy when we're in Node.
-        pipeline.addPolicy(redirectPolicy$1(options.redirectOptions), { afterPhase: "Retry" });
-    }
     pipeline.addPolicy(logPolicy$1(options.loggingOptions), { afterPhase: "Sign" });
     return pipeline;
 }
@@ -33547,10 +33733,10 @@ function allowInsecureConnection(request, options) {
  */
 function emitInsecureConnectionWarning() {
     const warning = "Sending token over insecure transport. Assume any token issued is compromised.";
-    logger$o.warning(warning);
-    if (typeof (process === null || process === void 0 ? void 0 : process.emitWarning) === "function" && !insecureConnectionWarningEmmitted) {
+    logger$p.warning(warning);
+    if (!insecureConnectionWarningEmmitted) {
         insecureConnectionWarningEmmitted = true;
-        process.emitWarning(warning);
+        emitNodeWarning(warning);
     }
 }
 /**
@@ -33581,10 +33767,9 @@ function apiKeyAuthenticationPolicy(options) {
     return {
         name: apiKeyAuthenticationPolicyName,
         async sendRequest(request, next) {
-            var _a, _b;
             // Ensure allowInsecureConnection is explicitly set when sending request to non-https URLs
             ensureSecureConnection(request, options);
-            const scheme = (_b = ((_a = request.authSchemes) !== null && _a !== void 0 ? _a : options.authSchemes)) === null || _b === void 0 ? void 0 : _b.find((x) => x.kind === "apiKey");
+            const scheme = (request.authSchemes ?? options.authSchemes)?.find((x) => x.kind === "apiKey");
             // Skip adding authentication header if no API key authentication scheme is found
             if (!scheme) {
                 return next(request);
@@ -33611,10 +33796,9 @@ function basicAuthenticationPolicy(options) {
     return {
         name: basicAuthenticationPolicyName,
         async sendRequest(request, next) {
-            var _a, _b;
             // Ensure allowInsecureConnection is explicitly set when sending request to non-https URLs
             ensureSecureConnection(request, options);
-            const scheme = (_b = ((_a = request.authSchemes) !== null && _a !== void 0 ? _a : options.authSchemes)) === null || _b === void 0 ? void 0 : _b.find((x) => x.kind === "http" && x.scheme === "basic");
+            const scheme = (request.authSchemes ?? options.authSchemes)?.find((x) => x.kind === "http" && x.scheme === "basic");
             // Skip adding authentication header if no basic authentication scheme is found
             if (!scheme) {
                 return next(request);
@@ -33640,10 +33824,9 @@ function bearerAuthenticationPolicy(options) {
     return {
         name: bearerAuthenticationPolicyName,
         async sendRequest(request, next) {
-            var _a, _b;
             // Ensure allowInsecureConnection is explicitly set when sending request to non-https URLs
             ensureSecureConnection(request, options);
-            const scheme = (_b = ((_a = request.authSchemes) !== null && _a !== void 0 ? _a : options.authSchemes)) === null || _b === void 0 ? void 0 : _b.find((x) => x.kind === "http" && x.scheme === "bearer");
+            const scheme = (request.authSchemes ?? options.authSchemes)?.find((x) => x.kind === "http" && x.scheme === "bearer");
             // Skip adding authentication header if no bearer authentication scheme is found
             if (!scheme) {
                 return next(request);
@@ -33670,10 +33853,9 @@ function oauth2AuthenticationPolicy(options) {
     return {
         name: oauth2AuthenticationPolicyName,
         async sendRequest(request, next) {
-            var _a, _b;
             // Ensure allowInsecureConnection is explicitly set when sending request to non-https URLs
             ensureSecureConnection(request, options);
-            const scheme = (_b = ((_a = request.authSchemes) !== null && _a !== void 0 ? _a : options.authSchemes)) === null || _b === void 0 ? void 0 : _b.find((x) => x.kind === "oauth2");
+            const scheme = (request.authSchemes ?? options.authSchemes)?.find((x) => x.kind === "oauth2");
             // Skip adding authentication header if no OAuth2 authentication scheme is found
             if (!scheme) {
                 return next(request);
@@ -33769,7 +33951,6 @@ function escapeDispositionField(value) {
     return JSON.stringify(value);
 }
 function getContentDisposition(descriptor) {
-    var _a;
     const contentDispositionHeader = getHeaderValue(descriptor, "content-disposition");
     if (contentDispositionHeader) {
         return contentDispositionHeader;
@@ -33779,7 +33960,7 @@ function getContentDisposition(descriptor) {
         descriptor.filename === undefined) {
         return undefined;
     }
-    const dispositionType = (_a = descriptor.dispositionType) !== null && _a !== void 0 ? _a : "form-data";
+    const dispositionType = descriptor.dispositionType ?? "form-data";
     let disposition = dispositionType;
     if (descriptor.name) {
         disposition += `; name=${escapeDispositionField(descriptor.name)}`;
@@ -33818,10 +33999,9 @@ function normalizeBody(body, contentType) {
     throw new RestError$1(`Unsupported body/content-type combination: ${body}, ${contentType}`);
 }
 function buildBodyPart(descriptor) {
-    var _a;
     const contentType = getPartContentType(descriptor);
     const contentDisposition = getContentDisposition(descriptor);
-    const headers = createHttpHeaders$1((_a = descriptor.headers) !== null && _a !== void 0 ? _a : {});
+    const headers = createHttpHeaders$1(descriptor.headers ?? {});
     if (contentType) {
         headers.set("content-type", contentType);
     }
@@ -33850,17 +34030,16 @@ function buildMultipartBody(parts) {
  * @returns returns and HttpResponse
  */
 async function sendRequest(method, url, pipeline, options = {}, customHttpClient) {
-    var _a;
-    const httpClient = customHttpClient !== null && customHttpClient !== void 0 ? customHttpClient : getCachedDefaultHttpsClient();
+    const httpClient = customHttpClient ?? getCachedDefaultHttpsClient();
     const request = buildPipelineRequest(method, url, options);
     try {
         const response = await pipeline.sendRequest(httpClient, request);
         const headers = response.headers.toJSON();
-        const stream = (_a = response.readableStreamBody) !== null && _a !== void 0 ? _a : response.browserStreamBody;
+        const stream = response.readableStreamBody ?? response.browserStreamBody;
         const parsedBody = options.responseAsStream || stream !== undefined ? undefined : getResponseBody(response);
-        const body = stream !== null && stream !== void 0 ? stream : parsedBody;
-        if (options === null || options === void 0 ? void 0 : options.onResponse) {
-            options.onResponse(Object.assign(Object.assign({}, response), { request, rawHeaders: headers, parsedBody }));
+        const body = stream ?? parsedBody;
+        if (options?.onResponse) {
+            options.onResponse({ ...response, request, rawHeaders: headers, parsedBody });
         }
         return {
             request,
@@ -33874,7 +34053,7 @@ async function sendRequest(method, url, pipeline, options = {}, customHttpClient
             const { response } = e;
             const rawHeaders = response.headers.toJSON();
             // UNBRANDED DIFFERENCE: onResponse callback does not have a second __legacyError property
-            options === null || options === void 0 ? void 0 : options.onResponse(Object.assign(Object.assign({}, response), { request, rawHeaders }), e);
+            options?.onResponse({ ...response, request, rawHeaders }, e);
         }
         throw e;
     }
@@ -33885,8 +34064,14 @@ async function sendRequest(method, url, pipeline, options = {}, customHttpClient
  * @returns returns the content-type
  */
 function getRequestContentType(options = {}) {
-    var _a, _b, _c;
-    return ((_c = (_a = options.contentType) !== null && _a !== void 0 ? _a : (_b = options.headers) === null || _b === void 0 ? void 0 : _b["content-type"]) !== null && _c !== void 0 ? _c : getContentType(options.body));
+    if (options.contentType) {
+        return options.contentType;
+    }
+    const headerContentType = options.headers?.["content-type"];
+    if (typeof headerContentType === "string") {
+        return headerContentType;
+    }
+    return getContentType(options.body);
 }
 /**
  * Function to determine the content-type of a body
@@ -33895,8 +34080,14 @@ function getRequestContentType(options = {}) {
  * @returns returns the content-type
  */
 function getContentType(body) {
+    if (body === undefined) {
+        return undefined;
+    }
     if (ArrayBuffer.isView(body)) {
         return "application/octet-stream";
+    }
+    if (isBlob(body) && body.type) {
+        return body.type;
     }
     if (typeof body === "string") {
         try {
@@ -33912,30 +34103,35 @@ function getContentType(body) {
     return "application/json";
 }
 function buildPipelineRequest(method, url, options = {}) {
-    var _a, _b, _c;
     const requestContentType = getRequestContentType(options);
     const { body, multipartBody } = getRequestBody(options.body, requestContentType);
-    const hasContent = body !== undefined || multipartBody !== undefined;
-    const headers = createHttpHeaders$1(Object.assign(Object.assign(Object.assign({}, (options.headers ? options.headers : {})), { accept: (_c = (_a = options.accept) !== null && _a !== void 0 ? _a : (_b = options.headers) === null || _b === void 0 ? void 0 : _b.accept) !== null && _c !== void 0 ? _c : "application/json" }), (hasContent &&
-        requestContentType && {
-        "content-type": requestContentType,
-    })));
-    return createPipelineRequest$1({
+    const accept = options.accept ??
+        options.headers?.accept ??
+        (options.noDefaultAcceptHeader ? undefined : "application/json");
+    const headers = createHttpHeaders$1({
+        ...(options.headers ? options.headers : {}),
+        ...(accept !== undefined && { accept }),
+        ...(requestContentType && {
+            "content-type": requestContentType,
+        }),
+    });
+    const { allowInsecureConnection, abortSignal, onUploadProgress, onDownloadProgress, timeout, responseAsStream, noDefaultAcceptHeader: _noDefaultAcceptHeader, url: _url, method: _method, body: _body, multipartBody: _multiBody, headers: _headers, ...rest } = options;
+    const request = createPipelineRequest$1({
         url,
         method,
         body,
         multipartBody,
         headers,
-        allowInsecureConnection: options.allowInsecureConnection,
-        abortSignal: options.abortSignal,
-        onUploadProgress: options.onUploadProgress,
-        onDownloadProgress: options.onDownloadProgress,
-        timeout: options.timeout,
+        allowInsecureConnection,
+        abortSignal,
+        onUploadProgress,
+        onDownloadProgress,
+        timeout,
         enableBrowserStreams: true,
-        streamResponseStatusCodes: options.responseAsStream
-            ? new Set([Number.POSITIVE_INFINITY])
-            : undefined,
+        streamResponseStatusCodes: responseAsStream ? new Set([Number.POSITIVE_INFINITY]) : undefined,
     });
+    Object.assign(request, rest);
+    return request;
 }
 /**
  * Prepares the body before sending the request
@@ -33947,11 +34143,19 @@ function getRequestBody(body, contentType = "") {
     if (typeof FormData !== "undefined" && body instanceof FormData) {
         return { body };
     }
+    if (isBlob(body)) {
+        return { body };
+    }
     if (isReadableStream(body)) {
         return { body };
     }
+    if (typeof body === "function") {
+        return { body: body };
+    }
     if (ArrayBuffer.isView(body)) {
-        return { body: body instanceof Uint8Array ? body : JSON.stringify(body) };
+        return {
+            body: body instanceof Uint8Array ? body : JSON.stringify(body),
+        };
     }
     const firstType = contentType.split(";")[0];
     switch (firstType) {
@@ -33975,11 +34179,10 @@ function getRequestBody(body, contentType = "") {
  * Prepares the response body
  */
 function getResponseBody(response) {
-    var _a, _b;
     // Set the default response type
-    const contentType = (_a = response.headers.get("content-type")) !== null && _a !== void 0 ? _a : "";
+    const contentType = response.headers.get("content-type") ?? "";
     const firstType = contentType.split(";")[0];
-    const bodyToParse = (_b = response.bodyAsText) !== null && _b !== void 0 ? _b : "";
+    const bodyToParse = response.bodyAsText ?? "";
     if (firstType === "text/plain") {
         return String(bodyToParse);
     }
@@ -33999,9 +34202,8 @@ function getResponseBody(response) {
     }
 }
 function createParseError(response, err) {
-    var _a;
     const msg = `Error "${err}" occurred while parsing the response body - ${response.bodyAsText}.`;
-    const errCode = (_a = err.code) !== null && _a !== void 0 ? _a : RestError$1.PARSE_ERROR;
+    const errCode = err.code ?? RestError$1.PARSE_ERROR;
     return new RestError$1(msg, {
         code: errCode,
         statusCode: response.status,
@@ -34013,8 +34215,11 @@ function createParseError(response, err) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 function isQueryParameterWithOptions(x) {
+    if (typeof x !== "object" || x === null || !Object.hasOwn(x, "value")) {
+        return false;
+    }
     const value = x.value;
-    return (value !== undefined && value.toString !== undefined && typeof value.toString === "function");
+    return typeof value?.toString === "function";
 }
 /**
  * Builds the request url, filling in query and path parameters
@@ -34029,13 +34234,46 @@ function buildRequestUrl(endpoint, routePath, pathParameters, options = {}) {
         return routePath;
     }
     endpoint = buildBaseUrl(endpoint, options);
-    routePath = buildRoutePath(routePath, pathParameters, options);
-    const requestUrl = appendQueryParams$1(`${endpoint}/${routePath}`, options);
+    // the route could be
+    //   1. a path: "container123/blob456"
+    //   2. a component string from template which starts with "?" and may contain more "?" after template is expanded,
+    //      e.g., "?restype=container&comp=blobs?where=key177196556777405927%3D%27val1177196556777407626%27"
+    const updatedRoutePath = buildRoutePath(routePath, pathParameters, options);
+    const requestUrl = appendQueryParams$1(appendPath$1(endpoint, updatedRoutePath), options);
     const url = new URL(requestUrl);
-    return (url
-        .toString()
-        // Remove double forward slashes
-        .replace(/([^:]\/)\/+/g, "$1"));
+    return url.toString();
+}
+function appendPath$1(endpoint, pathToAppend) {
+    const endpointSearchStart = endpoint.indexOf("?");
+    const pathSearchStart = pathToAppend.indexOf("?");
+    const endpointParts = endpointSearchStart !== -1
+        ? [endpoint.substring(0, endpointSearchStart), endpoint.substring(endpointSearchStart + 1)]
+        : [endpoint, ""];
+    const pathParts = pathSearchStart !== -1
+        ? [pathToAppend.substring(0, pathSearchStart), pathToAppend.substring(pathSearchStart + 1)]
+        : [pathToAppend, ""];
+    const combinedSearch = [endpointParts[1], pathParts[1].replaceAll("?", "&")]
+        .filter(Boolean)
+        .join("&");
+    // Replace consecutive forward slashes with a single forward slash, but only for the part right after the host in the endpoint.
+    // This is to maintain compatibility with old behavior for cases where the endpoint has been provided with extra forward slashes,
+    // while still allowing for intentional consecutive forward slashes in the path to be preserved.
+    const baseEndpoint = endpointParts[0].replace(/(^[^:]+:\/\/[^/]+)\/\/+/, "$1/");
+    const basePathToAppend = pathParts[0];
+    let combinedUrl = baseEndpoint;
+    if (!baseEndpoint.endsWith("/") && !basePathToAppend.startsWith("/") && basePathToAppend !== "") {
+        combinedUrl += `/${basePathToAppend}`;
+    }
+    else if (baseEndpoint.endsWith("/") && basePathToAppend.startsWith("/")) {
+        combinedUrl += basePathToAppend.substring(1);
+    }
+    else {
+        combinedUrl += basePathToAppend;
+    }
+    if (combinedSearch) {
+        combinedUrl += `?${combinedSearch}`;
+    }
+    return combinedUrl;
 }
 function getQueryParamValue(key, allowReserved, style, param) {
     let separator;
@@ -34074,14 +34312,48 @@ function getQueryParamValue(key, allowReserved, style, param) {
         .join(separator);
     return `${allowReserved ? key : encodeURIComponent(key)}=${value}`;
 }
+/**
+ * Parses a query string into a map of key/value pairs without decoding the values.
+ * This avoids the issue where `URL.searchParams` would decode values, potentially
+ * corrupting already-encoded values such as SAS signatures.
+ */
+function simpleParseQueryParams$1(queryString) {
+    const result = new Map();
+    if (!queryString || queryString[0] !== "?") {
+        return result;
+    }
+    // remove the leading ?
+    queryString = queryString.slice(1);
+    const pairs = queryString.split("&");
+    for (const pair of pairs) {
+        const eqIndex = pair.indexOf("=");
+        const name = eqIndex === -1 ? pair : pair.substring(0, eqIndex);
+        const value = eqIndex === -1 ? "" : pair.substring(eqIndex + 1);
+        const existingValue = result.get(name);
+        if (existingValue !== undefined) {
+            if (Array.isArray(existingValue)) {
+                existingValue.push(value);
+            }
+            else {
+                result.set(name, [existingValue, value]);
+            }
+        }
+        else {
+            result.set(name, value);
+        }
+    }
+    return result;
+}
+/** @internal */
 function appendQueryParams$1(url, options = {}) {
-    var _a, _b, _c, _d;
     if (!options.queryParameters) {
         return url;
     }
     const parsedUrl = new URL(url);
     const queryParams = options.queryParameters;
-    const paramStrings = [];
+    // Parse existing query params from the URL manually to avoid re-encoding issues
+    const existingParams = simpleParseQueryParams$1(parsedUrl.search);
+    const newParamStrings = [];
     for (const key of Object.keys(queryParams)) {
         const param = queryParams[key];
         if (param === undefined || param === null) {
@@ -34089,18 +34361,18 @@ function appendQueryParams$1(url, options = {}) {
         }
         const hasMetadata = isQueryParameterWithOptions(param);
         const rawValue = hasMetadata ? param.value : param;
-        const explode = hasMetadata ? ((_a = param.explode) !== null && _a !== void 0 ? _a : false) : false;
+        const explode = hasMetadata ? (param.explode ?? false) : false;
         const style = hasMetadata && param.style ? param.style : "form";
         if (explode) {
             if (Array.isArray(rawValue)) {
                 for (const item of rawValue) {
-                    paramStrings.push(getQueryParamValue(key, (_b = options.skipUrlEncoding) !== null && _b !== void 0 ? _b : false, style, item));
+                    newParamStrings.push(getQueryParamValue(key, options.skipUrlEncoding ?? false, style, item));
                 }
             }
-            else if (typeof rawValue === "object") {
+            else if (rawValue !== null && typeof rawValue === "object") {
                 // For object explode, the name of the query parameter is ignored and we use the object key instead
                 for (const [actualKey, value] of Object.entries(rawValue)) {
-                    paramStrings.push(getQueryParamValue(actualKey, (_c = options.skipUrlEncoding) !== null && _c !== void 0 ? _c : false, style, value));
+                    newParamStrings.push(getQueryParamValue(actualKey, options.skipUrlEncoding ?? false, style, value));
                 }
             }
             else {
@@ -34109,17 +34381,46 @@ function appendQueryParams$1(url, options = {}) {
             }
         }
         else {
-            paramStrings.push(getQueryParamValue(key, (_d = options.skipUrlEncoding) !== null && _d !== void 0 ? _d : false, style, rawValue));
+            newParamStrings.push(getQueryParamValue(key, options.skipUrlEncoding ?? false, style, rawValue));
         }
     }
-    if (parsedUrl.search !== "") {
-        parsedUrl.search += "&";
+    // Merge new params into existing params, deduplicating values for the same key
+    for (const paramString of newParamStrings) {
+        const eqIndex = paramString.indexOf("=");
+        const name = paramString.substring(0, eqIndex);
+        const value = paramString.substring(eqIndex + 1);
+        const existingValue = existingParams.get(name);
+        if (existingValue !== undefined) {
+            if (Array.isArray(existingValue)) {
+                if (!existingValue.includes(value)) {
+                    existingValue.push(value);
+                }
+            }
+            else if (existingValue !== value) {
+                existingParams.set(name, [existingValue, value]);
+            }
+            // if existingValue === value (single string match), no change needed
+        }
+        else {
+            existingParams.set(name, value);
+        }
     }
-    parsedUrl.search += paramStrings.join("&");
+    // Reconstruct the search string manually to avoid URL re-encoding
+    const searchPieces = [];
+    for (const [name, value] of existingParams) {
+        if (Array.isArray(value)) {
+            for (const subValue of value) {
+                searchPieces.push(`${name}=${subValue}`);
+            }
+        }
+        else {
+            searchPieces.push(`${name}=${value}`);
+        }
+    }
+    parsedUrl.search = searchPieces.length ? `?${searchPieces.join("&")}` : "";
     return parsedUrl.toString();
 }
 function buildBaseUrl(endpoint, options) {
-    var _a;
     if (!options.pathParameters) {
         return endpoint;
     }
@@ -34135,14 +34436,13 @@ function buildBaseUrl(endpoint, options) {
         if (!options.skipUrlEncoding) {
             value = encodeURIComponent(param);
         }
-        endpoint = (_a = replaceAll$1(endpoint, `{${key}}`, value)) !== null && _a !== void 0 ? _a : "";
+        endpoint = replaceAll$1(endpoint, `{${key}}`, value) ?? "";
     }
     return endpoint;
 }
 function buildRoutePath(routePath, pathParameters, options = {}) {
-    var _a;
     for (const pathParam of pathParameters) {
-        const allowReserved = typeof pathParam === "object" && ((_a = pathParam.allowReserved) !== null && _a !== void 0 ? _a : false);
+        const allowReserved = typeof pathParam === "object" && (pathParam.allowReserved ?? false);
         let value = typeof pathParam === "object" ? pathParam.value : pathParam;
         if (!options.skipUrlEncoding && !allowReserved) {
             value = encodeURIComponent(value);
@@ -34167,13 +34467,11 @@ function replaceAll$1(value, searchValue, replaceValue) {
 /**
  * Creates a client with a default pipeline
  * @param endpoint - Base endpoint for the client
- * @param credentials - Credentials to authenticate the requests
- * @param options - Client options
+ * @param clientOptions - Client options
  */
 function getClient$1(endpoint, clientOptions = {}) {
-    var _a, _b, _c;
-    const pipeline = (_a = clientOptions.pipeline) !== null && _a !== void 0 ? _a : createDefaultPipeline$2(clientOptions);
-    if ((_b = clientOptions.additionalPolicies) === null || _b === void 0 ? void 0 : _b.length) {
+    const pipeline = clientOptions.pipeline ?? createDefaultPipeline$2(clientOptions);
+    if (clientOptions.additionalPolicies?.length) {
         for (const { policy, position } of clientOptions.additionalPolicies) {
             // Sign happens after Retry and is commonly needed to occur
             // before policies that intercept post-retry.
@@ -34183,34 +34481,35 @@ function getClient$1(endpoint, clientOptions = {}) {
             });
         }
     }
+    const noDefaultAcceptHeader = clientOptions.internal?.noDefaultAcceptHeader ?? false;
     const { allowInsecureConnection, httpClient } = clientOptions;
-    const endpointUrl = (_c = clientOptions.endpoint) !== null && _c !== void 0 ? _c : endpoint;
+    const endpointUrl = clientOptions.endpoint ?? endpoint;
     const client = (path, ...args) => {
-        const getUrl = (requestOptions) => buildRequestUrl(endpointUrl, path, args, Object.assign({ allowInsecureConnection }, requestOptions));
+        const getUrl = (requestOptions) => buildRequestUrl(endpointUrl, path, args, { ...requestOptions });
         return {
             get: (requestOptions = {}) => {
-                return buildOperation("GET", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient);
+                return buildOperation("GET", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient, noDefaultAcceptHeader);
             },
             post: (requestOptions = {}) => {
-                return buildOperation("POST", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient);
+                return buildOperation("POST", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient, noDefaultAcceptHeader);
             },
             put: (requestOptions = {}) => {
-                return buildOperation("PUT", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient);
+                return buildOperation("PUT", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient, noDefaultAcceptHeader);
             },
             patch: (requestOptions = {}) => {
-                return buildOperation("PATCH", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient);
+                return buildOperation("PATCH", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient, noDefaultAcceptHeader);
             },
             delete: (requestOptions = {}) => {
-                return buildOperation("DELETE", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient);
+                return buildOperation("DELETE", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient, noDefaultAcceptHeader);
             },
             head: (requestOptions = {}) => {
-                return buildOperation("HEAD", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient);
+                return buildOperation("HEAD", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient, noDefaultAcceptHeader);
             },
             options: (requestOptions = {}) => {
-                return buildOperation("OPTIONS", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient);
+                return buildOperation("OPTIONS", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient, noDefaultAcceptHeader);
             },
             trace: (requestOptions = {}) => {
-                return buildOperation("TRACE", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient);
+                return buildOperation("TRACE", getUrl(requestOptions), pipeline, requestOptions, allowInsecureConnection, httpClient, noDefaultAcceptHeader);
             },
         };
     };
@@ -34220,27 +34519,20 @@ function getClient$1(endpoint, clientOptions = {}) {
         pipeline,
     };
 }
-function buildOperation(method, url, pipeline, options, allowInsecureConnection, httpClient) {
-    var _a;
-    allowInsecureConnection = (_a = options.allowInsecureConnection) !== null && _a !== void 0 ? _a : allowInsecureConnection;
+function buildOperation(method, url, pipeline, options, allowInsecureConnection, httpClient, noDefaultAcceptHeader = false) {
+    allowInsecureConnection = options.allowInsecureConnection ?? allowInsecureConnection;
     return {
         then: function (onFulfilled, onrejected) {
-            return sendRequest(method, url, pipeline, Object.assign(Object.assign({}, options), { allowInsecureConnection }), httpClient).then(onFulfilled, onrejected);
+            return sendRequest(method, url, pipeline, { ...options, allowInsecureConnection, noDefaultAcceptHeader }, httpClient).then(onFulfilled, onrejected);
         },
         async asBrowserStream() {
-            if (isNodeLike$1) {
+            {
                 throw new Error("`asBrowserStream` is supported only in the browser environment. Use `asNodeStream` instead to obtain the response body stream. If you require a Web stream of the response in Node, consider using `Readable.toWeb` on the result of `asNodeStream`.");
-            }
-            else {
-                return sendRequest(method, url, pipeline, Object.assign(Object.assign({}, options), { allowInsecureConnection, responseAsStream: true }), httpClient);
             }
         },
         async asNodeStream() {
-            if (isNodeLike$1) {
-                return sendRequest(method, url, pipeline, Object.assign(Object.assign({}, options), { allowInsecureConnection, responseAsStream: true }), httpClient);
-            }
-            else {
-                throw new Error("`isNodeStream` is not supported in the browser environment. Use `asBrowserStream` to obtain the response body stream.");
+            {
+                return sendRequest(method, url, pipeline, { ...options, allowInsecureConnection, noDefaultAcceptHeader, responseAsStream: true }, httpClient);
             }
         },
     };
@@ -34254,15 +34546,14 @@ function buildOperation(method, url, pipeline, options, allowInsecureConnection,
  * @returns the result of the conversion in RequestParameters of RLC layer
  */
 function operationOptionsToRequestParameters$1(options) {
-    var _a, _b, _c, _d, _e, _f;
     return {
-        allowInsecureConnection: (_a = options.requestOptions) === null || _a === void 0 ? void 0 : _a.allowInsecureConnection,
-        timeout: (_b = options.requestOptions) === null || _b === void 0 ? void 0 : _b.timeout,
-        skipUrlEncoding: (_c = options.requestOptions) === null || _c === void 0 ? void 0 : _c.skipUrlEncoding,
+        allowInsecureConnection: options.requestOptions?.allowInsecureConnection,
+        timeout: options.requestOptions?.timeout,
+        skipUrlEncoding: options.requestOptions?.skipUrlEncoding,
         abortSignal: options.abortSignal,
-        onUploadProgress: (_d = options.requestOptions) === null || _d === void 0 ? void 0 : _d.onUploadProgress,
-        onDownloadProgress: (_e = options.requestOptions) === null || _e === void 0 ? void 0 : _e.onDownloadProgress,
-        headers: Object.assign({}, (_f = options.requestOptions) === null || _f === void 0 ? void 0 : _f.headers),
+        onUploadProgress: options.requestOptions?.onUploadProgress,
+        onDownloadProgress: options.requestOptions?.onDownloadProgress,
+        headers: { ...options.requestOptions?.headers },
         onResponse: options.onResponse,
     };
 }
@@ -34270,25 +34561,24 @@ function operationOptionsToRequestParameters$1(options) {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 function createRestError$1(messageOrResponse, response) {
-    var _a, _b, _c;
     const resp = typeof messageOrResponse === "string" ? response : messageOrResponse;
-    const internalError = (_b = (_a = resp.body) === null || _a === void 0 ? void 0 : _a.error) !== null && _b !== void 0 ? _b : resp.body;
+    const internalError = resp.body?.error ?? resp.body;
     const message = typeof messageOrResponse === "string"
         ? messageOrResponse
-        : ((_c = internalError === null || internalError === void 0 ? void 0 : internalError.message) !== null && _c !== void 0 ? _c : `Unexpected status code: ${resp.status}`);
+        : (internalError?.message ?? `Unexpected status code: ${resp.status}`);
     return new RestError$1(message, {
         statusCode: statusCodeToNumber(resp.status),
-        code: internalError === null || internalError === void 0 ? void 0 : internalError.code,
+        code: internalError?.code,
         request: resp.request,
         response: toPipelineResponse(resp),
     });
 }
-function toPipelineResponse(response) {
-    var _a;
+function toPipelineResponse(errorResponse) {
     return {
-        headers: createHttpHeaders$1(response.headers),
-        request: response.request,
-        status: (_a = statusCodeToNumber(response.status)) !== null && _a !== void 0 ? _a : -1,
+        headers: createHttpHeaders$1(errorResponse.headers),
+        request: errorResponse.request,
+        status: statusCodeToNumber(errorResponse.status) ?? -1,
+        ...(typeof errorResponse.body === "string" ? { bodyAsText: errorResponse.body } : {}),
     };
 }
 function statusCodeToNumber(statusCode) {
@@ -34307,202 +34597,29 @@ function createEmptyPipeline() {
 }
 
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-function log(message, ...args) {
-    process__namespace.stderr.write(`${require$$0$4.format(message, ...args)}${os$1.EOL}`);
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-const debugEnvVariable = (typeof process !== "undefined" && process.env && process.env.DEBUG) || undefined;
-let enabledString;
-let enabledNamespaces = [];
-let skippedNamespaces = [];
-const debuggers = [];
-if (debugEnvVariable) {
-    enable(debugEnvVariable);
-}
-const debugObj = Object.assign((namespace) => {
-    return createDebugger(namespace);
-}, {
-    enable,
-    enabled,
-    disable,
-    log,
+// Licensed under the MIT License.
+const context = createLoggerContext({
+    logLevelEnvVarName: "AZURE_LOG_LEVEL",
+    namespace: "azure",
 });
-function enable(namespaces) {
-    enabledString = namespaces;
-    enabledNamespaces = [];
-    skippedNamespaces = [];
-    const wildcard = /\*/g;
-    const namespaceList = namespaces.split(",").map((ns) => ns.trim().replace(wildcard, ".*?"));
-    for (const ns of namespaceList) {
-        if (ns.startsWith("-")) {
-            skippedNamespaces.push(new RegExp(`^${ns.substr(1)}$`));
-        }
-        else {
-            enabledNamespaces.push(new RegExp(`^${ns}$`));
-        }
-    }
-    for (const instance of debuggers) {
-        instance.enabled = enabled(instance.namespace);
-    }
-}
-function enabled(namespace) {
-    if (namespace.endsWith("*")) {
-        return true;
-    }
-    for (const skipped of skippedNamespaces) {
-        if (skipped.test(namespace)) {
-            return false;
-        }
-    }
-    for (const enabledNamespace of enabledNamespaces) {
-        if (enabledNamespace.test(namespace)) {
-            return true;
-        }
-    }
-    return false;
-}
-function disable() {
-    const result = enabledString || "";
-    enable("");
-    return result;
-}
-function createDebugger(namespace) {
-    const newDebugger = Object.assign(debug, {
-        enabled: enabled(namespace),
-        destroy,
-        log: debugObj.log,
-        namespace,
-        extend,
-    });
-    function debug(...args) {
-        if (!newDebugger.enabled) {
-            return;
-        }
-        if (args.length > 0) {
-            args[0] = `${namespace} ${args[0]}`;
-        }
-        newDebugger.log(...args);
-    }
-    debuggers.push(newDebugger);
-    return newDebugger;
-}
-function destroy() {
-    const index = debuggers.indexOf(this);
-    if (index >= 0) {
-        debuggers.splice(index, 1);
-        return true;
-    }
-    return false;
-}
-function extend(namespace) {
-    const newDebugger = createDebugger(`${this.namespace}:${namespace}`);
-    newDebugger.log = this.log;
-    return newDebugger;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-const registeredLoggers = new Set();
-const logLevelFromEnv = (typeof process !== "undefined" && process.env && process.env.AZURE_LOG_LEVEL) || undefined;
-let azureLogLevel;
-/**
- * The AzureLogger provides a mechanism for overriding where logs are output to.
- * By default, logs are sent to stderr.
- * Override the `log` method to redirect logs to another location.
- */
-const AzureLogger = debugObj("azure");
-AzureLogger.log = (...args) => {
-    debugObj.log(...args);
-};
-const AZURE_LOG_LEVELS = ["verbose", "info", "warning", "error"];
-if (logLevelFromEnv) {
-    // avoid calling setLogLevel because we don't want a mis-set environment variable to crash
-    if (isAzureLogLevel(logLevelFromEnv)) {
-        setLogLevel(logLevelFromEnv);
-    }
-    else {
-        console.error(`AZURE_LOG_LEVEL set to unknown log level '${logLevelFromEnv}'; logging is not enabled. Acceptable values: ${AZURE_LOG_LEVELS.join(", ")}.`);
-    }
-}
-/**
- * Immediately enables logging at the specified log level. If no level is specified, logging is disabled.
- * @param level - The log level to enable for logging.
- * Options from most verbose to least verbose are:
- * - verbose
- * - info
- * - warning
- * - error
- */
-function setLogLevel(level) {
-    if (level && !isAzureLogLevel(level)) {
-        throw new Error(`Unknown log level '${level}'. Acceptable values: ${AZURE_LOG_LEVELS.join(",")}`);
-    }
-    azureLogLevel = level;
-    const enabledNamespaces = [];
-    for (const logger of registeredLoggers) {
-        if (shouldEnable(logger)) {
-            enabledNamespaces.push(logger.namespace);
-        }
-    }
-    debugObj.enable(enabledNamespaces.join(","));
-}
 /**
  * Retrieves the currently specified log level.
  */
 function getLogLevel() {
-    return azureLogLevel;
+    return context.getLogLevel();
 }
-const levelMap = {
-    verbose: 400,
-    info: 300,
-    warning: 200,
-    error: 100,
-};
 /**
  * Creates a logger for use by the Azure SDKs that inherits from `AzureLogger`.
  * @param namespace - The name of the SDK package.
  * @hidden
  */
 function createClientLogger(namespace) {
-    const clientRootLogger = AzureLogger.extend(namespace);
-    patchLogMethod(AzureLogger, clientRootLogger);
-    return {
-        error: createLogger(clientRootLogger, "error"),
-        warning: createLogger(clientRootLogger, "warning"),
-        info: createLogger(clientRootLogger, "info"),
-        verbose: createLogger(clientRootLogger, "verbose"),
-    };
-}
-function patchLogMethod(parent, child) {
-    child.log = (...args) => {
-        parent.log(...args);
-    };
-}
-function createLogger(parent, level) {
-    const logger = Object.assign(parent.extend(level), {
-        level,
-    });
-    patchLogMethod(parent, logger);
-    if (shouldEnable(logger)) {
-        const enabledNamespaces = debugObj.disable();
-        debugObj.enable(enabledNamespaces + "," + logger.namespace);
-    }
-    registeredLoggers.add(logger);
-    return logger;
-}
-function shouldEnable(logger) {
-    return Boolean(azureLogLevel && levelMap[logger.level] <= levelMap[azureLogLevel]);
-}
-function isAzureLogLevel(logLevel) {
-    return AZURE_LOG_LEVELS.includes(logLevel);
+    return context.createClientLogger(namespace);
 }
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$n = createClientLogger("core-rest-pipeline");
+const logger$o = createClientLogger("core-rest-pipeline");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -34511,15 +34628,14 @@ const logger$n = createClientLogger("core-rest-pipeline");
  * @param options - Options to configure logPolicy.
  */
 function logPolicy(options = {}) {
-    return logPolicy$1(Object.assign({ logger: logger$n.info }, options));
+    return logPolicy$1({
+        logger: logger$o.info,
+        ...options,
+    });
 }
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-/**
- * The programmatic identifier of the redirectPolicy.
- */
-const redirectPolicyName = redirectPolicyName$1;
 /**
  * A policy to follow Location headers from the server in order
  * to support server-side redirection.
@@ -34542,24 +34658,23 @@ function getHeaderName() {
  * @internal
  */
 async function setPlatformSpecificData(map) {
-    if (process__namespace && process__namespace.versions) {
-        const versions = process__namespace.versions;
-        if (versions.bun) {
-            map.set("Bun", versions.bun);
+    if (process$1 && process$1.versions) {
+        const osInfo = `${os$1.type()} ${os$1.release()}; ${os$1.arch()}`;
+        if (process$1.versions.bun) {
+            map.set("Bun", `${process$1.versions.bun} (${osInfo})`);
         }
-        else if (versions.deno) {
-            map.set("Deno", versions.deno);
+        else if (process$1.versions.deno) {
+            map.set("Deno", `${process$1.versions.deno} (${osInfo})`);
         }
-        else if (versions.node) {
-            map.set("Node", versions.node);
+        else if (process$1.versions.node) {
+            map.set("Node", `${process$1.versions.node} (${osInfo})`);
         }
     }
-    map.set("OS", `(${os__namespace$1.arch()}-${os__namespace$1.type()}-${os__namespace$1.release()})`);
 }
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const SDK_VERSION$2 = "1.22.0";
+const SDK_VERSION$2 = "1.25.0";
 const DEFAULT_RETRY_POLICY_COUNT = 3;
 
 // Copyright (c) Microsoft Corporation.
@@ -34613,296 +34728,6 @@ function userAgentPolicy(options = {}) {
             return next(request);
         },
     };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * This error is thrown when an asynchronous operation has been aborted.
- * Check for this error by testing the `name` that the name property of the
- * error matches `"AbortError"`.
- *
- * @example
- * ```ts
- * const controller = new AbortController();
- * controller.abort();
- * try {
- *   doAsyncWork(controller.signal)
- * } catch (e) {
- *   if (e.name === 'AbortError') {
- *     // handle abort error here.
- *   }
- * }
- * ```
- */
-class AbortError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "AbortError";
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Creates an abortable promise.
- * @param buildPromise - A function that takes the resolve and reject functions as parameters.
- * @param options - The options for the abortable promise.
- * @returns A promise that can be aborted.
- */
-function createAbortablePromise(buildPromise, options) {
-    const { cleanupBeforeAbort, abortSignal, abortErrorMsg } = options !== null && options !== void 0 ? options : {};
-    return new Promise((resolve, reject) => {
-        function rejectOnAbort() {
-            reject(new AbortError(abortErrorMsg !== null && abortErrorMsg !== void 0 ? abortErrorMsg : "The operation was aborted."));
-        }
-        function removeListeners() {
-            abortSignal === null || abortSignal === void 0 ? void 0 : abortSignal.removeEventListener("abort", onAbort);
-        }
-        function onAbort() {
-            cleanupBeforeAbort === null || cleanupBeforeAbort === void 0 ? void 0 : cleanupBeforeAbort();
-            removeListeners();
-            rejectOnAbort();
-        }
-        if (abortSignal === null || abortSignal === void 0 ? void 0 : abortSignal.aborted) {
-            return rejectOnAbort();
-        }
-        try {
-            buildPromise((x) => {
-                removeListeners();
-                resolve(x);
-            }, (x) => {
-                removeListeners();
-                reject(x);
-            });
-        }
-        catch (err) {
-            reject(err);
-        }
-        abortSignal === null || abortSignal === void 0 ? void 0 : abortSignal.addEventListener("abort", onAbort);
-    });
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Returns a random integer value between a lower and upper bound,
- * inclusive of both bounds.
- * Note that this uses Math.random and isn't secure. If you need to use
- * this for any kind of security purpose, find a better source of random.
- * @param min - The smallest integer value allowed.
- * @param max - The largest integer value allowed.
- */
-function getRandomIntegerInclusive(min, max) {
-    // Make sure inputs are integers.
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    // Pick a random offset from zero to the size of the range.
-    // Since Math.random() can never return 1, we have to make the range one larger
-    // in order to be inclusive of the maximum value after we take the floor.
-    const offset = Math.floor(Math.random() * (max - min + 1));
-    return offset + min;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const StandardAbortMessage = "The delay was aborted.";
-/**
- * A wrapper for setTimeout that resolves a promise after timeInMs milliseconds.
- * @param timeInMs - The number of milliseconds to be delayed.
- * @param options - The options for delay - currently abort options
- * @returns Promise that is resolved after timeInMs
- */
-function delay$1(timeInMs, options) {
-    let token;
-    const { abortSignal, abortErrorMsg } = options !== null && options !== void 0 ? options : {};
-    return createAbortablePromise((resolve) => {
-        token = setTimeout(resolve, timeInMs);
-    }, {
-        cleanupBeforeAbort: () => clearTimeout(token),
-        abortSignal,
-        abortErrorMsg: abortErrorMsg !== null && abortErrorMsg !== void 0 ? abortErrorMsg : StandardAbortMessage,
-    });
-}
-/**
- * Calculates the delay interval for retry attempts using exponential delay with jitter.
- * @param retryAttempt - The current retry attempt number.
- * @param config - The exponential retry configuration.
- * @returns An object containing the calculated retry delay.
- */
-function calculateRetryDelay(retryAttempt, config) {
-    // Exponentially increase the delay each time
-    const exponentialDelay = config.retryDelayInMs * Math.pow(2, retryAttempt);
-    // Don't let the delay exceed the maximum
-    const clampedDelay = Math.min(config.maxRetryDelayInMs, exponentialDelay);
-    // Allow the final value to have some "jitter" (within 50% of the delay size) so
-    // that retries across multiple clients don't occur simultaneously.
-    const retryAfterInMs = clampedDelay / 2 + getRandomIntegerInclusive(0, clampedDelay / 2);
-    return { retryAfterInMs };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Helper to determine when an input is a generic JS object.
- * @returns true when input is an object type that is not null, Array, RegExp, or Date.
- */
-function isObject(input) {
-    return (typeof input === "object" &&
-        input !== null &&
-        !Array.isArray(input) &&
-        !(input instanceof RegExp) &&
-        !(input instanceof Date));
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Typeguard for an error object shape (has name and message)
- * @param e - Something caught by a catch clause.
- */
-function isError(e) {
-    if (isObject(e)) {
-        const hasName = typeof e.name === "string";
-        const hasMessage = typeof e.message === "string";
-        return hasName && hasMessage;
-    }
-    return false;
-}
-/**
- * Given what is thought to be an error object, return the message if possible.
- * If the message is missing, returns a stringified version of the input.
- * @param e - Something thrown from a try block
- * @returns The error message or a string of the input
- */
-function getErrorMessage(e) {
-    if (isError(e)) {
-        return e.message;
-    }
-    else {
-        let stringified;
-        try {
-            if (typeof e === "object" && e) {
-                stringified = JSON.stringify(e);
-            }
-            else {
-                stringified = String(e);
-            }
-        }
-        catch (err) {
-            stringified = "[unable to stringify input]";
-        }
-        return `Unknown error ${stringified}`;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Generates a SHA-256 HMAC signature.
- * @param key - The HMAC key represented as a base64 string, used to generate the cryptographic HMAC hash.
- * @param stringToSign - The data to be signed.
- * @param encoding - The textual encoding to use for the returned HMAC digest.
- */
-async function computeSha256Hmac(key, stringToSign, encoding) {
-    const decodedKey = Buffer.from(key, "base64");
-    return crypto.createHmac("sha256", decodedKey).update(stringToSign).digest(encoding);
-}
-/**
- * Generates a SHA-256 hash.
- * @param content - The data to be included in the hash.
- * @param encoding - The textual encoding to use for the returned hash.
- */
-async function computeSha256Hash(content, encoding) {
-    return crypto.createHash("sha256").update(content).digest(encoding);
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Helper TypeGuard that checks if something is defined or not.
- * @param thing - Anything
- */
-function isDefined$1(thing) {
-    return typeof thing !== "undefined" && thing !== null;
-}
-/**
- * Helper TypeGuard that checks if the input is an object with the specified properties.
- * @param thing - Anything.
- * @param properties - The name of the properties that should appear in the object.
- */
-function isObjectWithProperties(thing, properties) {
-    if (!isDefined$1(thing) || typeof thing !== "object") {
-        return false;
-    }
-    for (const property of properties) {
-        if (!objectHasProperty(thing, property)) {
-            return false;
-        }
-    }
-    return true;
-}
-/**
- * Helper TypeGuard that checks if the input is an object with the specified property.
- * @param thing - Any object.
- * @param property - The name of the property that should appear in the object.
- */
-function objectHasProperty(thing, property) {
-    return (isDefined$1(thing) && typeof thing === "object" && property in thing);
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-var _a, _b, _c, _d;
-/**
- * A constant that indicates whether the environment the code is running is a Web Worker.
- */
-typeof self === "object" &&
-    typeof (self === null || self === void 0 ? void 0 : self.importScripts) === "function" &&
-    (((_a = self.constructor) === null || _a === void 0 ? void 0 : _a.name) === "DedicatedWorkerGlobalScope" ||
-        ((_b = self.constructor) === null || _b === void 0 ? void 0 : _b.name) === "ServiceWorkerGlobalScope" ||
-        ((_c = self.constructor) === null || _c === void 0 ? void 0 : _c.name) === "SharedWorkerGlobalScope");
-/**
- * A constant that indicates whether the environment the code is running is Deno.
- */
-typeof Deno !== "undefined" &&
-    typeof Deno.version !== "undefined" &&
-    typeof Deno.version.deno !== "undefined";
-/**
- * A constant that indicates whether the environment the code is running is Bun.sh.
- */
-typeof Bun !== "undefined" && typeof Bun.version !== "undefined";
-/**
- * A constant that indicates whether the environment the code is running is a Node.js compatible environment.
- */
-const isNodeLike = typeof globalThis.process !== "undefined" &&
-    Boolean(globalThis.process.version) &&
-    Boolean((_d = globalThis.process.versions) === null || _d === void 0 ? void 0 : _d.node);
-/**
- * A constant that indicates whether the environment the code is running is a Node.js compatible environment.
- * @deprecated Use `isNodeLike` instead.
- */
-const isNode = isNodeLike;
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * The helper that transforms bytes with specific character encoding into string
- * @param bytes - the uint8array bytes
- * @param format - the format we use to encode the byte
- * @returns a string of the encoded string
- */
-function uint8ArrayToString(bytes, format) {
-    return Buffer.from(bytes).toString(format);
-}
-/**
- * The helper that transforms string to specific character encoded bytes array.
- * @param value - the string to be converted
- * @param format - the format we use to decode the value
- * @returns a uint8array
- */
-function stringToUint8Array(value, format) {
-    return Buffer.from(value, format);
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -34999,6 +34824,246 @@ function defaultRetryPolicy(options = {}) {
  */
 function formDataPolicy() {
     return formDataPolicy$1();
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Generates a SHA-256 HMAC signature.
+ * @param key - The HMAC key represented as a base64 string, used to generate the cryptographic HMAC hash.
+ * @param stringToSign - The data to be signed.
+ * @param encoding - The textual encoding to use for the returned HMAC digest.
+ */
+async function computeSha256Hmac$1(key, stringToSign, encoding) {
+    const decodedKey = Buffer.from(key, "base64");
+    return node_crypto.createHmac("sha256", decodedKey).update(stringToSign).digest(encoding);
+}
+/**
+ * Generates a SHA-256 hash.
+ * @param content - The data to be included in the hash.
+ * @param encoding - The textual encoding to use for the returned hash.
+ */
+async function computeSha256Hash$1(content, encoding) {
+    return node_crypto.createHash("sha256").update(content).digest(encoding);
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+/**
+ * This error is thrown when an asynchronous operation has been aborted.
+ * Check for this error by testing the `name` that the name property of the
+ * error matches `"AbortError"`.
+ *
+ * @example
+ * ```ts
+ * const controller = new AbortController();
+ * controller.abort();
+ * try {
+ *   doAsyncWork(controller.signal)
+ * } catch (e) {
+ *   if (e.name === 'AbortError') {
+ *     // handle abort error here.
+ *   }
+ * }
+ * ```
+ */
+class AbortError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "AbortError";
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Creates an abortable promise.
+ * @param buildPromise - A function that takes the resolve and reject functions as parameters.
+ * @param options - The options for the abortable promise.
+ * @returns A promise that can be aborted.
+ */
+function createAbortablePromise(buildPromise, options) {
+    const { cleanupBeforeAbort, abortSignal, abortErrorMsg } = options ?? {};
+    return new Promise((resolve, reject) => {
+        function rejectOnAbort() {
+            reject(new AbortError(abortErrorMsg ?? "The operation was aborted."));
+        }
+        function removeListeners() {
+            abortSignal?.removeEventListener("abort", onAbort);
+        }
+        function onAbort() {
+            cleanupBeforeAbort?.();
+            removeListeners();
+            rejectOnAbort();
+        }
+        if (abortSignal?.aborted) {
+            return rejectOnAbort();
+        }
+        try {
+            buildPromise((x) => {
+                removeListeners();
+                resolve(x);
+            }, (x) => {
+                removeListeners();
+                reject(x);
+            });
+        }
+        catch (err) {
+            reject(err);
+        }
+        abortSignal?.addEventListener("abort", onAbort);
+    });
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const StandardAbortMessage = "The delay was aborted.";
+/**
+ * A wrapper for setTimeout that resolves a promise after timeInMs milliseconds.
+ * @param timeInMs - The number of milliseconds to be delayed.
+ * @param options - The options for delay - currently abort options
+ * @returns Promise that is resolved after timeInMs
+ */
+function delay$1(timeInMs, options) {
+    let token;
+    const { abortSignal, abortErrorMsg } = options ?? {};
+    return createAbortablePromise((resolve) => {
+        token = setTimeout(resolve, timeInMs);
+    }, {
+        cleanupBeforeAbort: () => clearTimeout(token),
+        abortSignal,
+        abortErrorMsg: abortErrorMsg ?? StandardAbortMessage,
+    });
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Given what is thought to be an error object, return the message if possible.
+ * If the message is missing, returns a stringified version of the input.
+ * @param e - Something thrown from a try block
+ * @returns The error message or a string of the input
+ */
+function getErrorMessage(e) {
+    if (isError$1(e)) {
+        return e.message;
+    }
+    else {
+        let stringified;
+        try {
+            if (typeof e === "object" && e) {
+                stringified = JSON.stringify(e);
+            }
+            else {
+                stringified = String(e);
+            }
+        }
+        catch (err) {
+            stringified = "[unable to stringify input]";
+        }
+        return `Unknown error ${stringified}`;
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Helper TypeGuard that checks if something is defined or not.
+ * @param thing - Anything
+ */
+function isDefined$2(thing) {
+    return typeof thing !== "undefined" && thing !== null;
+}
+/**
+ * Helper TypeGuard that checks if the input is an object with the specified properties.
+ * @param thing - Anything.
+ * @param properties - The name of the properties that should appear in the object.
+ */
+function isObjectWithProperties(thing, properties) {
+    if (!isDefined$2(thing) || typeof thing !== "object") {
+        return false;
+    }
+    for (const property of properties) {
+        if (!objectHasProperty(thing, property)) {
+            return false;
+        }
+    }
+    return true;
+}
+/**
+ * Helper TypeGuard that checks if the input is an object with the specified property.
+ * @param thing - Any object.
+ * @param property - The name of the property that should appear in the object.
+ */
+function objectHasProperty(thing, property) {
+    return (isDefined$2(thing) && typeof thing === "object" && property in thing);
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Calculates the delay interval for retry attempts using exponential delay with jitter.
+ *
+ * @param retryAttempt - The current retry attempt number.
+ *
+ * @param config - The exponential retry configuration.
+ *
+ * @returns An object containing the calculated retry delay.
+ */
+function calculateRetryDelay(retryAttempt, config) {
+    return calculateRetryDelay$1(retryAttempt, config);
+}
+/**
+ * Generates a SHA-256 hash.
+ *
+ * @param content - The data to be included in the hash.
+ *
+ * @param encoding - The textual encoding to use for the returned hash.
+ */
+function computeSha256Hash(content, encoding) {
+    return computeSha256Hash$1(content, encoding);
+}
+/**
+ * Generates a SHA-256 HMAC signature.
+ *
+ * @param key - The HMAC key represented as a base64 string, used to generate the cryptographic HMAC hash.
+ *
+ * @param stringToSign - The data to be signed.
+ *
+ * @param encoding - The textual encoding to use for the returned HMAC digest.
+ */
+function computeSha256Hmac(key, stringToSign, encoding) {
+    return computeSha256Hmac$1(key, stringToSign, encoding);
+}
+/**
+ * Typeguard for an error object shape (has name and message)
+ *
+ * @param e - Something caught by a catch clause.
+ */
+function isError(e) {
+    return isError$1(e);
+}
+/**
+ * A constant that indicates whether the environment the code is running is a Node.js compatible environment.
+ */
+const isNodeLike = isNodeLike$1;
+/**
+ * The helper that transforms bytes with specific character encoding into string
+ * @param bytes - the uint8array bytes
+ * @param format - the format we use to encode the byte
+ * @returns a string of the encoded string
+ */
+function uint8ArrayToString(bytes, format) {
+    return uint8ArrayToString$1(bytes, format);
+}
+/**
+ * The helper that transforms string to specific character encoded bytes array.
+ * @param value - the string to be converted
+ * @param format - the format we use to decode the value
+ * @returns a uint8array
+ */
+function stringToUint8Array(value, format) {
+    return stringToUint8Array$1(value, format);
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -35298,7 +35363,6 @@ function tracingPolicy(options = {}) {
     return {
         name: tracingPolicyName,
         async sendRequest(request, next) {
-            var _a;
             if (!tracingClient) {
                 return next(request);
             }
@@ -35312,7 +35376,7 @@ function tracingPolicy(options = {}) {
             if (userAgent) {
                 spanAttributes["http.user_agent"] = userAgent;
             }
-            const { span, tracingContext } = (_a = tryCreateSpan(tracingClient, request, spanAttributes)) !== null && _a !== void 0 ? _a : {};
+            const { span, tracingContext } = tryCreateSpan(tracingClient, request, spanAttributes) ?? {};
             if (!span || !tracingContext) {
                 return next(request);
             }
@@ -35337,7 +35401,7 @@ function tryCreateTracingClient() {
         });
     }
     catch (e) {
-        logger$n.warning(`Error when creating the TracingClient: ${getErrorMessage(e)}`);
+        logger$o.warning(`Error when creating the TracingClient: ${getErrorMessage(e)}`);
         return undefined;
     }
 }
@@ -35361,7 +35425,7 @@ function tryCreateSpan(tracingClient, request, spanAttributes) {
         return { span, tracingContext: updatedOptions.tracingOptions.tracingContext };
     }
     catch (e) {
-        logger$n.warning(`Skipping creating a tracing span due to an error: ${getErrorMessage(e)}`);
+        logger$o.warning(`Skipping creating a tracing span due to an error: ${getErrorMessage(e)}`);
         return undefined;
     }
 }
@@ -35377,7 +35441,7 @@ function tryProcessError(span, error) {
         span.end();
     }
     catch (e) {
-        logger$n.warning(`Skipping tracing span processing due to an error: ${getErrorMessage(e)}`);
+        logger$o.warning(`Skipping tracing span processing due to an error: ${getErrorMessage(e)}`);
     }
 }
 function tryProcessResponse(span, response) {
@@ -35398,7 +35462,7 @@ function tryProcessResponse(span, response) {
         span.end();
     }
     catch (e) {
-        logger$n.warning(`Skipping tracing span processing due to an error: ${getErrorMessage(e)}`);
+        logger$o.warning(`Skipping tracing span processing due to an error: ${getErrorMessage(e)}`);
     }
 }
 
@@ -35415,7 +35479,9 @@ function wrapAbortSignalLike(abortSignalLike) {
         return { abortSignal: abortSignalLike };
     }
     if (abortSignalLike.aborted) {
-        return { abortSignal: AbortSignal.abort(abortSignalLike.reason) };
+        return {
+            abortSignal: AbortSignal.abort("reason" in abortSignalLike ? abortSignalLike.reason : undefined),
+        };
     }
     const controller = new AbortController();
     let needsCleanup = true;
@@ -35426,7 +35492,7 @@ function wrapAbortSignalLike(abortSignalLike) {
         }
     }
     function listener() {
-        controller.abort(abortSignalLike.reason);
+        controller.abort("reason" in abortSignalLike ? abortSignalLike.reason : undefined);
         cleanup();
     }
     abortSignalLike.addEventListener("abort", listener);
@@ -35450,13 +35516,12 @@ function wrapAbortSignalLikePolicy() {
                 return next(request);
             }
             const { abortSignal, cleanup } = wrapAbortSignalLike(request.abortSignal);
-            // eslint-disable-next-line no-param-reassign
             request.abortSignal = abortSignal;
             try {
                 return await next(request);
             }
             finally {
-                cleanup === null || cleanup === void 0 ? void 0 : cleanup();
+                cleanup?.();
             }
         },
     };
@@ -35469,9 +35534,8 @@ function wrapAbortSignalLikePolicy() {
  * @param options - Options to configure a custom pipeline.
  */
 function createPipelineFromOptions(options) {
-    var _a;
     const pipeline = createEmptyPipeline();
-    if (isNodeLike) {
+    {
         if (options.agent) {
             pipeline.addPolicy(agentPolicy(options.agent));
         }
@@ -35484,16 +35548,16 @@ function createPipelineFromOptions(options) {
     pipeline.addPolicy(wrapAbortSignalLikePolicy());
     pipeline.addPolicy(formDataPolicy(), { beforePolicies: [multipartPolicyName] });
     pipeline.addPolicy(userAgentPolicy(options.userAgentOptions));
-    pipeline.addPolicy(setClientRequestIdPolicy((_a = options.telemetryOptions) === null || _a === void 0 ? void 0 : _a.clientRequestIdHeaderName));
+    pipeline.addPolicy(setClientRequestIdPolicy(options.telemetryOptions?.clientRequestIdHeaderName));
     // The multipart policy is added after policies with no phase, so that
     // policies can be added between it and formDataPolicy to modify
     // properties (e.g., making the boundary constant in recorded tests).
     pipeline.addPolicy(multipartPolicy(), { afterPhase: "Deserialize" });
     pipeline.addPolicy(defaultRetryPolicy(options.retryOptions), { phase: "Retry" });
-    pipeline.addPolicy(tracingPolicy(Object.assign(Object.assign({}, options.userAgentOptions), options.loggingOptions)), {
+    pipeline.addPolicy(tracingPolicy({ ...options.userAgentOptions, ...options.loggingOptions }), {
         afterPhase: "Retry",
     });
-    if (isNodeLike) {
+    {
         // Both XHR and Fetch expect to handle redirects automatically,
         // so only include this policy when we're in Node.
         pipeline.addPolicy(redirectPolicy(options.redirectOptions), { afterPhase: "Retry" });
@@ -35517,12 +35581,11 @@ function createDefaultHttpClient() {
                 ? wrapAbortSignalLike(request.abortSignal)
                 : {};
             try {
-                // eslint-disable-next-line no-param-reassign
                 request.abortSignal = abortSignal;
                 return await client.sendRequest(request);
             }
             finally {
-                cleanup === null || cleanup === void 0 ? void 0 : cleanup();
+                cleanup?.();
             }
         },
     };
@@ -35562,7 +35625,10 @@ function retryPolicy(strategies, options = { maxRetries: DEFAULT_RETRY_POLICY_CO
     // Cast is required since the TSP runtime retry strategy type is slightly different
     // very deep down (using real AbortSignal vs. AbortSignalLike in RestError).
     // In practice the difference doesn't actually matter.
-    return retryPolicy$1(strategies, Object.assign({ logger: retryPolicyLogger }, options));
+    return retryPolicy$1(strategies, {
+        logger: retryPolicyLogger,
+        ...options,
+    });
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -35591,7 +35657,7 @@ async function beginRefresh$1(getAccessToken, retryIntervalInMs, refreshTimeout)
             try {
                 return await getAccessToken();
             }
-            catch (_a) {
+            catch {
                 return null;
             }
         }
@@ -35629,7 +35695,10 @@ function createTokenCycler$1(credential, tokenCyclerOptions) {
     let refreshWorker = null;
     let token = null;
     let tenantId;
-    const options = Object.assign(Object.assign({}, DEFAULT_CYCLER_OPTIONS$1), tokenCyclerOptions);
+    const options = {
+        ...DEFAULT_CYCLER_OPTIONS$1,
+        ...tokenCyclerOptions,
+    };
     /**
      * This little holder defines several predicates that we use to construct
      * the rules of refreshing the token.
@@ -35646,14 +35715,16 @@ function createTokenCycler$1(credential, tokenCyclerOptions) {
          * window and not already refreshing)
          */
         get shouldRefresh() {
-            var _a;
+            if (token === null) {
+                return true;
+            }
             if (cycler.isRefreshing) {
                 return false;
             }
-            if ((token === null || token === void 0 ? void 0 : token.refreshAfterTimestamp) && token.refreshAfterTimestamp < Date.now()) {
+            if (token.refreshAfterTimestamp && token.refreshAfterTimestamp < Date.now()) {
                 return true;
             }
-            return ((_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : 0) - options.refreshWindowInMs < Date.now();
+            return token.expiresOnTimestamp - options.refreshWindowInMs < Date.now();
         },
         /**
          * Produces true if the cycler MUST refresh (null or nearly-expired
@@ -35668,7 +35739,6 @@ function createTokenCycler$1(credential, tokenCyclerOptions) {
      * running.
      */
     function refresh(scopes, getTokenOptions) {
-        var _a;
         if (!cycler.isRefreshing) {
             // We bind `scopes` here to avoid passing it around a lot
             const tryGetAccessToken = () => credential.getToken(scopes, getTokenOptions);
@@ -35676,7 +35746,7 @@ function createTokenCycler$1(credential, tokenCyclerOptions) {
             // before the refresh can be considered done.
             refreshWorker = beginRefresh$1(tryGetAccessToken, options.retryIntervalInMs, 
             // If we don't have a token, then we should timeout immediately
-            (_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : Date.now())
+            token?.expiresOnTimestamp ?? Date.now())
                 .then((_token) => {
                 refreshWorker = null;
                 token = _token;
@@ -35783,7 +35853,6 @@ function isChallengeResponse(response) {
  * If this method returns true, the underlying request will be sent once again.
  */
 async function authorizeRequestOnCaeChallenge(onChallengeOptions, caeClaims) {
-    var _a;
     const { scopes } = onChallengeOptions;
     const accessToken = await onChallengeOptions.getAccessToken(scopes, {
         enableCae: true,
@@ -35792,7 +35861,7 @@ async function authorizeRequestOnCaeChallenge(onChallengeOptions, caeClaims) {
     if (!accessToken) {
         return false;
     }
-    onChallengeOptions.request.headers.set("Authorization", `${(_a = accessToken.tokenType) !== null && _a !== void 0 ? _a : "Bearer"} ${accessToken.token}`);
+    onChallengeOptions.request.headers.set("Authorization", `${accessToken.tokenType ?? "Bearer"} ${accessToken.token}`);
     return true;
 }
 /**
@@ -35800,12 +35869,11 @@ async function authorizeRequestOnCaeChallenge(onChallengeOptions, caeClaims) {
  * then apply it to the Authorization header of a request as a Bearer token.
  */
 function bearerTokenAuthenticationPolicy(options) {
-    var _a, _b, _c;
     const { credential, scopes, challengeCallbacks } = options;
-    const logger = options.logger || logger$n;
+    const logger = options.logger || logger$o;
     const callbacks = {
-        authorizeRequest: (_b = (_a = challengeCallbacks === null || challengeCallbacks === void 0 ? void 0 : challengeCallbacks.authorizeRequest) === null || _a === void 0 ? void 0 : _a.bind(challengeCallbacks)) !== null && _b !== void 0 ? _b : defaultAuthorizeRequest,
-        authorizeRequestOnChallenge: (_c = challengeCallbacks === null || challengeCallbacks === void 0 ? void 0 : challengeCallbacks.authorizeRequestOnChallenge) === null || _c === void 0 ? void 0 : _c.bind(challengeCallbacks),
+        authorizeRequest: challengeCallbacks?.authorizeRequest?.bind(challengeCallbacks) ?? defaultAuthorizeRequest,
+        authorizeRequestOnChallenge: challengeCallbacks?.authorizeRequestOnChallenge?.bind(challengeCallbacks),
     };
     // This function encapsulates the entire process of reliably retrieving the token
     // The options are left out of the public API until there's demand to configure this.
@@ -35883,7 +35951,7 @@ function bearerTokenAuthenticationPolicy(options) {
                     }
                     // If we get another CAE Claim, we will handle it by default and return whatever value we receive for this
                     if (isChallengeResponse(response)) {
-                        claims = getCaeChallengeClaims(response.headers.get("WWW-Authenticate"));
+                        claims = getCaeChallengeClaims(response.headers.get("WWW-Authenticate") ?? "");
                         if (claims) {
                             let parsedClaim;
                             try {
@@ -35952,13 +36020,12 @@ function parseChallenges(challenges) {
  * @internal
  */
 function getCaeChallengeClaims(challenges) {
-    var _a;
     if (!challenges) {
         return;
     }
     // Find all challenges present in the header
     const parsedChallenges = parseChallenges(challenges);
-    return (_a = parsedChallenges.find((x) => x.scheme === "Bearer" && x.params.claims && x.params.error === "insufficient_claims")) === null || _a === void 0 ? void 0 : _a.params.claims;
+    return parsedChallenges.find((x) => x.scheme === "Bearer" && x.params.claims && x.params.error === "insufficient_claims")?.params.claims;
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -35997,7 +36064,7 @@ function audienceErrorHandlingPolicy(isAudienceConfigured) {
  * The `@azure/logger` configuration for this package.
  * @internal
  */
-const logger$m = createClientLogger("app-config");
+const logger$n = createClientLogger("app-config");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -36018,7 +36085,7 @@ function syncTokenPolicy(syncTokens) {
         async sendRequest(request, next) {
             const syncTokenHeaderValue = syncTokens.getSyncTokenHeaderValue();
             if (syncTokenHeaderValue) {
-                logger$m.info(`[syncTokenPolicy] Setting headers with ${SyncTokenHeaderName} and ${syncTokenHeaderValue}`);
+                logger$n.info(`[syncTokenPolicy] Setting headers with ${SyncTokenHeaderName} and ${syncTokenHeaderValue}`);
                 request.headers.set(SyncTokenHeaderName, syncTokenHeaderValue);
             }
             const response = await next(request);
@@ -36132,7 +36199,7 @@ function queryParamPolicy() {
             }
             catch (error) {
                 if (error instanceof TypeError) {
-                    logger$m.warning(`"[queryParamPolicy] Could not parse URL: ${request.url}"`);
+                    logger$n.warning(`"[queryParamPolicy] Could not parse URL: ${request.url}"`);
                     return next(request);
                 }
                 throw error;
@@ -36176,6 +36243,45 @@ function queryParamPolicy() {
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 /**
+ * Name of the policy that backfills an empty JSON body for responses that
+ * legitimately carry no body (e.g. 204 No Content, 304 Not Modified, HEAD
+ * responses, and some 4xx error responses with no problem-details payload).
+ *
+ * The generated deserializers always invoke `errorDeserializer(result.body)`
+ * (and, in some success paths, the entity deserializer) with `result.body`
+ * directly. When `result.body` is `undefined` the deserializer dereferences
+ * `item["type"]` / `item["key"]` and throws a `TypeError`, which masks the
+ * proper `RestError` that was just constructed.
+ *
+ * This policy ensures that whenever the wire response has no body, the
+ * downstream JSON parsing step yields `{}` instead of `undefined`, so the
+ * generated deserializers see an empty object and behave correctly.
+ *
+ * @internal
+ */
+const emptyBodyPolicyName = "AppConfigEmptyBodyPolicy";
+/**
+ * Pipeline policy that backfills an empty JSON object body when the service
+ * responds with no body.
+ * @internal
+ */
+function emptyBodyPolicy() {
+    return {
+        name: emptyBodyPolicyName,
+        async sendRequest(request, next) {
+            const response = await next(request);
+            const text = response.bodyAsText;
+            if (text === undefined || text === null || text.length === 0) {
+                response.bodyAsText = "{}";
+            }
+            return response;
+        },
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
  * Tests an object to determine whether it implements KeyCredential.
  *
  * @param credential - The assumed KeyCredential to be tested.
@@ -36186,11 +36292,6 @@ function isKeyCredential$1(credential) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-/**
- * @internal
- * @param accessToken - Access token
- * @returns Whether a token is bearer type or not
- */
 /**
  * Tests an object to determine whether it implements TokenCredential.
  *
@@ -36208,77 +36309,16 @@ function isTokenCredential(credential) {
         (castCredential.signRequest === undefined || castCredential.getToken.length > 0));
 }
 
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-/** Known values of {@link ApiVersion20231101} that the service accepts. */
-var KnownApiVersion20231101;
-(function (KnownApiVersion20231101) {
-    /** Api Version '2023-11-01' */
-    KnownApiVersion20231101["TwoThousandTwentyThree1101"] = "2023-11-01";
-})(KnownApiVersion20231101 || (KnownApiVersion20231101 = {}));
-/** Known values of {@link KeyValueFields} that the service accepts. */
-var KnownKeyValueFields;
-(function (KnownKeyValueFields) {
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/** Known values of {@link SnapshotComposition} that the service accepts. */
+var KnownSnapshotComposition;
+(function (KnownSnapshotComposition) {
     /** Key */
-    KnownKeyValueFields["Key"] = "key";
-    /** Label */
-    KnownKeyValueFields["Label"] = "label";
-    /** ContentType */
-    KnownKeyValueFields["ContentType"] = "content_type";
-    /** Value */
-    KnownKeyValueFields["Value"] = "value";
-    /** LastModified */
-    KnownKeyValueFields["LastModified"] = "last_modified";
-    /** Tags */
-    KnownKeyValueFields["Tags"] = "tags";
-    /** Locked */
-    KnownKeyValueFields["Locked"] = "locked";
-    /** Etag */
-    KnownKeyValueFields["Etag"] = "etag";
-})(KnownKeyValueFields || (KnownKeyValueFields = {}));
-/** Known values of {@link SnapshotFields} that the service accepts. */
-var KnownSnapshotFields;
-(function (KnownSnapshotFields) {
-    /** Name */
-    KnownSnapshotFields["Name"] = "name";
-    /** Status */
-    KnownSnapshotFields["Status"] = "status";
-    /** Filters */
-    KnownSnapshotFields["Filters"] = "filters";
-    /** CompositionType */
-    KnownSnapshotFields["CompositionType"] = "composition_type";
-    /** Created */
-    KnownSnapshotFields["Created"] = "created";
-    /** Expires */
-    KnownSnapshotFields["Expires"] = "expires";
-    /** RetentionPeriod */
-    KnownSnapshotFields["RetentionPeriod"] = "retention_period";
-    /** Size */
-    KnownSnapshotFields["Size"] = "size";
-    /** ItemsCount */
-    KnownSnapshotFields["ItemsCount"] = "items_count";
-    /** Tags */
-    KnownSnapshotFields["Tags"] = "tags";
-    /** Etag */
-    KnownSnapshotFields["Etag"] = "etag";
-})(KnownSnapshotFields || (KnownSnapshotFields = {}));
-/** Known values of {@link SnapshotStatus} that the service accepts. */
-var KnownSnapshotStatus;
-(function (KnownSnapshotStatus) {
-    /** Provisioning */
-    KnownSnapshotStatus["Provisioning"] = "provisioning";
-    /** Ready */
-    KnownSnapshotStatus["Ready"] = "ready";
-    /** Archived */
-    KnownSnapshotStatus["Archived"] = "archived";
-    /** Failed */
-    KnownSnapshotStatus["Failed"] = "failed";
-})(KnownSnapshotStatus || (KnownSnapshotStatus = {}));
+    KnownSnapshotComposition["Key"] = "key";
+    /** KeyLabel */
+    KnownSnapshotComposition["KeyLabel"] = "key_label";
+})(KnownSnapshotComposition || (KnownSnapshotComposition = {}));
 /** Known values of {@link ConfigurationSnapshotStatus} that the service accepts. */
 var KnownConfigurationSnapshotStatus;
 (function (KnownConfigurationSnapshotStatus) {
@@ -36291,5614 +36331,6 @@ var KnownConfigurationSnapshotStatus;
     /** Failed */
     KnownConfigurationSnapshotStatus["Failed"] = "failed";
 })(KnownConfigurationSnapshotStatus || (KnownConfigurationSnapshotStatus = {}));
-/** Known values of {@link SnapshotComposition} that the service accepts. */
-var KnownSnapshotComposition;
-(function (KnownSnapshotComposition) {
-    /** Key */
-    KnownSnapshotComposition["Key"] = "key";
-    /** KeyLabel */
-    KnownSnapshotComposition["KeyLabel"] = "key_label";
-})(KnownSnapshotComposition || (KnownSnapshotComposition = {}));
-/** Known values of {@link LabelFields} that the service accepts. */
-var KnownLabelFields;
-(function (KnownLabelFields) {
-    /** Name */
-    KnownLabelFields["Name"] = "name";
-})(KnownLabelFields || (KnownLabelFields = {}));
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Encodes a string in base64 format.
- * @param value - the string to encode
- * @internal
- */
-/**
- * Encodes a byte array in base64 format.
- * @param value - the Uint8Aray to encode
- * @internal
- */
-function encodeByteArray(value) {
-    const bufferValue = value instanceof Buffer ? value : Buffer.from(value.buffer);
-    return bufferValue.toString("base64");
-}
-/**
- * Decodes a base64 string into a byte array.
- * @param value - the base64 string to decode
- * @internal
- */
-function decodeString(value) {
-    return Buffer.from(value, "base64");
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Default key used to access the XML attributes.
- */
-const XML_ATTRKEY = "$";
-/**
- * Default key used to access the XML value content.
- */
-const XML_CHARKEY = "_";
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * A type guard for a primitive response body.
- * @param value - Value to test
- *
- * @internal
- */
-function isPrimitiveBody(value, mapperTypeName) {
-    return (mapperTypeName !== "Composite" &&
-        mapperTypeName !== "Dictionary" &&
-        (typeof value === "string" ||
-            typeof value === "number" ||
-            typeof value === "boolean" ||
-            (mapperTypeName === null || mapperTypeName === void 0 ? void 0 : mapperTypeName.match(/^(Date|DateTime|DateTimeRfc1123|UnixTime|ByteArray|Base64Url)$/i)) !==
-                null ||
-            value === undefined ||
-            value === null));
-}
-const validateISODuration = /^(-|\+)?P(?:([-+]?[0-9,.]*)Y)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)W)?(?:([-+]?[0-9,.]*)D)?(?:T(?:([-+]?[0-9,.]*)H)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)S)?)?$/;
-/**
- * Returns true if the given string is in ISO 8601 format.
- * @param value - The value to be validated for ISO 8601 duration format.
- * @internal
- */
-function isDuration(value) {
-    return validateISODuration.test(value);
-}
-const validUuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i;
-/**
- * Returns true if the provided uuid is valid.
- *
- * @param uuid - The uuid that needs to be validated.
- *
- * @internal
- */
-function isValidUuid(uuid) {
-    return validUuidRegex.test(uuid);
-}
-/**
- * Maps the response as follows:
- * - wraps the response body if needed (typically if its type is primitive).
- * - returns null if the combination of the headers and the body is empty.
- * - otherwise, returns the combination of the headers and the body.
- *
- * @param responseObject - a representation of the parsed response
- * @returns the response that will be returned to the user which can be null and/or wrapped
- *
- * @internal
- */
-function handleNullableResponseAndWrappableBody(responseObject) {
-    const combinedHeadersAndBody = Object.assign(Object.assign({}, responseObject.headers), responseObject.body);
-    if (responseObject.hasNullableType &&
-        Object.getOwnPropertyNames(combinedHeadersAndBody).length === 0) {
-        return responseObject.shouldWrapBody ? { body: null } : null;
-    }
-    else {
-        return responseObject.shouldWrapBody
-            ? Object.assign(Object.assign({}, responseObject.headers), { body: responseObject.body }) : combinedHeadersAndBody;
-    }
-}
-/**
- * Take a `FullOperationResponse` and turn it into a flat
- * response object to hand back to the consumer.
- * @param fullResponse - The processed response from the operation request
- * @param responseSpec - The response map from the OperationSpec
- *
- * @internal
- */
-function flattenResponse(fullResponse, responseSpec) {
-    var _a, _b;
-    const parsedHeaders = fullResponse.parsedHeaders;
-    // head methods never have a body, but we return a boolean set to body property
-    // to indicate presence/absence of the resource
-    if (fullResponse.request.method === "HEAD") {
-        return Object.assign(Object.assign({}, parsedHeaders), { body: fullResponse.parsedBody });
-    }
-    const bodyMapper = responseSpec && responseSpec.bodyMapper;
-    const isNullable = Boolean(bodyMapper === null || bodyMapper === void 0 ? void 0 : bodyMapper.nullable);
-    const expectedBodyTypeName = bodyMapper === null || bodyMapper === void 0 ? void 0 : bodyMapper.type.name;
-    /** If the body is asked for, we look at the expected body type to handle it */
-    if (expectedBodyTypeName === "Stream") {
-        return Object.assign(Object.assign({}, parsedHeaders), { blobBody: fullResponse.blobBody, readableStreamBody: fullResponse.readableStreamBody });
-    }
-    const modelProperties = (expectedBodyTypeName === "Composite" &&
-        bodyMapper.type.modelProperties) ||
-        {};
-    const isPageableResponse = Object.keys(modelProperties).some((k) => modelProperties[k].serializedName === "");
-    if (expectedBodyTypeName === "Sequence" || isPageableResponse) {
-        const arrayResponse = (_a = fullResponse.parsedBody) !== null && _a !== void 0 ? _a : [];
-        for (const key of Object.keys(modelProperties)) {
-            if (modelProperties[key].serializedName) {
-                arrayResponse[key] = (_b = fullResponse.parsedBody) === null || _b === void 0 ? void 0 : _b[key];
-            }
-        }
-        if (parsedHeaders) {
-            for (const key of Object.keys(parsedHeaders)) {
-                arrayResponse[key] = parsedHeaders[key];
-            }
-        }
-        return isNullable &&
-            !fullResponse.parsedBody &&
-            !parsedHeaders &&
-            Object.getOwnPropertyNames(modelProperties).length === 0
-            ? null
-            : arrayResponse;
-    }
-    return handleNullableResponseAndWrappableBody({
-        body: fullResponse.parsedBody,
-        headers: parsedHeaders,
-        hasNullableType: isNullable,
-        shouldWrapBody: isPrimitiveBody(fullResponse.parsedBody, expectedBodyTypeName),
-    });
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-class SerializerImpl {
-    constructor(modelMappers = {}, isXML = false) {
-        this.modelMappers = modelMappers;
-        this.isXML = isXML;
-    }
-    /**
-     * @deprecated Removing the constraints validation on client side.
-     */
-    validateConstraints(mapper, value, objectName) {
-        const failValidation = (constraintName, constraintValue) => {
-            throw new Error(`"${objectName}" with value "${value}" should satisfy the constraint "${constraintName}": ${constraintValue}.`);
-        };
-        if (mapper.constraints && value !== undefined && value !== null) {
-            const { ExclusiveMaximum, ExclusiveMinimum, InclusiveMaximum, InclusiveMinimum, MaxItems, MaxLength, MinItems, MinLength, MultipleOf, Pattern, UniqueItems, } = mapper.constraints;
-            if (ExclusiveMaximum !== undefined && value >= ExclusiveMaximum) {
-                failValidation("ExclusiveMaximum", ExclusiveMaximum);
-            }
-            if (ExclusiveMinimum !== undefined && value <= ExclusiveMinimum) {
-                failValidation("ExclusiveMinimum", ExclusiveMinimum);
-            }
-            if (InclusiveMaximum !== undefined && value > InclusiveMaximum) {
-                failValidation("InclusiveMaximum", InclusiveMaximum);
-            }
-            if (InclusiveMinimum !== undefined && value < InclusiveMinimum) {
-                failValidation("InclusiveMinimum", InclusiveMinimum);
-            }
-            if (MaxItems !== undefined && value.length > MaxItems) {
-                failValidation("MaxItems", MaxItems);
-            }
-            if (MaxLength !== undefined && value.length > MaxLength) {
-                failValidation("MaxLength", MaxLength);
-            }
-            if (MinItems !== undefined && value.length < MinItems) {
-                failValidation("MinItems", MinItems);
-            }
-            if (MinLength !== undefined && value.length < MinLength) {
-                failValidation("MinLength", MinLength);
-            }
-            if (MultipleOf !== undefined && value % MultipleOf !== 0) {
-                failValidation("MultipleOf", MultipleOf);
-            }
-            if (Pattern) {
-                const pattern = typeof Pattern === "string" ? new RegExp(Pattern) : Pattern;
-                if (typeof value !== "string" || value.match(pattern) === null) {
-                    failValidation("Pattern", Pattern);
-                }
-            }
-            if (UniqueItems &&
-                value.some((item, i, ar) => ar.indexOf(item) !== i)) {
-                failValidation("UniqueItems", UniqueItems);
-            }
-        }
-    }
-    /**
-     * Serialize the given object based on its metadata defined in the mapper
-     *
-     * @param mapper - The mapper which defines the metadata of the serializable object
-     *
-     * @param object - A valid Javascript object to be serialized
-     *
-     * @param objectName - Name of the serialized object
-     *
-     * @param options - additional options to serialization
-     *
-     * @returns A valid serialized Javascript object
-     */
-    serialize(mapper, object, objectName, options = { xml: {} }) {
-        var _a, _b, _c;
-        const updatedOptions = {
-            xml: {
-                rootName: (_a = options.xml.rootName) !== null && _a !== void 0 ? _a : "",
-                includeRoot: (_b = options.xml.includeRoot) !== null && _b !== void 0 ? _b : false,
-                xmlCharKey: (_c = options.xml.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY,
-            },
-        };
-        let payload = {};
-        const mapperType = mapper.type.name;
-        if (!objectName) {
-            objectName = mapper.serializedName;
-        }
-        if (mapperType.match(/^Sequence$/i) !== null) {
-            payload = [];
-        }
-        if (mapper.isConstant) {
-            object = mapper.defaultValue;
-        }
-        // This table of allowed values should help explain
-        // the mapper.required and mapper.nullable properties.
-        // X means "neither undefined or null are allowed".
-        //           || required
-        //           || true      | false
-        //  nullable || ==========================
-        //      true || null      | undefined/null
-        //     false || X         | undefined
-        // undefined || X         | undefined/null
-        const { required, nullable } = mapper;
-        if (required && nullable && object === undefined) {
-            throw new Error(`${objectName} cannot be undefined.`);
-        }
-        if (required && !nullable && (object === undefined || object === null)) {
-            throw new Error(`${objectName} cannot be null or undefined.`);
-        }
-        if (!required && nullable === false && object === null) {
-            throw new Error(`${objectName} cannot be null.`);
-        }
-        if (object === undefined || object === null) {
-            payload = object;
-        }
-        else {
-            if (mapperType.match(/^any$/i) !== null) {
-                payload = object;
-            }
-            else if (mapperType.match(/^(Number|String|Boolean|Object|Stream|Uuid)$/i) !== null) {
-                payload = serializeBasicTypes(mapperType, objectName, object);
-            }
-            else if (mapperType.match(/^Enum$/i) !== null) {
-                const enumMapper = mapper;
-                payload = serializeEnumType(objectName, enumMapper.type.allowedValues, object);
-            }
-            else if (mapperType.match(/^(Date|DateTime|TimeSpan|DateTimeRfc1123|UnixTime)$/i) !== null) {
-                payload = serializeDateTypes(mapperType, object, objectName);
-            }
-            else if (mapperType.match(/^ByteArray$/i) !== null) {
-                payload = serializeByteArrayType(objectName, object);
-            }
-            else if (mapperType.match(/^Base64Url$/i) !== null) {
-                payload = serializeBase64UrlType(objectName, object);
-            }
-            else if (mapperType.match(/^Sequence$/i) !== null) {
-                payload = serializeSequenceType(this, mapper, object, objectName, Boolean(this.isXML), updatedOptions);
-            }
-            else if (mapperType.match(/^Dictionary$/i) !== null) {
-                payload = serializeDictionaryType(this, mapper, object, objectName, Boolean(this.isXML), updatedOptions);
-            }
-            else if (mapperType.match(/^Composite$/i) !== null) {
-                payload = serializeCompositeType(this, mapper, object, objectName, Boolean(this.isXML), updatedOptions);
-            }
-        }
-        return payload;
-    }
-    /**
-     * Deserialize the given object based on its metadata defined in the mapper
-     *
-     * @param mapper - The mapper which defines the metadata of the serializable object
-     *
-     * @param responseBody - A valid Javascript entity to be deserialized
-     *
-     * @param objectName - Name of the deserialized object
-     *
-     * @param options - Controls behavior of XML parser and builder.
-     *
-     * @returns A valid deserialized Javascript object
-     */
-    deserialize(mapper, responseBody, objectName, options = { xml: {} }) {
-        var _a, _b, _c, _d;
-        const updatedOptions = {
-            xml: {
-                rootName: (_a = options.xml.rootName) !== null && _a !== void 0 ? _a : "",
-                includeRoot: (_b = options.xml.includeRoot) !== null && _b !== void 0 ? _b : false,
-                xmlCharKey: (_c = options.xml.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY,
-            },
-            ignoreUnknownProperties: (_d = options.ignoreUnknownProperties) !== null && _d !== void 0 ? _d : false,
-        };
-        if (responseBody === undefined || responseBody === null) {
-            if (this.isXML && mapper.type.name === "Sequence" && !mapper.xmlIsWrapped) {
-                // Edge case for empty XML non-wrapped lists. xml2js can't distinguish
-                // between the list being empty versus being missing,
-                // so let's do the more user-friendly thing and return an empty list.
-                responseBody = [];
-            }
-            // specifically check for undefined as default value can be a falsey value `0, "", false, null`
-            if (mapper.defaultValue !== undefined) {
-                responseBody = mapper.defaultValue;
-            }
-            return responseBody;
-        }
-        let payload;
-        const mapperType = mapper.type.name;
-        if (!objectName) {
-            objectName = mapper.serializedName;
-        }
-        if (mapperType.match(/^Composite$/i) !== null) {
-            payload = deserializeCompositeType(this, mapper, responseBody, objectName, updatedOptions);
-        }
-        else {
-            if (this.isXML) {
-                const xmlCharKey = updatedOptions.xml.xmlCharKey;
-                /**
-                 * If the mapper specifies this as a non-composite type value but the responseBody contains
-                 * both header ("$" i.e., XML_ATTRKEY) and body ("#" i.e., XML_CHARKEY) properties,
-                 * then just reduce the responseBody value to the body ("#" i.e., XML_CHARKEY) property.
-                 */
-                if (responseBody[XML_ATTRKEY] !== undefined && responseBody[xmlCharKey] !== undefined) {
-                    responseBody = responseBody[xmlCharKey];
-                }
-            }
-            if (mapperType.match(/^Number$/i) !== null) {
-                payload = parseFloat(responseBody);
-                if (isNaN(payload)) {
-                    payload = responseBody;
-                }
-            }
-            else if (mapperType.match(/^Boolean$/i) !== null) {
-                if (responseBody === "true") {
-                    payload = true;
-                }
-                else if (responseBody === "false") {
-                    payload = false;
-                }
-                else {
-                    payload = responseBody;
-                }
-            }
-            else if (mapperType.match(/^(String|Enum|Object|Stream|Uuid|TimeSpan|any)$/i) !== null) {
-                payload = responseBody;
-            }
-            else if (mapperType.match(/^(Date|DateTime|DateTimeRfc1123)$/i) !== null) {
-                payload = new Date(responseBody);
-            }
-            else if (mapperType.match(/^UnixTime$/i) !== null) {
-                payload = unixTimeToDate(responseBody);
-            }
-            else if (mapperType.match(/^ByteArray$/i) !== null) {
-                payload = decodeString(responseBody);
-            }
-            else if (mapperType.match(/^Base64Url$/i) !== null) {
-                payload = base64UrlToByteArray(responseBody);
-            }
-            else if (mapperType.match(/^Sequence$/i) !== null) {
-                payload = deserializeSequenceType(this, mapper, responseBody, objectName, updatedOptions);
-            }
-            else if (mapperType.match(/^Dictionary$/i) !== null) {
-                payload = deserializeDictionaryType(this, mapper, responseBody, objectName, updatedOptions);
-            }
-        }
-        if (mapper.isConstant) {
-            payload = mapper.defaultValue;
-        }
-        return payload;
-    }
-}
-/**
- * Method that creates and returns a Serializer.
- * @param modelMappers - Known models to map
- * @param isXML - If XML should be supported
- */
-function createSerializer(modelMappers = {}, isXML = false) {
-    return new SerializerImpl(modelMappers, isXML);
-}
-function trimEnd(str, ch) {
-    let len = str.length;
-    while (len - 1 >= 0 && str[len - 1] === ch) {
-        --len;
-    }
-    return str.substr(0, len);
-}
-function bufferToBase64Url(buffer) {
-    if (!buffer) {
-        return undefined;
-    }
-    if (!(buffer instanceof Uint8Array)) {
-        throw new Error(`Please provide an input of type Uint8Array for converting to Base64Url.`);
-    }
-    // Uint8Array to Base64.
-    const str = encodeByteArray(buffer);
-    // Base64 to Base64Url.
-    return trimEnd(str, "=").replace(/\+/g, "-").replace(/\//g, "_");
-}
-function base64UrlToByteArray(str) {
-    if (!str) {
-        return undefined;
-    }
-    if (str && typeof str.valueOf() !== "string") {
-        throw new Error("Please provide an input of type string for converting to Uint8Array");
-    }
-    // Base64Url to Base64.
-    str = str.replace(/-/g, "+").replace(/_/g, "/");
-    // Base64 to Uint8Array.
-    return decodeString(str);
-}
-function splitSerializeName(prop) {
-    const classes = [];
-    let partialclass = "";
-    if (prop) {
-        const subwords = prop.split(".");
-        for (const item of subwords) {
-            if (item.charAt(item.length - 1) === "\\") {
-                partialclass += item.substr(0, item.length - 1) + ".";
-            }
-            else {
-                partialclass += item;
-                classes.push(partialclass);
-                partialclass = "";
-            }
-        }
-    }
-    return classes;
-}
-function dateToUnixTime(d) {
-    if (!d) {
-        return undefined;
-    }
-    if (typeof d.valueOf() === "string") {
-        d = new Date(d);
-    }
-    return Math.floor(d.getTime() / 1000);
-}
-function unixTimeToDate(n) {
-    if (!n) {
-        return undefined;
-    }
-    return new Date(n * 1000);
-}
-function serializeBasicTypes(typeName, objectName, value) {
-    if (value !== null && value !== undefined) {
-        if (typeName.match(/^Number$/i) !== null) {
-            if (typeof value !== "number") {
-                throw new Error(`${objectName} with value ${value} must be of type number.`);
-            }
-        }
-        else if (typeName.match(/^String$/i) !== null) {
-            if (typeof value.valueOf() !== "string") {
-                throw new Error(`${objectName} with value "${value}" must be of type string.`);
-            }
-        }
-        else if (typeName.match(/^Uuid$/i) !== null) {
-            if (!(typeof value.valueOf() === "string" && isValidUuid(value))) {
-                throw new Error(`${objectName} with value "${value}" must be of type string and a valid uuid.`);
-            }
-        }
-        else if (typeName.match(/^Boolean$/i) !== null) {
-            if (typeof value !== "boolean") {
-                throw new Error(`${objectName} with value ${value} must be of type boolean.`);
-            }
-        }
-        else if (typeName.match(/^Stream$/i) !== null) {
-            const objectType = typeof value;
-            if (objectType !== "string" &&
-                typeof value.pipe !== "function" && // NodeJS.ReadableStream
-                typeof value.tee !== "function" && // browser ReadableStream
-                !(value instanceof ArrayBuffer) &&
-                !ArrayBuffer.isView(value) &&
-                // File objects count as a type of Blob, so we want to use instanceof explicitly
-                !((typeof Blob === "function" || typeof Blob === "object") && value instanceof Blob) &&
-                objectType !== "function") {
-                throw new Error(`${objectName} must be a string, Blob, ArrayBuffer, ArrayBufferView, ReadableStream, or () => ReadableStream.`);
-            }
-        }
-    }
-    return value;
-}
-function serializeEnumType(objectName, allowedValues, value) {
-    if (!allowedValues) {
-        throw new Error(`Please provide a set of allowedValues to validate ${objectName} as an Enum Type.`);
-    }
-    const isPresent = allowedValues.some((item) => {
-        if (typeof item.valueOf() === "string") {
-            return item.toLowerCase() === value.toLowerCase();
-        }
-        return item === value;
-    });
-    if (!isPresent) {
-        throw new Error(`${value} is not a valid value for ${objectName}. The valid values are: ${JSON.stringify(allowedValues)}.`);
-    }
-    return value;
-}
-function serializeByteArrayType(objectName, value) {
-    if (value !== undefined && value !== null) {
-        if (!(value instanceof Uint8Array)) {
-            throw new Error(`${objectName} must be of type Uint8Array.`);
-        }
-        value = encodeByteArray(value);
-    }
-    return value;
-}
-function serializeBase64UrlType(objectName, value) {
-    if (value !== undefined && value !== null) {
-        if (!(value instanceof Uint8Array)) {
-            throw new Error(`${objectName} must be of type Uint8Array.`);
-        }
-        value = bufferToBase64Url(value);
-    }
-    return value;
-}
-function serializeDateTypes(typeName, value, objectName) {
-    if (value !== undefined && value !== null) {
-        if (typeName.match(/^Date$/i) !== null) {
-            if (!(value instanceof Date ||
-                (typeof value.valueOf() === "string" && !isNaN(Date.parse(value))))) {
-                throw new Error(`${objectName} must be an instanceof Date or a string in ISO8601 format.`);
-            }
-            value =
-                value instanceof Date
-                    ? value.toISOString().substring(0, 10)
-                    : new Date(value).toISOString().substring(0, 10);
-        }
-        else if (typeName.match(/^DateTime$/i) !== null) {
-            if (!(value instanceof Date ||
-                (typeof value.valueOf() === "string" && !isNaN(Date.parse(value))))) {
-                throw new Error(`${objectName} must be an instanceof Date or a string in ISO8601 format.`);
-            }
-            value = value instanceof Date ? value.toISOString() : new Date(value).toISOString();
-        }
-        else if (typeName.match(/^DateTimeRfc1123$/i) !== null) {
-            if (!(value instanceof Date ||
-                (typeof value.valueOf() === "string" && !isNaN(Date.parse(value))))) {
-                throw new Error(`${objectName} must be an instanceof Date or a string in RFC-1123 format.`);
-            }
-            value = value instanceof Date ? value.toUTCString() : new Date(value).toUTCString();
-        }
-        else if (typeName.match(/^UnixTime$/i) !== null) {
-            if (!(value instanceof Date ||
-                (typeof value.valueOf() === "string" && !isNaN(Date.parse(value))))) {
-                throw new Error(`${objectName} must be an instanceof Date or a string in RFC-1123/ISO8601 format ` +
-                    `for it to be serialized in UnixTime/Epoch format.`);
-            }
-            value = dateToUnixTime(value);
-        }
-        else if (typeName.match(/^TimeSpan$/i) !== null) {
-            if (!isDuration(value)) {
-                throw new Error(`${objectName} must be a string in ISO 8601 format. Instead was "${value}".`);
-            }
-        }
-    }
-    return value;
-}
-function serializeSequenceType(serializer, mapper, object, objectName, isXml, options) {
-    var _a;
-    if (!Array.isArray(object)) {
-        throw new Error(`${objectName} must be of type Array.`);
-    }
-    let elementType = mapper.type.element;
-    if (!elementType || typeof elementType !== "object") {
-        throw new Error(`element" metadata for an Array must be defined in the ` +
-            `mapper and it must of type "object" in ${objectName}.`);
-    }
-    // Quirk: Composite mappers referenced by `element` might
-    // not have *all* properties declared (like uberParent),
-    // so let's try to look up the full definition by name.
-    if (elementType.type.name === "Composite" && elementType.type.className) {
-        elementType = (_a = serializer.modelMappers[elementType.type.className]) !== null && _a !== void 0 ? _a : elementType;
-    }
-    const tempArray = [];
-    for (let i = 0; i < object.length; i++) {
-        const serializedValue = serializer.serialize(elementType, object[i], objectName, options);
-        if (isXml && elementType.xmlNamespace) {
-            const xmlnsKey = elementType.xmlNamespacePrefix
-                ? `xmlns:${elementType.xmlNamespacePrefix}`
-                : "xmlns";
-            if (elementType.type.name === "Composite") {
-                tempArray[i] = Object.assign({}, serializedValue);
-                tempArray[i][XML_ATTRKEY] = { [xmlnsKey]: elementType.xmlNamespace };
-            }
-            else {
-                tempArray[i] = {};
-                tempArray[i][options.xml.xmlCharKey] = serializedValue;
-                tempArray[i][XML_ATTRKEY] = { [xmlnsKey]: elementType.xmlNamespace };
-            }
-        }
-        else {
-            tempArray[i] = serializedValue;
-        }
-    }
-    return tempArray;
-}
-function serializeDictionaryType(serializer, mapper, object, objectName, isXml, options) {
-    if (typeof object !== "object") {
-        throw new Error(`${objectName} must be of type object.`);
-    }
-    const valueType = mapper.type.value;
-    if (!valueType || typeof valueType !== "object") {
-        throw new Error(`"value" metadata for a Dictionary must be defined in the ` +
-            `mapper and it must of type "object" in ${objectName}.`);
-    }
-    const tempDictionary = {};
-    for (const key of Object.keys(object)) {
-        const serializedValue = serializer.serialize(valueType, object[key], objectName, options);
-        // If the element needs an XML namespace we need to add it within the $ property
-        tempDictionary[key] = getXmlObjectValue(valueType, serializedValue, isXml, options);
-    }
-    // Add the namespace to the root element if needed
-    if (isXml && mapper.xmlNamespace) {
-        const xmlnsKey = mapper.xmlNamespacePrefix ? `xmlns:${mapper.xmlNamespacePrefix}` : "xmlns";
-        const result = tempDictionary;
-        result[XML_ATTRKEY] = { [xmlnsKey]: mapper.xmlNamespace };
-        return result;
-    }
-    return tempDictionary;
-}
-/**
- * Resolves the additionalProperties property from a referenced mapper
- * @param serializer - the serializer containing the entire set of mappers
- * @param mapper - the composite mapper to resolve
- * @param objectName - name of the object being serialized
- */
-function resolveAdditionalProperties(serializer, mapper, objectName) {
-    const additionalProperties = mapper.type.additionalProperties;
-    if (!additionalProperties && mapper.type.className) {
-        const modelMapper = resolveReferencedMapper(serializer, mapper, objectName);
-        return modelMapper === null || modelMapper === void 0 ? void 0 : modelMapper.type.additionalProperties;
-    }
-    return additionalProperties;
-}
-/**
- * Finds the mapper referenced by className
- * @param serializer - the serializer containing the entire set of mappers
- * @param mapper - the composite mapper to resolve
- * @param objectName - name of the object being serialized
- */
-function resolveReferencedMapper(serializer, mapper, objectName) {
-    const className = mapper.type.className;
-    if (!className) {
-        throw new Error(`Class name for model "${objectName}" is not provided in the mapper "${JSON.stringify(mapper, undefined, 2)}".`);
-    }
-    return serializer.modelMappers[className];
-}
-/**
- * Resolves a composite mapper's modelProperties.
- * @param serializer - the serializer containing the entire set of mappers
- * @param mapper - the composite mapper to resolve
- */
-function resolveModelProperties(serializer, mapper, objectName) {
-    let modelProps = mapper.type.modelProperties;
-    if (!modelProps) {
-        const modelMapper = resolveReferencedMapper(serializer, mapper, objectName);
-        if (!modelMapper) {
-            throw new Error(`mapper() cannot be null or undefined for model "${mapper.type.className}".`);
-        }
-        modelProps = modelMapper === null || modelMapper === void 0 ? void 0 : modelMapper.type.modelProperties;
-        if (!modelProps) {
-            throw new Error(`modelProperties cannot be null or undefined in the ` +
-                `mapper "${JSON.stringify(modelMapper)}" of type "${mapper.type.className}" for object "${objectName}".`);
-        }
-    }
-    return modelProps;
-}
-function serializeCompositeType(serializer, mapper, object, objectName, isXml, options) {
-    if (getPolymorphicDiscriminatorRecursively(serializer, mapper)) {
-        mapper = getPolymorphicMapper(serializer, mapper, object, "clientName");
-    }
-    if (object !== undefined && object !== null) {
-        const payload = {};
-        const modelProps = resolveModelProperties(serializer, mapper, objectName);
-        for (const key of Object.keys(modelProps)) {
-            const propertyMapper = modelProps[key];
-            if (propertyMapper.readOnly) {
-                continue;
-            }
-            let propName;
-            let parentObject = payload;
-            if (serializer.isXML) {
-                if (propertyMapper.xmlIsWrapped) {
-                    propName = propertyMapper.xmlName;
-                }
-                else {
-                    propName = propertyMapper.xmlElementName || propertyMapper.xmlName;
-                }
-            }
-            else {
-                const paths = splitSerializeName(propertyMapper.serializedName);
-                propName = paths.pop();
-                for (const pathName of paths) {
-                    const childObject = parentObject[pathName];
-                    if ((childObject === undefined || childObject === null) &&
-                        ((object[key] !== undefined && object[key] !== null) ||
-                            propertyMapper.defaultValue !== undefined)) {
-                        parentObject[pathName] = {};
-                    }
-                    parentObject = parentObject[pathName];
-                }
-            }
-            if (parentObject !== undefined && parentObject !== null) {
-                if (isXml && mapper.xmlNamespace) {
-                    const xmlnsKey = mapper.xmlNamespacePrefix
-                        ? `xmlns:${mapper.xmlNamespacePrefix}`
-                        : "xmlns";
-                    parentObject[XML_ATTRKEY] = Object.assign(Object.assign({}, parentObject[XML_ATTRKEY]), { [xmlnsKey]: mapper.xmlNamespace });
-                }
-                const propertyObjectName = propertyMapper.serializedName !== ""
-                    ? objectName + "." + propertyMapper.serializedName
-                    : objectName;
-                let toSerialize = object[key];
-                const polymorphicDiscriminator = getPolymorphicDiscriminatorRecursively(serializer, mapper);
-                if (polymorphicDiscriminator &&
-                    polymorphicDiscriminator.clientName === key &&
-                    (toSerialize === undefined || toSerialize === null)) {
-                    toSerialize = mapper.serializedName;
-                }
-                const serializedValue = serializer.serialize(propertyMapper, toSerialize, propertyObjectName, options);
-                if (serializedValue !== undefined && propName !== undefined && propName !== null) {
-                    const value = getXmlObjectValue(propertyMapper, serializedValue, isXml, options);
-                    if (isXml && propertyMapper.xmlIsAttribute) {
-                        // XML_ATTRKEY, i.e., $ is the key attributes are kept under in xml2js.
-                        // This keeps things simple while preventing name collision
-                        // with names in user documents.
-                        parentObject[XML_ATTRKEY] = parentObject[XML_ATTRKEY] || {};
-                        parentObject[XML_ATTRKEY][propName] = serializedValue;
-                    }
-                    else if (isXml && propertyMapper.xmlIsWrapped) {
-                        parentObject[propName] = { [propertyMapper.xmlElementName]: value };
-                    }
-                    else {
-                        parentObject[propName] = value;
-                    }
-                }
-            }
-        }
-        const additionalPropertiesMapper = resolveAdditionalProperties(serializer, mapper, objectName);
-        if (additionalPropertiesMapper) {
-            const propNames = Object.keys(modelProps);
-            for (const clientPropName in object) {
-                const isAdditionalProperty = propNames.every((pn) => pn !== clientPropName);
-                if (isAdditionalProperty) {
-                    payload[clientPropName] = serializer.serialize(additionalPropertiesMapper, object[clientPropName], objectName + '["' + clientPropName + '"]', options);
-                }
-            }
-        }
-        return payload;
-    }
-    return object;
-}
-function getXmlObjectValue(propertyMapper, serializedValue, isXml, options) {
-    if (!isXml || !propertyMapper.xmlNamespace) {
-        return serializedValue;
-    }
-    const xmlnsKey = propertyMapper.xmlNamespacePrefix
-        ? `xmlns:${propertyMapper.xmlNamespacePrefix}`
-        : "xmlns";
-    const xmlNamespace = { [xmlnsKey]: propertyMapper.xmlNamespace };
-    if (["Composite"].includes(propertyMapper.type.name)) {
-        if (serializedValue[XML_ATTRKEY]) {
-            return serializedValue;
-        }
-        else {
-            const result = Object.assign({}, serializedValue);
-            result[XML_ATTRKEY] = xmlNamespace;
-            return result;
-        }
-    }
-    const result = {};
-    result[options.xml.xmlCharKey] = serializedValue;
-    result[XML_ATTRKEY] = xmlNamespace;
-    return result;
-}
-function isSpecialXmlProperty(propertyName, options) {
-    return [XML_ATTRKEY, options.xml.xmlCharKey].includes(propertyName);
-}
-function deserializeCompositeType(serializer, mapper, responseBody, objectName, options) {
-    var _a, _b;
-    const xmlCharKey = (_a = options.xml.xmlCharKey) !== null && _a !== void 0 ? _a : XML_CHARKEY;
-    if (getPolymorphicDiscriminatorRecursively(serializer, mapper)) {
-        mapper = getPolymorphicMapper(serializer, mapper, responseBody, "serializedName");
-    }
-    const modelProps = resolveModelProperties(serializer, mapper, objectName);
-    let instance = {};
-    const handledPropertyNames = [];
-    for (const key of Object.keys(modelProps)) {
-        const propertyMapper = modelProps[key];
-        const paths = splitSerializeName(modelProps[key].serializedName);
-        handledPropertyNames.push(paths[0]);
-        const { serializedName, xmlName, xmlElementName } = propertyMapper;
-        let propertyObjectName = objectName;
-        if (serializedName !== "" && serializedName !== undefined) {
-            propertyObjectName = objectName + "." + serializedName;
-        }
-        const headerCollectionPrefix = propertyMapper.headerCollectionPrefix;
-        if (headerCollectionPrefix) {
-            const dictionary = {};
-            for (const headerKey of Object.keys(responseBody)) {
-                if (headerKey.startsWith(headerCollectionPrefix)) {
-                    dictionary[headerKey.substring(headerCollectionPrefix.length)] = serializer.deserialize(propertyMapper.type.value, responseBody[headerKey], propertyObjectName, options);
-                }
-                handledPropertyNames.push(headerKey);
-            }
-            instance[key] = dictionary;
-        }
-        else if (serializer.isXML) {
-            if (propertyMapper.xmlIsAttribute && responseBody[XML_ATTRKEY]) {
-                instance[key] = serializer.deserialize(propertyMapper, responseBody[XML_ATTRKEY][xmlName], propertyObjectName, options);
-            }
-            else if (propertyMapper.xmlIsMsText) {
-                if (responseBody[xmlCharKey] !== undefined) {
-                    instance[key] = responseBody[xmlCharKey];
-                }
-                else if (typeof responseBody === "string") {
-                    // The special case where xml parser parses "<Name>content</Name>" into JSON of
-                    //   `{ name: "content"}` instead of `{ name: { "_": "content" }}`
-                    instance[key] = responseBody;
-                }
-            }
-            else {
-                const propertyName = xmlElementName || xmlName || serializedName;
-                if (propertyMapper.xmlIsWrapped) {
-                    /* a list of <xmlElementName> wrapped by <xmlName>
-                      For the xml example below
-                        <Cors>
-                          <CorsRule>...</CorsRule>
-                          <CorsRule>...</CorsRule>
-                        </Cors>
-                      the responseBody has
-                        {
-                          Cors: {
-                            CorsRule: [{...}, {...}]
-                          }
-                        }
-                      xmlName is "Cors" and xmlElementName is"CorsRule".
-                    */
-                    const wrapped = responseBody[xmlName];
-                    const elementList = (_b = wrapped === null || wrapped === void 0 ? void 0 : wrapped[xmlElementName]) !== null && _b !== void 0 ? _b : [];
-                    instance[key] = serializer.deserialize(propertyMapper, elementList, propertyObjectName, options);
-                    handledPropertyNames.push(xmlName);
-                }
-                else {
-                    const property = responseBody[propertyName];
-                    instance[key] = serializer.deserialize(propertyMapper, property, propertyObjectName, options);
-                    handledPropertyNames.push(propertyName);
-                }
-            }
-        }
-        else {
-            // deserialize the property if it is present in the provided responseBody instance
-            let propertyInstance;
-            let res = responseBody;
-            // traversing the object step by step.
-            let steps = 0;
-            for (const item of paths) {
-                if (!res)
-                    break;
-                steps++;
-                res = res[item];
-            }
-            // only accept null when reaching the last position of object otherwise it would be undefined
-            if (res === null && steps < paths.length) {
-                res = undefined;
-            }
-            propertyInstance = res;
-            const polymorphicDiscriminator = mapper.type.polymorphicDiscriminator;
-            // checking that the model property name (key)(ex: "fishtype") and the
-            // clientName of the polymorphicDiscriminator {metadata} (ex: "fishtype")
-            // instead of the serializedName of the polymorphicDiscriminator (ex: "fish.type")
-            // is a better approach. The generator is not consistent with escaping '\.' in the
-            // serializedName of the property (ex: "fish\.type") that is marked as polymorphic discriminator
-            // and the serializedName of the metadata polymorphicDiscriminator (ex: "fish.type"). However,
-            // the clientName transformation of the polymorphicDiscriminator (ex: "fishtype") and
-            // the transformation of model property name (ex: "fishtype") is done consistently.
-            // Hence, it is a safer bet to rely on the clientName of the polymorphicDiscriminator.
-            if (polymorphicDiscriminator &&
-                key === polymorphicDiscriminator.clientName &&
-                (propertyInstance === undefined || propertyInstance === null)) {
-                propertyInstance = mapper.serializedName;
-            }
-            let serializedValue;
-            // paging
-            if (Array.isArray(responseBody[key]) && modelProps[key].serializedName === "") {
-                propertyInstance = responseBody[key];
-                const arrayInstance = serializer.deserialize(propertyMapper, propertyInstance, propertyObjectName, options);
-                // Copy over any properties that have already been added into the instance, where they do
-                // not exist on the newly de-serialized array
-                for (const [k, v] of Object.entries(instance)) {
-                    if (!Object.prototype.hasOwnProperty.call(arrayInstance, k)) {
-                        arrayInstance[k] = v;
-                    }
-                }
-                instance = arrayInstance;
-            }
-            else if (propertyInstance !== undefined || propertyMapper.defaultValue !== undefined) {
-                serializedValue = serializer.deserialize(propertyMapper, propertyInstance, propertyObjectName, options);
-                instance[key] = serializedValue;
-            }
-        }
-    }
-    const additionalPropertiesMapper = mapper.type.additionalProperties;
-    if (additionalPropertiesMapper) {
-        const isAdditionalProperty = (responsePropName) => {
-            for (const clientPropName in modelProps) {
-                const paths = splitSerializeName(modelProps[clientPropName].serializedName);
-                if (paths[0] === responsePropName) {
-                    return false;
-                }
-            }
-            return true;
-        };
-        for (const responsePropName in responseBody) {
-            if (isAdditionalProperty(responsePropName)) {
-                instance[responsePropName] = serializer.deserialize(additionalPropertiesMapper, responseBody[responsePropName], objectName + '["' + responsePropName + '"]', options);
-            }
-        }
-    }
-    else if (responseBody && !options.ignoreUnknownProperties) {
-        for (const key of Object.keys(responseBody)) {
-            if (instance[key] === undefined &&
-                !handledPropertyNames.includes(key) &&
-                !isSpecialXmlProperty(key, options)) {
-                instance[key] = responseBody[key];
-            }
-        }
-    }
-    return instance;
-}
-function deserializeDictionaryType(serializer, mapper, responseBody, objectName, options) {
-    /* jshint validthis: true */
-    const value = mapper.type.value;
-    if (!value || typeof value !== "object") {
-        throw new Error(`"value" metadata for a Dictionary must be defined in the ` +
-            `mapper and it must of type "object" in ${objectName}`);
-    }
-    if (responseBody) {
-        const tempDictionary = {};
-        for (const key of Object.keys(responseBody)) {
-            tempDictionary[key] = serializer.deserialize(value, responseBody[key], objectName, options);
-        }
-        return tempDictionary;
-    }
-    return responseBody;
-}
-function deserializeSequenceType(serializer, mapper, responseBody, objectName, options) {
-    var _a;
-    let element = mapper.type.element;
-    if (!element || typeof element !== "object") {
-        throw new Error(`element" metadata for an Array must be defined in the ` +
-            `mapper and it must of type "object" in ${objectName}`);
-    }
-    if (responseBody) {
-        if (!Array.isArray(responseBody)) {
-            // xml2js will interpret a single element array as just the element, so force it to be an array
-            responseBody = [responseBody];
-        }
-        // Quirk: Composite mappers referenced by `element` might
-        // not have *all* properties declared (like uberParent),
-        // so let's try to look up the full definition by name.
-        if (element.type.name === "Composite" && element.type.className) {
-            element = (_a = serializer.modelMappers[element.type.className]) !== null && _a !== void 0 ? _a : element;
-        }
-        const tempArray = [];
-        for (let i = 0; i < responseBody.length; i++) {
-            tempArray[i] = serializer.deserialize(element, responseBody[i], `${objectName}[${i}]`, options);
-        }
-        return tempArray;
-    }
-    return responseBody;
-}
-function getIndexDiscriminator(discriminators, discriminatorValue, typeName) {
-    const typeNamesToCheck = [typeName];
-    while (typeNamesToCheck.length) {
-        const currentName = typeNamesToCheck.shift();
-        const indexDiscriminator = discriminatorValue === currentName
-            ? discriminatorValue
-            : currentName + "." + discriminatorValue;
-        if (Object.prototype.hasOwnProperty.call(discriminators, indexDiscriminator)) {
-            return discriminators[indexDiscriminator];
-        }
-        else {
-            for (const [name, mapper] of Object.entries(discriminators)) {
-                if (name.startsWith(currentName + ".") &&
-                    mapper.type.uberParent === currentName &&
-                    mapper.type.className) {
-                    typeNamesToCheck.push(mapper.type.className);
-                }
-            }
-        }
-    }
-    return undefined;
-}
-function getPolymorphicMapper(serializer, mapper, object, polymorphicPropertyName) {
-    var _a;
-    const polymorphicDiscriminator = getPolymorphicDiscriminatorRecursively(serializer, mapper);
-    if (polymorphicDiscriminator) {
-        let discriminatorName = polymorphicDiscriminator[polymorphicPropertyName];
-        if (discriminatorName) {
-            // The serializedName might have \\, which we just want to ignore
-            if (polymorphicPropertyName === "serializedName") {
-                discriminatorName = discriminatorName.replace(/\\/gi, "");
-            }
-            const discriminatorValue = object[discriminatorName];
-            const typeName = (_a = mapper.type.uberParent) !== null && _a !== void 0 ? _a : mapper.type.className;
-            if (typeof discriminatorValue === "string" && typeName) {
-                const polymorphicMapper = getIndexDiscriminator(serializer.modelMappers.discriminators, discriminatorValue, typeName);
-                if (polymorphicMapper) {
-                    mapper = polymorphicMapper;
-                }
-            }
-        }
-    }
-    return mapper;
-}
-function getPolymorphicDiscriminatorRecursively(serializer, mapper) {
-    return (mapper.type.polymorphicDiscriminator ||
-        getPolymorphicDiscriminatorSafely(serializer, mapper.type.uberParent) ||
-        getPolymorphicDiscriminatorSafely(serializer, mapper.type.className));
-}
-function getPolymorphicDiscriminatorSafely(serializer, typeName) {
-    return (typeName &&
-        serializer.modelMappers[typeName] &&
-        serializer.modelMappers[typeName].type.polymorphicDiscriminator);
-}
-/**
- * Known types of Mappers
- */
-const MapperTypeNames = {
-    Base64Url: "Base64Url",
-    Boolean: "Boolean",
-    ByteArray: "ByteArray",
-    Composite: "Composite",
-    Date: "Date",
-    DateTime: "DateTime",
-    DateTimeRfc1123: "DateTimeRfc1123",
-    Dictionary: "Dictionary",
-    Enum: "Enum",
-    Number: "Number",
-    Object: "Object",
-    Sequence: "Sequence",
-    String: "String",
-    Stream: "Stream",
-    TimeSpan: "TimeSpan",
-    UnixTime: "UnixTime",
-};
-
-var state$1 = {};
-
-var hasRequiredState;
-
-function requireState () {
-	if (hasRequiredState) return state$1;
-	hasRequiredState = 1;
-	// Copyright (c) Microsoft Corporation.
-	// Licensed under the MIT License.
-	Object.defineProperty(state$1, "__esModule", { value: true });
-	state$1.state = void 0;
-	/**
-	 * Holds the singleton operationRequestMap, to be shared across CJS and ESM imports.
-	 */
-	state$1.state = {
-	    operationRequestMap: new WeakMap(),
-	};
-	
-	return state$1;
-}
-
-var stateExports = requireState();
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-// @ts-expect-error The recommended approach to sharing module state between ESM and CJS.
-// See https://github.com/isaacs/tshy/blob/main/README.md#module-local-state for additional information.
-/**
- * Defines the shared state between CJS and ESM by re-exporting the CJS state.
- */
-const state = stateExports.state;
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * @internal
- * Retrieves the value to use for a given operation argument
- * @param operationArguments - The arguments passed from the generated client
- * @param parameter - The parameter description
- * @param fallbackObject - If something isn't found in the arguments bag, look here.
- *  Generally used to look at the service client properties.
- */
-function getOperationArgumentValueFromParameter(operationArguments, parameter, fallbackObject) {
-    let parameterPath = parameter.parameterPath;
-    const parameterMapper = parameter.mapper;
-    let value;
-    if (typeof parameterPath === "string") {
-        parameterPath = [parameterPath];
-    }
-    if (Array.isArray(parameterPath)) {
-        if (parameterPath.length > 0) {
-            if (parameterMapper.isConstant) {
-                value = parameterMapper.defaultValue;
-            }
-            else {
-                let propertySearchResult = getPropertyFromParameterPath(operationArguments, parameterPath);
-                if (!propertySearchResult.propertyFound && fallbackObject) {
-                    propertySearchResult = getPropertyFromParameterPath(fallbackObject, parameterPath);
-                }
-                let useDefaultValue = false;
-                if (!propertySearchResult.propertyFound) {
-                    useDefaultValue =
-                        parameterMapper.required ||
-                            (parameterPath[0] === "options" && parameterPath.length === 2);
-                }
-                value = useDefaultValue ? parameterMapper.defaultValue : propertySearchResult.propertyValue;
-            }
-        }
-    }
-    else {
-        if (parameterMapper.required) {
-            value = {};
-        }
-        for (const propertyName in parameterPath) {
-            const propertyMapper = parameterMapper.type.modelProperties[propertyName];
-            const propertyPath = parameterPath[propertyName];
-            const propertyValue = getOperationArgumentValueFromParameter(operationArguments, {
-                parameterPath: propertyPath,
-                mapper: propertyMapper,
-            }, fallbackObject);
-            if (propertyValue !== undefined) {
-                if (!value) {
-                    value = {};
-                }
-                value[propertyName] = propertyValue;
-            }
-        }
-    }
-    return value;
-}
-function getPropertyFromParameterPath(parent, parameterPath) {
-    const result = { propertyFound: false };
-    let i = 0;
-    for (; i < parameterPath.length; ++i) {
-        const parameterPathPart = parameterPath[i];
-        // Make sure to check inherited properties too, so don't use hasOwnProperty().
-        if (parent && parameterPathPart in parent) {
-            parent = parent[parameterPathPart];
-        }
-        else {
-            break;
-        }
-    }
-    if (i === parameterPath.length) {
-        result.propertyValue = parent;
-        result.propertyFound = true;
-    }
-    return result;
-}
-const originalRequestSymbol = Symbol.for("@azure/core-client original request");
-function hasOriginalRequest(request) {
-    return originalRequestSymbol in request;
-}
-function getOperationRequestInfo(request) {
-    if (hasOriginalRequest(request)) {
-        return getOperationRequestInfo(request[originalRequestSymbol]);
-    }
-    let info = state.operationRequestMap.get(request);
-    if (!info) {
-        info = {};
-        state.operationRequestMap.set(request, info);
-    }
-    return info;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const defaultJsonContentTypes = ["application/json", "text/json"];
-const defaultXmlContentTypes = ["application/xml", "application/atom+xml"];
-/**
- * The programmatic identifier of the deserializationPolicy.
- */
-const deserializationPolicyName = "deserializationPolicy";
-/**
- * This policy handles parsing out responses according to OperationSpecs on the request.
- */
-function deserializationPolicy(options = {}) {
-    var _a, _b, _c, _d, _e, _f, _g;
-    const jsonContentTypes = (_b = (_a = options.expectedContentTypes) === null || _a === void 0 ? void 0 : _a.json) !== null && _b !== void 0 ? _b : defaultJsonContentTypes;
-    const xmlContentTypes = (_d = (_c = options.expectedContentTypes) === null || _c === void 0 ? void 0 : _c.xml) !== null && _d !== void 0 ? _d : defaultXmlContentTypes;
-    const parseXML = options.parseXML;
-    const serializerOptions = options.serializerOptions;
-    const updatedOptions = {
-        xml: {
-            rootName: (_e = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.rootName) !== null && _e !== void 0 ? _e : "",
-            includeRoot: (_f = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.includeRoot) !== null && _f !== void 0 ? _f : false,
-            xmlCharKey: (_g = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.xmlCharKey) !== null && _g !== void 0 ? _g : XML_CHARKEY,
-        },
-    };
-    return {
-        name: deserializationPolicyName,
-        async sendRequest(request, next) {
-            const response = await next(request);
-            return deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, updatedOptions, parseXML);
-        },
-    };
-}
-function getOperationResponseMap(parsedResponse) {
-    let result;
-    const request = parsedResponse.request;
-    const operationInfo = getOperationRequestInfo(request);
-    const operationSpec = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationSpec;
-    if (operationSpec) {
-        if (!(operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationResponseGetter)) {
-            result = operationSpec.responses[parsedResponse.status];
-        }
-        else {
-            result = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationResponseGetter(operationSpec, parsedResponse);
-        }
-    }
-    return result;
-}
-function shouldDeserializeResponse(parsedResponse) {
-    const request = parsedResponse.request;
-    const operationInfo = getOperationRequestInfo(request);
-    const shouldDeserialize = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.shouldDeserialize;
-    let result;
-    if (shouldDeserialize === undefined) {
-        result = true;
-    }
-    else if (typeof shouldDeserialize === "boolean") {
-        result = shouldDeserialize;
-    }
-    else {
-        result = shouldDeserialize(parsedResponse);
-    }
-    return result;
-}
-async function deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, options, parseXML) {
-    const parsedResponse = await parse(jsonContentTypes, xmlContentTypes, response, options, parseXML);
-    if (!shouldDeserializeResponse(parsedResponse)) {
-        return parsedResponse;
-    }
-    const operationInfo = getOperationRequestInfo(parsedResponse.request);
-    const operationSpec = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationSpec;
-    if (!operationSpec || !operationSpec.responses) {
-        return parsedResponse;
-    }
-    const responseSpec = getOperationResponseMap(parsedResponse);
-    const { error, shouldReturnResponse } = handleErrorResponse(parsedResponse, operationSpec, responseSpec, options);
-    if (error) {
-        throw error;
-    }
-    else if (shouldReturnResponse) {
-        return parsedResponse;
-    }
-    // An operation response spec does exist for current status code, so
-    // use it to deserialize the response.
-    if (responseSpec) {
-        if (responseSpec.bodyMapper) {
-            let valueToDeserialize = parsedResponse.parsedBody;
-            if (operationSpec.isXML && responseSpec.bodyMapper.type.name === MapperTypeNames.Sequence) {
-                valueToDeserialize =
-                    typeof valueToDeserialize === "object"
-                        ? valueToDeserialize[responseSpec.bodyMapper.xmlElementName]
-                        : [];
-            }
-            try {
-                parsedResponse.parsedBody = operationSpec.serializer.deserialize(responseSpec.bodyMapper, valueToDeserialize, "operationRes.parsedBody", options);
-            }
-            catch (deserializeError) {
-                const restError = new RestError(`Error ${deserializeError} occurred in deserializing the responseBody - ${parsedResponse.bodyAsText}`, {
-                    statusCode: parsedResponse.status,
-                    request: parsedResponse.request,
-                    response: parsedResponse,
-                });
-                throw restError;
-            }
-        }
-        else if (operationSpec.httpMethod === "HEAD") {
-            // head methods never have a body, but we return a boolean to indicate presence/absence of the resource
-            parsedResponse.parsedBody = response.status >= 200 && response.status < 300;
-        }
-        if (responseSpec.headersMapper) {
-            parsedResponse.parsedHeaders = operationSpec.serializer.deserialize(responseSpec.headersMapper, parsedResponse.headers.toJSON(), "operationRes.parsedHeaders", { xml: {}, ignoreUnknownProperties: true });
-        }
-    }
-    return parsedResponse;
-}
-function isOperationSpecEmpty(operationSpec) {
-    const expectedStatusCodes = Object.keys(operationSpec.responses);
-    return (expectedStatusCodes.length === 0 ||
-        (expectedStatusCodes.length === 1 && expectedStatusCodes[0] === "default"));
-}
-function handleErrorResponse(parsedResponse, operationSpec, responseSpec, options) {
-    var _a, _b, _c, _d, _e;
-    const isSuccessByStatus = 200 <= parsedResponse.status && parsedResponse.status < 300;
-    const isExpectedStatusCode = isOperationSpecEmpty(operationSpec)
-        ? isSuccessByStatus
-        : !!responseSpec;
-    if (isExpectedStatusCode) {
-        if (responseSpec) {
-            if (!responseSpec.isError) {
-                return { error: null, shouldReturnResponse: false };
-            }
-        }
-        else {
-            return { error: null, shouldReturnResponse: false };
-        }
-    }
-    const errorResponseSpec = responseSpec !== null && responseSpec !== void 0 ? responseSpec : operationSpec.responses.default;
-    const initialErrorMessage = ((_a = parsedResponse.request.streamResponseStatusCodes) === null || _a === void 0 ? void 0 : _a.has(parsedResponse.status))
-        ? `Unexpected status code: ${parsedResponse.status}`
-        : parsedResponse.bodyAsText;
-    const error = new RestError(initialErrorMessage, {
-        statusCode: parsedResponse.status,
-        request: parsedResponse.request,
-        response: parsedResponse,
-    });
-    // If the item failed but there's no error spec or default spec to deserialize the error,
-    // and the parsed body doesn't look like an error object,
-    // we should fail so we just throw the parsed response
-    if (!errorResponseSpec &&
-        !(((_c = (_b = parsedResponse.parsedBody) === null || _b === void 0 ? void 0 : _b.error) === null || _c === void 0 ? void 0 : _c.code) && ((_e = (_d = parsedResponse.parsedBody) === null || _d === void 0 ? void 0 : _d.error) === null || _e === void 0 ? void 0 : _e.message))) {
-        throw error;
-    }
-    const defaultBodyMapper = errorResponseSpec === null || errorResponseSpec === void 0 ? void 0 : errorResponseSpec.bodyMapper;
-    const defaultHeadersMapper = errorResponseSpec === null || errorResponseSpec === void 0 ? void 0 : errorResponseSpec.headersMapper;
-    try {
-        // If error response has a body, try to deserialize it using default body mapper.
-        // Then try to extract error code & message from it
-        if (parsedResponse.parsedBody) {
-            const parsedBody = parsedResponse.parsedBody;
-            let deserializedError;
-            if (defaultBodyMapper) {
-                let valueToDeserialize = parsedBody;
-                if (operationSpec.isXML && defaultBodyMapper.type.name === MapperTypeNames.Sequence) {
-                    valueToDeserialize = [];
-                    const elementName = defaultBodyMapper.xmlElementName;
-                    if (typeof parsedBody === "object" && elementName) {
-                        valueToDeserialize = parsedBody[elementName];
-                    }
-                }
-                deserializedError = operationSpec.serializer.deserialize(defaultBodyMapper, valueToDeserialize, "error.response.parsedBody", options);
-            }
-            const internalError = parsedBody.error || deserializedError || parsedBody;
-            error.code = internalError.code;
-            if (internalError.message) {
-                error.message = internalError.message;
-            }
-            if (defaultBodyMapper) {
-                error.response.parsedBody = deserializedError;
-            }
-        }
-        // If error response has headers, try to deserialize it using default header mapper
-        if (parsedResponse.headers && defaultHeadersMapper) {
-            error.response.parsedHeaders =
-                operationSpec.serializer.deserialize(defaultHeadersMapper, parsedResponse.headers.toJSON(), "operationRes.parsedHeaders");
-        }
-    }
-    catch (defaultError) {
-        error.message = `Error "${defaultError.message}" occurred in deserializing the responseBody - "${parsedResponse.bodyAsText}" for the default response.`;
-    }
-    return { error, shouldReturnResponse: false };
-}
-async function parse(jsonContentTypes, xmlContentTypes, operationResponse, opts, parseXML) {
-    var _a;
-    if (!((_a = operationResponse.request.streamResponseStatusCodes) === null || _a === void 0 ? void 0 : _a.has(operationResponse.status)) &&
-        operationResponse.bodyAsText) {
-        const text = operationResponse.bodyAsText;
-        const contentType = operationResponse.headers.get("Content-Type") || "";
-        const contentComponents = !contentType
-            ? []
-            : contentType.split(";").map((component) => component.toLowerCase());
-        try {
-            if (contentComponents.length === 0 ||
-                contentComponents.some((component) => jsonContentTypes.indexOf(component) !== -1)) {
-                operationResponse.parsedBody = JSON.parse(text);
-                return operationResponse;
-            }
-            else if (contentComponents.some((component) => xmlContentTypes.indexOf(component) !== -1)) {
-                if (!parseXML) {
-                    throw new Error("Parsing XML not supported.");
-                }
-                const body = await parseXML(text, opts.xml);
-                operationResponse.parsedBody = body;
-                return operationResponse;
-            }
-        }
-        catch (err) {
-            const msg = `Error "${err}" occurred while parsing the response body - ${operationResponse.bodyAsText}.`;
-            const errCode = err.code || RestError.PARSE_ERROR;
-            const e = new RestError(msg, {
-                code: errCode,
-                statusCode: operationResponse.status,
-                request: operationResponse.request,
-                response: operationResponse,
-            });
-            throw e;
-        }
-    }
-    return operationResponse;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Gets the list of status codes for streaming responses.
- * @internal
- */
-function getStreamingResponseStatusCodes(operationSpec) {
-    const result = new Set();
-    for (const statusCode in operationSpec.responses) {
-        const operationResponse = operationSpec.responses[statusCode];
-        if (operationResponse.bodyMapper &&
-            operationResponse.bodyMapper.type.name === MapperTypeNames.Stream) {
-            result.add(Number(statusCode));
-        }
-    }
-    return result;
-}
-/**
- * Get the path to this parameter's value as a dotted string (a.b.c).
- * @param parameter - The parameter to get the path string for.
- * @returns The path to this parameter's value as a dotted string.
- * @internal
- */
-function getPathStringFromParameter(parameter) {
-    const { parameterPath, mapper } = parameter;
-    let result;
-    if (typeof parameterPath === "string") {
-        result = parameterPath;
-    }
-    else if (Array.isArray(parameterPath)) {
-        result = parameterPath.join(".");
-    }
-    else {
-        result = mapper.serializedName;
-    }
-    return result;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * The programmatic identifier of the serializationPolicy.
- */
-const serializationPolicyName = "serializationPolicy";
-/**
- * This policy handles assembling the request body and headers using
- * an OperationSpec and OperationArguments on the request.
- */
-function serializationPolicy(options = {}) {
-    const stringifyXML = options.stringifyXML;
-    return {
-        name: serializationPolicyName,
-        async sendRequest(request, next) {
-            const operationInfo = getOperationRequestInfo(request);
-            const operationSpec = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationSpec;
-            const operationArguments = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationArguments;
-            if (operationSpec && operationArguments) {
-                serializeHeaders(request, operationArguments, operationSpec);
-                serializeRequestBody(request, operationArguments, operationSpec, stringifyXML);
-            }
-            return next(request);
-        },
-    };
-}
-/**
- * @internal
- */
-function serializeHeaders(request, operationArguments, operationSpec) {
-    var _a, _b;
-    if (operationSpec.headerParameters) {
-        for (const headerParameter of operationSpec.headerParameters) {
-            let headerValue = getOperationArgumentValueFromParameter(operationArguments, headerParameter);
-            if ((headerValue !== null && headerValue !== undefined) || headerParameter.mapper.required) {
-                headerValue = operationSpec.serializer.serialize(headerParameter.mapper, headerValue, getPathStringFromParameter(headerParameter));
-                const headerCollectionPrefix = headerParameter.mapper
-                    .headerCollectionPrefix;
-                if (headerCollectionPrefix) {
-                    for (const key of Object.keys(headerValue)) {
-                        request.headers.set(headerCollectionPrefix + key, headerValue[key]);
-                    }
-                }
-                else {
-                    request.headers.set(headerParameter.mapper.serializedName || getPathStringFromParameter(headerParameter), headerValue);
-                }
-            }
-        }
-    }
-    const customHeaders = (_b = (_a = operationArguments.options) === null || _a === void 0 ? void 0 : _a.requestOptions) === null || _b === void 0 ? void 0 : _b.customHeaders;
-    if (customHeaders) {
-        for (const customHeaderName of Object.keys(customHeaders)) {
-            request.headers.set(customHeaderName, customHeaders[customHeaderName]);
-        }
-    }
-}
-/**
- * @internal
- */
-function serializeRequestBody(request, operationArguments, operationSpec, stringifyXML = function () {
-    throw new Error("XML serialization unsupported!");
-}) {
-    var _a, _b, _c, _d, _e;
-    const serializerOptions = (_a = operationArguments.options) === null || _a === void 0 ? void 0 : _a.serializerOptions;
-    const updatedOptions = {
-        xml: {
-            rootName: (_b = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.rootName) !== null && _b !== void 0 ? _b : "",
-            includeRoot: (_c = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.includeRoot) !== null && _c !== void 0 ? _c : false,
-            xmlCharKey: (_d = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.xmlCharKey) !== null && _d !== void 0 ? _d : XML_CHARKEY,
-        },
-    };
-    const xmlCharKey = updatedOptions.xml.xmlCharKey;
-    if (operationSpec.requestBody && operationSpec.requestBody.mapper) {
-        request.body = getOperationArgumentValueFromParameter(operationArguments, operationSpec.requestBody);
-        const bodyMapper = operationSpec.requestBody.mapper;
-        const { required, serializedName, xmlName, xmlElementName, xmlNamespace, xmlNamespacePrefix, nullable, } = bodyMapper;
-        const typeName = bodyMapper.type.name;
-        try {
-            if ((request.body !== undefined && request.body !== null) ||
-                (nullable && request.body === null) ||
-                required) {
-                const requestBodyParameterPathString = getPathStringFromParameter(operationSpec.requestBody);
-                request.body = operationSpec.serializer.serialize(bodyMapper, request.body, requestBodyParameterPathString, updatedOptions);
-                const isStream = typeName === MapperTypeNames.Stream;
-                if (operationSpec.isXML) {
-                    const xmlnsKey = xmlNamespacePrefix ? `xmlns:${xmlNamespacePrefix}` : "xmlns";
-                    const value = getXmlValueWithNamespace(xmlNamespace, xmlnsKey, typeName, request.body, updatedOptions);
-                    if (typeName === MapperTypeNames.Sequence) {
-                        request.body = stringifyXML(prepareXMLRootList(value, xmlElementName || xmlName || serializedName, xmlnsKey, xmlNamespace), { rootName: xmlName || serializedName, xmlCharKey });
-                    }
-                    else if (!isStream) {
-                        request.body = stringifyXML(value, {
-                            rootName: xmlName || serializedName,
-                            xmlCharKey,
-                        });
-                    }
-                }
-                else if (typeName === MapperTypeNames.String &&
-                    (((_e = operationSpec.contentType) === null || _e === void 0 ? void 0 : _e.match("text/plain")) || operationSpec.mediaType === "text")) {
-                    // the String serializer has validated that request body is a string
-                    // so just send the string.
-                    return;
-                }
-                else if (!isStream) {
-                    request.body = JSON.stringify(request.body);
-                }
-            }
-        }
-        catch (error) {
-            throw new Error(`Error "${error.message}" occurred in serializing the payload - ${JSON.stringify(serializedName, undefined, "  ")}.`);
-        }
-    }
-    else if (operationSpec.formDataParameters && operationSpec.formDataParameters.length > 0) {
-        request.formData = {};
-        for (const formDataParameter of operationSpec.formDataParameters) {
-            const formDataParameterValue = getOperationArgumentValueFromParameter(operationArguments, formDataParameter);
-            if (formDataParameterValue !== undefined && formDataParameterValue !== null) {
-                const formDataParameterPropertyName = formDataParameter.mapper.serializedName || getPathStringFromParameter(formDataParameter);
-                request.formData[formDataParameterPropertyName] = operationSpec.serializer.serialize(formDataParameter.mapper, formDataParameterValue, getPathStringFromParameter(formDataParameter), updatedOptions);
-            }
-        }
-    }
-}
-/**
- * Adds an xml namespace to the xml serialized object if needed, otherwise it just returns the value itself
- */
-function getXmlValueWithNamespace(xmlNamespace, xmlnsKey, typeName, serializedValue, options) {
-    // Composite and Sequence schemas already got their root namespace set during serialization
-    // We just need to add xmlns to the other schema types
-    if (xmlNamespace && !["Composite", "Sequence", "Dictionary"].includes(typeName)) {
-        const result = {};
-        result[options.xml.xmlCharKey] = serializedValue;
-        result[XML_ATTRKEY] = { [xmlnsKey]: xmlNamespace };
-        return result;
-    }
-    return serializedValue;
-}
-function prepareXMLRootList(obj, elementName, xmlNamespaceKey, xmlNamespace) {
-    if (!Array.isArray(obj)) {
-        obj = [obj];
-    }
-    if (!xmlNamespaceKey || !xmlNamespace) {
-        return { [elementName]: obj };
-    }
-    const result = { [elementName]: obj };
-    result[XML_ATTRKEY] = { [xmlNamespaceKey]: xmlNamespace };
-    return result;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Creates a new Pipeline for use with a Service Client.
- * Adds in deserializationPolicy by default.
- * Also adds in bearerTokenAuthenticationPolicy if passed a TokenCredential.
- * @param options - Options to customize the created pipeline.
- */
-function createClientPipeline(options = {}) {
-    const pipeline = createPipelineFromOptions(options !== null && options !== void 0 ? options : {});
-    if (options.credentialOptions) {
-        pipeline.addPolicy(bearerTokenAuthenticationPolicy({
-            credential: options.credentialOptions.credential,
-            scopes: options.credentialOptions.credentialScopes,
-        }));
-    }
-    pipeline.addPolicy(serializationPolicy(options.serializationOptions), { phase: "Serialize" });
-    pipeline.addPolicy(deserializationPolicy(options.deserializationOptions), {
-        phase: "Deserialize",
-    });
-    return pipeline;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-let cachedHttpClient;
-function getCachedDefaultHttpClient() {
-    if (!cachedHttpClient) {
-        cachedHttpClient = createDefaultHttpClient();
-    }
-    return cachedHttpClient;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const CollectionFormatToDelimiterMap = {
-    CSV: ",",
-    SSV: " ",
-    Multi: "Multi",
-    TSV: "\t",
-    Pipes: "|",
-};
-function getRequestUrl(baseUri, operationSpec, operationArguments, fallbackObject) {
-    const urlReplacements = calculateUrlReplacements(operationSpec, operationArguments, fallbackObject);
-    let isAbsolutePath = false;
-    let requestUrl = replaceAll(baseUri, urlReplacements);
-    if (operationSpec.path) {
-        let path = replaceAll(operationSpec.path, urlReplacements);
-        // QUIRK: sometimes we get a path component like /{nextLink}
-        // which may be a fully formed URL with a leading /. In that case, we should
-        // remove the leading /
-        if (operationSpec.path === "/{nextLink}" && path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        // QUIRK: sometimes we get a path component like {nextLink}
-        // which may be a fully formed URL. In that case, we should
-        // ignore the baseUri.
-        if (isAbsoluteUrl(path)) {
-            requestUrl = path;
-            isAbsolutePath = true;
-        }
-        else {
-            requestUrl = appendPath(requestUrl, path);
-        }
-    }
-    const { queryParams, sequenceParams } = calculateQueryParameters(operationSpec, operationArguments, fallbackObject);
-    /**
-     * Notice that this call sets the `noOverwrite` parameter to true if the `requestUrl`
-     * is an absolute path. This ensures that existing query parameter values in `requestUrl`
-     * do not get overwritten. On the other hand when `requestUrl` is not absolute path, it
-     * is still being built so there is nothing to overwrite.
-     */
-    requestUrl = appendQueryParams(requestUrl, queryParams, sequenceParams, isAbsolutePath);
-    return requestUrl;
-}
-function replaceAll(input, replacements) {
-    let result = input;
-    for (const [searchValue, replaceValue] of replacements) {
-        result = result.split(searchValue).join(replaceValue);
-    }
-    return result;
-}
-function calculateUrlReplacements(operationSpec, operationArguments, fallbackObject) {
-    var _a;
-    const result = new Map();
-    if ((_a = operationSpec.urlParameters) === null || _a === void 0 ? void 0 : _a.length) {
-        for (const urlParameter of operationSpec.urlParameters) {
-            let urlParameterValue = getOperationArgumentValueFromParameter(operationArguments, urlParameter, fallbackObject);
-            const parameterPathString = getPathStringFromParameter(urlParameter);
-            urlParameterValue = operationSpec.serializer.serialize(urlParameter.mapper, urlParameterValue, parameterPathString);
-            if (!urlParameter.skipEncoding) {
-                urlParameterValue = encodeURIComponent(urlParameterValue);
-            }
-            result.set(`{${urlParameter.mapper.serializedName || parameterPathString}}`, urlParameterValue);
-        }
-    }
-    return result;
-}
-function isAbsoluteUrl(url) {
-    return url.includes("://");
-}
-function appendPath(url, pathToAppend) {
-    if (!pathToAppend) {
-        return url;
-    }
-    const parsedUrl = new URL(url);
-    let newPath = parsedUrl.pathname;
-    if (!newPath.endsWith("/")) {
-        newPath = `${newPath}/`;
-    }
-    if (pathToAppend.startsWith("/")) {
-        pathToAppend = pathToAppend.substring(1);
-    }
-    const searchStart = pathToAppend.indexOf("?");
-    if (searchStart !== -1) {
-        const path = pathToAppend.substring(0, searchStart);
-        const search = pathToAppend.substring(searchStart + 1);
-        newPath = newPath + path;
-        if (search) {
-            parsedUrl.search = parsedUrl.search ? `${parsedUrl.search}&${search}` : search;
-        }
-    }
-    else {
-        newPath = newPath + pathToAppend;
-    }
-    parsedUrl.pathname = newPath;
-    return parsedUrl.toString();
-}
-function calculateQueryParameters(operationSpec, operationArguments, fallbackObject) {
-    var _a;
-    const result = new Map();
-    const sequenceParams = new Set();
-    if ((_a = operationSpec.queryParameters) === null || _a === void 0 ? void 0 : _a.length) {
-        for (const queryParameter of operationSpec.queryParameters) {
-            if (queryParameter.mapper.type.name === "Sequence" && queryParameter.mapper.serializedName) {
-                sequenceParams.add(queryParameter.mapper.serializedName);
-            }
-            let queryParameterValue = getOperationArgumentValueFromParameter(operationArguments, queryParameter, fallbackObject);
-            if ((queryParameterValue !== undefined && queryParameterValue !== null) ||
-                queryParameter.mapper.required) {
-                queryParameterValue = operationSpec.serializer.serialize(queryParameter.mapper, queryParameterValue, getPathStringFromParameter(queryParameter));
-                const delimiter = queryParameter.collectionFormat
-                    ? CollectionFormatToDelimiterMap[queryParameter.collectionFormat]
-                    : "";
-                if (Array.isArray(queryParameterValue)) {
-                    // replace null and undefined
-                    queryParameterValue = queryParameterValue.map((item) => {
-                        if (item === null || item === undefined) {
-                            return "";
-                        }
-                        return item;
-                    });
-                }
-                if (queryParameter.collectionFormat === "Multi" && queryParameterValue.length === 0) {
-                    continue;
-                }
-                else if (Array.isArray(queryParameterValue) &&
-                    (queryParameter.collectionFormat === "SSV" || queryParameter.collectionFormat === "TSV")) {
-                    queryParameterValue = queryParameterValue.join(delimiter);
-                }
-                if (!queryParameter.skipEncoding) {
-                    if (Array.isArray(queryParameterValue)) {
-                        queryParameterValue = queryParameterValue.map((item) => {
-                            return encodeURIComponent(item);
-                        });
-                    }
-                    else {
-                        queryParameterValue = encodeURIComponent(queryParameterValue);
-                    }
-                }
-                // Join pipes and CSV *after* encoding, or the server will be upset.
-                if (Array.isArray(queryParameterValue) &&
-                    (queryParameter.collectionFormat === "CSV" || queryParameter.collectionFormat === "Pipes")) {
-                    queryParameterValue = queryParameterValue.join(delimiter);
-                }
-                result.set(queryParameter.mapper.serializedName || getPathStringFromParameter(queryParameter), queryParameterValue);
-            }
-        }
-    }
-    return {
-        queryParams: result,
-        sequenceParams,
-    };
-}
-function simpleParseQueryParams(queryString) {
-    const result = new Map();
-    if (!queryString || queryString[0] !== "?") {
-        return result;
-    }
-    // remove the leading ?
-    queryString = queryString.slice(1);
-    const pairs = queryString.split("&");
-    for (const pair of pairs) {
-        const [name, value] = pair.split("=", 2);
-        const existingValue = result.get(name);
-        if (existingValue) {
-            if (Array.isArray(existingValue)) {
-                existingValue.push(value);
-            }
-            else {
-                result.set(name, [existingValue, value]);
-            }
-        }
-        else {
-            result.set(name, value);
-        }
-    }
-    return result;
-}
-/** @internal */
-function appendQueryParams(url, queryParams, sequenceParams, noOverwrite = false) {
-    if (queryParams.size === 0) {
-        return url;
-    }
-    const parsedUrl = new URL(url);
-    // QUIRK: parsedUrl.searchParams will have their name/value pairs decoded, which
-    // can change their meaning to the server, such as in the case of a SAS signature.
-    // To avoid accidentally un-encoding a query param, we parse the key/values ourselves
-    const combinedParams = simpleParseQueryParams(parsedUrl.search);
-    for (const [name, value] of queryParams) {
-        const existingValue = combinedParams.get(name);
-        if (Array.isArray(existingValue)) {
-            if (Array.isArray(value)) {
-                existingValue.push(...value);
-                const valueSet = new Set(existingValue);
-                combinedParams.set(name, Array.from(valueSet));
-            }
-            else {
-                existingValue.push(value);
-            }
-        }
-        else if (existingValue) {
-            if (Array.isArray(value)) {
-                value.unshift(existingValue);
-            }
-            else if (sequenceParams.has(name)) {
-                combinedParams.set(name, [existingValue, value]);
-            }
-            if (!noOverwrite) {
-                combinedParams.set(name, value);
-            }
-        }
-        else {
-            combinedParams.set(name, value);
-        }
-    }
-    const searchPieces = [];
-    for (const [name, value] of combinedParams) {
-        if (typeof value === "string") {
-            searchPieces.push(`${name}=${value}`);
-        }
-        else if (Array.isArray(value)) {
-            // QUIRK: If we get an array of values, include multiple key/value pairs
-            for (const subValue of value) {
-                searchPieces.push(`${name}=${subValue}`);
-            }
-        }
-        else {
-            searchPieces.push(`${name}=${value}`);
-        }
-    }
-    // QUIRK: we have to set search manually as searchParams will encode comma when it shouldn't.
-    parsedUrl.search = searchPieces.length ? `?${searchPieces.join("&")}` : "";
-    return parsedUrl.toString();
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const logger$l = createClientLogger("core-client");
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Initializes a new instance of the ServiceClient.
- */
-class ServiceClient {
-    /**
-     * The ServiceClient constructor
-     * @param options - The service client options that govern the behavior of the client.
-     */
-    constructor(options = {}) {
-        var _a, _b;
-        this._requestContentType = options.requestContentType;
-        this._endpoint = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri;
-        if (options.baseUri) {
-            logger$l.warning("The baseUri option for SDK Clients has been deprecated, please use endpoint instead.");
-        }
-        this._allowInsecureConnection = options.allowInsecureConnection;
-        this._httpClient = options.httpClient || getCachedDefaultHttpClient();
-        this.pipeline = options.pipeline || createDefaultPipeline$1(options);
-        if ((_b = options.additionalPolicies) === null || _b === void 0 ? void 0 : _b.length) {
-            for (const { policy, position } of options.additionalPolicies) {
-                // Sign happens after Retry and is commonly needed to occur
-                // before policies that intercept post-retry.
-                const afterPhase = position === "perRetry" ? "Sign" : undefined;
-                this.pipeline.addPolicy(policy, {
-                    afterPhase,
-                });
-            }
-        }
-    }
-    /**
-     * Send the provided httpRequest.
-     */
-    async sendRequest(request) {
-        return this.pipeline.sendRequest(this._httpClient, request);
-    }
-    /**
-     * Send an HTTP request that is populated using the provided OperationSpec.
-     * @typeParam T - The typed result of the request, based on the OperationSpec.
-     * @param operationArguments - The arguments that the HTTP request's templated values will be populated from.
-     * @param operationSpec - The OperationSpec to use to populate the httpRequest.
-     */
-    async sendOperationRequest(operationArguments, operationSpec) {
-        const endpoint = operationSpec.baseUrl || this._endpoint;
-        if (!endpoint) {
-            throw new Error("If operationSpec.baseUrl is not specified, then the ServiceClient must have a endpoint string property that contains the base URL to use.");
-        }
-        // Templatized URLs sometimes reference properties on the ServiceClient child class,
-        // so we have to pass `this` below in order to search these properties if they're
-        // not part of OperationArguments
-        const url = getRequestUrl(endpoint, operationSpec, operationArguments, this);
-        const request = createPipelineRequest({
-            url,
-        });
-        request.method = operationSpec.httpMethod;
-        const operationInfo = getOperationRequestInfo(request);
-        operationInfo.operationSpec = operationSpec;
-        operationInfo.operationArguments = operationArguments;
-        const contentType = operationSpec.contentType || this._requestContentType;
-        if (contentType && operationSpec.requestBody) {
-            request.headers.set("Content-Type", contentType);
-        }
-        const options = operationArguments.options;
-        if (options) {
-            const requestOptions = options.requestOptions;
-            if (requestOptions) {
-                if (requestOptions.timeout) {
-                    request.timeout = requestOptions.timeout;
-                }
-                if (requestOptions.onUploadProgress) {
-                    request.onUploadProgress = requestOptions.onUploadProgress;
-                }
-                if (requestOptions.onDownloadProgress) {
-                    request.onDownloadProgress = requestOptions.onDownloadProgress;
-                }
-                if (requestOptions.shouldDeserialize !== undefined) {
-                    operationInfo.shouldDeserialize = requestOptions.shouldDeserialize;
-                }
-                if (requestOptions.allowInsecureConnection) {
-                    request.allowInsecureConnection = true;
-                }
-            }
-            if (options.abortSignal) {
-                request.abortSignal = options.abortSignal;
-            }
-            if (options.tracingOptions) {
-                request.tracingOptions = options.tracingOptions;
-            }
-        }
-        if (this._allowInsecureConnection) {
-            request.allowInsecureConnection = true;
-        }
-        if (request.streamResponseStatusCodes === undefined) {
-            request.streamResponseStatusCodes = getStreamingResponseStatusCodes(operationSpec);
-        }
-        try {
-            const rawResponse = await this.sendRequest(request);
-            const flatResponse = flattenResponse(rawResponse, operationSpec.responses[rawResponse.status]);
-            if (options === null || options === void 0 ? void 0 : options.onResponse) {
-                options.onResponse(rawResponse, flatResponse);
-            }
-            return flatResponse;
-        }
-        catch (error) {
-            if (typeof error === "object" && (error === null || error === void 0 ? void 0 : error.response)) {
-                const rawResponse = error.response;
-                const flatResponse = flattenResponse(rawResponse, operationSpec.responses[error.statusCode] || operationSpec.responses["default"]);
-                error.details = flatResponse;
-                if (options === null || options === void 0 ? void 0 : options.onResponse) {
-                    options.onResponse(rawResponse, flatResponse, error);
-                }
-            }
-            throw error;
-        }
-    }
-}
-function createDefaultPipeline$1(options) {
-    const credentialScopes = getCredentialScopes(options);
-    const credentialOptions = options.credential && credentialScopes
-        ? { credentialScopes, credential: options.credential }
-        : undefined;
-    return createClientPipeline(Object.assign(Object.assign({}, options), { credentialOptions }));
-}
-function getCredentialScopes(options) {
-    if (options.credentialScopes) {
-        return options.credentialScopes;
-    }
-    if (options.endpoint) {
-        return `${options.endpoint}/.default`;
-    }
-    if (options.baseUri) {
-        return `${options.baseUri}/.default`;
-    }
-    if (options.credential && !options.credentialScopes) {
-        throw new Error(`When using credentials, the ServiceClientOptions must contain either a endpoint or a credentialScopes. Unable to create a bearerTokenAuthenticationPolicy`);
-    }
-    return undefined;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const disableKeepAlivePolicyName = "DisableKeepAlivePolicy";
-function createDisableKeepAlivePolicy() {
-    return {
-        name: disableKeepAlivePolicyName,
-        async sendRequest(request, next) {
-            request.disableKeepAlive = true;
-            return next(request);
-        },
-    };
-}
-/**
- * @internal
- */
-function pipelineContainsDisableKeepAlivePolicy(pipeline) {
-    return pipeline.getOrderedPolicies().some((policy) => policy.name === disableKeepAlivePolicyName);
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-function toWebResourceLike(request, options) {
-    const webResource = {
-        url: request.url,
-        method: request.method,
-        headers: toHttpHeadersLike(request.headers),
-        withCredentials: request.withCredentials,
-        timeout: request.timeout,
-        requestId: request.headers.get("x-ms-client-request-id") || request.requestId,
-        abortSignal: request.abortSignal,
-        body: request.body,
-        formData: request.formData,
-        keepAlive: !!request.disableKeepAlive,
-        onDownloadProgress: request.onDownloadProgress,
-        onUploadProgress: request.onUploadProgress,
-        proxySettings: request.proxySettings,
-        streamResponseStatusCodes: request.streamResponseStatusCodes,
-        agent: request.agent,
-        requestOverrides: request.requestOverrides,
-        clone() {
-            throw new Error("Cannot clone a non-proxied WebResourceLike");
-        },
-        prepare() {
-            throw new Error("WebResourceLike.prepare() is not supported by @azure/core-http-compat");
-        },
-        validateRequestProperties() {
-            /** do nothing */
-        },
-    };
-    {
-        return webResource;
-    }
-}
-/**
- * Converts HttpHeaders from core-rest-pipeline to look like
- * HttpHeaders from core-http.
- * @param headers - HttpHeaders from core-rest-pipeline
- * @returns HttpHeaders as they looked in core-http
- */
-function toHttpHeadersLike(headers) {
-    return new HttpHeaders(headers.toJSON({ preserveCase: true }));
-}
-/**
- * A collection of HttpHeaders that can be sent with a HTTP request.
- */
-function getHeaderKey(headerName) {
-    return headerName.toLowerCase();
-}
-/**
- * A collection of HTTP header key/value pairs.
- */
-class HttpHeaders {
-    constructor(rawHeaders) {
-        this._headersMap = {};
-        if (rawHeaders) {
-            for (const headerName in rawHeaders) {
-                this.set(headerName, rawHeaders[headerName]);
-            }
-        }
-    }
-    /**
-     * Set a header in this collection with the provided name and value. The name is
-     * case-insensitive.
-     * @param headerName - The name of the header to set. This value is case-insensitive.
-     * @param headerValue - The value of the header to set.
-     */
-    set(headerName, headerValue) {
-        this._headersMap[getHeaderKey(headerName)] = {
-            name: headerName,
-            value: headerValue.toString(),
-        };
-    }
-    /**
-     * Get the header value for the provided header name, or undefined if no header exists in this
-     * collection with the provided name.
-     * @param headerName - The name of the header.
-     */
-    get(headerName) {
-        const header = this._headersMap[getHeaderKey(headerName)];
-        return !header ? undefined : header.value;
-    }
-    /**
-     * Get whether or not this header collection contains a header entry for the provided header name.
-     */
-    contains(headerName) {
-        return !!this._headersMap[getHeaderKey(headerName)];
-    }
-    /**
-     * Remove the header with the provided headerName. Return whether or not the header existed and
-     * was removed.
-     * @param headerName - The name of the header to remove.
-     */
-    remove(headerName) {
-        const result = this.contains(headerName);
-        delete this._headersMap[getHeaderKey(headerName)];
-        return result;
-    }
-    /**
-     * Get the headers that are contained this collection as an object.
-     */
-    rawHeaders() {
-        return this.toJson({ preserveCase: true });
-    }
-    /**
-     * Get the headers that are contained in this collection as an array.
-     */
-    headersArray() {
-        const headers = [];
-        for (const headerKey in this._headersMap) {
-            headers.push(this._headersMap[headerKey]);
-        }
-        return headers;
-    }
-    /**
-     * Get the header names that are contained in this collection.
-     */
-    headerNames() {
-        const headerNames = [];
-        const headers = this.headersArray();
-        for (let i = 0; i < headers.length; ++i) {
-            headerNames.push(headers[i].name);
-        }
-        return headerNames;
-    }
-    /**
-     * Get the header values that are contained in this collection.
-     */
-    headerValues() {
-        const headerValues = [];
-        const headers = this.headersArray();
-        for (let i = 0; i < headers.length; ++i) {
-            headerValues.push(headers[i].value);
-        }
-        return headerValues;
-    }
-    /**
-     * Get the JSON object representation of this HTTP header collection.
-     */
-    toJson(options = {}) {
-        const result = {};
-        if (options.preserveCase) {
-            for (const headerKey in this._headersMap) {
-                const header = this._headersMap[headerKey];
-                result[header.name] = header.value;
-            }
-        }
-        else {
-            for (const headerKey in this._headersMap) {
-                const header = this._headersMap[headerKey];
-                result[getHeaderKey(header.name)] = header.value;
-            }
-        }
-        return result;
-    }
-    /**
-     * Get the string representation of this HTTP header collection.
-     */
-    toString() {
-        return JSON.stringify(this.toJson({ preserveCase: true }));
-    }
-    /**
-     * Create a deep clone/copy of this HttpHeaders collection.
-     */
-    clone() {
-        const resultPreservingCasing = {};
-        for (const headerKey in this._headersMap) {
-            const header = this._headersMap[headerKey];
-            resultPreservingCasing[header.name] = header.value;
-        }
-        return new HttpHeaders(resultPreservingCasing);
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * A helper to convert response objects from the new pipeline back to the old one.
- * @param response - A response object from core-client.
- * @returns A response compatible with `HttpOperationResponse` from core-http.
- */
-function toCompatResponse(response, options) {
-    let request = toWebResourceLike(response.request);
-    let headers = toHttpHeadersLike(response.headers);
-    {
-        return Object.assign(Object.assign({}, response), { request,
-            headers });
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Client to provide compatability between core V1 & V2.
- */
-class ExtendedServiceClient extends ServiceClient {
-    constructor(options) {
-        var _a, _b;
-        super(options);
-        if (((_a = options.keepAliveOptions) === null || _a === void 0 ? void 0 : _a.enable) === false &&
-            !pipelineContainsDisableKeepAlivePolicy(this.pipeline)) {
-            this.pipeline.addPolicy(createDisableKeepAlivePolicy());
-        }
-        if (((_b = options.redirectOptions) === null || _b === void 0 ? void 0 : _b.handleRedirects) === false) {
-            this.pipeline.removePolicy({
-                name: redirectPolicyName,
-            });
-        }
-    }
-    /**
-     * Compatible send operation request function.
-     *
-     * @param operationArguments - Operation arguments
-     * @param operationSpec - Operation Spec
-     * @returns
-     */
-    async sendOperationRequest(operationArguments, operationSpec) {
-        var _a;
-        const userProvidedCallBack = (_a = operationArguments === null || operationArguments === void 0 ? void 0 : operationArguments.options) === null || _a === void 0 ? void 0 : _a.onResponse;
-        let lastResponse;
-        function onResponse(rawResponse, flatResponse, error) {
-            lastResponse = rawResponse;
-            if (userProvidedCallBack) {
-                userProvidedCallBack(rawResponse, flatResponse, error);
-            }
-        }
-        operationArguments.options = Object.assign(Object.assign({}, operationArguments.options), { onResponse });
-        const result = await super.sendOperationRequest(operationArguments, operationSpec);
-        if (lastResponse) {
-            Object.defineProperty(result, "_response", {
-                value: toCompatResponse(lastResponse),
-            });
-        }
-        return result;
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * The `@azure/logger` configuration for this package.
- * @internal
- */
-const logger$k = createClientLogger("core-lro");
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * The default time interval to wait before sending the next polling request.
- */
-const POLL_INTERVAL_IN_MS = 2000;
-/**
- * The closed set of terminal states.
- */
-const terminalStates = ["succeeded", "canceled", "failed"];
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Deserializes the state
- */
-function deserializeState(serializedState) {
-    try {
-        return JSON.parse(serializedState).state;
-    }
-    catch (e) {
-        throw new Error(`Unable to deserialize input state: ${serializedState}`);
-    }
-}
-function setStateError(inputs) {
-    const { state, stateProxy, isOperationError } = inputs;
-    return (error) => {
-        if (isOperationError(error)) {
-            stateProxy.setError(state, error);
-            stateProxy.setFailed(state);
-        }
-        throw error;
-    };
-}
-function appendReadableErrorMessage(currentMessage, innerMessage) {
-    let message = currentMessage;
-    if (message.slice(-1) !== ".") {
-        message = message + ".";
-    }
-    return message + " " + innerMessage;
-}
-function simplifyError(err) {
-    let message = err.message;
-    let code = err.code;
-    let curErr = err;
-    while (curErr.innererror) {
-        curErr = curErr.innererror;
-        code = curErr.code;
-        message = appendReadableErrorMessage(message, curErr.message);
-    }
-    return {
-        code,
-        message,
-    };
-}
-function processOperationStatus(result) {
-    const { state, stateProxy, status, isDone, processResult, getError, response, setErrorAsResult } = result;
-    switch (status) {
-        case "succeeded": {
-            stateProxy.setSucceeded(state);
-            break;
-        }
-        case "failed": {
-            const err = getError === null || getError === void 0 ? void 0 : getError(response);
-            let postfix = "";
-            if (err) {
-                const { code, message } = simplifyError(err);
-                postfix = `. ${code}. ${message}`;
-            }
-            const errStr = `The long-running operation has failed${postfix}`;
-            stateProxy.setError(state, new Error(errStr));
-            stateProxy.setFailed(state);
-            logger$k.warning(errStr);
-            break;
-        }
-        case "canceled": {
-            stateProxy.setCanceled(state);
-            break;
-        }
-    }
-    if ((isDone === null || isDone === void 0 ? void 0 : isDone(response, state)) ||
-        (isDone === undefined &&
-            ["succeeded", "canceled"].concat(setErrorAsResult ? [] : ["failed"]).includes(status))) {
-        stateProxy.setResult(state, buildResult({
-            response,
-            state,
-            processResult,
-        }));
-    }
-}
-function buildResult(inputs) {
-    const { processResult, response, state } = inputs;
-    return processResult ? processResult(response, state) : response;
-}
-/**
- * Initiates the long-running operation.
- */
-async function initOperation(inputs) {
-    const { init, stateProxy, processResult, getOperationStatus, withOperationLocation, setErrorAsResult, } = inputs;
-    const { operationLocation, resourceLocation, metadata, response } = await init();
-    if (operationLocation)
-        withOperationLocation === null || withOperationLocation === void 0 ? void 0 : withOperationLocation(operationLocation, false);
-    const config = {
-        metadata,
-        operationLocation,
-        resourceLocation,
-    };
-    logger$k.verbose(`LRO: Operation description:`, config);
-    const state = stateProxy.initState(config);
-    const status = getOperationStatus({ response, state, operationLocation });
-    processOperationStatus({ state, status, stateProxy, response, setErrorAsResult, processResult });
-    return state;
-}
-async function pollOperationHelper(inputs) {
-    const { poll, state, stateProxy, operationLocation, getOperationStatus, getResourceLocation, isOperationError, options, } = inputs;
-    const response = await poll(operationLocation, options).catch(setStateError({
-        state,
-        stateProxy,
-        isOperationError,
-    }));
-    const status = getOperationStatus(response, state);
-    logger$k.verbose(`LRO: Status:\n\tPolling from: ${state.config.operationLocation}\n\tOperation status: ${status}\n\tPolling status: ${terminalStates.includes(status) ? "Stopped" : "Running"}`);
-    if (status === "succeeded") {
-        const resourceLocation = getResourceLocation(response, state);
-        if (resourceLocation !== undefined) {
-            return {
-                response: await poll(resourceLocation).catch(setStateError({ state, stateProxy, isOperationError })),
-                status,
-            };
-        }
-    }
-    return { response, status };
-}
-/** Polls the long-running operation. */
-async function pollOperation(inputs) {
-    const { poll, state, stateProxy, options, getOperationStatus, getResourceLocation, getOperationLocation, isOperationError, withOperationLocation, getPollingInterval, processResult, getError, updateState, setDelay, isDone, setErrorAsResult, } = inputs;
-    const { operationLocation } = state.config;
-    if (operationLocation !== undefined) {
-        const { response, status } = await pollOperationHelper({
-            poll,
-            getOperationStatus,
-            state,
-            stateProxy,
-            operationLocation,
-            getResourceLocation,
-            isOperationError,
-            options,
-        });
-        processOperationStatus({
-            status,
-            response,
-            state,
-            stateProxy,
-            isDone,
-            processResult,
-            getError,
-            setErrorAsResult,
-        });
-        if (!terminalStates.includes(status)) {
-            const intervalInMs = getPollingInterval === null || getPollingInterval === void 0 ? void 0 : getPollingInterval(response);
-            if (intervalInMs)
-                setDelay(intervalInMs);
-            const location = getOperationLocation === null || getOperationLocation === void 0 ? void 0 : getOperationLocation(response, state);
-            if (location !== undefined) {
-                const isUpdated = operationLocation !== location;
-                state.config.operationLocation = location;
-                withOperationLocation === null || withOperationLocation === void 0 ? void 0 : withOperationLocation(location, isUpdated);
-            }
-            else
-                withOperationLocation === null || withOperationLocation === void 0 ? void 0 : withOperationLocation(operationLocation, false);
-        }
-        updateState === null || updateState === void 0 ? void 0 : updateState(state, response);
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-function getOperationLocationPollingUrl(inputs) {
-    const { azureAsyncOperation, operationLocation } = inputs;
-    return operationLocation !== null && operationLocation !== void 0 ? operationLocation : azureAsyncOperation;
-}
-function getLocationHeader(rawResponse) {
-    return rawResponse.headers["location"];
-}
-function getOperationLocationHeader(rawResponse) {
-    return rawResponse.headers["operation-location"];
-}
-function getAzureAsyncOperationHeader(rawResponse) {
-    return rawResponse.headers["azure-asyncoperation"];
-}
-function findResourceLocation(inputs) {
-    var _a;
-    const { location, requestMethod, requestPath, resourceLocationConfig } = inputs;
-    switch (requestMethod) {
-        case "PUT": {
-            return requestPath;
-        }
-        case "DELETE": {
-            return undefined;
-        }
-        case "PATCH": {
-            return (_a = getDefault()) !== null && _a !== void 0 ? _a : requestPath;
-        }
-        default: {
-            return getDefault();
-        }
-    }
-    function getDefault() {
-        switch (resourceLocationConfig) {
-            case "azure-async-operation": {
-                return undefined;
-            }
-            case "original-uri": {
-                return requestPath;
-            }
-            case "location":
-            default: {
-                return location;
-            }
-        }
-    }
-}
-function inferLroMode(inputs) {
-    const { rawResponse, requestMethod, requestPath, resourceLocationConfig } = inputs;
-    const operationLocation = getOperationLocationHeader(rawResponse);
-    const azureAsyncOperation = getAzureAsyncOperationHeader(rawResponse);
-    const pollingUrl = getOperationLocationPollingUrl({ operationLocation, azureAsyncOperation });
-    const location = getLocationHeader(rawResponse);
-    const normalizedRequestMethod = requestMethod === null || requestMethod === void 0 ? void 0 : requestMethod.toLocaleUpperCase();
-    if (pollingUrl !== undefined) {
-        return {
-            mode: "OperationLocation",
-            operationLocation: pollingUrl,
-            resourceLocation: findResourceLocation({
-                requestMethod: normalizedRequestMethod,
-                location,
-                requestPath,
-                resourceLocationConfig,
-            }),
-        };
-    }
-    else if (location !== undefined) {
-        return {
-            mode: "ResourceLocation",
-            operationLocation: location,
-        };
-    }
-    else if (normalizedRequestMethod === "PUT" && requestPath) {
-        return {
-            mode: "Body",
-            operationLocation: requestPath,
-        };
-    }
-    else {
-        return undefined;
-    }
-}
-function transformStatus(inputs) {
-    const { status, statusCode } = inputs;
-    if (typeof status !== "string" && status !== undefined) {
-        throw new Error(`Polling was unsuccessful. Expected status to have a string value or no value but it has instead: ${status}. This doesn't necessarily indicate the operation has failed. Check your Azure subscription or resource status for more information.`);
-    }
-    switch (status === null || status === void 0 ? void 0 : status.toLocaleLowerCase()) {
-        case undefined:
-            return toOperationStatus(statusCode);
-        case "succeeded":
-            return "succeeded";
-        case "failed":
-            return "failed";
-        case "running":
-        case "accepted":
-        case "started":
-        case "canceling":
-        case "cancelling":
-            return "running";
-        case "canceled":
-        case "cancelled":
-            return "canceled";
-        default: {
-            logger$k.verbose(`LRO: unrecognized operation status: ${status}`);
-            return status;
-        }
-    }
-}
-function getStatus(rawResponse) {
-    var _a;
-    const { status } = (_a = rawResponse.body) !== null && _a !== void 0 ? _a : {};
-    return transformStatus({ status, statusCode: rawResponse.statusCode });
-}
-function getProvisioningState(rawResponse) {
-    var _a, _b;
-    const { properties, provisioningState } = (_a = rawResponse.body) !== null && _a !== void 0 ? _a : {};
-    const status = (_b = properties === null || properties === void 0 ? void 0 : properties.provisioningState) !== null && _b !== void 0 ? _b : provisioningState;
-    return transformStatus({ status, statusCode: rawResponse.statusCode });
-}
-function toOperationStatus(statusCode) {
-    if (statusCode === 202) {
-        return "running";
-    }
-    else if (statusCode < 300) {
-        return "succeeded";
-    }
-    else {
-        return "failed";
-    }
-}
-function parseRetryAfter({ rawResponse }) {
-    const retryAfter = rawResponse.headers["retry-after"];
-    if (retryAfter !== undefined) {
-        // Retry-After header value is either in HTTP date format, or in seconds
-        const retryAfterInSeconds = parseInt(retryAfter);
-        return isNaN(retryAfterInSeconds)
-            ? calculatePollingIntervalFromDate(new Date(retryAfter))
-            : retryAfterInSeconds * 1000;
-    }
-    return undefined;
-}
-function getErrorFromResponse(response) {
-    const error = accessBodyProperty(response, "error");
-    if (!error) {
-        logger$k.warning(`The long-running operation failed but there is no error property in the response's body`);
-        return;
-    }
-    if (!error.code || !error.message) {
-        logger$k.warning(`The long-running operation failed but the error property in the response's body doesn't contain code or message`);
-        return;
-    }
-    return error;
-}
-function calculatePollingIntervalFromDate(retryAfterDate) {
-    const timeNow = Math.floor(new Date().getTime());
-    const retryAfterTime = retryAfterDate.getTime();
-    if (timeNow < retryAfterTime) {
-        return retryAfterTime - timeNow;
-    }
-    return undefined;
-}
-function getStatusFromInitialResponse(inputs) {
-    const { response, state, operationLocation } = inputs;
-    function helper() {
-        var _a;
-        const mode = (_a = state.config.metadata) === null || _a === void 0 ? void 0 : _a["mode"];
-        switch (mode) {
-            case undefined:
-                return toOperationStatus(response.rawResponse.statusCode);
-            case "Body":
-                return getOperationStatus(response, state);
-            default:
-                return "running";
-        }
-    }
-    const status = helper();
-    return status === "running" && operationLocation === undefined ? "succeeded" : status;
-}
-function getOperationLocation({ rawResponse }, state) {
-    var _a;
-    const mode = (_a = state.config.metadata) === null || _a === void 0 ? void 0 : _a["mode"];
-    switch (mode) {
-        case "OperationLocation": {
-            return getOperationLocationPollingUrl({
-                operationLocation: getOperationLocationHeader(rawResponse),
-                azureAsyncOperation: getAzureAsyncOperationHeader(rawResponse),
-            });
-        }
-        case "ResourceLocation": {
-            return getLocationHeader(rawResponse);
-        }
-        case "Body":
-        default: {
-            return undefined;
-        }
-    }
-}
-function getOperationStatus({ rawResponse }, state) {
-    var _a;
-    const mode = (_a = state.config.metadata) === null || _a === void 0 ? void 0 : _a["mode"];
-    switch (mode) {
-        case "OperationLocation": {
-            return getStatus(rawResponse);
-        }
-        case "ResourceLocation": {
-            return toOperationStatus(rawResponse.statusCode);
-        }
-        case "Body": {
-            return getProvisioningState(rawResponse);
-        }
-        default:
-            throw new Error(`Internal error: Unexpected operation mode: ${mode}`);
-    }
-}
-function accessBodyProperty({ flatResponse, rawResponse }, prop) {
-    var _a, _b;
-    return (_a = flatResponse === null || flatResponse === void 0 ? void 0 : flatResponse[prop]) !== null && _a !== void 0 ? _a : (_b = rawResponse.body) === null || _b === void 0 ? void 0 : _b[prop];
-}
-function getResourceLocation(res, state) {
-    const loc = accessBodyProperty(res, "resourceLocation");
-    if (loc && typeof loc === "string") {
-        state.config.resourceLocation = loc;
-    }
-    return state.config.resourceLocation;
-}
-function isOperationError(e) {
-    return e.name === "RestError";
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-const createStateProxy = () => ({
-    /**
-     * The state at this point is created to be of type OperationState<TResult>.
-     * It will be updated later to be of type TState when the
-     * customer-provided callback, `updateState`, is called during polling.
-     */
-    initState: (config) => ({ status: "running", config }),
-    setCanceled: (state) => (state.status = "canceled"),
-    setError: (state, error) => (state.error = error),
-    setResult: (state, result) => (state.result = result),
-    setRunning: (state) => (state.status = "running"),
-    setSucceeded: (state) => (state.status = "succeeded"),
-    setFailed: (state) => (state.status = "failed"),
-    getError: (state) => state.error,
-    getResult: (state) => state.result,
-    isCanceled: (state) => state.status === "canceled",
-    isFailed: (state) => state.status === "failed",
-    isRunning: (state) => state.status === "running",
-    isSucceeded: (state) => state.status === "succeeded",
-});
-/**
- * Returns a poller factory.
- */
-function buildCreatePoller(inputs) {
-    const { getOperationLocation, getStatusFromInitialResponse, getStatusFromPollResponse, isOperationError, getResourceLocation, getPollingInterval, getError, resolveOnUnsuccessful, } = inputs;
-    return async ({ init, poll }, options) => {
-        const { processResult, updateState, withOperationLocation: withOperationLocationCallback, intervalInMs = POLL_INTERVAL_IN_MS, restoreFrom, } = options || {};
-        const stateProxy = createStateProxy();
-        const withOperationLocation = withOperationLocationCallback
-            ? (() => {
-                let called = false;
-                return (operationLocation, isUpdated) => {
-                    if (isUpdated)
-                        withOperationLocationCallback(operationLocation);
-                    else if (!called)
-                        withOperationLocationCallback(operationLocation);
-                    called = true;
-                };
-            })()
-            : undefined;
-        const state = restoreFrom
-            ? deserializeState(restoreFrom)
-            : await initOperation({
-                init,
-                stateProxy,
-                processResult,
-                getOperationStatus: getStatusFromInitialResponse,
-                withOperationLocation,
-                setErrorAsResult: !resolveOnUnsuccessful,
-            });
-        let resultPromise;
-        const abortController = new AbortController();
-        const handlers = new Map();
-        const handleProgressEvents = async () => handlers.forEach((h) => h(state));
-        const cancelErrMsg = "Operation was canceled";
-        let currentPollIntervalInMs = intervalInMs;
-        const poller = {
-            getOperationState: () => state,
-            getResult: () => state.result,
-            isDone: () => ["succeeded", "failed", "canceled"].includes(state.status),
-            isStopped: () => resultPromise === undefined,
-            stopPolling: () => {
-                abortController.abort();
-            },
-            toString: () => JSON.stringify({
-                state,
-            }),
-            onProgress: (callback) => {
-                const s = Symbol();
-                handlers.set(s, callback);
-                return () => handlers.delete(s);
-            },
-            pollUntilDone: (pollOptions) => (resultPromise !== null && resultPromise !== void 0 ? resultPromise : (resultPromise = (async () => {
-                const { abortSignal: inputAbortSignal } = pollOptions || {};
-                // In the future we can use AbortSignal.any() instead
-                function abortListener() {
-                    abortController.abort();
-                }
-                const abortSignal = abortController.signal;
-                if (inputAbortSignal === null || inputAbortSignal === void 0 ? void 0 : inputAbortSignal.aborted) {
-                    abortController.abort();
-                }
-                else if (!abortSignal.aborted) {
-                    inputAbortSignal === null || inputAbortSignal === void 0 ? void 0 : inputAbortSignal.addEventListener("abort", abortListener, { once: true });
-                }
-                try {
-                    if (!poller.isDone()) {
-                        await poller.poll({ abortSignal });
-                        while (!poller.isDone()) {
-                            await delay$1(currentPollIntervalInMs, { abortSignal });
-                            await poller.poll({ abortSignal });
-                        }
-                    }
-                }
-                finally {
-                    inputAbortSignal === null || inputAbortSignal === void 0 ? void 0 : inputAbortSignal.removeEventListener("abort", abortListener);
-                }
-                if (resolveOnUnsuccessful) {
-                    return poller.getResult();
-                }
-                else {
-                    switch (state.status) {
-                        case "succeeded":
-                            return poller.getResult();
-                        case "canceled":
-                            throw new Error(cancelErrMsg);
-                        case "failed":
-                            throw state.error;
-                        case "notStarted":
-                        case "running":
-                            throw new Error(`Polling completed without succeeding or failing`);
-                    }
-                }
-            })().finally(() => {
-                resultPromise = undefined;
-            }))),
-            async poll(pollOptions) {
-                if (resolveOnUnsuccessful) {
-                    if (poller.isDone())
-                        return;
-                }
-                else {
-                    switch (state.status) {
-                        case "succeeded":
-                            return;
-                        case "canceled":
-                            throw new Error(cancelErrMsg);
-                        case "failed":
-                            throw state.error;
-                    }
-                }
-                await pollOperation({
-                    poll,
-                    state,
-                    stateProxy,
-                    getOperationLocation,
-                    isOperationError,
-                    withOperationLocation,
-                    getPollingInterval,
-                    getOperationStatus: getStatusFromPollResponse,
-                    getResourceLocation,
-                    processResult,
-                    getError,
-                    updateState,
-                    options: pollOptions,
-                    setDelay: (pollIntervalInMs) => {
-                        currentPollIntervalInMs = pollIntervalInMs;
-                    },
-                    setErrorAsResult: !resolveOnUnsuccessful,
-                });
-                await handleProgressEvents();
-                if (!resolveOnUnsuccessful) {
-                    switch (state.status) {
-                        case "canceled":
-                            throw new Error(cancelErrMsg);
-                        case "failed":
-                            throw state.error;
-                    }
-                }
-            },
-        };
-        return poller;
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Creates a poller that can be used to poll a long-running operation.
- * @param lro - Description of the long-running operation
- * @param options - options to configure the poller
- * @returns an initialized poller
- */
-async function createHttpPoller(lro, options) {
-    const { resourceLocationConfig, intervalInMs, processResult, restoreFrom, updateState, withOperationLocation, resolveOnUnsuccessful = false, } = options || {};
-    return buildCreatePoller({
-        getStatusFromInitialResponse,
-        getStatusFromPollResponse: getOperationStatus,
-        isOperationError,
-        getOperationLocation,
-        getResourceLocation,
-        getPollingInterval: parseRetryAfter,
-        getError: getErrorFromResponse,
-        resolveOnUnsuccessful,
-    })({
-        init: async () => {
-            const response = await lro.sendInitialRequest();
-            const config = inferLroMode({
-                rawResponse: response.rawResponse,
-                requestPath: lro.requestPath,
-                requestMethod: lro.requestMethod,
-                resourceLocationConfig,
-            });
-            return Object.assign({ response, operationLocation: config === null || config === void 0 ? void 0 : config.operationLocation, resourceLocation: config === null || config === void 0 ? void 0 : config.resourceLocation }, ((config === null || config === void 0 ? void 0 : config.mode) ? { metadata: { mode: config.mode } } : {}));
-        },
-        poll: lro.sendPollRequest,
-    }, {
-        intervalInMs,
-        withOperationLocation,
-        restoreFrom,
-        updateState,
-        processResult: processResult
-            ? ({ flatResponse }, state) => processResult(flatResponse, state)
-            : ({ flatResponse }) => flatResponse,
-    });
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * When a poller is manually stopped through the `stopPolling` method,
- * the poller will be rejected with an instance of the PollerStoppedError.
- */
-class PollerStoppedError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "PollerStoppedError";
-        Object.setPrototypeOf(this, PollerStoppedError.prototype);
-    }
-}
-/**
- * When the operation is cancelled, the poller will be rejected with an instance
- * of the PollerCancelledError.
- */
-class PollerCancelledError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "PollerCancelledError";
-        Object.setPrototypeOf(this, PollerCancelledError.prototype);
-    }
-}
-/**
- * A class that represents the definition of a program that polls through consecutive requests
- * until it reaches a state of completion.
- *
- * A poller can be executed manually, by polling request by request by calling to the `poll()` method repeatedly, until its operation is completed.
- * It also provides a way to wait until the operation completes, by calling `pollUntilDone()` and waiting until the operation finishes.
- * Pollers can also request the cancellation of the ongoing process to whom is providing the underlying long running operation.
- *
- * ```ts
- * const poller = new MyPoller();
- *
- * // Polling just once:
- * await poller.poll();
- *
- * // We can try to cancel the request here, by calling:
- * //
- * //     await poller.cancelOperation();
- * //
- *
- * // Getting the final result:
- * const result = await poller.pollUntilDone();
- * ```
- *
- * The Poller is defined by two types, a type representing the state of the poller, which
- * must include a basic set of properties from `PollOperationState<TResult>`,
- * and a return type defined by `TResult`, which can be anything.
- *
- * The Poller class implements the `PollerLike` interface, which allows poller implementations to avoid having
- * to export the Poller's class directly, and instead only export the already instantiated poller with the PollerLike type.
- *
- * ```ts
- * class Client {
- *   public async makePoller: PollerLike<MyOperationState, MyResult> {
- *     const poller = new MyPoller({});
- *     // It might be preferred to return the poller after the first request is made,
- *     // so that some information can be obtained right away.
- *     await poller.poll();
- *     return poller;
- *   }
- * }
- *
- * const poller: PollerLike<MyOperationState, MyResult> = myClient.makePoller();
- * ```
- *
- * A poller can be created through its constructor, then it can be polled until it's completed.
- * At any point in time, the state of the poller can be obtained without delay through the getOperationState method.
- * At any point in time, the intermediate forms of the result type can be requested without delay.
- * Once the underlying operation is marked as completed, the poller will stop and the final value will be returned.
- *
- * ```ts
- * const poller = myClient.makePoller();
- * const state: MyOperationState = poller.getOperationState();
- *
- * // The intermediate result can be obtained at any time.
- * const result: MyResult | undefined = poller.getResult();
- *
- * // The final result can only be obtained after the poller finishes.
- * const result: MyResult = await poller.pollUntilDone();
- * ```
- *
- */
-// eslint-disable-next-line no-use-before-define
-class Poller {
-    /**
-     * A poller needs to be initialized by passing in at least the basic properties of the `PollOperation<TState, TResult>`.
-     *
-     * When writing an implementation of a Poller, this implementation needs to deal with the initialization
-     * of any custom state beyond the basic definition of the poller. The basic poller assumes that the poller's
-     * operation has already been defined, at least its basic properties. The code below shows how to approach
-     * the definition of the constructor of a new custom poller.
-     *
-     * ```ts
-     * export class MyPoller extends Poller<MyOperationState, string> {
-     *   constructor({
-     *     // Anything you might need outside of the basics
-     *   }) {
-     *     let state: MyOperationState = {
-     *       privateProperty: private,
-     *       publicProperty: public,
-     *     };
-     *
-     *     const operation = {
-     *       state,
-     *       update,
-     *       cancel,
-     *       toString
-     *     }
-     *
-     *     // Sending the operation to the parent's constructor.
-     *     super(operation);
-     *
-     *     // You can assign more local properties here.
-     *   }
-     * }
-     * ```
-     *
-     * Inside of this constructor, a new promise is created. This will be used to
-     * tell the user when the poller finishes (see `pollUntilDone()`). The promise's
-     * resolve and reject methods are also used internally to control when to resolve
-     * or reject anyone waiting for the poller to finish.
-     *
-     * The constructor of a custom implementation of a poller is where any serialized version of
-     * a previous poller's operation should be deserialized into the operation sent to the
-     * base constructor. For example:
-     *
-     * ```ts
-     * export class MyPoller extends Poller<MyOperationState, string> {
-     *   constructor(
-     *     baseOperation: string | undefined
-     *   ) {
-     *     let state: MyOperationState = {};
-     *     if (baseOperation) {
-     *       state = {
-     *         ...JSON.parse(baseOperation).state,
-     *         ...state
-     *       };
-     *     }
-     *     const operation = {
-     *       state,
-     *       // ...
-     *     }
-     *     super(operation);
-     *   }
-     * }
-     * ```
-     *
-     * @param operation - Must contain the basic properties of `PollOperation<State, TResult>`.
-     */
-    constructor(operation) {
-        /** controls whether to throw an error if the operation failed or was canceled. */
-        this.resolveOnUnsuccessful = false;
-        this.stopped = true;
-        this.pollProgressCallbacks = [];
-        this.operation = operation;
-        this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
-        // This prevents the UnhandledPromiseRejectionWarning in node.js from being thrown.
-        // The above warning would get thrown if `poller.poll` is called, it returns an error,
-        // and pullUntilDone did not have a .catch or await try/catch on it's return value.
-        this.promise.catch(() => {
-            /* intentionally blank */
-        });
-    }
-    /**
-     * Starts a loop that will break only if the poller is done
-     * or if the poller is stopped.
-     */
-    async startPolling(pollOptions = {}) {
-        if (this.stopped) {
-            this.stopped = false;
-        }
-        while (!this.isStopped() && !this.isDone()) {
-            await this.poll(pollOptions);
-            await this.delay();
-        }
-    }
-    /**
-     * pollOnce does one polling, by calling to the update method of the underlying
-     * poll operation to make any relevant change effective.
-     *
-     * It only optionally receives an object with an abortSignal property, from \@azure/abort-controller's AbortSignalLike.
-     *
-     * @param options - Optional properties passed to the operation's update method.
-     */
-    async pollOnce(options = {}) {
-        if (!this.isDone()) {
-            this.operation = await this.operation.update({
-                abortSignal: options.abortSignal,
-                fireProgress: this.fireProgress.bind(this),
-            });
-        }
-        this.processUpdatedState();
-    }
-    /**
-     * fireProgress calls the functions passed in via onProgress the method of the poller.
-     *
-     * It loops over all of the callbacks received from onProgress, and executes them, sending them
-     * the current operation state.
-     *
-     * @param state - The current operation state.
-     */
-    fireProgress(state) {
-        for (const callback of this.pollProgressCallbacks) {
-            callback(state);
-        }
-    }
-    /**
-     * Invokes the underlying operation's cancel method.
-     */
-    async cancelOnce(options = {}) {
-        this.operation = await this.operation.cancel(options);
-    }
-    /**
-     * Returns a promise that will resolve once a single polling request finishes.
-     * It does this by calling the update method of the Poller's operation.
-     *
-     * It only optionally receives an object with an abortSignal property, from \@azure/abort-controller's AbortSignalLike.
-     *
-     * @param options - Optional properties passed to the operation's update method.
-     */
-    poll(options = {}) {
-        if (!this.pollOncePromise) {
-            this.pollOncePromise = this.pollOnce(options);
-            const clearPollOncePromise = () => {
-                this.pollOncePromise = undefined;
-            };
-            this.pollOncePromise.then(clearPollOncePromise, clearPollOncePromise).catch(this.reject);
-        }
-        return this.pollOncePromise;
-    }
-    processUpdatedState() {
-        if (this.operation.state.error) {
-            this.stopped = true;
-            if (!this.resolveOnUnsuccessful) {
-                this.reject(this.operation.state.error);
-                throw this.operation.state.error;
-            }
-        }
-        if (this.operation.state.isCancelled) {
-            this.stopped = true;
-            if (!this.resolveOnUnsuccessful) {
-                const error = new PollerCancelledError("Operation was canceled");
-                this.reject(error);
-                throw error;
-            }
-        }
-        if (this.isDone() && this.resolve) {
-            // If the poller has finished polling, this means we now have a result.
-            // However, it can be the case that TResult is instantiated to void, so
-            // we are not expecting a result anyway. To assert that we might not
-            // have a result eventually after finishing polling, we cast the result
-            // to TResult.
-            this.resolve(this.getResult());
-        }
-    }
-    /**
-     * Returns a promise that will resolve once the underlying operation is completed.
-     */
-    async pollUntilDone(pollOptions = {}) {
-        if (this.stopped) {
-            this.startPolling(pollOptions).catch(this.reject);
-        }
-        // This is needed because the state could have been updated by
-        // `cancelOperation`, e.g. the operation is canceled or an error occurred.
-        this.processUpdatedState();
-        return this.promise;
-    }
-    /**
-     * Invokes the provided callback after each polling is completed,
-     * sending the current state of the poller's operation.
-     *
-     * It returns a method that can be used to stop receiving updates on the given callback function.
-     */
-    onProgress(callback) {
-        this.pollProgressCallbacks.push(callback);
-        return () => {
-            this.pollProgressCallbacks = this.pollProgressCallbacks.filter((c) => c !== callback);
-        };
-    }
-    /**
-     * Returns true if the poller has finished polling.
-     */
-    isDone() {
-        const state = this.operation.state;
-        return Boolean(state.isCompleted || state.isCancelled || state.error);
-    }
-    /**
-     * Stops the poller from continuing to poll.
-     */
-    stopPolling() {
-        if (!this.stopped) {
-            this.stopped = true;
-            if (this.reject) {
-                this.reject(new PollerStoppedError("This poller is already stopped"));
-            }
-        }
-    }
-    /**
-     * Returns true if the poller is stopped.
-     */
-    isStopped() {
-        return this.stopped;
-    }
-    /**
-     * Attempts to cancel the underlying operation.
-     *
-     * It only optionally receives an object with an abortSignal property, from \@azure/abort-controller's AbortSignalLike.
-     *
-     * If it's called again before it finishes, it will throw an error.
-     *
-     * @param options - Optional properties passed to the operation's update method.
-     */
-    cancelOperation(options = {}) {
-        if (!this.cancelPromise) {
-            this.cancelPromise = this.cancelOnce(options);
-        }
-        else if (options.abortSignal) {
-            throw new Error("A cancel request is currently pending");
-        }
-        return this.cancelPromise;
-    }
-    /**
-     * Returns the state of the operation.
-     *
-     * Even though TState will be the same type inside any of the methods of any extension of the Poller class,
-     * implementations of the pollers can customize what's shared with the public by writing their own
-     * version of the `getOperationState` method, and by defining two types, one representing the internal state of the poller
-     * and a public type representing a safe to share subset of the properties of the internal state.
-     * Their definition of getOperationState can then return their public type.
-     *
-     * Example:
-     *
-     * ```ts
-     * // Let's say we have our poller's operation state defined as:
-     * interface MyOperationState extends PollOperationState<ResultType> {
-     *   privateProperty?: string;
-     *   publicProperty?: string;
-     * }
-     *
-     * // To allow us to have a true separation of public and private state, we have to define another interface:
-     * interface PublicState extends PollOperationState<ResultType> {
-     *   publicProperty?: string;
-     * }
-     *
-     * // Then, we define our Poller as follows:
-     * export class MyPoller extends Poller<MyOperationState, ResultType> {
-     *   // ... More content is needed here ...
-     *
-     *   public getOperationState(): PublicState {
-     *     const state: PublicState = this.operation.state;
-     *     return {
-     *       // Properties from PollOperationState<TResult>
-     *       isStarted: state.isStarted,
-     *       isCompleted: state.isCompleted,
-     *       isCancelled: state.isCancelled,
-     *       error: state.error,
-     *       result: state.result,
-     *
-     *       // The only other property needed by PublicState.
-     *       publicProperty: state.publicProperty
-     *     }
-     *   }
-     * }
-     * ```
-     *
-     * You can see this in the tests of this repository, go to the file:
-     * `../test/utils/testPoller.ts`
-     * and look for the getOperationState implementation.
-     */
-    getOperationState() {
-        return this.operation.state;
-    }
-    /**
-     * Returns the result value of the operation,
-     * regardless of the state of the poller.
-     * It can return undefined or an incomplete form of the final TResult value
-     * depending on the implementation.
-     */
-    getResult() {
-        const state = this.operation.state;
-        return state.result;
-    }
-    /**
-     * Returns a serialized version of the poller's operation
-     * by invoking the operation's toString method.
-     */
-    toString() {
-        return this.operation.toString();
-    }
-}
-
-function createLroSpec(inputs) {
-    const { args, spec, sendOperationFn } = inputs;
-    return {
-        requestMethod: spec.httpMethod,
-        requestPath: spec.path,
-        sendInitialRequest: () => sendOperationFn(args, spec),
-        sendPollRequest: (path, options) => {
-            const { requestBody, ...restSpec } = spec;
-            return sendOperationFn(args, {
-                ...restSpec,
-                httpMethod: "GET",
-                path,
-                abortSignal: options?.abortSignal,
-            });
-        },
-    };
-}
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-const KeyListResult = {
-    type: {
-        name: "Composite",
-        className: "KeyListResult",
-        modelProperties: {
-            items: {
-                serializedName: "items",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "Key",
-                        },
-                    },
-                },
-            },
-            nextLink: {
-                serializedName: "@nextLink",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const Key = {
-    type: {
-        name: "Composite",
-        className: "Key",
-        modelProperties: {
-            name: {
-                serializedName: "name",
-                readOnly: true,
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const ErrorModel = {
-    type: {
-        name: "Composite",
-        className: "ErrorModel",
-        modelProperties: {
-            type: {
-                serializedName: "type",
-                type: {
-                    name: "String",
-                },
-            },
-            title: {
-                serializedName: "title",
-                type: {
-                    name: "String",
-                },
-            },
-            name: {
-                serializedName: "name",
-                type: {
-                    name: "String",
-                },
-            },
-            detail: {
-                serializedName: "detail",
-                type: {
-                    name: "String",
-                },
-            },
-            status: {
-                serializedName: "status",
-                type: {
-                    name: "Number",
-                },
-            },
-        },
-    },
-};
-const KeyValueListResult = {
-    type: {
-        name: "Composite",
-        className: "KeyValueListResult",
-        modelProperties: {
-            items: {
-                serializedName: "items",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "KeyValue",
-                        },
-                    },
-                },
-            },
-            etag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-            nextLink: {
-                serializedName: "@nextLink",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const KeyValue = {
-    type: {
-        name: "Composite",
-        className: "KeyValue",
-        modelProperties: {
-            key: {
-                serializedName: "key",
-                required: true,
-                type: {
-                    name: "String",
-                },
-            },
-            label: {
-                serializedName: "label",
-                type: {
-                    name: "String",
-                },
-            },
-            contentType: {
-                serializedName: "content_type",
-                type: {
-                    name: "String",
-                },
-            },
-            value: {
-                serializedName: "value",
-                type: {
-                    name: "String",
-                },
-            },
-            lastModified: {
-                serializedName: "last_modified",
-                type: {
-                    name: "DateTime",
-                },
-            },
-            tags: {
-                serializedName: "tags",
-                type: {
-                    name: "Dictionary",
-                    value: { type: { name: "String" } },
-                },
-            },
-            locked: {
-                serializedName: "locked",
-                type: {
-                    name: "Boolean",
-                },
-            },
-            etag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const SnapshotListResult = {
-    type: {
-        name: "Composite",
-        className: "SnapshotListResult",
-        modelProperties: {
-            items: {
-                serializedName: "items",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "ConfigurationSnapshot",
-                        },
-                    },
-                },
-            },
-            nextLink: {
-                serializedName: "@nextLink",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const ConfigurationSnapshot = {
-    type: {
-        name: "Composite",
-        className: "ConfigurationSnapshot",
-        modelProperties: {
-            name: {
-                serializedName: "name",
-                required: true,
-                readOnly: true,
-                type: {
-                    name: "String",
-                },
-            },
-            status: {
-                serializedName: "status",
-                readOnly: true,
-                type: {
-                    name: "String",
-                },
-            },
-            filters: {
-                constraints: {
-                    MinItems: 1,
-                    MaxItems: 3,
-                },
-                serializedName: "filters",
-                required: true,
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "ConfigurationSettingsFilter",
-                        },
-                    },
-                },
-            },
-            compositionType: {
-                serializedName: "composition_type",
-                type: {
-                    name: "String",
-                },
-            },
-            createdOn: {
-                serializedName: "created",
-                readOnly: true,
-                type: {
-                    name: "DateTime",
-                },
-            },
-            expiresOn: {
-                serializedName: "expires",
-                readOnly: true,
-                type: {
-                    name: "DateTime",
-                },
-            },
-            retentionPeriodInSeconds: {
-                constraints: {
-                    InclusiveMaximum: 7776000,
-                    InclusiveMinimum: 3600,
-                },
-                serializedName: "retention_period",
-                type: {
-                    name: "Number",
-                },
-            },
-            sizeInBytes: {
-                serializedName: "size",
-                readOnly: true,
-                type: {
-                    name: "Number",
-                },
-            },
-            itemCount: {
-                serializedName: "items_count",
-                readOnly: true,
-                type: {
-                    name: "Number",
-                },
-            },
-            tags: {
-                serializedName: "tags",
-                type: {
-                    name: "Dictionary",
-                    value: { type: { name: "String" } },
-                },
-            },
-            etag: {
-                serializedName: "etag",
-                readOnly: true,
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const ConfigurationSettingsFilter = {
-    type: {
-        name: "Composite",
-        className: "ConfigurationSettingsFilter",
-        modelProperties: {
-            keyFilter: {
-                serializedName: "key",
-                required: true,
-                type: {
-                    name: "String",
-                },
-            },
-            labelFilter: {
-                serializedName: "label",
-                type: {
-                    name: "String",
-                },
-            },
-            tagsFilter: {
-                constraints: {
-                    UniqueItems: true,
-                },
-                serializedName: "tags",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "String",
-                        },
-                    },
-                },
-            },
-        },
-    },
-};
-const SnapshotUpdateParameters = {
-    type: {
-        name: "Composite",
-        className: "SnapshotUpdateParameters",
-        modelProperties: {
-            status: {
-                serializedName: "status",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const LabelListResult = {
-    type: {
-        name: "Composite",
-        className: "LabelListResult",
-        modelProperties: {
-            items: {
-                serializedName: "items",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "SettingLabel",
-                        },
-                    },
-                },
-            },
-            nextLink: {
-                serializedName: "@nextLink",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const SettingLabel = {
-    type: {
-        name: "Composite",
-        className: "SettingLabel",
-        modelProperties: {
-            name: {
-                serializedName: "name",
-                readOnly: true,
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const OperationDetails = {
-    type: {
-        name: "Composite",
-        className: "OperationDetails",
-        modelProperties: {
-            id: {
-                serializedName: "id",
-                required: true,
-                type: {
-                    name: "String",
-                },
-            },
-            status: {
-                serializedName: "status",
-                required: true,
-                type: {
-                    name: "Enum",
-                    allowedValues: [
-                        "NotStarted",
-                        "Running",
-                        "Succeeded",
-                        "Failed",
-                        "Canceled",
-                    ],
-                },
-            },
-            error: {
-                serializedName: "error",
-                type: {
-                    name: "Composite",
-                    className: "ErrorDetail",
-                },
-            },
-        },
-    },
-};
-const ErrorDetail = {
-    type: {
-        name: "Composite",
-        className: "ErrorDetail",
-        modelProperties: {
-            code: {
-                serializedName: "code",
-                required: true,
-                type: {
-                    name: "String",
-                },
-            },
-            message: {
-                serializedName: "message",
-                required: true,
-                type: {
-                    name: "String",
-                },
-            },
-            details: {
-                serializedName: "details",
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Composite",
-                            className: "ErrorDetail",
-                        },
-                    },
-                },
-            },
-            innererror: {
-                serializedName: "innererror",
-                type: {
-                    name: "Composite",
-                    className: "InnerError",
-                },
-            },
-        },
-    },
-};
-const InnerError = {
-    type: {
-        name: "Composite",
-        className: "InnerError",
-        modelProperties: {
-            code: {
-                serializedName: "code",
-                type: {
-                    name: "String",
-                },
-            },
-            innererror: {
-                serializedName: "innererror",
-                type: {
-                    name: "Composite",
-                    className: "InnerError",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetKeysHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeysHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationCheckKeysHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckKeysHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetKeyValuesHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeyValuesHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationCheckKeyValuesHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckKeyValuesHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetKeyValueHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeyValueHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationPutKeyValueHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationPutKeyValueHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationDeleteKeyValueHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationDeleteKeyValueHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationCheckKeyValueHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckKeyValueHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetSnapshotsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetSnapshotsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationCheckSnapshotsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckSnapshotsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetSnapshotHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetSnapshotHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-            link: {
-                serializedName: "link",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationCreateSnapshotHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCreateSnapshotHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-            link: {
-                serializedName: "link",
-                type: {
-                    name: "String",
-                },
-            },
-            operationLocation: {
-                serializedName: "operation-location",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationUpdateSnapshotHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationUpdateSnapshotHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-            link: {
-                serializedName: "link",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationCheckSnapshotHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckSnapshotHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-            link: {
-                serializedName: "link",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetLabelsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetLabelsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationCheckLabelsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckLabelsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationPutLockHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationPutLockHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationDeleteLockHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationDeleteLockHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetRevisionsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetRevisionsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationCheckRevisionsHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationCheckRevisionsHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetKeysNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeysNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetKeyValuesNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetKeyValuesNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetSnapshotsNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetSnapshotsNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetLabelsNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetLabelsNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-const AppConfigurationGetRevisionsNextHeaders = {
-    type: {
-        name: "Composite",
-        className: "AppConfigurationGetRevisionsNextHeaders",
-        modelProperties: {
-            syncToken: {
-                serializedName: "sync-token",
-                type: {
-                    name: "String",
-                },
-            },
-            eTag: {
-                serializedName: "etag",
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-};
-
-var Mappers = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    AppConfigurationCheckKeyValueHeaders: AppConfigurationCheckKeyValueHeaders,
-    AppConfigurationCheckKeyValuesHeaders: AppConfigurationCheckKeyValuesHeaders,
-    AppConfigurationCheckKeysHeaders: AppConfigurationCheckKeysHeaders,
-    AppConfigurationCheckLabelsHeaders: AppConfigurationCheckLabelsHeaders,
-    AppConfigurationCheckRevisionsHeaders: AppConfigurationCheckRevisionsHeaders,
-    AppConfigurationCheckSnapshotHeaders: AppConfigurationCheckSnapshotHeaders,
-    AppConfigurationCheckSnapshotsHeaders: AppConfigurationCheckSnapshotsHeaders,
-    AppConfigurationCreateSnapshotHeaders: AppConfigurationCreateSnapshotHeaders,
-    AppConfigurationDeleteKeyValueHeaders: AppConfigurationDeleteKeyValueHeaders,
-    AppConfigurationDeleteLockHeaders: AppConfigurationDeleteLockHeaders,
-    AppConfigurationGetKeyValueHeaders: AppConfigurationGetKeyValueHeaders,
-    AppConfigurationGetKeyValuesHeaders: AppConfigurationGetKeyValuesHeaders,
-    AppConfigurationGetKeyValuesNextHeaders: AppConfigurationGetKeyValuesNextHeaders,
-    AppConfigurationGetKeysHeaders: AppConfigurationGetKeysHeaders,
-    AppConfigurationGetKeysNextHeaders: AppConfigurationGetKeysNextHeaders,
-    AppConfigurationGetLabelsHeaders: AppConfigurationGetLabelsHeaders,
-    AppConfigurationGetLabelsNextHeaders: AppConfigurationGetLabelsNextHeaders,
-    AppConfigurationGetRevisionsHeaders: AppConfigurationGetRevisionsHeaders,
-    AppConfigurationGetRevisionsNextHeaders: AppConfigurationGetRevisionsNextHeaders,
-    AppConfigurationGetSnapshotHeaders: AppConfigurationGetSnapshotHeaders,
-    AppConfigurationGetSnapshotsHeaders: AppConfigurationGetSnapshotsHeaders,
-    AppConfigurationGetSnapshotsNextHeaders: AppConfigurationGetSnapshotsNextHeaders,
-    AppConfigurationPutKeyValueHeaders: AppConfigurationPutKeyValueHeaders,
-    AppConfigurationPutLockHeaders: AppConfigurationPutLockHeaders,
-    AppConfigurationUpdateSnapshotHeaders: AppConfigurationUpdateSnapshotHeaders,
-    ConfigurationSettingsFilter: ConfigurationSettingsFilter,
-    ConfigurationSnapshot: ConfigurationSnapshot,
-    ErrorDetail: ErrorDetail,
-    ErrorModel: ErrorModel,
-    InnerError: InnerError,
-    Key: Key,
-    KeyListResult: KeyListResult,
-    KeyValue: KeyValue,
-    KeyValueListResult: KeyValueListResult,
-    LabelListResult: LabelListResult,
-    OperationDetails: OperationDetails,
-    SettingLabel: SettingLabel,
-    SnapshotListResult: SnapshotListResult,
-    SnapshotUpdateParameters: SnapshotUpdateParameters
-});
-
-/*
- * Copyright (c) Microsoft Corporation.
- * Licensed under the MIT License.
- *
- * Code generated by Microsoft (R) AutoRest Code Generator.
- * Changes may cause incorrect behavior and will be lost if the code is regenerated.
- */
-const accept = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.keyset+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String",
-        },
-    },
-};
-const endpoint = {
-    parameterPath: "endpoint",
-    mapper: {
-        serializedName: "endpoint",
-        required: true,
-        type: {
-            name: "String",
-        },
-    },
-    skipEncoding: true,
-};
-const name$2 = {
-    parameterPath: ["options", "name"],
-    mapper: {
-        serializedName: "name",
-        type: {
-            name: "String",
-        },
-    },
-};
-const syncToken = {
-    parameterPath: "syncToken",
-    mapper: {
-        serializedName: "Sync-Token",
-        type: {
-            name: "String",
-        },
-    },
-};
-const apiVersion = {
-    parameterPath: "apiVersion",
-    mapper: {
-        serializedName: "api-version",
-        required: true,
-        type: {
-            name: "String",
-        },
-    },
-};
-const after = {
-    parameterPath: ["options", "after"],
-    mapper: {
-        serializedName: "after",
-        type: {
-            name: "String",
-        },
-    },
-};
-const acceptDatetime = {
-    parameterPath: ["options", "acceptDatetime"],
-    mapper: {
-        serializedName: "Accept-Datetime",
-        type: {
-            name: "String",
-        },
-    },
-};
-const accept1 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.kvset+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String",
-        },
-    },
-};
-const key = {
-    parameterPath: ["options", "key"],
-    mapper: {
-        serializedName: "key",
-        type: {
-            name: "String",
-        },
-    },
-};
-const label = {
-    parameterPath: ["options", "label"],
-    mapper: {
-        serializedName: "label",
-        type: {
-            name: "String",
-        },
-    },
-};
-const select = {
-    parameterPath: ["options", "select"],
-    mapper: {
-        serializedName: "$Select",
-        type: {
-            name: "Sequence",
-            element: {
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-    collectionFormat: "CSV",
-};
-const snapshot = {
-    parameterPath: ["options", "snapshot"],
-    mapper: {
-        serializedName: "snapshot",
-        type: {
-            name: "String",
-        },
-    },
-};
-const ifMatch = {
-    parameterPath: ["options", "ifMatch"],
-    mapper: {
-        serializedName: "If-Match",
-        type: {
-            name: "String",
-        },
-    },
-};
-const ifNoneMatch = {
-    parameterPath: ["options", "ifNoneMatch"],
-    mapper: {
-        serializedName: "If-None-Match",
-        type: {
-            name: "String",
-        },
-    },
-};
-const tags = {
-    parameterPath: ["options", "tags"],
-    mapper: {
-        constraints: {
-            UniqueItems: true,
-        },
-        serializedName: "tags",
-        type: {
-            name: "Sequence",
-            element: {
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-    collectionFormat: "Multi",
-};
-const accept2 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.kv+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String",
-        },
-    },
-};
-const key1 = {
-    parameterPath: "key",
-    mapper: {
-        serializedName: "key",
-        required: true,
-        type: {
-            name: "String",
-        },
-    },
-};
-const contentType = {
-    parameterPath: ["options", "contentType"],
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.kv+json",
-        isConstant: true,
-        serializedName: "Content-Type",
-        type: {
-            name: "String",
-        },
-    },
-};
-const entity = {
-    parameterPath: ["options", "entity"],
-    mapper: KeyValue,
-};
-const accept3 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.snapshotset+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String",
-        },
-    },
-};
-const select1 = {
-    parameterPath: ["options", "select"],
-    mapper: {
-        serializedName: "$Select",
-        type: {
-            name: "Sequence",
-            element: {
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-    collectionFormat: "CSV",
-};
-const status = {
-    parameterPath: ["options", "status"],
-    mapper: {
-        serializedName: "status",
-        type: {
-            name: "Sequence",
-            element: {
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-    collectionFormat: "CSV",
-};
-const accept4 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.snapshot+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String",
-        },
-    },
-};
-const name1 = {
-    parameterPath: "name",
-    mapper: {
-        serializedName: "name",
-        required: true,
-        type: {
-            name: "String",
-        },
-    },
-};
-const contentType1 = {
-    parameterPath: ["options", "contentType"],
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.snapshot+json",
-        isConstant: true,
-        serializedName: "Content-Type",
-        type: {
-            name: "String",
-        },
-    },
-};
-const entity1 = {
-    parameterPath: "entity",
-    mapper: ConfigurationSnapshot,
-};
-const name2 = {
-    parameterPath: "name",
-    mapper: {
-        constraints: {
-            MaxLength: 256,
-        },
-        serializedName: "name",
-        required: true,
-        type: {
-            name: "String",
-        },
-    },
-};
-const contentType2 = {
-    parameterPath: ["options", "contentType"],
-    mapper: {
-        defaultValue: "application/json",
-        isConstant: true,
-        serializedName: "Content-Type",
-        type: {
-            name: "String",
-        },
-    },
-};
-const entity2 = {
-    parameterPath: "entity",
-    mapper: SnapshotUpdateParameters,
-};
-const accept5 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/vnd.microsoft.appconfig.labelset+json, application/problem+json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String",
-        },
-    },
-};
-const select2 = {
-    parameterPath: ["options", "select"],
-    mapper: {
-        serializedName: "$Select",
-        type: {
-            name: "Sequence",
-            element: {
-                type: {
-                    name: "String",
-                },
-            },
-        },
-    },
-    collectionFormat: "CSV",
-};
-const accept6 = {
-    parameterPath: "accept",
-    mapper: {
-        defaultValue: "application/json",
-        isConstant: true,
-        serializedName: "Accept",
-        type: {
-            name: "String",
-        },
-    },
-};
-const snapshot1 = {
-    parameterPath: "snapshot",
-    mapper: {
-        serializedName: "snapshot",
-        required: true,
-        type: {
-            name: "String",
-        },
-    },
-};
-const nextLink = {
-    parameterPath: "nextLink",
-    mapper: {
-        serializedName: "nextLink",
-        required: true,
-        type: {
-            name: "String",
-        },
-    },
-    skipEncoding: true,
-};
-
-/*
-* Copyright (c) Microsoft Corporation.
-* Licensed under the MIT License.
-*
-* Code generated by Microsoft (R) AutoRest Code Generator.
-* Changes may cause incorrect behavior and will be lost if the code is regenerated.
-*/
-/** @internal */
-class AppConfiguration extends ExtendedServiceClient {
-    endpoint;
-    syncToken;
-    apiVersion;
-    /**
-     * Initializes a new instance of the AppConfiguration class.
-     * @param endpoint The endpoint of the App Configuration instance to send requests to.
-     * @param apiVersion Api Version
-     * @param options The parameter options
-     */
-    constructor(endpoint, apiVersion, options) {
-        if (endpoint === undefined) {
-            throw new Error("'endpoint' cannot be null");
-        }
-        if (apiVersion === undefined) {
-            throw new Error("'apiVersion' cannot be null");
-        }
-        // Initializing default values for options
-        if (!options) {
-            options = {};
-        }
-        const defaults = {
-            requestContentType: "application/json; charset=utf-8",
-        };
-        const packageDetails = `azsdk-js-app-configuration/1.11.0`;
-        const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix
-            ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
-            : `${packageDetails}`;
-        const optionsWithDefaults = {
-            ...defaults,
-            ...options,
-            userAgentOptions: {
-                userAgentPrefix,
-            },
-            endpoint: options.endpoint ?? options.baseUri ?? "{endpoint}",
-        };
-        super(optionsWithDefaults);
-        // Parameter assignments
-        this.endpoint = endpoint;
-        this.apiVersion = apiVersion;
-        this.addCustomApiVersionPolicy(apiVersion);
-    }
-    /** A function that adds a policy that sets the api-version (or equivalent) to reflect the library version. */
-    addCustomApiVersionPolicy(apiVersion) {
-        if (!apiVersion) {
-            return;
-        }
-        const apiVersionPolicy = {
-            name: "CustomApiVersionPolicy",
-            async sendRequest(request, next) {
-                const param = request.url.split("?");
-                if (param.length > 1) {
-                    const newParams = param[1].split("&").map((item) => {
-                        if (item.indexOf("api-version") > -1) {
-                            return "api-version=" + apiVersion;
-                        }
-                        else {
-                            return item;
-                        }
-                    });
-                    request.url = param[0] + "?" + newParams.join("&");
-                }
-                return next(request);
-            },
-        };
-        this.pipeline.addPolicy(apiVersionPolicy);
-    }
-    /**
-     * Gets a list of keys.
-     * @param options The options parameters.
-     */
-    getKeys(options) {
-        return this.sendOperationRequest({ options }, getKeysOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkKeys(options) {
-        return this.sendOperationRequest({ options }, checkKeysOperationSpec);
-    }
-    /**
-     * Gets a list of key-values.
-     * @param options The options parameters.
-     */
-    getKeyValues(options) {
-        return this.sendOperationRequest({ options }, getKeyValuesOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkKeyValues(options) {
-        return this.sendOperationRequest({ options }, checkKeyValuesOperationSpec);
-    }
-    /**
-     * Gets a single key-value.
-     * @param key The key of the key-value to retrieve.
-     * @param options The options parameters.
-     */
-    getKeyValue(key, options) {
-        return this.sendOperationRequest({ key, options }, getKeyValueOperationSpec);
-    }
-    /**
-     * Creates a key-value.
-     * @param key The key of the key-value to create.
-     * @param options The options parameters.
-     */
-    putKeyValue(key, options) {
-        return this.sendOperationRequest({ key, options }, putKeyValueOperationSpec);
-    }
-    /**
-     * Deletes a key-value.
-     * @param key The key of the key-value to delete.
-     * @param options The options parameters.
-     */
-    deleteKeyValue(key, options) {
-        return this.sendOperationRequest({ key, options }, deleteKeyValueOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param key The key of the key-value to retrieve.
-     * @param options The options parameters.
-     */
-    checkKeyValue(key, options) {
-        return this.sendOperationRequest({ key, options }, checkKeyValueOperationSpec);
-    }
-    /**
-     * Gets a list of key-value snapshots.
-     * @param options The options parameters.
-     */
-    getSnapshots(options) {
-        return this.sendOperationRequest({ options }, getSnapshotsOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkSnapshots(options) {
-        return this.sendOperationRequest({ options }, checkSnapshotsOperationSpec);
-    }
-    /**
-     * Gets a single key-value snapshot.
-     * @param name The name of the key-value snapshot to retrieve.
-     * @param options The options parameters.
-     */
-    getSnapshot(name, options) {
-        return this.sendOperationRequest({ name, options }, getSnapshotOperationSpec);
-    }
-    /**
-     * Creates a key-value snapshot.
-     * @param name The name of the key-value snapshot to create.
-     * @param entity The key-value snapshot to create.
-     * @param options The options parameters.
-     */
-    async beginCreateSnapshot(name, entity, options) {
-        const directSendOperation = async (args, spec) => {
-            return this.sendOperationRequest(args, spec);
-        };
-        const sendOperationFn = async (args, spec) => {
-            let currentRawResponse = undefined;
-            const providedCallback = args.options?.onResponse;
-            const callback = (rawResponse, flatResponse) => {
-                currentRawResponse = rawResponse;
-                providedCallback?.(rawResponse, flatResponse);
-            };
-            const updatedArgs = {
-                ...args,
-                options: {
-                    ...args.options,
-                    onResponse: callback,
-                },
-            };
-            const flatResponse = await directSendOperation(updatedArgs, spec);
-            return {
-                flatResponse,
-                rawResponse: {
-                    statusCode: currentRawResponse.status,
-                    body: currentRawResponse.parsedBody,
-                    headers: currentRawResponse.headers.toJSON(),
-                },
-            };
-        };
-        const lro = createLroSpec({
-            sendOperationFn,
-            args: { name, entity, options },
-            spec: createSnapshotOperationSpec,
-        });
-        const poller = await createHttpPoller(lro, {
-            restoreFrom: options?.resumeFrom,
-            intervalInMs: options?.updateIntervalInMs,
-        });
-        await poller.poll();
-        return poller;
-    }
-    /**
-     * Creates a key-value snapshot.
-     * @param name The name of the key-value snapshot to create.
-     * @param entity The key-value snapshot to create.
-     * @param options The options parameters.
-     */
-    async beginCreateSnapshotAndWait(name, entity, options) {
-        const poller = await this.beginCreateSnapshot(name, entity, options);
-        return poller.pollUntilDone();
-    }
-    /**
-     * Updates the state of a key-value snapshot.
-     * @param name The name of the key-value snapshot to update.
-     * @param entity The parameters used to update the snapshot.
-     * @param options The options parameters.
-     */
-    updateSnapshot(name, entity, options) {
-        return this.sendOperationRequest({ name, entity, options }, updateSnapshotOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param name The name of the key-value snapshot to check.
-     * @param options The options parameters.
-     */
-    checkSnapshot(name, options) {
-        return this.sendOperationRequest({ name, options }, checkSnapshotOperationSpec);
-    }
-    /**
-     * Gets a list of labels.
-     * @param options The options parameters.
-     */
-    getLabels(options) {
-        return this.sendOperationRequest({ options }, getLabelsOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkLabels(options) {
-        return this.sendOperationRequest({ options }, checkLabelsOperationSpec);
-    }
-    /**
-     * Locks a key-value.
-     * @param key The key of the key-value to lock.
-     * @param options The options parameters.
-     */
-    putLock(key, options) {
-        return this.sendOperationRequest({ key, options }, putLockOperationSpec);
-    }
-    /**
-     * Unlocks a key-value.
-     * @param key The key of the key-value to unlock.
-     * @param options The options parameters.
-     */
-    deleteLock(key, options) {
-        return this.sendOperationRequest({ key, options }, deleteLockOperationSpec);
-    }
-    /**
-     * Gets a list of key-value revisions.
-     * @param options The options parameters.
-     */
-    getRevisions(options) {
-        return this.sendOperationRequest({ options }, getRevisionsOperationSpec);
-    }
-    /**
-     * Requests the headers and status of the given resource.
-     * @param options The options parameters.
-     */
-    checkRevisions(options) {
-        return this.sendOperationRequest({ options }, checkRevisionsOperationSpec);
-    }
-    /**
-     * Gets the state of a long running operation.
-     * @param snapshot Snapshot identifier for the long running operation.
-     * @param options The options parameters.
-     */
-    getOperationDetails(snapshot, options) {
-        return this.sendOperationRequest({ snapshot, options }, getOperationDetailsOperationSpec);
-    }
-    /**
-     * GetKeysNext
-     * @param nextLink The nextLink from the previous successful call to the GetKeys method.
-     * @param options The options parameters.
-     */
-    getKeysNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getKeysNextOperationSpec);
-    }
-    /**
-     * GetKeyValuesNext
-     * @param nextLink The nextLink from the previous successful call to the GetKeyValues method.
-     * @param options The options parameters.
-     */
-    getKeyValuesNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getKeyValuesNextOperationSpec);
-    }
-    /**
-     * GetSnapshotsNext
-     * @param nextLink The nextLink from the previous successful call to the GetSnapshots method.
-     * @param options The options parameters.
-     */
-    getSnapshotsNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getSnapshotsNextOperationSpec);
-    }
-    /**
-     * GetLabelsNext
-     * @param nextLink The nextLink from the previous successful call to the GetLabels method.
-     * @param options The options parameters.
-     */
-    getLabelsNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getLabelsNextOperationSpec);
-    }
-    /**
-     * GetRevisionsNext
-     * @param nextLink The nextLink from the previous successful call to the GetRevisions method.
-     * @param options The options parameters.
-     */
-    getRevisionsNext(nextLink, options) {
-        return this.sendOperationRequest({ nextLink, options }, getRevisionsNextOperationSpec);
-    }
-}
-// Operation Specifications
-const serializer = createSerializer(Mappers, /* isXml */ false);
-const getKeysOperationSpec = {
-    path: "/keys",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyListResult,
-            headersMapper: AppConfigurationGetKeysHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [name$2, apiVersion, after],
-    urlParameters: [endpoint],
-    headerParameters: [
-        accept,
-        syncToken,
-        acceptDatetime,
-    ],
-    serializer,
-};
-const checkKeysOperationSpec = {
-    path: "/keys",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckKeysHeaders,
-        },
-        default: {},
-    },
-    queryParameters: [name$2, apiVersion, after],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken, acceptDatetime],
-    serializer,
-};
-const getKeyValuesOperationSpec = {
-    path: "/kv",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValueListResult,
-            headersMapper: AppConfigurationGetKeyValuesHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [
-        apiVersion,
-        after,
-        key,
-        label,
-        select,
-        snapshot,
-        tags,
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept1,
-        ifMatch,
-        ifNoneMatch,
-    ],
-    serializer,
-};
-const checkKeyValuesOperationSpec = {
-    path: "/kv",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckKeyValuesHeaders,
-        },
-        default: {},
-    },
-    queryParameters: [
-        apiVersion,
-        after,
-        key,
-        label,
-        select,
-        snapshot,
-        tags,
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        ifMatch,
-        ifNoneMatch,
-    ],
-    serializer,
-};
-const getKeyValueOperationSpec = {
-    path: "/kv/{key}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationGetKeyValueHeaders,
-        },
-        304: {
-            headersMapper: AppConfigurationGetKeyValueHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [apiVersion, label, select],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        ifMatch,
-        ifNoneMatch,
-        accept2,
-    ],
-    serializer,
-};
-const putKeyValueOperationSpec = {
-    path: "/kv/{key}",
-    httpMethod: "PUT",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationPutKeyValueHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    requestBody: entity,
-    queryParameters: [apiVersion, label],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept2,
-        contentType,
-    ],
-    mediaType: "json",
-    serializer,
-};
-const deleteKeyValueOperationSpec = {
-    path: "/kv/{key}",
-    httpMethod: "DELETE",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationDeleteKeyValueHeaders,
-        },
-        204: {
-            headersMapper: AppConfigurationDeleteKeyValueHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [apiVersion, label],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        accept2,
-    ],
-    serializer,
-};
-const checkKeyValueOperationSpec = {
-    path: "/kv/{key}",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckKeyValueHeaders,
-        },
-        304: {
-            headersMapper: AppConfigurationCheckKeyValueHeaders,
-        },
-        default: {},
-    },
-    queryParameters: [apiVersion, label, select],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        ifMatch,
-        ifNoneMatch,
-    ],
-    serializer,
-};
-const getSnapshotsOperationSpec = {
-    path: "/snapshots",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: SnapshotListResult,
-            headersMapper: AppConfigurationGetSnapshotsHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [
-        name$2,
-        apiVersion,
-        after,
-        select1,
-        status,
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken, accept3],
-    serializer,
-};
-const checkSnapshotsOperationSpec = {
-    path: "/snapshots",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckSnapshotsHeaders,
-        },
-        default: {},
-    },
-    queryParameters: [apiVersion, after],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken],
-    serializer,
-};
-const getSnapshotOperationSpec = {
-    path: "/snapshots/{name}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationGetSnapshotHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [apiVersion, select1],
-    urlParameters: [endpoint, name1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept4,
-    ],
-    serializer,
-};
-const createSnapshotOperationSpec = {
-    path: "/snapshots/{name}",
-    httpMethod: "PUT",
-    responses: {
-        200: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationCreateSnapshotHeaders,
-        },
-        201: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationCreateSnapshotHeaders,
-        },
-        202: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationCreateSnapshotHeaders,
-        },
-        204: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationCreateSnapshotHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    requestBody: entity1,
-    queryParameters: [apiVersion],
-    urlParameters: [endpoint, name2],
-    headerParameters: [
-        syncToken,
-        accept4,
-        contentType1,
-    ],
-    mediaType: "json",
-    serializer,
-};
-const updateSnapshotOperationSpec = {
-    path: "/snapshots/{name}",
-    httpMethod: "PATCH",
-    responses: {
-        200: {
-            bodyMapper: ConfigurationSnapshot,
-            headersMapper: AppConfigurationUpdateSnapshotHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    requestBody: entity2,
-    queryParameters: [apiVersion],
-    urlParameters: [endpoint, name1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept4,
-        contentType2,
-    ],
-    mediaType: "json",
-    serializer,
-};
-const checkSnapshotOperationSpec = {
-    path: "/snapshots/{name}",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckSnapshotHeaders,
-        },
-        default: {},
-    },
-    queryParameters: [apiVersion],
-    urlParameters: [endpoint, name1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-    ],
-    serializer,
-};
-const getLabelsOperationSpec = {
-    path: "/labels",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: LabelListResult,
-            headersMapper: AppConfigurationGetLabelsHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [
-        name$2,
-        apiVersion,
-        after,
-        select2,
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept5,
-    ],
-    serializer,
-};
-const checkLabelsOperationSpec = {
-    path: "/labels",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckLabelsHeaders,
-        },
-        default: {},
-    },
-    queryParameters: [
-        name$2,
-        apiVersion,
-        after,
-        select2,
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken, acceptDatetime],
-    serializer,
-};
-const putLockOperationSpec = {
-    path: "/locks/{key}",
-    httpMethod: "PUT",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationPutLockHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [apiVersion, label],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept2,
-    ],
-    serializer,
-};
-const deleteLockOperationSpec = {
-    path: "/locks/{key}",
-    httpMethod: "DELETE",
-    responses: {
-        200: {
-            bodyMapper: KeyValue,
-            headersMapper: AppConfigurationDeleteLockHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [apiVersion, label],
-    urlParameters: [endpoint, key1],
-    headerParameters: [
-        syncToken,
-        ifMatch,
-        ifNoneMatch,
-        accept2,
-    ],
-    serializer,
-};
-const getRevisionsOperationSpec = {
-    path: "/revisions",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValueListResult,
-            headersMapper: AppConfigurationGetRevisionsHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [
-        apiVersion,
-        after,
-        key,
-        label,
-        select,
-        tags,
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept1,
-    ],
-    serializer,
-};
-const checkRevisionsOperationSpec = {
-    path: "/revisions",
-    httpMethod: "HEAD",
-    responses: {
-        200: {
-            headersMapper: AppConfigurationCheckRevisionsHeaders,
-        },
-        default: {},
-    },
-    queryParameters: [
-        apiVersion,
-        after,
-        key,
-        label,
-        select,
-        tags,
-    ],
-    urlParameters: [endpoint],
-    headerParameters: [syncToken, acceptDatetime],
-    serializer,
-};
-const getOperationDetailsOperationSpec = {
-    path: "/operations",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: OperationDetails,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    queryParameters: [apiVersion, snapshot1],
-    urlParameters: [endpoint],
-    headerParameters: [accept6],
-    serializer,
-};
-const getKeysNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyListResult,
-            headersMapper: AppConfigurationGetKeysNextHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [
-        accept,
-        syncToken,
-        acceptDatetime,
-    ],
-    serializer,
-};
-const getKeyValuesNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValueListResult,
-            headersMapper: AppConfigurationGetKeyValuesNextHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept1,
-        ifMatch,
-        ifNoneMatch,
-    ],
-    serializer,
-};
-const getSnapshotsNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: SnapshotListResult,
-            headersMapper: AppConfigurationGetSnapshotsNextHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [syncToken, accept3],
-    serializer,
-};
-const getLabelsNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: LabelListResult,
-            headersMapper: AppConfigurationGetLabelsNextHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept5,
-    ],
-    serializer,
-};
-const getRevisionsNextOperationSpec = {
-    path: "{nextLink}",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: KeyValueListResult,
-            headersMapper: AppConfigurationGetRevisionsNextHeaders,
-        },
-        default: {
-            bodyMapper: ErrorModel,
-        },
-    },
-    urlParameters: [endpoint, nextLink],
-    headerParameters: [
-        syncToken,
-        acceptDatetime,
-        accept1,
-    ],
-    serializer,
-};
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
 /**
  * Known values for Azure App Configuration Audience
  */
@@ -41917,6 +36349,18 @@ var KnownAppConfigAudience;
      */
     KnownAppConfigAudience["AzurePublicCloud"] = "https://appconfig.azure.com";
 })(KnownAppConfigAudience || (KnownAppConfigAudience = {}));
+/**
+ * Known service API versions supported by AppConfigurationClient.
+ */
+var KnownAppConfigurationApiVersion;
+(function (KnownAppConfigurationApiVersion) {
+    /** The 2023-11-01 API version */
+    KnownAppConfigurationApiVersion["V20231101"] = "2023-11-01";
+    /** The 2024-09-01 API version */
+    KnownAppConfigurationApiVersion["V20240901"] = "2024-09-01";
+    /** The 2026-04-01 API version */
+    KnownAppConfigurationApiVersion["V20260401"] = "2026-04-01";
+})(KnownAppConfigurationApiVersion || (KnownAppConfigurationApiVersion = {}));
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -41936,9 +36380,9 @@ const FeatureFlagHelper = {
      * Takes the FeatureFlag (JSON) and returns a ConfigurationSetting (with the props encodeed in the value).
      */
     toConfigurationSettingParam: (featureFlag) => {
-        logger$m.info("Encoding FeatureFlag value in a ConfigurationSetting:", featureFlag);
+        logger$n.info("Encoding FeatureFlag value in a ConfigurationSetting:", featureFlag);
         if (!featureFlag.value) {
-            logger$m.error("FeatureFlag has an unexpected value", featureFlag);
+            logger$n.error("FeatureFlag has an unexpected value", featureFlag);
             throw new TypeError(`FeatureFlag has an unexpected value - ${featureFlag.value}`);
         }
         let key = featureFlag.key;
@@ -41978,9 +36422,9 @@ const SecretReferenceHelper = {
      * Takes the SecretReference (JSON) and returns a ConfigurationSetting (with the props encoded in the value).
      */
     toConfigurationSettingParam: (secretReference) => {
-        logger$m.info("Encoding SecretReference value in a ConfigurationSetting:", secretReference);
+        logger$n.info("Encoding SecretReference value in a ConfigurationSetting:", secretReference);
         if (!secretReference.value) {
-            logger$m.error(`SecretReference has an unexpected value`, secretReference);
+            logger$n.error(`SecretReference has an unexpected value`, secretReference);
             throw new TypeError(`SecretReference has an unexpected value - ${secretReference.value}`);
         }
         const jsonSecretReferenceValue = {
@@ -41997,9 +36441,9 @@ const SecretReferenceHelper = {
  * Takes the ConfigurationSetting as input and returns the ConfigurationSetting<SecretReferenceValue> by parsing the value string.
  */
 function parseSecretReference(setting) {
-    logger$m.info("[parseSecretReference] Parsing the value to return the SecretReferenceValue", setting);
+    logger$n.info("[parseSecretReference] Parsing the value to return the SecretReferenceValue", setting);
     if (!isSecretReference(setting)) {
-        logger$m.error("Invalid SecretReference input", setting);
+        logger$n.error("Invalid SecretReference input", setting);
         throw TypeError(`Setting with key ${setting.key} is not a valid SecretReference, make sure to have the correct content-type and a valid non-null value.`);
     }
     const jsonSecretReferenceValue = JSON.parse(setting.value);
@@ -42034,9 +36478,9 @@ const SnapshotReferenceHelper = {
      * Takes the SnapshotReference (JSON) and returns a ConfigurationSetting (with the props encoded in the value).
      */
     toConfigurationSettingParam: (snapshotReference) => {
-        logger$m.info("Encoding SnapshotReference value in a ConfigurationSetting:", snapshotReference);
+        logger$n.info("Encoding SnapshotReference value in a ConfigurationSetting:", snapshotReference);
         if (!snapshotReference.value) {
-            logger$m.error(`SnapshotReference has an unexpected value`, snapshotReference);
+            logger$n.error(`SnapshotReference has an unexpected value`, snapshotReference);
             throw new TypeError(`SnapshotReference has an unexpected value - ${snapshotReference.value}`);
         }
         const jsonSnapshotReferenceValue = {
@@ -42077,7 +36521,7 @@ function quoteETag(etag) {
  */
 function checkAndFormatIfAndIfNoneMatch(objectWithEtag, options) {
     if (options.onlyIfChanged && options.onlyIfUnchanged) {
-        logger$m.error("onlyIfChanged and onlyIfUnchanged are both specified", options.onlyIfChanged, options.onlyIfUnchanged);
+        logger$n.error("onlyIfChanged and onlyIfUnchanged are both specified", options.onlyIfChanged, options.onlyIfUnchanged);
         throw new Error("onlyIfChanged and onlyIfUnchanged are mutually-exclusive");
     }
     let ifMatch;
@@ -42110,7 +36554,8 @@ function formatFiltersAndSelect(listConfigOptions) {
     return {
         key: listConfigOptions.keyFilter,
         label: listConfigOptions.labelFilter,
-        tags: listConfigOptions.tagsFilter,
+        // Ensure the tags are URL-encoded when encoding
+        tags: listConfigOptions.tagsFilter?.map((t) => encodeURIComponent(t)),
         acceptDatetime,
         select: formatFieldsForSelect(listConfigOptions.fields),
     };
@@ -42179,7 +36624,7 @@ function extractAfterTokenFromNextLink(nextLink) {
     const searchParams = new URLSearchParams(nextLink);
     const afterToken = searchParams.get("after");
     if (afterToken == null || Array.isArray(afterToken)) {
-        logger$m.error("Invalid nextLink - invalid after token", afterToken, Array.isArray(afterToken));
+        logger$n.error("Invalid nextLink - invalid after token", afterToken, Array.isArray(afterToken));
         throw new Error("Invalid nextLink - invalid after token");
     }
     return decodeURIComponent(afterToken);
@@ -42214,6 +36659,7 @@ function extractAfterTokenFromLinkHeader(link) {
 function makeConfigurationSettingEmpty(configurationSetting) {
     const names = [
         "contentType",
+        "description",
         "etag",
         "label",
         "lastModified",
@@ -42233,6 +36679,7 @@ function transformKeyValue(kvp) {
         value: undefined,
         ...kvp,
         isReadOnly: !!kvp.locked,
+        lastModified: kvp.lastModified ? new Date(kvp.lastModified) : undefined,
     };
     delete setting.locked;
     if (!setting.label) {
@@ -42248,7 +36695,7 @@ function transformKeyValue(kvp) {
  */
 function isConfigSettingWithSecretReferenceValue(setting) {
     return (setting.contentType === secretReferenceContentType &&
-        isDefined$1(setting.value) &&
+        isDefined$2(setting.value) &&
         typeof setting.value !== "string");
 }
 /**
@@ -42256,7 +36703,7 @@ function isConfigSettingWithSecretReferenceValue(setting) {
  */
 function isConfigSettingWithSnapshotReferenceValue(setting) {
     return (setting.contentType === snapshotReferenceContentType &&
-        isDefined$1(setting.value) &&
+        isDefined$2(setting.value) &&
         typeof setting.value !== "string");
 }
 /**
@@ -42264,14 +36711,14 @@ function isConfigSettingWithSnapshotReferenceValue(setting) {
  */
 function isConfigSettingWithFeatureFlagValue(setting) {
     return (setting.contentType === featureFlagContentType &&
-        isDefined$1(setting.value) &&
+        isDefined$2(setting.value) &&
         typeof setting.value !== "string");
 }
 /**
  * @internal
  */
 function isSimpleConfigSetting(setting) {
-    return typeof setting.value === "string" || !isDefined$1(setting.value);
+    return typeof setting.value === "string" || !isDefined$2(setting.value);
 }
 /**
  * @internal
@@ -42294,21 +36741,22 @@ function serializeAsConfigurationSettingParam(setting) {
     catch (error) {
         return setting;
     }
-    logger$m.error("Unable to serialize to a configuration setting", setting);
+    logger$n.error("Unable to serialize to a configuration setting", setting);
     throw new TypeError(`Unable to serialize the setting with key "${setting.key}" as a configuration setting`);
 }
 /**
  * @internal
  */
 function transformKeyValueResponseWithStatusCode(kvp, status) {
+    const source = (kvp ?? {});
     const response = {
-        ...transformKeyValue(kvp),
+        ...transformKeyValue(source),
         statusCode: status ?? -1,
     };
-    if (hasUnderscoreResponse(kvp)) {
+    if (hasUnderscoreResponse(source)) {
         Object.defineProperty(response, "_response", {
             enumerable: false,
-            value: kvp._response,
+            value: source._response,
         });
     }
     return response;
@@ -42331,13 +36779,29 @@ function transformKeyValueResponse(kvp) {
  * @internal
  */
 function transformSnapshotResponse(snapshot) {
+    const configSnapshot = {
+        ...snapshot,
+        createdOn: snapshot.createdOn ? new Date(snapshot.createdOn) : undefined,
+        expiresOn: snapshot.expiresOn ? new Date(snapshot.expiresOn) : undefined,
+        itemCount: snapshot.itemsCount,
+    };
     if (hasUnderscoreResponse(snapshot)) {
-        Object.defineProperty(snapshot, "_response", {
+        Object.defineProperty(configSnapshot, "_response", {
             enumerable: false,
             value: snapshot._response,
         });
     }
-    return snapshot;
+    return configSnapshot;
+}
+/**
+ * Converts a public-facing SnapshotInfo to the generated Snapshot type.
+ * @internal
+ */
+function snapshotInfoToGenerated(snapshot) {
+    return {
+        ...snapshot,
+        compositionType: snapshot.compositionType,
+    };
 }
 /**
  * Translates user-facing field names into their `select` equivalents (these can be
@@ -42380,7 +36844,7 @@ function hasUnderscoreResponse(result) {
 /**
  * Get the scope for the App Configuration service based on the endpoint and audience.
  * If the audience is provided, it will be used as the scope.
- * If not, the scope is defaulted to Azure Public Cloud when not specified.
+ * If not, the scope is inferred from the endpoint.
  *
  * @internal
  */
@@ -42388,18 +36852,2582 @@ function getScope(appConfigEndpoint, appConfigAudience) {
     if (appConfigAudience) {
         return `${appConfigAudience}/.default`;
     }
-    else if (appConfigEndpoint.endsWith("azconfig.azure.us") ||
-        appConfigEndpoint.endsWith("appconfig.azure.us")) {
-        return `${KnownAppConfigAudience.AzureGovernment}/.default`;
+    const hostname = new URL(appConfigEndpoint).hostname;
+    const stagingDomain = "appconfig-staging.azure.com";
+    if (hostname.endsWith(`.${stagingDomain}`)) {
+        return `https://${stagingDomain}/.default`;
     }
-    else if (appConfigEndpoint.endsWith("azconfig.azure.cn") ||
-        appConfigEndpoint.endsWith("appconfig.azure.cn")) {
-        return `${KnownAppConfigAudience.AzureChina}/.default`;
+    const labels = hostname.split(".");
+    for (let index = labels.length - 1; index >= 0; index--) {
+        const label = labels[index].toLowerCase();
+        if (label === "appconfig" || label === "azconfig") {
+            return `https://${labels.slice(index).join(".")}/.default`;
+        }
+    }
+    return `${KnownAppConfigAudience.AzurePublicCloud}/.default`;
+}
+/**
+ * Encodes a value for use as a URL path parameter according to RFC 3986.
+ *
+ * @internal
+ */
+function encodePathParameter(str) {
+    return encodeURIComponent(str).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const logger$m = createClientLogger("app-configuration");
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+function createRestError(messageOrResponse, response) {
+    if (typeof messageOrResponse === "string") {
+        return createRestError$1(messageOrResponse, response);
     }
     else {
-        return `${KnownAppConfigAudience.AzurePublicCloud}/.default`;
+        return createRestError$1(messageOrResponse);
     }
 }
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const apiVersionPolicyName = "ApiVersionPolicy";
+/**
+ * Creates a policy that sets the apiVersion as a query parameter on every request
+ * @param options - Client options
+ * @returns Pipeline policy that sets the apiVersion as a query parameter on every request
+ */
+function apiVersionPolicy(options) {
+    return {
+        name: apiVersionPolicyName,
+        sendRequest: (req, next) => {
+            // Use the apiVesion defined in request url directly
+            // Append one if there is no apiVesion and we have one at client options
+            const url = new URL(req.url);
+            if (!url.searchParams.get("api-version") && options.apiVersion) {
+                req.url = `${req.url}${url.searchParams.size > 0 ? "&" : "?"}api-version=${options.apiVersion}`;
+            }
+            return next(req);
+        },
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * The programmatic identifier of the bearerTokenAuthenticationPolicy.
+ */
+const keyCredentialAuthenticationPolicyName = "keyCredentialAuthenticationPolicy";
+function keyCredentialAuthenticationPolicy(credential, apiKeyHeaderName) {
+    return {
+        name: keyCredentialAuthenticationPolicyName,
+        sendRequest(request, next) {
+            request.headers.set(apiKeyHeaderName, credential.key);
+            return next(request);
+        },
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Adds a credential policy to the pipeline if a credential is provided. If none is provided, no policy is added.
+ */
+function addCredentialPipelinePolicy(pipeline, endpoint, options = {}) {
+    const { credential, clientOptions } = options;
+    if (!credential) {
+        return;
+    }
+    if (isTokenCredential(credential)) {
+        const tokenPolicy = bearerTokenAuthenticationPolicy({
+            credential,
+            scopes: clientOptions?.credentials?.scopes ?? `${endpoint}/.default`,
+        });
+        pipeline.addPolicy(tokenPolicy);
+    }
+    else if (isKeyCredential(credential)) {
+        if (!clientOptions?.credentials?.apiKeyHeaderName) {
+            throw new Error(`Missing API Key Header Name`);
+        }
+        const keyPolicy = keyCredentialAuthenticationPolicy(credential, clientOptions?.credentials?.apiKeyHeaderName);
+        pipeline.addPolicy(keyPolicy);
+    }
+}
+/**
+ * Creates a default rest pipeline to re-use accross Rest Level Clients
+ */
+function createDefaultPipeline$1(endpoint, credential, options = {}) {
+    const pipeline = createPipelineFromOptions(options);
+    pipeline.addPolicy(apiVersionPolicy(options));
+    addCredentialPipelinePolicy(pipeline, endpoint, { credential, clientOptions: options });
+    return pipeline;
+}
+function isKeyCredential(credential) {
+    return (typeof credential === "object" &&
+        credential !== null &&
+        "key" in credential &&
+        typeof credential.key === "string");
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Helper function to convert OperationOptions to RequestParameters
+ * @param options - the options that are used by Modular layer to send the request
+ * @returns the result of the conversion in RequestParameters of RLC layer
+ */
+function operationOptionsToRequestParameters(options) {
+    const compatibilityOptions = options;
+    const tspRequestParameters = operationOptionsToRequestParameters$1(options);
+    return {
+        ...tspRequestParameters,
+        headers: mergeHeaders(compatibilityOptions.requestOptions?.customHeaders, tspRequestParameters.headers),
+        tracingOptions: options.tracingOptions,
+    };
+}
+function mergeHeaders(...headerSets) {
+    const headers = new Map();
+    for (const headerSet of headerSets) {
+        for (const [name, value] of Object.entries(headerSet ?? {})) {
+            headers.set(name.toLowerCase(), value);
+        }
+    }
+    return Object.fromEntries(headers);
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Function to wrap RequestParameters so that we get the legacy onResponse behavior in core-client-rest
+ */
+function wrapRequestParameters(parameters) {
+    if (parameters.onResponse) {
+        return {
+            ...parameters,
+            onResponse(rawResponse, error) {
+                parameters.onResponse?.(rawResponse, error, error);
+            },
+        };
+    }
+    return parameters;
+}
+function getClient(endpoint, credentialsOrPipelineOptions, clientOptions = {}) {
+    let credentials;
+    if (credentialsOrPipelineOptions) {
+        if (isCredential(credentialsOrPipelineOptions)) {
+            credentials = credentialsOrPipelineOptions;
+        }
+        else {
+            clientOptions = credentialsOrPipelineOptions ?? {};
+        }
+    }
+    const pipeline = clientOptions.pipeline ?? createDefaultPipeline$1(endpoint, credentials, clientOptions);
+    const tspClient = getClient$1(endpoint, {
+        ...clientOptions,
+        pipeline,
+    });
+    const client = (path, ...args) => {
+        return {
+            get: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).get(wrapRequestParameters(requestOptions));
+            },
+            post: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).post(wrapRequestParameters(requestOptions));
+            },
+            put: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).put(wrapRequestParameters(requestOptions));
+            },
+            patch: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).patch(wrapRequestParameters(requestOptions));
+            },
+            delete: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).delete(wrapRequestParameters(requestOptions));
+            },
+            head: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).head(wrapRequestParameters(requestOptions));
+            },
+            options: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).options(wrapRequestParameters(requestOptions));
+            },
+            trace: (requestOptions = {}) => {
+                return tspClient.path(path, ...args).trace(wrapRequestParameters(requestOptions));
+            },
+        };
+    };
+    return {
+        path: client,
+        pathUnchecked: client,
+        pipeline: tspClient.pipeline,
+    };
+}
+function isCredential(param) {
+    return isKeyCredential$1(param) || isTokenCredential(param);
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/** Azure App Configuration REST API */
+function createAppConfiguration(endpointParam, credential, options = {}) {
+    const endpointUrl = options.endpoint ?? String(endpointParam);
+    const prefixFromOptions = options?.userAgentOptions?.userAgentPrefix;
+    const userAgentInfo = `azsdk-js-app-configuration/1.13.0`;
+    const userAgentPrefix = prefixFromOptions
+        ? `${prefixFromOptions} azsdk-js-api ${userAgentInfo}`
+        : `azsdk-js-api ${userAgentInfo}`;
+    const { apiVersion: _, ...updatedOptions } = {
+        ...options,
+        userAgentOptions: { userAgentPrefix },
+        loggingOptions: { logger: options.loggingOptions?.logger ?? logger$m.info },
+        credentials: {
+            scopes: options.credentials?.scopes ?? ["https://azconfig.io/.default"],
+            apiKeyHeaderName: options.credentials?.apiKeyHeaderName ?? "Connection String",
+        },
+    };
+    const clientContext = getClient(endpointUrl, credential, updatedOptions);
+    const apiVersion = options.apiVersion;
+    return { ...clientContext, apiVersion };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+function _keyListResultDeserializer(item) {
+    return {
+        items: !item["items"] ? item["items"] : keyArrayDeserializer(item["items"]),
+        nextLink: item["@nextLink"],
+    };
+}
+function keyArrayDeserializer(result) {
+    return result.map((item) => {
+        return keyDeserializer(item);
+    });
+}
+function keyDeserializer(item) {
+    return {
+        name: item["name"],
+    };
+}
+function errorDeserializer(item) {
+    return {
+        type: item["type"],
+        title: item["title"],
+        name: item["name"],
+        detail: item["detail"],
+        status: item["status"],
+    };
+}
+function _keyValueListResultDeserializer(item) {
+    return {
+        items: !item["items"] ? item["items"] : keyValueArrayDeserializer(item["items"]),
+        etag: item["etag"],
+        nextLink: item["@nextLink"],
+    };
+}
+function keyValueArrayDeserializer(result) {
+    return result.map((item) => {
+        return keyValueDeserializer(item);
+    });
+}
+function keyValueSerializer(item) {
+    return {
+        label: item["label"],
+        content_type: item["contentType"],
+        value: item["value"],
+        last_modified: item["lastModified"],
+        tags: item["tags"],
+        description: item["description"],
+        locked: item["locked"],
+        etag: item["etag"],
+    };
+}
+function keyValueDeserializer(item) {
+    return {
+        key: item["key"],
+        label: item["label"],
+        contentType: item["content_type"],
+        value: item["value"],
+        lastModified: item["last_modified"],
+        tags: !item["tags"]
+            ? item["tags"]
+            : Object.fromEntries(Object.entries(item["tags"]).map(([k, p]) => [k, p])),
+        description: item["description"],
+        locked: item["locked"],
+        etag: item["etag"],
+    };
+}
+function _snapshotListResultDeserializer(item) {
+    return {
+        items: !item["items"] ? item["items"] : configurationSnapshotArrayDeserializer(item["items"]),
+        nextLink: item["@nextLink"],
+    };
+}
+function configurationSnapshotArrayDeserializer(result) {
+    return result.map((item) => {
+        return configurationSnapshotDeserializer(item);
+    });
+}
+function configurationSnapshotSerializer(item) {
+    return {
+        filters: configurationSettingsFilterArraySerializer(item["filters"]),
+        composition_type: item["compositionType"],
+        retention_period: item["retentionPeriodInSeconds"],
+        tags: item["tags"],
+        description: item["description"],
+    };
+}
+function configurationSnapshotDeserializer(item) {
+    return {
+        name: item["name"],
+        status: item["status"],
+        filters: configurationSettingsFilterArrayDeserializer(item["filters"]),
+        compositionType: item["composition_type"],
+        createdOn: item["created"],
+        expiresOn: item["expires"],
+        retentionPeriodInSeconds: item["retention_period"],
+        sizeInBytes: item["size"],
+        itemsCount: item["items_count"],
+        tags: !item["tags"]
+            ? item["tags"]
+            : Object.fromEntries(Object.entries(item["tags"]).map(([k, p]) => [k, p])),
+        description: item["description"],
+        etag: item["etag"],
+    };
+}
+function configurationSettingsFilterArraySerializer(result) {
+    return result.map((item) => {
+        return configurationSettingsFilterSerializer(item);
+    });
+}
+function configurationSettingsFilterArrayDeserializer(result) {
+    return result.map((item) => {
+        return configurationSettingsFilterDeserializer(item);
+    });
+}
+function configurationSettingsFilterSerializer(item) {
+    return {
+        key: item["keyFilter"],
+        label: item["labelFilter"],
+        tags: !item["tagsFilter"]
+            ? item["tagsFilter"]
+            : item["tagsFilter"].map((p) => {
+                return p;
+            }),
+    };
+}
+function configurationSettingsFilterDeserializer(item) {
+    return {
+        keyFilter: item["key"],
+        labelFilter: item["label"],
+        tagsFilter: !item["tags"]
+            ? item["tags"]
+            : item["tags"].map((p) => {
+                return p;
+            }),
+    };
+}
+function operationDetailsDeserializer(item) {
+    return {
+        id: item["id"],
+        status: item["status"],
+        error: !item["error"] ? item["error"] : item["error"],
+    };
+}
+function snapshotUpdateParametersSerializer(item) {
+    return { status: item["status"] };
+}
+function _labelListResultDeserializer(item) {
+    return {
+        items: !item["items"] ? item["items"] : labelArrayDeserializer(item["items"]),
+        nextLink: item["@nextLink"],
+    };
+}
+function labelArrayDeserializer(result) {
+    return result.map((item) => {
+        return labelDeserializer(item);
+    });
+}
+function labelDeserializer(item) {
+    return {
+        name: item["name"],
+    };
+}
+/** Service API versions */
+var KnownVersions$1;
+(function (KnownVersions) {
+    /** The 2023-11-01 API version */
+    KnownVersions["V20231101"] = "2023-11-01";
+    /** The 2024-09-01 API version */
+    KnownVersions["V20240901"] = "2024-09-01";
+    /** The 2026-04-01 API version */
+    KnownVersions["V20260401"] = "2026-04-01";
+})(KnownVersions$1 || (KnownVersions$1 = {}));
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Helper to paginate results in a generic way and return a PagedAsyncIterableIterator
+ */
+function buildPagedAsyncIterator$1(client, getInitialResponse, processResponseBody, expectedStatuses, options = {}) {
+    const itemName = options.itemName ?? "value";
+    const nextLinkName = options.nextLinkName ?? "nextLink";
+    const nextLinkMethod = options.nextLinkMethod ?? "GET";
+    const apiVersion = options.apiVersion;
+    const pagedResult = {
+        getPage: async (pageLink) => {
+            let result;
+            if (pageLink === undefined) {
+                result = await getInitialResponse();
+            }
+            else {
+                const resolvedPageLink = apiVersion ? addApiVersionToUrl$1(pageLink, apiVersion) : pageLink;
+                result =
+                    nextLinkMethod === "POST"
+                        ? await client.pathUnchecked(resolvedPageLink).post()
+                        : await client.pathUnchecked(resolvedPageLink).get();
+            }
+            checkPagingRequest$1(result, expectedStatuses);
+            const results = await processResponseBody(result);
+            const nextLink = getNextLink$1(results, nextLinkName);
+            const values = getElements$1(results, itemName);
+            return {
+                page: values,
+                nextPageLink: nextLink,
+            };
+        },
+        byPage: (settings) => {
+            const { continuationToken } = settings ?? {};
+            return getPageAsyncIterator$1(pagedResult, {
+                pageLink: continuationToken,
+            });
+        },
+    };
+    return getPagedAsyncIterator$1(pagedResult);
+}
+/**
+ * returns an async iterator that iterates over results. It also has a `byPage`
+ * method that returns pages of items at once.
+ *
+ * @param pagedResult - an object that specifies how to get pages.
+ * @returns a paged async iterator that iterates over results.
+ */
+function getPagedAsyncIterator$1(pagedResult) {
+    const iter = getItemAsyncIterator$1(pagedResult);
+    return {
+        next() {
+            return iter.next();
+        },
+        [Symbol.asyncIterator]() {
+            return this;
+        },
+        byPage: pagedResult?.byPage ??
+            ((settings) => {
+                const { continuationToken } = settings ?? {};
+                return getPageAsyncIterator$1(pagedResult, {
+                    pageLink: continuationToken,
+                });
+            }),
+    };
+}
+async function* getItemAsyncIterator$1(pagedResult) {
+    const pages = getPageAsyncIterator$1(pagedResult);
+    for await (const page of pages) {
+        yield* page;
+    }
+}
+async function* getPageAsyncIterator$1(pagedResult, options = {}) {
+    const { pageLink } = options;
+    let response = await pagedResult.getPage(pageLink ?? pagedResult.firstPageLink);
+    if (!response) {
+        return;
+    }
+    let result = response.page;
+    result.continuationToken = response.nextPageLink;
+    yield result;
+    while (response.nextPageLink) {
+        response = await pagedResult.getPage(response.nextPageLink);
+        if (!response) {
+            return;
+        }
+        result = response.page;
+        result.continuationToken = response.nextPageLink;
+        yield result;
+    }
+}
+/**
+ * Gets for the value of nextLink in the body
+ */
+function getNextLink$1(body, nextLinkName) {
+    if (!nextLinkName) {
+        return undefined;
+    }
+    const nextLink = body[nextLinkName];
+    if (typeof nextLink !== "string" && typeof nextLink !== "undefined" && nextLink !== null) {
+        throw new RestError(`Body Property ${nextLinkName} should be a string or undefined or null but got ${typeof nextLink}`);
+    }
+    if (nextLink === null) {
+        return undefined;
+    }
+    return nextLink;
+}
+/**
+ * Gets the elements of the current request in the body.
+ */
+function getElements$1(body, itemName) {
+    const value = body[itemName];
+    if (!Array.isArray(value)) {
+        throw new RestError(`Couldn't paginate response\n Body doesn't contain an array property with name: ${itemName}`);
+    }
+    return value ?? [];
+}
+/**
+ * Checks if a request failed
+ */
+function checkPagingRequest$1(response, expectedStatuses) {
+    if (!expectedStatuses.includes(response.status)) {
+        throw createRestError(`Pagination failed with unexpected statusCode ${response.status}`, response);
+    }
+}
+/**
+ * Adds the api-version query parameter on a URL if it's not present.
+ * @param url - the URL to modify
+ * @param apiVersion - the API version to set
+ * @returns - the URL with the api-version query parameter set
+ */
+function addApiVersionToUrl$1(url, apiVersion) {
+    // The base URL is only used for parsing and won't appear in the returned URL
+    const urlObj = new URL(url, "https://microsoft.com");
+    if (!urlObj.searchParams.get("api-version")) {
+        // Append one if there is no apiVersion
+        return `${url}${urlObj.search ? "&" : "?"}api-version=${apiVersion}`;
+    }
+    return url;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * The `@azure/logger` configuration for this package.
+ * @internal
+ */
+const logger$l = createClientLogger("core-lro");
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * The default time interval to wait before sending the next polling request.
+ */
+const POLL_INTERVAL_IN_MS = 2000;
+/**
+ * The closed set of terminal states.
+ */
+const terminalStates = ["succeeded", "canceled", "failed"];
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Deserializes the state
+ */
+function deserializeState(serializedState) {
+    try {
+        return JSON.parse(serializedState).state;
+    }
+    catch (e) {
+        throw new Error(`Unable to deserialize input state: ${serializedState}`, { cause: e });
+    }
+}
+function setStateError(inputs) {
+    const { state, isOperationError } = inputs;
+    return (error) => {
+        if (isOperationError(error)) {
+            state.error = error;
+            state.status = "failed";
+        }
+        throw error;
+    };
+}
+function appendReadableErrorMessage(currentMessage, innerMessage) {
+    let message = currentMessage;
+    if (message.slice(-1) !== ".") {
+        message = message + ".";
+    }
+    return message + " " + innerMessage;
+}
+function simplifyError(err) {
+    let message = err.message;
+    let code = err.code;
+    let curErr = err;
+    while (curErr.innererror) {
+        curErr = curErr.innererror;
+        code = curErr.code;
+        message = appendReadableErrorMessage(message, curErr.message);
+    }
+    return {
+        code,
+        message,
+    };
+}
+async function processOperationStatus(result) {
+    const { state, status, isDone, processResult, getError, response, setErrorAsResult } = result;
+    switch (status) {
+        case "succeeded": {
+            state.status = "succeeded";
+            break;
+        }
+        case "failed": {
+            const err = getError?.(response);
+            let postfix = "";
+            if (err) {
+                const { code, message } = simplifyError(err);
+                postfix = `. ${code}. ${message}`;
+            }
+            const errStr = `The long-running operation has failed${postfix}`;
+            state.error = new Error(errStr);
+            state.status = "failed";
+            logger$l.warning(errStr);
+            break;
+        }
+        case "canceled": {
+            state.status = "canceled";
+            break;
+        }
+    }
+    if (isDone?.(response, state) ||
+        (isDone === undefined &&
+            ["succeeded", "canceled"].concat(setErrorAsResult ? [] : ["failed"]).includes(status))) {
+        state.result = await buildResult({
+            response,
+            state,
+            processResult,
+        });
+    }
+}
+async function buildResult(inputs) {
+    const { processResult, response, state } = inputs;
+    return processResult ? processResult(response, state) : response;
+}
+/**
+ * Initiates the long-running operation.
+ */
+async function initOperation(inputs) {
+    const { init, processResult, getOperationStatus, withOperationLocation, setErrorAsResult } = inputs;
+    const { operationLocation, resourceLocation, initialRequestUrl, requestMethod, metadata, response, } = await init();
+    if (operationLocation)
+        withOperationLocation?.(operationLocation, false);
+    const config = {
+        metadata,
+        operationLocation,
+        resourceLocation,
+        initialRequestUrl,
+        requestMethod,
+    };
+    logger$l.verbose(`LRO: Operation description:`, config);
+    const state = { status: "running", config };
+    const status = getOperationStatus({ response, state, operationLocation });
+    await processOperationStatus({
+        state,
+        status,
+        response,
+        setErrorAsResult,
+        processResult,
+    });
+    return state;
+}
+async function pollOperationHelper(inputs) {
+    const { poll, state, operationLocation, getOperationStatus, getResourceLocation, isOperationError, options, } = inputs;
+    const response = await poll(operationLocation, options).catch(setStateError({
+        state,
+        isOperationError,
+    }));
+    const status = getOperationStatus(response, state);
+    logger$l.verbose(`LRO: Status:\n\tPolling from: ${state.config.operationLocation}\n\tOperation status: ${status}\n\tPolling status: ${terminalStates.includes(status) ? "Stopped" : "Running"}`);
+    if (status === "succeeded") {
+        const resourceLocation = getResourceLocation(response, state);
+        if (resourceLocation !== undefined) {
+            return {
+                response: await poll(resourceLocation).catch(setStateError({ state, isOperationError })),
+                status,
+            };
+        }
+    }
+    return { response, status };
+}
+/** Polls the long-running operation. */
+async function pollOperation(inputs) {
+    const { poll, state, options, getOperationStatus, getResourceLocation, getOperationLocation, isOperationError, withOperationLocation, getPollingInterval, processResult, getError, updateState, setDelay, isDone, setErrorAsResult, } = inputs;
+    const { operationLocation } = state.config;
+    if (operationLocation !== undefined) {
+        const { response, status } = await pollOperationHelper({
+            poll,
+            getOperationStatus,
+            state,
+            operationLocation,
+            getResourceLocation,
+            isOperationError,
+            options,
+        });
+        await processOperationStatus({
+            status,
+            response,
+            state,
+            isDone,
+            processResult,
+            getError,
+            setErrorAsResult,
+        });
+        if (!terminalStates.includes(status)) {
+            const intervalInMs = getPollingInterval?.(response);
+            if (intervalInMs)
+                setDelay(intervalInMs);
+            const location = getOperationLocation?.(response, state);
+            if (location !== undefined) {
+                const isUpdated = operationLocation !== location;
+                state.config.operationLocation = location;
+                withOperationLocation?.(location, isUpdated);
+            }
+            else
+                withOperationLocation?.(operationLocation, false);
+        }
+        updateState?.(state, response);
+    }
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+function getOperationLocationPollingUrl(inputs) {
+    const { azureAsyncOperation, operationLocation } = inputs;
+    return operationLocation ?? azureAsyncOperation;
+}
+function getLocationHeader(rawResponse) {
+    return rawResponse.headers["location"];
+}
+function getOperationLocationHeader(rawResponse) {
+    return rawResponse.headers["operation-location"];
+}
+function getAzureAsyncOperationHeader(rawResponse) {
+    return rawResponse.headers["azure-asyncoperation"];
+}
+function findResourceLocation(inputs) {
+    const { location, requestMethod, requestPath, resourceLocationConfig, skipFinalGet } = inputs;
+    // If skipFinalGet is true, return undefined to skip the final GET request
+    if (skipFinalGet) {
+        return undefined;
+    }
+    switch (requestMethod) {
+        case "PUT": {
+            return requestPath;
+        }
+        case "DELETE": {
+            return undefined;
+        }
+        case "PATCH": {
+            return getDefault() ?? requestPath;
+        }
+        default: {
+            return getDefault();
+        }
+    }
+    function getDefault() {
+        switch (resourceLocationConfig) {
+            case "operation-location":
+            case "azure-async-operation": {
+                return undefined;
+            }
+            case "original-uri": {
+                return requestPath;
+            }
+            case "location":
+            default: {
+                return location;
+            }
+        }
+    }
+}
+function inferLroMode(rawResponse, resourceLocationConfig, skipFinalGet) {
+    const requestPath = rawResponse.request.url;
+    const requestMethod = rawResponse.request.method;
+    const operationLocation = getOperationLocationHeader(rawResponse);
+    const azureAsyncOperation = getAzureAsyncOperationHeader(rawResponse);
+    const pollingUrl = getOperationLocationPollingUrl({ operationLocation, azureAsyncOperation });
+    const location = getLocationHeader(rawResponse);
+    const normalizedRequestMethod = requestMethod?.toLocaleUpperCase();
+    if (pollingUrl !== undefined) {
+        return {
+            mode: "OperationLocation",
+            operationLocation: pollingUrl,
+            resourceLocation: findResourceLocation({
+                requestMethod: normalizedRequestMethod,
+                location,
+                requestPath,
+                resourceLocationConfig,
+                skipFinalGet,
+            }),
+            initialRequestUrl: requestPath,
+            requestMethod,
+        };
+    }
+    else if (location !== undefined) {
+        return {
+            mode: "ResourceLocation",
+            operationLocation: location,
+            initialRequestUrl: requestPath,
+            requestMethod,
+        };
+    }
+    else if (normalizedRequestMethod === "PUT" && requestPath) {
+        return {
+            mode: "Body",
+            operationLocation: requestPath,
+            initialRequestUrl: requestPath,
+            requestMethod,
+        };
+    }
+    else {
+        return undefined;
+    }
+}
+function transformStatus(inputs) {
+    const { status, statusCode } = inputs;
+    if (typeof status !== "string" && status !== undefined) {
+        throw new Error(`Polling was unsuccessful. Expected status to have a string value or no value but it has instead: ${status}. This doesn't necessarily indicate the operation has failed. Check your Azure subscription or resource status for more information.`);
+    }
+    logger$l.verbose(`LRO: Transforming status: ${status} with status code: ${statusCode}.`);
+    const lowerCaseStatus = status?.toLocaleLowerCase();
+    if (!lowerCaseStatus) {
+        return toOperationStatus(statusCode);
+    }
+    if (lowerCaseStatus.includes("succeeded")) {
+        return "succeeded";
+    }
+    if (lowerCaseStatus.includes("fail")) {
+        return "failed";
+    }
+    if (["canceled", "cancelled"].includes(lowerCaseStatus)) {
+        return "canceled";
+    }
+    return "running";
+}
+function getStatus(rawResponse) {
+    const { status } = rawResponse.body ?? {};
+    return transformStatus({ status, statusCode: rawResponse.statusCode });
+}
+function getProvisioningState(rawResponse) {
+    const { properties, provisioningState } = rawResponse.body ?? {};
+    const status = properties?.provisioningState ?? provisioningState;
+    return transformStatus({ status, statusCode: rawResponse.statusCode });
+}
+function toOperationStatus(statusCode) {
+    if (statusCode === 202) {
+        return "running";
+    }
+    else if (statusCode < 300) {
+        return "succeeded";
+    }
+    else {
+        return "failed";
+    }
+}
+function parseRetryAfter({ rawResponse }) {
+    const retryAfter = rawResponse.headers["retry-after"];
+    if (retryAfter !== undefined) {
+        // Retry-After header value is either in HTTP date format, or in seconds
+        const retryAfterInSeconds = parseInt(retryAfter);
+        return isNaN(retryAfterInSeconds)
+            ? calculatePollingIntervalFromDate(new Date(retryAfter))
+            : retryAfterInSeconds * 1000;
+    }
+    return undefined;
+}
+function getErrorFromResponse(response) {
+    const error = accessBodyProperty(response, "error");
+    if (!error) {
+        logger$l.warning(`The long-running operation failed but there is no error property in the response's body`);
+        return;
+    }
+    if (!error.code || !error.message) {
+        logger$l.warning(`The long-running operation failed but the error property in the response's body doesn't contain code or message`);
+        return;
+    }
+    return error;
+}
+function calculatePollingIntervalFromDate(retryAfterDate) {
+    const timeNow = Math.floor(new Date().getTime());
+    const retryAfterTime = retryAfterDate.getTime();
+    if (timeNow < retryAfterTime) {
+        return retryAfterTime - timeNow;
+    }
+    return undefined;
+}
+function getStatusFromInitialResponse(inputs) {
+    const { response, state, operationLocation } = inputs;
+    function helper() {
+        const mode = state.config.metadata?.["mode"];
+        switch (mode) {
+            case undefined:
+                return toOperationStatus(response.rawResponse.statusCode);
+            case "Body":
+                return getOperationStatus(response, state);
+            default:
+                return "running";
+        }
+    }
+    const status = helper();
+    return status === "running" && operationLocation === undefined ? "succeeded" : status;
+}
+function getOperationLocation({ rawResponse }, state) {
+    const mode = state.config.metadata?.["mode"];
+    switch (mode) {
+        case "OperationLocation": {
+            return getOperationLocationPollingUrl({
+                operationLocation: getOperationLocationHeader(rawResponse),
+                azureAsyncOperation: getAzureAsyncOperationHeader(rawResponse),
+            });
+        }
+        case "ResourceLocation": {
+            return getLocationHeader(rawResponse);
+        }
+        case "Body":
+        default: {
+            return undefined;
+        }
+    }
+}
+function getOperationStatus({ rawResponse }, state) {
+    const mode = state.config.metadata?.["mode"];
+    switch (mode) {
+        case "OperationLocation": {
+            return getStatus(rawResponse);
+        }
+        case "ResourceLocation": {
+            return toOperationStatus(rawResponse.statusCode);
+        }
+        case "Body": {
+            return getProvisioningState(rawResponse);
+        }
+        default:
+            throw new Error(`Internal error: Unexpected operation mode: ${mode}`);
+    }
+}
+function accessBodyProperty({ flatResponse, rawResponse }, prop) {
+    return flatResponse?.[prop] ?? rawResponse.body?.[prop];
+}
+function getResourceLocation(res, state) {
+    const loc = accessBodyProperty(res, "resourceLocation");
+    if (loc && typeof loc === "string") {
+        state.config.resourceLocation = loc;
+    }
+    return state.config.resourceLocation;
+}
+function isOperationError(e) {
+    return e.name === "RestError";
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Returns a poller factory.
+ */
+function buildCreatePoller(inputs) {
+    const { getOperationLocation, getStatusFromInitialResponse, getStatusFromPollResponse, isOperationError, getResourceLocation, getPollingInterval, getError, resolveOnUnsuccessful, } = inputs;
+    return ({ init, poll }, options) => {
+        const { processResult, updateState, withOperationLocation: withOperationLocationCallback, intervalInMs = POLL_INTERVAL_IN_MS, restoreFrom, } = options || {};
+        const withOperationLocation = withOperationLocationCallback
+            ? (() => {
+                let called = false;
+                return (operationLocation, isUpdated) => {
+                    if (isUpdated)
+                        withOperationLocationCallback(operationLocation);
+                    else if (!called)
+                        withOperationLocationCallback(operationLocation);
+                    called = true;
+                };
+            })()
+            : undefined;
+        let statePromise;
+        let state;
+        if (restoreFrom) {
+            state = deserializeState(restoreFrom);
+            statePromise = Promise.resolve(state);
+        }
+        else {
+            statePromise = initOperation({
+                init,
+                processResult,
+                getOperationStatus: getStatusFromInitialResponse,
+                withOperationLocation,
+                setErrorAsResult: !resolveOnUnsuccessful,
+            }).then((s) => (state = s));
+        }
+        let resultPromise;
+        const abortController = new AbortController();
+        const handlers = new Map();
+        const handleProgressEvents = async () => handlers.forEach((h) => h(state));
+        const cancelErrMsg = "Operation was canceled";
+        let currentPollIntervalInMs = intervalInMs;
+        const poller = {
+            get operationState() {
+                return state;
+            },
+            get result() {
+                return state?.result;
+            },
+            get isDone() {
+                return ["succeeded", "failed", "canceled"].includes(state?.status ?? "");
+            },
+            onProgress: (callback) => {
+                const s = Symbol();
+                handlers.set(s, callback);
+                return () => handlers.delete(s);
+            },
+            serialize: async () => {
+                await statePromise;
+                return JSON.stringify({
+                    state,
+                });
+            },
+            submitted: async () => {
+                await statePromise;
+            },
+            pollUntilDone: async (pollOptions) => {
+                resultPromise ??= (async () => {
+                    await statePromise;
+                    if (!state) {
+                        throw new Error("Poller should be initialized but it is not!");
+                    }
+                    const { abortSignal: inputAbortSignal } = pollOptions || {};
+                    // In the future we can use AbortSignal.any() instead
+                    function abortListener() {
+                        abortController.abort();
+                    }
+                    const abortSignal = abortController.signal;
+                    if (inputAbortSignal?.aborted) {
+                        abortController.abort();
+                    }
+                    else if (!abortSignal.aborted) {
+                        inputAbortSignal?.addEventListener("abort", abortListener, { once: true });
+                    }
+                    try {
+                        if (!poller.isDone) {
+                            await poller.poll({ abortSignal });
+                            while (!poller.isDone) {
+                                await delay$1(currentPollIntervalInMs, { abortSignal });
+                                await poller.poll({ abortSignal });
+                            }
+                        }
+                    }
+                    finally {
+                        inputAbortSignal?.removeEventListener("abort", abortListener);
+                    }
+                    if (resolveOnUnsuccessful) {
+                        return poller.result;
+                    }
+                    else {
+                        switch (state.status) {
+                            case "succeeded":
+                                return poller.result;
+                            case "canceled":
+                                throw new Error(cancelErrMsg);
+                            case "failed":
+                                throw state.error;
+                            case "notStarted":
+                            case "running":
+                                throw new Error(`Polling completed without succeeding or failing`);
+                        }
+                    }
+                })().finally(() => {
+                    resultPromise = undefined;
+                });
+                return resultPromise;
+            },
+            async poll(pollOptions) {
+                await statePromise;
+                if (!state) {
+                    throw new Error("Poller should be initialized but it is not!");
+                }
+                if (resolveOnUnsuccessful) {
+                    if (poller.isDone)
+                        return state;
+                }
+                else {
+                    switch (state.status) {
+                        case "succeeded":
+                            return state;
+                        case "canceled":
+                            throw new Error(cancelErrMsg);
+                        case "failed":
+                            throw state.error;
+                    }
+                }
+                await pollOperation({
+                    poll,
+                    state,
+                    getOperationLocation,
+                    isOperationError,
+                    withOperationLocation,
+                    getPollingInterval,
+                    getOperationStatus: getStatusFromPollResponse,
+                    getResourceLocation,
+                    processResult,
+                    getError,
+                    updateState,
+                    options: pollOptions,
+                    setDelay: (pollIntervalInMs) => {
+                        currentPollIntervalInMs = pollIntervalInMs;
+                    },
+                    setErrorAsResult: !resolveOnUnsuccessful,
+                });
+                await handleProgressEvents();
+                if (!resolveOnUnsuccessful) {
+                    switch (state.status) {
+                        case "canceled":
+                            throw new Error(cancelErrMsg);
+                        case "failed":
+                            throw state.error;
+                    }
+                }
+                return state;
+            },
+            then(onfulfilled, onrejected) {
+                return poller.pollUntilDone().then(onfulfilled, onrejected);
+            },
+            catch(onrejected) {
+                return poller.pollUntilDone().catch(onrejected);
+            },
+            finally(onfinally) {
+                return poller.pollUntilDone().finally(onfinally);
+            },
+            [Symbol.toStringTag]: "Poller",
+        };
+        return poller;
+    };
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Rewrites a given URL to use the specified base URL.
+ * It preserves the pathname, search parameters, and fragment.
+ * Handles relative URLs and proper encoding.
+ *
+ * @param params - An object containing the url and baseUrl.
+ *                    url - The original URL (absolute or relative).
+ *                    baseUrl - The new base URL to use.
+ * @returns The rewritten URL as a string.
+ */
+function rewriteUrl({ url, baseUrl, }) {
+    if (!url) {
+        return undefined;
+    }
+    if (!baseUrl) {
+        return url;
+    }
+    let originalUrl;
+    try {
+        // Try to parse inputUrl as an absolute URL.
+        originalUrl = new URL(url);
+    }
+    catch {
+        // If inputUrl is relative, resolve using the provided baseUrl.
+        try {
+            originalUrl = new URL(url, baseUrl);
+        }
+        catch (e) {
+            throw new Error(`Invalid input URL provided: ${url}`, { cause: e });
+        }
+    }
+    let newBase;
+    try {
+        newBase = new URL(baseUrl);
+    }
+    catch (e) {
+        throw new Error(`Invalid base URL provided: ${baseUrl}`, { cause: e });
+    }
+    const rewrittenUrl = new URL(`${originalUrl.pathname}${originalUrl.search}${originalUrl.hash}`, newBase);
+    return rewrittenUrl.toString();
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Creates a poller that can be used to poll a long-running operation.
+ * @param lro - Description of the long-running operation
+ * @param options - options to configure the poller
+ * @returns an initialized poller
+ */
+function createHttpPoller(lro, options) {
+    const { resourceLocationConfig, intervalInMs, processResult, restoreFrom, updateState, withOperationLocation, resolveOnUnsuccessful = false, baseUrl, skipFinalGet, } = options || {};
+    return buildCreatePoller({
+        getStatusFromInitialResponse,
+        getStatusFromPollResponse: getOperationStatus,
+        isOperationError,
+        getOperationLocation,
+        getResourceLocation,
+        getPollingInterval: parseRetryAfter,
+        getError: getErrorFromResponse,
+        resolveOnUnsuccessful,
+    })({
+        init: async () => {
+            const response = await lro.sendInitialRequest();
+            const config = inferLroMode(response.rawResponse, resourceLocationConfig, skipFinalGet);
+            return {
+                response,
+                operationLocation: rewriteUrl({ url: config?.operationLocation, baseUrl }),
+                resourceLocation: rewriteUrl({ url: config?.resourceLocation, baseUrl }),
+                initialRequestUrl: config?.initialRequestUrl,
+                requestMethod: config?.requestMethod,
+                ...(config?.mode ? { metadata: { mode: config.mode } } : {}),
+            };
+        },
+        poll: lro.sendPollRequest,
+    }, {
+        intervalInMs,
+        withOperationLocation,
+        restoreFrom,
+        updateState,
+        processResult: processResult
+            ? ({ flatResponse }, state) => processResult(flatResponse, state)
+            : ({ flatResponse }) => flatResponse,
+    });
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+function getLongRunningPoller(client, processResponseBody, expectedStatuses, options) {
+    const { restoreFrom, getInitialResponse, apiVersion } = options;
+    if (!restoreFrom && !getInitialResponse) {
+        throw new Error("Either restoreFrom or getInitialResponse must be specified");
+    }
+    let initialResponse = undefined;
+    const pollAbortController = new AbortController();
+    const poller = {
+        sendInitialRequest: async () => {
+            if (!getInitialResponse) {
+                throw new Error("getInitialResponse is required when initializing a new poller");
+            }
+            initialResponse = await getInitialResponse();
+            return getLroResponse(initialResponse, expectedStatuses);
+        },
+        sendPollRequest: async (path, pollOptions) => {
+            // The poll request would both listen to the user provided abort signal and the poller's own abort signal
+            function abortListener() {
+                pollAbortController.abort();
+            }
+            const abortSignal = pollAbortController.signal;
+            if (options.abortSignal?.aborted) {
+                pollAbortController.abort();
+            }
+            else if (pollOptions?.abortSignal?.aborted) {
+                pollAbortController.abort();
+            }
+            else if (!abortSignal.aborted) {
+                options.abortSignal?.addEventListener("abort", abortListener, {
+                    once: true,
+                });
+                pollOptions?.abortSignal?.addEventListener("abort", abortListener, {
+                    once: true,
+                });
+            }
+            let response;
+            try {
+                const pollingPath = apiVersion ? addApiVersionToUrl(path, apiVersion) : path;
+                response = await client.pathUnchecked(pollingPath).get({ abortSignal });
+            }
+            finally {
+                options.abortSignal?.removeEventListener("abort", abortListener);
+                pollOptions?.abortSignal?.removeEventListener("abort", abortListener);
+            }
+            return getLroResponse(response, expectedStatuses);
+        },
+    };
+    return createHttpPoller(poller, {
+        intervalInMs: options?.updateIntervalInMs,
+        resourceLocationConfig: options?.resourceLocationConfig,
+        restoreFrom: options?.restoreFrom,
+        processResult: (result) => {
+            return processResponseBody(result);
+        },
+    });
+}
+/**
+ * Converts a Rest Client response to a response that the LRO implementation understands
+ * @param response - a rest client http response
+ * @param deserializeFn - deserialize function to convert Rest response to modular output
+ * @returns - An LRO response that the LRO implementation understands
+ */
+function getLroResponse(response, expectedStatuses) {
+    if (!expectedStatuses.includes(response.status)) {
+        throw createRestError(response);
+    }
+    return {
+        flatResponse: response,
+        rawResponse: {
+            ...response,
+            statusCode: Number.parseInt(response.status),
+            body: response.body,
+        },
+    };
+}
+/**
+ * Adds the api-version query parameter on a URL if it's not present.
+ * @param url - the URL to modify
+ * @param apiVersion - the API version to set
+ * @returns - the URL with the api-version query parameter set
+ */
+function addApiVersionToUrl(url, apiVersion) {
+    // The base URL is only used for parsing and won't appear in the returned URL
+    const urlObj = new URL(url, "https://microsoft.com");
+    if (!urlObj.searchParams.get("api-version")) {
+        // Append one if there is no apiVersion
+        return `${url}${urlObj.search ? "&" : "?"}api-version=${apiVersion}`;
+    }
+    return url;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+// ---------------------
+// helpers
+// ---------------------
+function encodeComponent$1(val, reserved, op) {
+    return (reserved ?? op === "+") || op === "#"
+        ? encodeReservedComponent$1(val)
+        : encodeRFC3986URIComponent$1(val);
+}
+function encodeReservedComponent$1(str) {
+    return str
+        .split(/(%[0-9A-Fa-f]{2})/g)
+        .map((part) => (!/%[0-9A-Fa-f]/.test(part) ? encodeURI(part) : part))
+        .join("");
+}
+function encodeRFC3986URIComponent$1(str) {
+    return encodeURIComponent(str).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+}
+function isDefined$1(val) {
+    return val !== undefined && val !== null;
+}
+function getNamedAndIfEmpty$1(op) {
+    return [!!op && [";", "?", "&"].includes(op), !!op && ["?", "&"].includes(op) ? "=" : ""];
+}
+function getFirstOrSep$1(op, isFirst = false) {
+    if (isFirst) {
+        return !op || op === "+" ? "" : op;
+    }
+    else if (!op || op === "+" || op === "#") {
+        return ",";
+    }
+    else if (op === "?") {
+        return "&";
+    }
+    else {
+        return op;
+    }
+}
+function getExpandedValue$1(option) {
+    let isFirst = option.isFirst;
+    const { op, varName, varValue: value, reserved } = option;
+    const vals = [];
+    const [named, ifEmpty] = getNamedAndIfEmpty$1(op);
+    if (Array.isArray(value)) {
+        for (const val of value.filter(isDefined$1)) {
+            // prepare the following parts: separator, varName, value
+            vals.push(`${getFirstOrSep$1(op, isFirst)}`);
+            if (named && varName) {
+                vals.push(`${encodeURIComponent(varName)}`);
+                if (val === "") {
+                    vals.push(ifEmpty);
+                }
+                else {
+                    vals.push("=");
+                }
+            }
+            vals.push(encodeComponent$1(val, reserved, op));
+            isFirst = false;
+        }
+    }
+    else if (typeof value === "object") {
+        for (const key of Object.keys(value)) {
+            const val = value[key];
+            if (!isDefined$1(val)) {
+                continue;
+            }
+            // prepare the following parts: separator, key, value
+            vals.push(`${getFirstOrSep$1(op, isFirst)}`);
+            if (key) {
+                vals.push(`${encodeURIComponent(key)}`);
+                if (named && val === "") {
+                    vals.push(ifEmpty);
+                }
+                else {
+                    vals.push("=");
+                }
+            }
+            vals.push(encodeComponent$1(val, reserved, op));
+            isFirst = false;
+        }
+    }
+    return vals.join("");
+}
+function getNonExpandedValue$1(option) {
+    const { op, varName, varValue: value, isFirst, reserved } = option;
+    const vals = [];
+    const first = getFirstOrSep$1(op, isFirst);
+    const [named, ifEmpty] = getNamedAndIfEmpty$1(op);
+    if (named && varName) {
+        vals.push(encodeComponent$1(varName, reserved, op));
+        if (value === "") {
+            if (!ifEmpty) {
+                vals.push(ifEmpty);
+            }
+            return !vals.join("") ? undefined : `${first}${vals.join("")}`;
+        }
+        vals.push("=");
+    }
+    const items = [];
+    if (Array.isArray(value)) {
+        for (const val of value.filter(isDefined$1)) {
+            items.push(encodeComponent$1(val, reserved, op));
+        }
+    }
+    else if (typeof value === "object") {
+        for (const key of Object.keys(value)) {
+            if (!isDefined$1(value[key])) {
+                continue;
+            }
+            items.push(encodeRFC3986URIComponent$1(key));
+            items.push(encodeComponent$1(value[key], reserved, op));
+        }
+    }
+    vals.push(items.join(","));
+    return !vals.join(",") ? undefined : `${first}${vals.join("")}`;
+}
+function getVarValue$1(option) {
+    const { op, varName, modifier, isFirst, reserved, varValue: value } = option;
+    if (!isDefined$1(value)) {
+        return undefined;
+    }
+    else if (["string", "number", "boolean"].includes(typeof value)) {
+        let val = value.toString();
+        const [named, ifEmpty] = getNamedAndIfEmpty$1(op);
+        const vals = [getFirstOrSep$1(op, isFirst)];
+        if (named && varName) {
+            // No need to encode varName considering it is already encoded
+            vals.push(varName);
+            if (val === "") {
+                vals.push(ifEmpty);
+            }
+            else {
+                vals.push("=");
+            }
+        }
+        if (modifier && modifier !== "*") {
+            val = val.substring(0, parseInt(modifier, 10));
+        }
+        vals.push(encodeComponent$1(val, reserved, op));
+        return vals.join("");
+    }
+    else if (modifier === "*") {
+        return getExpandedValue$1(option);
+    }
+    else {
+        return getNonExpandedValue$1(option);
+    }
+}
+// ---------------------------------------------------------------------------------------------------
+// This is an implementation of RFC 6570 URI Template: https://datatracker.ietf.org/doc/html/rfc6570.
+// ---------------------------------------------------------------------------------------------------
+function expandUrlTemplate$1(template, context, option) {
+    const result = template.replace(/\{([^{}]+)\}|([^{}]+)/g, (_, expr, text) => {
+        if (!expr) {
+            return encodeReservedComponent$1(text);
+        }
+        let op;
+        if (["+", "#", ".", "/", ";", "?", "&"].includes(expr[0])) {
+            op = expr[0];
+            expr = expr.slice(1);
+        }
+        const varList = expr.split(/,/g);
+        const innerResult = [];
+        for (const varSpec of varList) {
+            const varMatch = /([^:*]*)(?::(\d+)|(\*))?/.exec(varSpec);
+            if (!varMatch || !varMatch[1]) {
+                continue;
+            }
+            const varValue = getVarValue$1({
+                isFirst: innerResult.length === 0,
+                op,
+                varValue: context[varMatch[1]],
+                varName: varMatch[1],
+                modifier: varMatch[2] || varMatch[3],
+                reserved: option?.allowReserved,
+            });
+            if (varValue) {
+                innerResult.push(varValue);
+            }
+        }
+        return innerResult.join("");
+    });
+    return normalizeUnreserved(result);
+}
+/**
+ * Normalize an expanded URI by decoding percent-encoded unreserved characters.
+ * RFC 3986 unreserved: "-" / "." / "~"
+ */
+function normalizeUnreserved(uri) {
+    return uri.replace(/%([0-9A-Fa-f]{2})/g, (match, hex) => {
+        const char = String.fromCharCode(parseInt(hex, 16));
+        // Decode only if it's unreserved
+        if (/[.~-]/.test(char)) {
+            return char;
+        }
+        return match; // leave other encodings intact
+    });
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+function _checkRevisionsSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/revisions{?api%2Dversion,key,label,After,%24Select,tags*}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        key: options?.key,
+        label: options?.label,
+        After: options?.after,
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+        tags: !options?.tags
+            ? options?.tags
+            : options?.tags.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .head({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _checkRevisionsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return;
+}
+/** Requests the headers and status of the given resource. */
+async function checkRevisions(context, options = { requestOptions: {} }) {
+    const result = await _checkRevisionsSend(context, options);
+    return _checkRevisionsDeserialize(result);
+}
+function _getRevisionsSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/revisions{?api%2Dversion,key,label,After,%24Select,tags*}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        key: options?.key,
+        label: options?.label,
+        After: options?.after,
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+        tags: !options?.tags
+            ? options?.tags
+            : options?.tags.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.kvset+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getRevisionsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return _keyValueListResultDeserializer(result.body);
+}
+/** Gets a list of key-value revisions. */
+function getRevisions(context, options = { requestOptions: {} }) {
+    return buildPagedAsyncIterator$1(context, () => _getRevisionsSend(context, options), _getRevisionsDeserialize, ["200"], {
+        itemName: "items",
+        nextLinkName: "@nextLink",
+        apiVersion: context.apiVersion ?? "2026-04-01",
+    });
+}
+function _deleteLockSend(context, key, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/locks/{key}{?api%2Dversion,label}", {
+        key: key,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        label: options?.label,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .delete({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.kv+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _deleteLockDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return keyValueDeserializer(result.body);
+}
+/** Unlocks a key-value. */
+async function deleteLock(context, key, options = { requestOptions: {} }) {
+    const result = await _deleteLockSend(context, key, options);
+    return _deleteLockDeserialize(result);
+}
+function _putLockSend(context, key, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/locks/{key}{?api%2Dversion,label}", {
+        key: key,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        label: options?.label,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .put({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.kv+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _putLockDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return keyValueDeserializer(result.body);
+}
+/** Locks a key-value. */
+async function putLock(context, key, options = { requestOptions: {} }) {
+    const result = await _putLockSend(context, key, options);
+    return _putLockDeserialize(result);
+}
+function _checkLabelsSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/labels{?api%2Dversion,name,After,%24Select}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        name: options?.name,
+        After: options?.after,
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .head({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _checkLabelsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return;
+}
+/** Requests the headers and status of the given resource. */
+async function checkLabels(context, options = { requestOptions: {} }) {
+    const result = await _checkLabelsSend(context, options);
+    return _checkLabelsDeserialize(result);
+}
+function _getLabelsSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/labels{?api%2Dversion,name,After,%24Select}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        name: options?.name,
+        After: options?.after,
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.labelset+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getLabelsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return _labelListResultDeserializer(result.body);
+}
+/** Gets a list of labels. */
+function getLabels(context, options = { requestOptions: {} }) {
+    return buildPagedAsyncIterator$1(context, () => _getLabelsSend(context, options), _getLabelsDeserialize, ["200"], {
+        itemName: "items",
+        nextLinkName: "@nextLink",
+        apiVersion: context.apiVersion ?? "2026-04-01",
+    });
+}
+function _checkSnapshotSend(context, name, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/snapshots/{name}{?api%2Dversion}", {
+        name: name,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .head({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _checkSnapshotDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return;
+}
+/** Requests the headers and status of the given resource. */
+async function checkSnapshot(context, name, options = { requestOptions: {} }) {
+    const result = await _checkSnapshotSend(context, name, options);
+    return _checkSnapshotDeserialize(result);
+}
+function _updateSnapshotSend(context, contentType, name, entity, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/snapshots/{name}{?api%2Dversion}", {
+        name: name,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .patch({
+        ...operationOptionsToRequestParameters(options),
+        contentType: contentType,
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.snapshot+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+        body: snapshotUpdateParametersSerializer(entity),
+    });
+}
+async function _updateSnapshotDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return configurationSnapshotDeserializer(result.body);
+}
+/** Updates the state of a key-value snapshot. */
+async function updateSnapshot(context, contentType, name, entity, options = { requestOptions: {} }) {
+    const result = await _updateSnapshotSend(context, contentType, name, entity, options);
+    return _updateSnapshotDeserialize(result);
+}
+function _createSnapshotSend(context, contentType, name, entity, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/snapshots/{name}{?api%2Dversion}", {
+        name: name,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .put({
+        ...operationOptionsToRequestParameters(options),
+        contentType: contentType,
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            accept: "application/vnd.microsoft.appconfig.snapshot+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+        body: configurationSnapshotSerializer(entity),
+    });
+}
+async function _createSnapshotDeserialize(result) {
+    const expectedStatuses = ["201", "200", "202"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return configurationSnapshotDeserializer(result.body);
+}
+/** Creates a key-value snapshot. */
+function createSnapshot(context, contentType, name, entity, options = { requestOptions: {} }) {
+    return getLongRunningPoller(context, _createSnapshotDeserialize, ["201", "200", "202"], {
+        updateIntervalInMs: options?.updateIntervalInMs,
+        abortSignal: options?.abortSignal,
+        getInitialResponse: () => _createSnapshotSend(context, contentType, name, entity, options),
+        resourceLocationConfig: "original-uri",
+        apiVersion: context.apiVersion ?? "2026-04-01",
+    });
+}
+function _getOperationDetailsSend(context, snapshot, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/operations{?api%2Dversion,snapshot}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        snapshot: snapshot,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getOperationDetailsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return operationDetailsDeserializer(result.body);
+}
+/** Gets the state of a long running operation. */
+async function getOperationDetails(context, snapshot, options = { requestOptions: {} }) {
+    const result = await _getOperationDetailsSend(context, snapshot, options);
+    return _getOperationDetailsDeserialize(result);
+}
+function _getSnapshotSend(context, name, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/snapshots/{name}{?api%2Dversion,%24Select}", {
+        name: name,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.snapshot+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getSnapshotDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return configurationSnapshotDeserializer(result.body);
+}
+/** Gets a single key-value snapshot. */
+async function getSnapshot(context, name, options = { requestOptions: {} }) {
+    const result = await _getSnapshotSend(context, name, options);
+    return _getSnapshotDeserialize(result);
+}
+function _checkSnapshotsSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/snapshots{?api%2Dversion,After}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        After: options?.after,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .head({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _checkSnapshotsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return;
+}
+/** Requests the headers and status of the given resource. */
+async function checkSnapshots(context, options = { requestOptions: {} }) {
+    const result = await _checkSnapshotsSend(context, options);
+    return _checkSnapshotsDeserialize(result);
+}
+function _getSnapshotsSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/snapshots{?api%2Dversion,name,After,%24Select,status}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        name: options?.name,
+        After: options?.after,
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+        status: !options?.status
+            ? options?.status
+            : options?.status.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            accept: "application/vnd.microsoft.appconfig.snapshotset+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getSnapshotsDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return _snapshotListResultDeserializer(result.body);
+}
+/** Gets a list of key-value snapshots. */
+function getSnapshots(context, options = { requestOptions: {} }) {
+    return buildPagedAsyncIterator$1(context, () => _getSnapshotsSend(context, options), _getSnapshotsDeserialize, ["200"], {
+        itemName: "items",
+        nextLinkName: "@nextLink",
+        apiVersion: context.apiVersion ?? "2026-04-01",
+    });
+}
+function _checkKeyValueSend(context, key, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/kv/{key}{?api%2Dversion,label,%24Select,tags*}", {
+        key: key,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        label: options?.label,
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+        tags: !options?.tags
+            ? options?.tags
+            : options?.tags.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .head({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _checkKeyValueDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return;
+}
+/** Requests the headers and status of the given resource. */
+async function checkKeyValue(context, key, options = { requestOptions: {} }) {
+    const result = await _checkKeyValueSend(context, key, options);
+    return _checkKeyValueDeserialize(result);
+}
+function _deleteKeyValueSend(context, key, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/kv/{key}{?api%2Dversion,label}", {
+        key: key,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        label: options?.label,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .delete({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.kv+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _deleteKeyValueDeserialize(result) {
+    const expectedStatuses = ["200", "204"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return result.body ? keyValueDeserializer(result.body) : undefined;
+}
+/** Deletes a key-value. */
+async function deleteKeyValue(context, key, options = { requestOptions: {} }) {
+    const result = await _deleteKeyValueSend(context, key, options);
+    return _deleteKeyValueDeserialize(result);
+}
+function _putKeyValueSend(context, contentType, key, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/kv/{key}{?api%2Dversion,label}", {
+        key: key,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        label: options?.label,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .put({
+        ...operationOptionsToRequestParameters(options),
+        contentType: contentType,
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.kv+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+        body: !options?.entity ? options?.entity : keyValueSerializer(options?.entity),
+    });
+}
+async function _putKeyValueDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return keyValueDeserializer(result.body);
+}
+/** Creates a key-value. */
+async function putKeyValue(context, contentType, key, options = { requestOptions: {} }) {
+    const result = await _putKeyValueSend(context, contentType, key, options);
+    return _putKeyValueDeserialize(result);
+}
+function _getKeyValueSend(context, key, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/kv/{key}{?api%2Dversion,label,%24Select,tags*}", {
+        key: key,
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        label: options?.label,
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+        tags: !options?.tags
+            ? options?.tags
+            : options?.tags.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.kv+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getKeyValueDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return keyValueDeserializer(result.body);
+}
+/** Gets a single key-value. */
+async function getKeyValue(context, key, options = { requestOptions: {} }) {
+    const result = await _getKeyValueSend(context, key, options);
+    return _getKeyValueDeserialize(result);
+}
+function _checkKeyValuesSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/kv{?api%2Dversion,key,label,After,%24Select,snapshot,tags*}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        key: options?.key,
+        label: options?.label,
+        After: options?.after,
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+        snapshot: options?.snapshot,
+        tags: !options?.tags
+            ? options?.tags
+            : options?.tags.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .head({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _checkKeyValuesDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return;
+}
+/** Requests the headers and status of the given resource. */
+async function checkKeyValues(context, options = { requestOptions: {} }) {
+    const result = await _checkKeyValuesSend(context, options);
+    return _checkKeyValuesDeserialize(result);
+}
+function _getKeyValuesSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/kv{?api%2Dversion,key,label,After,%24Select,snapshot,tags*}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        key: options?.key,
+        label: options?.label,
+        After: options?.after,
+        "%24Select": !options?.select
+            ? options?.select
+            : options?.select.map((p) => {
+                return p;
+            }),
+        snapshot: options?.snapshot,
+        tags: !options?.tags
+            ? options?.tags
+            : options?.tags.map((p) => {
+                return p;
+            }),
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            ...(options?.ifMatch !== undefined ? { "if-match": options?.ifMatch } : {}),
+            ...(options?.ifNoneMatch !== undefined ? { "if-none-match": options?.ifNoneMatch } : {}),
+            accept: "application/vnd.microsoft.appconfig.kvset+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getKeyValuesDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return _keyValueListResultDeserializer(result.body);
+}
+/** Gets a list of key-values. */
+function getKeyValues(context, options = { requestOptions: {} }) {
+    return buildPagedAsyncIterator$1(context, () => _getKeyValuesSend(context, options), _getKeyValuesDeserialize, ["200"], {
+        itemName: "items",
+        nextLinkName: "@nextLink",
+        apiVersion: context.apiVersion ?? "2026-04-01",
+    });
+}
+function _checkKeysSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/keys{?api%2Dversion,name,After}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        name: options?.name,
+        After: options?.after,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .head({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            ...(options?.clientRequestId !== undefined
+                ? { "x-ms-client-request-id": options?.clientRequestId }
+                : {}),
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _checkKeysDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return;
+}
+/** Requests the headers and status of the given resource. */
+async function checkKeys(context, options = { requestOptions: {} }) {
+    const result = await _checkKeysSend(context, options);
+    return _checkKeysDeserialize(result);
+}
+function _getKeysSend(context, options = { requestOptions: {} }) {
+    const path = expandUrlTemplate$1("/keys{?api%2Dversion,name,After}", {
+        "api%2Dversion": context.apiVersion ?? "2026-04-01",
+        name: options?.name,
+        After: options?.after,
+    }, {
+        allowReserved: options?.requestOptions?.skipUrlEncoding,
+    });
+    return context
+        .path(path)
+        .get({
+        ...operationOptionsToRequestParameters(options),
+        headers: {
+            ...(options?.syncToken !== undefined ? { "sync-token": options?.syncToken } : {}),
+            ...(options?.acceptDatetime !== undefined
+                ? { "accept-datetime": options?.acceptDatetime }
+                : {}),
+            accept: "application/vnd.microsoft.appconfig.keyset+json, application/problem+json",
+            ...options.requestOptions?.headers,
+        },
+    });
+}
+async function _getKeysDeserialize(result) {
+    const expectedStatuses = ["200"];
+    if (!expectedStatuses.includes(result.status)) {
+        const error = createRestError(result);
+        if (result.body) {
+            error.details = errorDeserializer(result.body);
+        }
+        throw error;
+    }
+    return _keyListResultDeserializer(result.body);
+}
+/** Gets a list of keys. */
+function getKeys$1(context, options = { requestOptions: {} }) {
+    return buildPagedAsyncIterator$1(context, () => _getKeysSend(context, options), _getKeysDeserialize, ["200"], {
+        itemName: "items",
+        nextLinkName: "@nextLink",
+        apiVersion: context.apiVersion ?? "2026-04-01",
+    });
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+let AppConfigurationClient$1 = class AppConfigurationClient {
+    _client;
+    /** The pipeline used by this client to make requests */
+    pipeline;
+    /** Azure App Configuration REST API */
+    constructor(endpointParam, credential, options = {}) {
+        const prefixFromOptions = options?.userAgentOptions?.userAgentPrefix;
+        const userAgentPrefix = prefixFromOptions
+            ? `${prefixFromOptions} azsdk-js-client`
+            : `azsdk-js-client`;
+        this._client = createAppConfiguration(endpointParam, credential, {
+            ...options,
+            userAgentOptions: { userAgentPrefix },
+        });
+        this.pipeline = this._client.pipeline;
+    }
+    /** Requests the headers and status of the given resource. */
+    checkRevisions(options = { requestOptions: {} }) {
+        return checkRevisions(this._client, options);
+    }
+    /** Gets a list of key-value revisions. */
+    getRevisions(options = { requestOptions: {} }) {
+        return getRevisions(this._client, options);
+    }
+    /** Unlocks a key-value. */
+    deleteLock(key, options = { requestOptions: {} }) {
+        return deleteLock(this._client, key, options);
+    }
+    /** Locks a key-value. */
+    putLock(key, options = { requestOptions: {} }) {
+        return putLock(this._client, key, options);
+    }
+    /** Requests the headers and status of the given resource. */
+    checkLabels(options = { requestOptions: {} }) {
+        return checkLabels(this._client, options);
+    }
+    /** Gets a list of labels. */
+    getLabels(options = { requestOptions: {} }) {
+        return getLabels(this._client, options);
+    }
+    /** Requests the headers and status of the given resource. */
+    checkSnapshot(name, options = { requestOptions: {} }) {
+        return checkSnapshot(this._client, name, options);
+    }
+    /** Updates the state of a key-value snapshot. */
+    updateSnapshot(contentType, name, entity, options = { requestOptions: {} }) {
+        return updateSnapshot(this._client, contentType, name, entity, options);
+    }
+    /** Creates a key-value snapshot. */
+    createSnapshot(contentType, name, entity, options = { requestOptions: {} }) {
+        return createSnapshot(this._client, contentType, name, entity, options);
+    }
+    /** Gets the state of a long running operation. */
+    getOperationDetails(snapshot, options = { requestOptions: {} }) {
+        return getOperationDetails(this._client, snapshot, options);
+    }
+    /** Gets a single key-value snapshot. */
+    getSnapshot(name, options = { requestOptions: {} }) {
+        return getSnapshot(this._client, name, options);
+    }
+    /** Requests the headers and status of the given resource. */
+    checkSnapshots(options = { requestOptions: {} }) {
+        return checkSnapshots(this._client, options);
+    }
+    /** Gets a list of key-value snapshots. */
+    getSnapshots(options = { requestOptions: {} }) {
+        return getSnapshots(this._client, options);
+    }
+    /** Requests the headers and status of the given resource. */
+    checkKeyValue(key, options = { requestOptions: {} }) {
+        return checkKeyValue(this._client, key, options);
+    }
+    /** Deletes a key-value. */
+    deleteKeyValue(key, options = { requestOptions: {} }) {
+        return deleteKeyValue(this._client, key, options);
+    }
+    /** Creates a key-value. */
+    putKeyValue(contentType, key, options = { requestOptions: {} }) {
+        return putKeyValue(this._client, contentType, key, options);
+    }
+    /** Gets a single key-value. */
+    getKeyValue(key, options = { requestOptions: {} }) {
+        return getKeyValue(this._client, key, options);
+    }
+    /** Requests the headers and status of the given resource. */
+    checkKeyValues(options = { requestOptions: {} }) {
+        return checkKeyValues(this._client, options);
+    }
+    /** Gets a list of key-values. */
+    getKeyValues(options = { requestOptions: {} }) {
+        return getKeyValues(this._client, options);
+    }
+    /** Requests the headers and status of the given resource. */
+    checkKeys(options = { requestOptions: {} }) {
+        return checkKeys(this._client, options);
+    }
+    /** Gets a list of keys. */
+    getKeys(options = { requestOptions: {} }) {
+        return getKeys$1(this._client, options);
+    }
+};
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -42413,14 +39441,14 @@ function appConfigKeyCredentialPolicy(credential, secret) {
         async sendRequest(request, next) {
             const verb = request.method;
             const utcNow = new Date().toUTCString();
-            logger$m.info("[appConfigKeyCredentialPolicy] Computing SHA-256 from the request body");
+            logger$n.info("[appConfigKeyCredentialPolicy] Computing SHA-256 from the request body");
             const contentHash = await computeSha256Hash(request.body?.toString() || "", "base64");
             const signedHeaders = "x-ms-date;host;x-ms-content-sha256";
             const url = new URL(request.url);
             const query = url.search;
             const urlPathAndQuery = query ? `${url.pathname}${query}` : url.pathname;
             const stringToSign = `${verb}\n${urlPathAndQuery}\n${utcNow};${url.host};${contentHash}`;
-            logger$m.info("[appConfigKeyCredentialPolicy] Computing a SHA-256 Hmac signature");
+            logger$n.info("[appConfigKeyCredentialPolicy] Computing a SHA-256 Hmac signature");
             const signature = await computeSha256Hmac(secret, stringToSign, "base64");
             request.headers.set("x-ms-date", utcNow);
             request.headers.set("x-ms-content-sha256", contentHash);
@@ -42437,11 +39465,11 @@ function appConfigKeyCredentialPolicy(credential, secret) {
 /**
  * @internal
  */
-const packageVersion = "1.11.0";
+const packageVersion = "1.13.0";
 /**
  * @internal
  */
-const appConfigurationApiVersion = "2023-11-01";
+const appConfigurationApiVersion = "2026-04-01";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -42454,20 +39482,69 @@ const tracingClient$2 = createTracingClient({
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+/**
+ * Wraps a v3 core-lro `PollerLike` so that it exposes the v2-style `SimplePollerLike` API
+ * surface expected by existing callers of `@azure/app-configuration`.
+ *
+ * @internal
+ */
+async function wrapPoller(httpPoller) {
+    const abortController = new AbortController();
+    const simplePoller = {
+        isDone() {
+            return httpPoller.isDone;
+        },
+        isStopped() {
+            return abortController.signal.aborted;
+        },
+        getOperationState() {
+            if (!httpPoller.operationState) {
+                throw new Error("Operation state is not available. The poller may not have been started; await submitted() before calling getOperationState().");
+            }
+            return httpPoller.operationState;
+        },
+        getResult() {
+            return httpPoller.result;
+        },
+        toString() {
+            if (!httpPoller.operationState) {
+                throw new Error("Operation state is not available. The poller may not have been started; await submitted() before calling getOperationState().");
+            }
+            return JSON.stringify({
+                state: httpPoller.operationState,
+            });
+        },
+        stopPolling() {
+            abortController.abort();
+        },
+        onProgress: httpPoller.onProgress,
+        async poll(options) {
+            await httpPoller.poll(options);
+        },
+        pollUntilDone(pollOptions) {
+            function abortListener() {
+                abortController.abort();
+            }
+            const inputAbortSignal = pollOptions?.abortSignal;
+            const abortSignal = abortController.signal;
+            if (inputAbortSignal?.aborted) {
+                abortController.abort();
+            }
+            else if (!abortSignal.aborted) {
+                inputAbortSignal?.addEventListener("abort", abortListener, {
+                    once: true,
+                });
+            }
+            return httpPoller.pollUntilDone({ abortSignal: abortController.signal });
+        },
+    };
+    await httpPoller.submitted();
+    return simplePoller;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 const ConnectionStringRegex = /Endpoint=(.*);Id=(.*);Secret=(.*)/;
-const deserializationContentTypes = {
-    json: [
-        "application/vnd.microsoft.appconfig.kvset+json",
-        "application/vnd.microsoft.appconfig.kv+json",
-        "application/vnd.microsoft.appconfig.kvs+json",
-        "application/vnd.microsoft.appconfig.keyset+json",
-        "application/vnd.microsoft.appconfig.revs+json",
-        "application/vnd.microsoft.appconfig.snapshotset+json",
-        "application/vnd.microsoft.appconfig.snapshot+json",
-        "application/vnd.microsoft.appconfig.labelset+json",
-        "application/json",
-    ],
-};
 /**
  * Client for the Azure App Configuration service.
  */
@@ -42475,10 +39552,11 @@ class AppConfigurationClient {
     client;
     _syncTokens;
     constructor(connectionStringOrEndpoint, tokenCredentialOrOptions, options) {
-        let appConfigOptions = {};
-        let appConfigCredential;
+        let appConfigOptions;
+        let appConfigCredential = undefined;
         let appConfigEndpoint;
         let authPolicy;
+        let authPolicyName;
         let scope;
         if (isTokenCredential(tokenCredentialOrOptions)) {
             appConfigOptions = options || {};
@@ -42486,11 +39564,8 @@ class AppConfigurationClient {
             appConfigEndpoint = connectionStringOrEndpoint.endsWith("/")
                 ? connectionStringOrEndpoint.slice(0, -1)
                 : connectionStringOrEndpoint;
-            scope = getScope(appConfigEndpoint, appConfigOptions.audience);
-            authPolicy = bearerTokenAuthenticationPolicy({
-                scopes: scope,
-                credential: appConfigCredential,
-            });
+            scope = [getScope(appConfigEndpoint, appConfigOptions.audience)];
+            authPolicyName = bearerTokenAuthenticationPolicyName;
         }
         else {
             appConfigOptions = tokenCredentialOrOptions || {};
@@ -42498,29 +39573,47 @@ class AppConfigurationClient {
             if (regexMatch) {
                 appConfigEndpoint = regexMatch[1];
                 authPolicy = appConfigKeyCredentialPolicy(regexMatch[2], regexMatch[3]);
+                authPolicyName = authPolicy.name;
             }
             else {
                 throw new Error(`Invalid connection string. Valid connection strings should match the regex '${ConnectionStringRegex.source}'.` +
                     ` To mitigate the issue, please refer to the troubleshooting guide here at https://aka.ms/azsdk/js/app-configuration/troubleshoot.`);
             }
         }
-        const internalClientPipelineOptions = {
+        const generatedClientOptions = {
             ...appConfigOptions,
+            userAgentOptions: {
+                ...appConfigOptions.userAgentOptions,
+                userAgentPrefix: appConfigOptions.userAgentOptions?.userAgentPrefix
+                    ? `${appConfigOptions.userAgentOptions.userAgentPrefix} azsdk-js-app-configuration/${packageVersion}`
+                    : `azsdk-js-app-configuration/${packageVersion}`,
+            },
             loggingOptions: {
-                logger: logger$m.info,
+                logger: logger$n.info,
             },
-            deserializationOptions: {
-                expectedContentTypes: deserializationContentTypes,
-            },
+            apiVersion: options?.apiVersion ?? appConfigurationApiVersion,
+            credentials: {},
+        };
+        generatedClientOptions.credentials = {
+            ...generatedClientOptions.credentials,
+            scopes: scope,
         };
         this._syncTokens = appConfigOptions.syncTokens || new SyncTokens();
-        this.client = new AppConfiguration(appConfigEndpoint, options?.apiVersion ?? appConfigurationApiVersion, internalClientPipelineOptions);
+        this.client = new AppConfigurationClient$1(appConfigEndpoint, 
+        // When a connection string is used, appConfigCredential is undefined here. We pass undefined to avoid @azure-rest/core-client's keyCredentialAuthenticationPolicy setting the apiKeyHeader on the request.
+        // Connection strings are authenticated by HMAC (appConfigKeyCredentialPolicy) and the secret should never leave the client.
+        // The `as TokenCredential` cast bridges a gap between the generated client and the core SDK: the generated constructor types `credential` as required (KeyCredential | TokenCredential),
+        // but @azure-rest/core-client's addCredentialPipelinePolicy no-ops when no credential is passed, so handing it undefined is safe at runtime.
+        appConfigCredential, generatedClientOptions);
         this.client.pipeline.addPolicy(audienceErrorHandlingPolicy(appConfigOptions?.audience !== undefined), {
             phase: "Sign",
-            beforePolicies: [authPolicy.name],
+            beforePolicies: [authPolicyName],
         });
-        this.client.pipeline.addPolicy(authPolicy, { phase: "Sign" });
+        if (authPolicy) {
+            this.client.pipeline.addPolicy(authPolicy, { phase: "Sign" });
+        }
         this.client.pipeline.addPolicy(queryParamPolicy());
+        this.client.pipeline.addPolicy(emptyBodyPolicy());
         this.client.pipeline.addPolicy(syncTokenPolicy(this._syncTokens), { afterPhase: "Retry" });
     }
     /**
@@ -42549,13 +39642,17 @@ class AppConfigurationClient {
     addConfigurationSetting(configurationSetting, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.addConfigurationSetting", options, async (updatedOptions) => {
             const keyValue = serializeAsConfigurationSettingParam(configurationSetting);
-            logger$m.info("[addConfigurationSetting] Creating a key value pair");
+            logger$n.info("[addConfigurationSetting] Creating a key value pair");
             try {
-                const originalResponse = await this.client.putKeyValue(configurationSetting.key, {
+                const originalResponse = await this.client.putKeyValue("application/json", encodePathParameter(configurationSetting.key), {
                     ifNoneMatch: "*",
                     label: configurationSetting.label,
                     entity: keyValue,
                     ...updatedOptions,
+                    requestOptions: {
+                        ...updatedOptions.requestOptions,
+                        skipUrlEncoding: true,
+                    },
                 });
                 const response = transformKeyValueResponse(originalResponse);
                 assertResponse(response);
@@ -42596,13 +39693,17 @@ class AppConfigurationClient {
     deleteConfigurationSetting(id, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.deleteConfigurationSetting", options, async (updatedOptions) => {
             let status;
-            logger$m.info("[deleteConfigurationSetting] Deleting key value pair");
-            const originalResponse = await this.client.deleteKeyValue(id.key, {
+            logger$n.info("[deleteConfigurationSetting] Deleting key value pair");
+            const originalResponse = await this.client.deleteKeyValue(encodePathParameter(id.key), {
                 label: id.label,
                 ...updatedOptions,
                 ...checkAndFormatIfAndIfNoneMatch(id, options),
                 onResponse: (response) => {
                     status = response.status;
+                },
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
                 },
             });
             const response = transformKeyValueResponseWithStatusCode(originalResponse, status);
@@ -42631,29 +39732,44 @@ class AppConfigurationClient {
     async getConfigurationSetting(id, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.getConfigurationSetting", options, async (updatedOptions) => {
             let status;
-            logger$m.info("[getConfigurationSetting] Getting key value pair");
-            const originalResponse = await this.client.getKeyValue(id.key, {
-                ...updatedOptions,
-                label: id.label,
-                select: formatFieldsForSelect(options.fields),
-                ...formatAcceptDateTime(options),
-                ...checkAndFormatIfAndIfNoneMatch(id, options),
-                onResponse: (response) => {
-                    status = response.status;
-                },
-            });
-            const response = transformKeyValueResponseWithStatusCode(originalResponse, status);
-            // 304 only comes back if the user has passed a conditional option in their
-            // request _and_ the remote object has the same etag as what the user passed.
-            if (response.statusCode === 304) {
-                // this is one of our few 'required' fields so we'll make sure it does get initialized
-                // with a value
-                response.key = id.key;
-                // and now we'll undefine all the other properties that are not HTTP related
-                makeConfigurationSettingEmpty(response);
+            let rawResponse;
+            logger$n.info("[getConfigurationSetting] Getting key value pair");
+            try {
+                const originalResponse = await this.client.getKeyValue(encodePathParameter(id.key), {
+                    ...updatedOptions,
+                    label: id.label,
+                    select: formatFieldsForSelect(options.fields),
+                    ...formatAcceptDateTime(options),
+                    ...checkAndFormatIfAndIfNoneMatch(id, options),
+                    onResponse: (response) => {
+                        status = response.status;
+                        rawResponse = response;
+                    },
+                    requestOptions: {
+                        ...updatedOptions.requestOptions,
+                        skipUrlEncoding: true,
+                    },
+                });
+                const response = transformKeyValueResponseWithStatusCode(originalResponse, status);
+                assertResponse(response);
+                return response;
             }
-            assertResponse(response);
-            return response;
+            catch (error) {
+                const err = error;
+                // 304 only comes back if the user has passed a conditional option in their
+                // request _and_ the remote object has the same etag as what the user passed.
+                if (err.statusCode === 304) {
+                    const response = transformKeyValueResponseWithStatusCode({ _response: rawResponse }, 304);
+                    // this is one of our few 'required' fields so we'll make sure it does get initialized
+                    // with a value
+                    response.key = id.key;
+                    // and now we'll undefine all the other properties that are not HTTP related
+                    makeConfigurationSettingEmpty(response);
+                    assertResponse(response);
+                    return response;
+                }
+                throw err;
+            }
         });
     }
     /**
@@ -42702,7 +39818,7 @@ class AppConfigurationClient {
                     const continuationToken = link ? extractAfterTokenFromLinkHeader(link) : undefined;
                     if (err.statusCode === 304) {
                         err.message = `Status 304: No updates for this page`;
-                        logger$m.info(`[listConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
+                        logger$n.info(`[listConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
                         return {
                             page: {
                                 items: [],
@@ -42717,7 +39833,7 @@ class AppConfigurationClient {
             },
             toElements: (page) => page.items,
         };
-        return getPagedAsyncIterator$1(pagedResult);
+        return getPagedAsyncIterator$2(pagedResult);
     }
     /**
      * Checks settings from the Azure App Configuration service using a HEAD request, returning only headers without the response body.
@@ -42766,7 +39882,7 @@ class AppConfigurationClient {
                     const continuationToken = link ? extractAfterTokenFromLinkHeader(link) : undefined;
                     if (err.statusCode === 304) {
                         err.message = `Status 304: No updates for this page`;
-                        logger$m.info(`[checkConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
+                        logger$n.info(`[checkConfigurationSettings] No updates for this page. The current etag for the page is ${etag}`);
                         return {
                             page: {
                                 items: [],
@@ -42781,7 +39897,7 @@ class AppConfigurationClient {
             },
             toElements: (page) => page.items,
         };
-        return getPagedAsyncIterator$1(pagedResult);
+        return getPagedAsyncIterator$2(pagedResult);
     }
     /**
      * Lists settings from the Azure App Configuration service for snapshots based on name, optionally
@@ -42822,7 +39938,7 @@ class AppConfigurationClient {
             },
             toElements: (page) => page.items,
         };
-        return getPagedAsyncIterator$1(pagedResult);
+        return getPagedAsyncIterator$2(pagedResult);
     }
     /**
      * Get a list of labels from the Azure App Configuration service
@@ -42861,41 +39977,64 @@ class AppConfigurationClient {
             },
             toElements: (page) => page.items,
         };
-        return getPagedAsyncIterator$1(pagedResult);
+        return getPagedAsyncIterator$2(pagedResult);
+    }
+    get _context() {
+        return this.client._client;
     }
     async sendLabelsRequest(options = {}, pageLink) {
         return tracingClient$2.withSpan("AppConfigurationClient.listConfigurationSettings", options, async (updatedOptions) => {
-            const response = await this.client.getLabels({
+            const rawResponse = await _getLabelsSend(this._context, {
                 ...updatedOptions,
                 ...formatAcceptDateTime(options),
                 ...formatLabelsFiltersAndSelect(options),
                 after: pageLink,
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
+                },
             });
-            return response;
+            const parsed = await _getLabelsDeserialize(rawResponse);
+            return Object.assign(parsed, { _response: rawResponse });
         });
     }
     async sendConfigurationSettingsRequest(options = {}, pageLink) {
         return tracingClient$2.withSpan("AppConfigurationClient.listConfigurationSettings", options, async (updatedOptions) => {
-            const response = await this.client.getKeyValues({
+            const rawResponse = await _getKeyValuesSend(this._context, {
                 ...updatedOptions,
                 ...formatAcceptDateTime(options),
                 ...formatConfigurationSettingsFiltersAndSelect(options),
                 ...checkAndFormatIfAndIfNoneMatch({ etag: options.etag }, { onlyIfChanged: true }),
                 after: pageLink,
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
+                },
             });
-            return response;
+            const parsed = await _getKeyValuesDeserialize(rawResponse);
+            return Object.assign(parsed, { _response: rawResponse });
         });
     }
     async checkConfigurationSettingsRequest(options = {}, pageLink) {
         return tracingClient$2.withSpan("AppConfigurationClient.checkConfigurationSettings", options, async (updatedOptions) => {
-            const response = await this.client.checkKeyValues({
+            const rawResponse = await _checkKeyValuesSend(this._context, {
                 ...updatedOptions,
                 ...formatAcceptDateTime(options),
                 ...formatConfigurationSettingsFiltersAndSelect(options),
                 ...checkAndFormatIfAndIfNoneMatch({ etag: options.etag }, { onlyIfChanged: true }),
                 after: pageLink,
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
+                },
             });
-            return response;
+            await _checkKeyValuesDeserialize(rawResponse);
+            return {
+                _response: {
+                    ...rawResponse,
+                    headers: createHttpHeaders(rawResponse.headers),
+                },
+            };
         });
     }
     /**
@@ -42936,17 +40075,22 @@ class AppConfigurationClient {
             },
             toElements: (page) => page.items,
         };
-        return getPagedAsyncIterator$1(pagedResult);
+        return getPagedAsyncIterator$2(pagedResult);
     }
     async sendRevisionsRequest(options = {}, pageLink) {
         return tracingClient$2.withSpan("AppConfigurationClient.listRevisions", options, async (updatedOptions) => {
-            const response = await this.client.getRevisions({
+            const rawResponse = await _getRevisionsSend(this._context, {
                 ...updatedOptions,
                 ...formatAcceptDateTime(options),
                 ...formatFiltersAndSelect(updatedOptions),
                 after: pageLink,
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
+                },
             });
-            return response;
+            const parsed = await _getRevisionsDeserialize(rawResponse);
+            return Object.assign(parsed, { _response: rawResponse });
         });
     }
     /**
@@ -42971,12 +40115,16 @@ class AppConfigurationClient {
     async setConfigurationSetting(configurationSetting, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.setConfigurationSetting", options, async (updatedOptions) => {
             const keyValue = serializeAsConfigurationSettingParam(configurationSetting);
-            logger$m.info("[setConfigurationSetting] Setting new key value");
-            const response = transformKeyValueResponse(await this.client.putKeyValue(configurationSetting.key, {
+            logger$n.info("[setConfigurationSetting] Setting new key value");
+            const response = transformKeyValueResponse(await this.client.putKeyValue("application/json", encodePathParameter(configurationSetting.key), {
                 ...updatedOptions,
                 label: configurationSetting.label,
                 entity: keyValue,
                 ...checkAndFormatIfAndIfNoneMatch(configurationSetting, options),
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
+                },
             }));
             assertResponse(response);
             return response;
@@ -42990,19 +40138,27 @@ class AppConfigurationClient {
         return tracingClient$2.withSpan("AppConfigurationClient.setReadOnly", options, async (newOptions) => {
             let response;
             if (readOnly) {
-                logger$m.info("[setReadOnly] Setting read-only status to ${readOnly}");
-                response = await this.client.putLock(id.key, {
+                logger$n.info("[setReadOnly] Setting read-only status to ${readOnly}");
+                response = await this.client.putLock(encodePathParameter(id.key), {
                     ...newOptions,
                     label: id.label,
                     ...checkAndFormatIfAndIfNoneMatch(id, options),
+                    requestOptions: {
+                        ...newOptions.requestOptions,
+                        skipUrlEncoding: true,
+                    },
                 });
             }
             else {
-                logger$m.info("[setReadOnly] Deleting read-only lock");
-                response = await this.client.deleteLock(id.key, {
+                logger$n.info("[setReadOnly] Deleting read-only lock");
+                response = await this.client.deleteLock(encodePathParameter(id.key), {
                     ...newOptions,
                     label: id.label,
                     ...checkAndFormatIfAndIfNoneMatch(id, options),
+                    requestOptions: {
+                        ...newOptions.requestOptions,
+                        skipUrlEncoding: true,
+                    },
                 });
             }
             response = transformKeyValueResponse(response);
@@ -43025,7 +40181,22 @@ class AppConfigurationClient {
     beginCreateSnapshot(snapshot, 
     // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
     options = {}) {
-        return tracingClient$2.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshot`, options, (updatedOptions) => this.client.beginCreateSnapshot(snapshot.name, snapshot, { ...updatedOptions }));
+        return tracingClient$2.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshot`, options, async (updatedOptions) => {
+            const generatedSnapshot = snapshotInfoToGenerated(snapshot);
+            const poller = getLongRunningPoller(this._context, async (result) => transformSnapshotResponse(await _createSnapshotDeserialize(result)), ["201", "200", "202"], {
+                updateIntervalInMs: updatedOptions?.updateIntervalInMs,
+                abortSignal: updatedOptions?.abortSignal,
+                getInitialResponse: () => _createSnapshotSend(this._context, "application/vnd.microsoft.appconfig.snapshot+json", snapshot.name, generatedSnapshot, {
+                    ...updatedOptions,
+                    requestOptions: {
+                        ...updatedOptions.requestOptions,
+                        skipUrlEncoding: true,
+                    },
+                }),
+                resourceLocationConfig: "original-uri",
+            });
+            return wrapPoller(poller);
+        });
     }
     /**
      * Begins creating a snapshot for Azure App Configuration service, waits until it is done,
@@ -43034,7 +40205,22 @@ class AppConfigurationClient {
     beginCreateSnapshotAndWait(snapshot, 
     // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
     options = {}) {
-        return tracingClient$2.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshotAndWait`, options, (updatedOptions) => this.client.beginCreateSnapshotAndWait(snapshot.name, snapshot, { ...updatedOptions }));
+        return tracingClient$2.withSpan(`${AppConfigurationClient.name}.beginCreateSnapshotAndWait`, options, async (updatedOptions) => {
+            const generatedSnapshot = snapshotInfoToGenerated(snapshot);
+            const poller = getLongRunningPoller(this._context, async (result) => transformSnapshotResponse(await _createSnapshotDeserialize(result)), ["201", "200", "202"], {
+                updateIntervalInMs: updatedOptions?.updateIntervalInMs,
+                abortSignal: updatedOptions?.abortSignal,
+                getInitialResponse: () => _createSnapshotSend(this._context, "application/vnd.microsoft.appconfig.snapshot+json", snapshot.name, generatedSnapshot, {
+                    ...updatedOptions,
+                    requestOptions: {
+                        ...updatedOptions.requestOptions,
+                        skipUrlEncoding: true,
+                    },
+                }),
+                resourceLocationConfig: "original-uri",
+            });
+            return poller.pollUntilDone();
+        });
     }
     /**
      * Get a snapshot from Azure App Configuration service
@@ -43057,9 +40243,13 @@ class AppConfigurationClient {
      */
     getSnapshot(name, options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.getSnapshot", options, async (updatedOptions) => {
-            logger$m.info("[getSnapshot] Get a snapshot");
+            logger$n.info("[getSnapshot] Get a snapshot");
             const originalResponse = await this.client.getSnapshot(name, {
                 ...updatedOptions,
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
+                },
             });
             const response = transformSnapshotResponse(originalResponse);
             assertResponse(response);
@@ -43088,10 +40278,14 @@ class AppConfigurationClient {
     // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
     options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.recoverSnapshot", options, async (updatedOptions) => {
-            logger$m.info("[recoverSnapshot] Recover a snapshot");
-            const originalResponse = await this.client.updateSnapshot(name, { status: "ready" }, {
+            logger$n.info("[recoverSnapshot] Recover a snapshot");
+            const originalResponse = await this.client.updateSnapshot("application/merge-patch+json", name, { status: "ready" }, {
                 ...updatedOptions,
                 ...checkAndFormatIfAndIfNoneMatch({ etag: options.etag }, { onlyIfUnchanged: true, ...options }),
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
+                },
             });
             const response = transformSnapshotResponse(originalResponse);
             assertResponse(response);
@@ -43120,10 +40314,14 @@ class AppConfigurationClient {
     // eslint-disable-next-line @azure/azure-sdk/ts-naming-options
     options = {}) {
         return tracingClient$2.withSpan("AppConfigurationClient.archiveSnapshot", options, async (updatedOptions) => {
-            logger$m.info("[archiveSnapshot] Archive a snapshot");
-            const originalResponse = await this.client.updateSnapshot(name, { status: "archived" }, {
+            logger$n.info("[archiveSnapshot] Archive a snapshot");
+            const originalResponse = await this.client.updateSnapshot("application/merge-patch+json", name, { status: "archived" }, {
                 ...updatedOptions,
                 ...checkAndFormatIfAndIfNoneMatch({ etag: options.etag }, { onlyIfUnchanged: true, ...options }),
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
+                },
             });
             const response = transformSnapshotResponse(originalResponse);
             assertResponse(response);
@@ -43158,7 +40356,7 @@ class AppConfigurationClient {
                 const response = await this.sendSnapShotsRequest(options, pageLink);
                 const currentResponse = {
                     ...response,
-                    items: response.items != null ? response.items : [],
+                    items: response.items != null ? response.items.map((s) => transformSnapshotResponse(s)) : [],
                     continuationToken: response.nextLink
                         ? extractAfterTokenFromNextLink(response.nextLink)
                         : undefined,
@@ -43170,16 +40368,21 @@ class AppConfigurationClient {
             },
             toElements: (page) => page.items,
         };
-        return getPagedAsyncIterator$1(pagedResult);
+        return getPagedAsyncIterator$2(pagedResult);
     }
     async sendSnapShotsRequest(options = {}, pageLink) {
         return tracingClient$2.withSpan("AppConfigurationClient.listSnapshots", options, async (updatedOptions) => {
-            const response = await this.client.getSnapshots({
+            const rawResponse = await _getSnapshotsSend(this._context, {
                 ...updatedOptions,
                 ...formatSnapshotFiltersAndSelect(options),
                 after: pageLink,
+                requestOptions: {
+                    ...updatedOptions.requestOptions,
+                    skipUrlEncoding: true,
+                },
             });
-            return response;
+            const parsed = await _getSnapshotsDeserialize(rawResponse);
+            return Object.assign(parsed, { _response: rawResponse });
         });
     }
 }
@@ -43222,171 +40425,7 @@ async function getKeys(resourceGroup, appConfigurationName, filter) {
 /**
  * The \@azure/logger configuration for this package.
  */
-const logger$j = createClientLogger("keyvault-secrets");
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-function createRestError(messageOrResponse, response) {
-    if (typeof messageOrResponse === "string") {
-        return createRestError$1(messageOrResponse, response);
-    }
-    else {
-        return createRestError$1(messageOrResponse);
-    }
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-const apiVersionPolicyName = "ApiVersionPolicy";
-/**
- * Creates a policy that sets the apiVersion as a query parameter on every request
- * @param options - Client options
- * @returns Pipeline policy that sets the apiVersion as a query parameter on every request
- */
-function apiVersionPolicy(options) {
-    return {
-        name: apiVersionPolicyName,
-        sendRequest: (req, next) => {
-            // Use the apiVesion defined in request url directly
-            // Append one if there is no apiVesion and we have one at client options
-            const url = new URL(req.url);
-            if (!url.searchParams.get("api-version") && options.apiVersion) {
-                req.url = `${req.url}${Array.from(url.searchParams.keys()).length > 0 ? "&" : "?"}api-version=${options.apiVersion}`;
-            }
-            return next(req);
-        },
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * The programmatic identifier of the bearerTokenAuthenticationPolicy.
- */
-const keyCredentialAuthenticationPolicyName = "keyCredentialAuthenticationPolicy";
-function keyCredentialAuthenticationPolicy(credential, apiKeyHeaderName) {
-    return {
-        name: keyCredentialAuthenticationPolicyName,
-        async sendRequest(request, next) {
-            request.headers.set(apiKeyHeaderName, credential.key);
-            return next(request);
-        },
-    };
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Adds a credential policy to the pipeline if a credential is provided. If none is provided, no policy is added.
- */
-function addCredentialPipelinePolicy(pipeline, endpoint, options = {}) {
-    var _a, _b, _c, _d;
-    const { credential, clientOptions } = options;
-    if (!credential) {
-        return;
-    }
-    if (isTokenCredential(credential)) {
-        const tokenPolicy = bearerTokenAuthenticationPolicy({
-            credential,
-            scopes: (_b = (_a = clientOptions === null || clientOptions === void 0 ? void 0 : clientOptions.credentials) === null || _a === void 0 ? void 0 : _a.scopes) !== null && _b !== void 0 ? _b : `${endpoint}/.default`,
-        });
-        pipeline.addPolicy(tokenPolicy);
-    }
-    else if (isKeyCredential(credential)) {
-        if (!((_c = clientOptions === null || clientOptions === void 0 ? void 0 : clientOptions.credentials) === null || _c === void 0 ? void 0 : _c.apiKeyHeaderName)) {
-            throw new Error(`Missing API Key Header Name`);
-        }
-        const keyPolicy = keyCredentialAuthenticationPolicy(credential, (_d = clientOptions === null || clientOptions === void 0 ? void 0 : clientOptions.credentials) === null || _d === void 0 ? void 0 : _d.apiKeyHeaderName);
-        pipeline.addPolicy(keyPolicy);
-    }
-}
-/**
- * Creates a default rest pipeline to re-use accross Rest Level Clients
- */
-function createDefaultPipeline(endpoint, credential, options = {}) {
-    const pipeline = createPipelineFromOptions(options);
-    pipeline.addPolicy(apiVersionPolicy(options));
-    addCredentialPipelinePolicy(pipeline, endpoint, { credential, clientOptions: options });
-    return pipeline;
-}
-function isKeyCredential(credential) {
-    return credential.key !== undefined;
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Helper function to convert OperationOptions to RequestParameters
- * @param options - the options that are used by Modular layer to send the request
- * @returns the result of the conversion in RequestParameters of RLC layer
- */
-function operationOptionsToRequestParameters(options) {
-    return operationOptionsToRequestParameters$1(options);
-}
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-/**
- * Function to wrap RequestParameters so that we get the legacy onResponse behavior in core-client-rest
- */
-function wrapRequestParameters(parameters) {
-    if (parameters.onResponse) {
-        return Object.assign(Object.assign({}, parameters), { onResponse(rawResponse, error) {
-                var _a;
-                (_a = parameters.onResponse) === null || _a === void 0 ? void 0 : _a.call(parameters, rawResponse, error, error);
-            } });
-    }
-    return parameters;
-}
-function getClient(endpoint, credentialsOrPipelineOptions, clientOptions = {}) {
-    let credentials;
-    if (credentialsOrPipelineOptions) {
-        if (isCredential(credentialsOrPipelineOptions)) {
-            credentials = credentialsOrPipelineOptions;
-        }
-        else {
-            clientOptions = credentialsOrPipelineOptions !== null && credentialsOrPipelineOptions !== void 0 ? credentialsOrPipelineOptions : {};
-        }
-    }
-    const pipeline = createDefaultPipeline(endpoint, credentials, clientOptions);
-    const tspClient = getClient$1(endpoint, Object.assign(Object.assign({}, clientOptions), { pipeline }));
-    const client = (path, ...args) => {
-        return {
-            get: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).get(wrapRequestParameters(requestOptions));
-            },
-            post: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).post(wrapRequestParameters(requestOptions));
-            },
-            put: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).put(wrapRequestParameters(requestOptions));
-            },
-            patch: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).patch(wrapRequestParameters(requestOptions));
-            },
-            delete: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).delete(wrapRequestParameters(requestOptions));
-            },
-            head: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).head(wrapRequestParameters(requestOptions));
-            },
-            options: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).options(wrapRequestParameters(requestOptions));
-            },
-            trace: (requestOptions = {}) => {
-                return tspClient.path(path, ...args).trace(wrapRequestParameters(requestOptions));
-            },
-        };
-    };
-    return {
-        path: client,
-        pathUnchecked: client,
-        pipeline: tspClient.pipeline,
-    };
-}
-function isCredential(param) {
-    return isKeyCredential$1(param) || isTokenCredential(param);
-}
+const logger$k = createClientLogger("keyvault-secrets");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -43405,7 +40444,7 @@ function createKeyVault(endpointParam, credential, options = {}) {
     const { apiVersion: _, ...updatedOptions } = {
         ...options,
         userAgentOptions: { userAgentPrefix },
-        loggingOptions: { logger: options.loggingOptions?.logger ?? logger$j.info },
+        loggingOptions: { logger: options.loggingOptions?.logger ?? logger$k.info },
         credentials: {
             scopes: options.credentials?.scopes ?? ["https://vault.azure.net/.default"],
         },
@@ -44535,7 +41574,7 @@ function createTokenCycler(credential, tokenCyclerOptions) {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$i = createClientLogger("keyvault-common");
+const logger$j = createClientLogger("keyvault-common");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -44621,7 +41660,7 @@ function keyVaultAuthenticationPolicy(credential, options = {}) {
         const getTokenOptions = requestToOptions(request);
         const challenge = response.headers.get("WWW-Authenticate");
         if (!challenge) {
-            logger$i.warning("keyVaultAuthentication policy encountered a 401 response without a corresponding WWW-Authenticate header. This is unexpected. Not handling the 401 response.");
+            logger$j.warning("keyVaultAuthentication policy encountered a 401 response without a corresponding WWW-Authenticate header. This is unexpected. Not handling the 401 response.");
             return response;
         }
         const parsedChallenge = parseWWWAuthenticateHeader(challenge);
@@ -44873,6 +41912,403 @@ const tracingClient$1 = createTracingClient({
     packageName: "@azure/keyvault-secrets",
     packageVersion: SDK_VERSION$1,
 });
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+/**
+ * When a poller is manually stopped through the `stopPolling` method,
+ * the poller will be rejected with an instance of the PollerStoppedError.
+ */
+class PollerStoppedError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "PollerStoppedError";
+        Object.setPrototypeOf(this, PollerStoppedError.prototype);
+    }
+}
+/**
+ * When the operation is cancelled, the poller will be rejected with an instance
+ * of the PollerCancelledError.
+ */
+class PollerCancelledError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "PollerCancelledError";
+        Object.setPrototypeOf(this, PollerCancelledError.prototype);
+    }
+}
+/**
+ * A class that represents the definition of a program that polls through consecutive requests
+ * until it reaches a state of completion.
+ *
+ * A poller can be executed manually, by polling request by request by calling to the `poll()` method repeatedly, until its operation is completed.
+ * It also provides a way to wait until the operation completes, by calling `pollUntilDone()` and waiting until the operation finishes.
+ * Pollers can also request the cancellation of the ongoing process to whom is providing the underlying long running operation.
+ *
+ * ```ts
+ * const poller = new MyPoller();
+ *
+ * // Polling just once:
+ * await poller.poll();
+ *
+ * // We can try to cancel the request here, by calling:
+ * //
+ * //     await poller.cancelOperation();
+ * //
+ *
+ * // Getting the final result:
+ * const result = await poller.pollUntilDone();
+ * ```
+ *
+ * The Poller is defined by two types, a type representing the state of the poller, which
+ * must include a basic set of properties from `PollOperationState<TResult>`,
+ * and a return type defined by `TResult`, which can be anything.
+ *
+ * The Poller class implements the `PollerLike` interface, which allows poller implementations to avoid having
+ * to export the Poller's class directly, and instead only export the already instantiated poller with the PollerLike type.
+ *
+ * ```ts
+ * class Client {
+ *   public async makePoller: PollerLike<MyOperationState, MyResult> {
+ *     const poller = new MyPoller({});
+ *     // It might be preferred to return the poller after the first request is made,
+ *     // so that some information can be obtained right away.
+ *     await poller.poll();
+ *     return poller;
+ *   }
+ * }
+ *
+ * const poller: PollerLike<MyOperationState, MyResult> = myClient.makePoller();
+ * ```
+ *
+ * A poller can be created through its constructor, then it can be polled until it's completed.
+ * At any point in time, the state of the poller can be obtained without delay through the getOperationState method.
+ * At any point in time, the intermediate forms of the result type can be requested without delay.
+ * Once the underlying operation is marked as completed, the poller will stop and the final value will be returned.
+ *
+ * ```ts
+ * const poller = myClient.makePoller();
+ * const state: MyOperationState = poller.getOperationState();
+ *
+ * // The intermediate result can be obtained at any time.
+ * const result: MyResult | undefined = poller.getResult();
+ *
+ * // The final result can only be obtained after the poller finishes.
+ * const result: MyResult = await poller.pollUntilDone();
+ * ```
+ *
+ */
+// eslint-disable-next-line no-use-before-define
+class Poller {
+    /**
+     * A poller needs to be initialized by passing in at least the basic properties of the `PollOperation<TState, TResult>`.
+     *
+     * When writing an implementation of a Poller, this implementation needs to deal with the initialization
+     * of any custom state beyond the basic definition of the poller. The basic poller assumes that the poller's
+     * operation has already been defined, at least its basic properties. The code below shows how to approach
+     * the definition of the constructor of a new custom poller.
+     *
+     * ```ts
+     * export class MyPoller extends Poller<MyOperationState, string> {
+     *   constructor({
+     *     // Anything you might need outside of the basics
+     *   }) {
+     *     let state: MyOperationState = {
+     *       privateProperty: private,
+     *       publicProperty: public,
+     *     };
+     *
+     *     const operation = {
+     *       state,
+     *       update,
+     *       cancel,
+     *       toString
+     *     }
+     *
+     *     // Sending the operation to the parent's constructor.
+     *     super(operation);
+     *
+     *     // You can assign more local properties here.
+     *   }
+     * }
+     * ```
+     *
+     * Inside of this constructor, a new promise is created. This will be used to
+     * tell the user when the poller finishes (see `pollUntilDone()`). The promise's
+     * resolve and reject methods are also used internally to control when to resolve
+     * or reject anyone waiting for the poller to finish.
+     *
+     * The constructor of a custom implementation of a poller is where any serialized version of
+     * a previous poller's operation should be deserialized into the operation sent to the
+     * base constructor. For example:
+     *
+     * ```ts
+     * export class MyPoller extends Poller<MyOperationState, string> {
+     *   constructor(
+     *     baseOperation: string | undefined
+     *   ) {
+     *     let state: MyOperationState = {};
+     *     if (baseOperation) {
+     *       state = {
+     *         ...JSON.parse(baseOperation).state,
+     *         ...state
+     *       };
+     *     }
+     *     const operation = {
+     *       state,
+     *       // ...
+     *     }
+     *     super(operation);
+     *   }
+     * }
+     * ```
+     *
+     * @param operation - Must contain the basic properties of `PollOperation<State, TResult>`.
+     */
+    constructor(operation) {
+        /** controls whether to throw an error if the operation failed or was canceled. */
+        this.resolveOnUnsuccessful = false;
+        this.stopped = true;
+        this.pollProgressCallbacks = [];
+        this.operation = operation;
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+        // This prevents the UnhandledPromiseRejectionWarning in node.js from being thrown.
+        // The above warning would get thrown if `poller.poll` is called, it returns an error,
+        // and pullUntilDone did not have a .catch or await try/catch on it's return value.
+        this.promise.catch(() => {
+            /* intentionally blank */
+        });
+    }
+    /**
+     * Starts a loop that will break only if the poller is done
+     * or if the poller is stopped.
+     */
+    async startPolling(pollOptions = {}) {
+        if (this.stopped) {
+            this.stopped = false;
+        }
+        while (!this.isStopped() && !this.isDone()) {
+            await this.poll(pollOptions);
+            await this.delay();
+        }
+    }
+    /**
+     * pollOnce does one polling, by calling to the update method of the underlying
+     * poll operation to make any relevant change effective.
+     *
+     * It only optionally receives an object with an abortSignal property, from \@azure/abort-controller's AbortSignalLike.
+     *
+     * @param options - Optional properties passed to the operation's update method.
+     */
+    async pollOnce(options = {}) {
+        if (!this.isDone()) {
+            this.operation = await this.operation.update({
+                abortSignal: options.abortSignal,
+                fireProgress: this.fireProgress.bind(this),
+            });
+        }
+        this.processUpdatedState();
+    }
+    /**
+     * fireProgress calls the functions passed in via onProgress the method of the poller.
+     *
+     * It loops over all of the callbacks received from onProgress, and executes them, sending them
+     * the current operation state.
+     *
+     * @param state - The current operation state.
+     */
+    fireProgress(state) {
+        for (const callback of this.pollProgressCallbacks) {
+            callback(state);
+        }
+    }
+    /**
+     * Invokes the underlying operation's cancel method.
+     */
+    async cancelOnce(options = {}) {
+        this.operation = await this.operation.cancel(options);
+    }
+    /**
+     * Returns a promise that will resolve once a single polling request finishes.
+     * It does this by calling the update method of the Poller's operation.
+     *
+     * It only optionally receives an object with an abortSignal property, from \@azure/abort-controller's AbortSignalLike.
+     *
+     * @param options - Optional properties passed to the operation's update method.
+     */
+    poll(options = {}) {
+        if (!this.pollOncePromise) {
+            this.pollOncePromise = this.pollOnce(options);
+            const clearPollOncePromise = () => {
+                this.pollOncePromise = undefined;
+            };
+            this.pollOncePromise.then(clearPollOncePromise, clearPollOncePromise).catch(this.reject);
+        }
+        return this.pollOncePromise;
+    }
+    processUpdatedState() {
+        if (this.operation.state.error) {
+            this.stopped = true;
+            if (!this.resolveOnUnsuccessful) {
+                this.reject(this.operation.state.error);
+                throw this.operation.state.error;
+            }
+        }
+        if (this.operation.state.isCancelled) {
+            this.stopped = true;
+            if (!this.resolveOnUnsuccessful) {
+                const error = new PollerCancelledError("Operation was canceled");
+                this.reject(error);
+                throw error;
+            }
+        }
+        if (this.isDone() && this.resolve) {
+            // If the poller has finished polling, this means we now have a result.
+            // However, it can be the case that TResult is instantiated to void, so
+            // we are not expecting a result anyway. To assert that we might not
+            // have a result eventually after finishing polling, we cast the result
+            // to TResult.
+            this.resolve(this.getResult());
+        }
+    }
+    /**
+     * Returns a promise that will resolve once the underlying operation is completed.
+     */
+    async pollUntilDone(pollOptions = {}) {
+        if (this.stopped) {
+            this.startPolling(pollOptions).catch(this.reject);
+        }
+        // This is needed because the state could have been updated by
+        // `cancelOperation`, e.g. the operation is canceled or an error occurred.
+        this.processUpdatedState();
+        return this.promise;
+    }
+    /**
+     * Invokes the provided callback after each polling is completed,
+     * sending the current state of the poller's operation.
+     *
+     * It returns a method that can be used to stop receiving updates on the given callback function.
+     */
+    onProgress(callback) {
+        this.pollProgressCallbacks.push(callback);
+        return () => {
+            this.pollProgressCallbacks = this.pollProgressCallbacks.filter((c) => c !== callback);
+        };
+    }
+    /**
+     * Returns true if the poller has finished polling.
+     */
+    isDone() {
+        const state = this.operation.state;
+        return Boolean(state.isCompleted || state.isCancelled || state.error);
+    }
+    /**
+     * Stops the poller from continuing to poll.
+     */
+    stopPolling() {
+        if (!this.stopped) {
+            this.stopped = true;
+            if (this.reject) {
+                this.reject(new PollerStoppedError("This poller is already stopped"));
+            }
+        }
+    }
+    /**
+     * Returns true if the poller is stopped.
+     */
+    isStopped() {
+        return this.stopped;
+    }
+    /**
+     * Attempts to cancel the underlying operation.
+     *
+     * It only optionally receives an object with an abortSignal property, from \@azure/abort-controller's AbortSignalLike.
+     *
+     * If it's called again before it finishes, it will throw an error.
+     *
+     * @param options - Optional properties passed to the operation's update method.
+     */
+    cancelOperation(options = {}) {
+        if (!this.cancelPromise) {
+            this.cancelPromise = this.cancelOnce(options);
+        }
+        else if (options.abortSignal) {
+            throw new Error("A cancel request is currently pending");
+        }
+        return this.cancelPromise;
+    }
+    /**
+     * Returns the state of the operation.
+     *
+     * Even though TState will be the same type inside any of the methods of any extension of the Poller class,
+     * implementations of the pollers can customize what's shared with the public by writing their own
+     * version of the `getOperationState` method, and by defining two types, one representing the internal state of the poller
+     * and a public type representing a safe to share subset of the properties of the internal state.
+     * Their definition of getOperationState can then return their public type.
+     *
+     * Example:
+     *
+     * ```ts
+     * // Let's say we have our poller's operation state defined as:
+     * interface MyOperationState extends PollOperationState<ResultType> {
+     *   privateProperty?: string;
+     *   publicProperty?: string;
+     * }
+     *
+     * // To allow us to have a true separation of public and private state, we have to define another interface:
+     * interface PublicState extends PollOperationState<ResultType> {
+     *   publicProperty?: string;
+     * }
+     *
+     * // Then, we define our Poller as follows:
+     * export class MyPoller extends Poller<MyOperationState, ResultType> {
+     *   // ... More content is needed here ...
+     *
+     *   public getOperationState(): PublicState {
+     *     const state: PublicState = this.operation.state;
+     *     return {
+     *       // Properties from PollOperationState<TResult>
+     *       isStarted: state.isStarted,
+     *       isCompleted: state.isCompleted,
+     *       isCancelled: state.isCancelled,
+     *       error: state.error,
+     *       result: state.result,
+     *
+     *       // The only other property needed by PublicState.
+     *       publicProperty: state.publicProperty
+     *     }
+     *   }
+     * }
+     * ```
+     *
+     * You can see this in the tests of this repository, go to the file:
+     * `../test/utils/testPoller.ts`
+     * and look for the getOperationState implementation.
+     */
+    getOperationState() {
+        return this.operation.state;
+    }
+    /**
+     * Returns the result value of the operation,
+     * regardless of the state of the poller.
+     * It can return undefined or an incomplete form of the final TResult value
+     * depending on the implementation.
+     */
+    getResult() {
+        const state = this.operation.state;
+        return state.result;
+    }
+    /**
+     * Returns a serialized version of the poller's operation
+     * by invoking the operation's toString method.
+     */
+    toString() {
+        return this.operation.toString();
+    }
+}
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -45171,7 +42607,7 @@ class SecretClient {
             },
             apiVersion: pipelineOptions.serviceVersion || LATEST_API_VERSION,
             loggingOptions: {
-                logger: logger$j.info,
+                logger: logger$k.info,
                 additionalAllowedHeaderNames: [
                     "x-ms-keyvault-region",
                     "x-ms-keyvault-network-info",
@@ -45920,7 +43356,7 @@ class AuthenticationRequiredError extends Error {
 /**
  * The AzureLogger used for all clients within the identity package
  */
-const logger$h = createClientLogger("identity");
+const logger$i = createClientLogger("identity");
 /**
  * Separates a list of environment variable names into a plain object with two arrays: an array of missing environment variables and another array with assigned environment variables.
  * @param supportedEnvVars - List of environment variable names
@@ -45960,7 +43396,7 @@ function formatError(scope, error) {
  *   `[title] => [message]`
  *
  */
-function credentialLoggerInstance(title, parent, log = logger$h) {
+function credentialLoggerInstance(title, parent, log = logger$i) {
     const fullTitle = parent ? `${parent.fullTitle} ${title}` : title;
     function info(message) {
         log.info(`${fullTitle} =>`, message);
@@ -45993,7 +43429,7 @@ function credentialLoggerInstance(title, parent, log = logger$h) {
  *   `[title] => getToken() => [message]`
  *
  */
-function credentialLogger(title, log = logger$h) {
+function credentialLogger(title, log = logger$i) {
     const credLogger = credentialLoggerInstance(title, undefined, log);
     return {
         ...credLogger,
@@ -46019,7 +43455,7 @@ const tracingClient = createTracingClient({
 /**
  * @internal
  */
-const logger$g = credentialLogger("ChainedTokenCredential");
+const logger$h = credentialLogger("ChainedTokenCredential");
 /**
  * Enables multiple `TokenCredential` implementations to be tried in order until
  * one of the getToken methods returns an access token. For more information, see
@@ -46084,17 +43520,17 @@ class ChainedTokenCredential {
                         errors.push(err);
                     }
                     else {
-                        logger$g.getToken.info(formatError(scopes, err));
+                        logger$h.getToken.info(formatError(scopes, err));
                         throw err;
                     }
                 }
             }
             if (!token && errors.length > 0) {
                 const err = new AggregateAuthenticationError(errors, "ChainedTokenCredential authentication failed.");
-                logger$g.getToken.info(formatError(scopes, err));
+                logger$h.getToken.info(formatError(scopes, err));
                 throw err;
             }
-            logger$g.getToken.info(`Result for ${successfulCredential.constructor.name}: ${formatSuccess(scopes)}`);
+            logger$h.getToken.info(`Result for ${successfulCredential.constructor.name}: ${formatSuccess(scopes)}`);
             if (token === null) {
                 throw new CredentialUnavailableError("Failed to retrieve a valid token");
             }
@@ -64869,7 +62305,7 @@ class ManagedIdentityApplication {
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const logger$f = credentialLogger("IdentityUtils");
+const logger$g = credentialLogger("IdentityUtils");
 /**
  * Latest AuthenticationRecord version
  */
@@ -64880,7 +62316,7 @@ const LatestAuthenticationRecordVersion = "1.0";
  */
 function ensureValidMsalToken(scopes, msalToken, getTokenOptions) {
     const error = (message) => {
-        logger$f.getToken.info(message);
+        logger$g.getToken.info(message);
         return new AuthenticationRequiredError({
             scopes: Array.isArray(scopes) ? scopes : [scopes],
             getTokenOptions,
@@ -64946,7 +62382,7 @@ function getKnownAuthorities(tenantId, authorityHost, disableInstanceDiscovery) 
  * @param credLogger - The logger of the credential.
  * @internal
  */
-const defaultLoggerCallback = (credLogger, platform = isNode ? "Node" : "Browser") => (level, message, containsPii) => {
+const defaultLoggerCallback = (credLogger, platform = "Node" ) => (level, message, containsPii) => {
     if (containsPii) {
         return;
     }
@@ -64993,17 +62429,17 @@ function handleMsalError(scopes, error, getTokenOptions) {
         const msalError = error;
         switch (msalError.errorCode) {
             case "endpoints_resolution_error":
-                logger$f.info(formatError(scopes, error.message));
+                logger$g.info(formatError(scopes, error.message));
                 return new CredentialUnavailableError(error.message);
             case "device_code_polling_cancelled":
                 return new AbortError("The authentication has been aborted by the caller.");
             case "consent_required":
             case "interaction_required":
             case "login_required":
-                logger$f.info(formatError(scopes, `Authentication returned errorCode ${msalError.errorCode}`));
+                logger$g.info(formatError(scopes, `Authentication returned errorCode ${msalError.errorCode}`));
                 break;
             default:
-                logger$f.info(formatError(scopes, `Failed to acquire token: ${error.message}`));
+                logger$g.info(formatError(scopes, `Failed to acquire token: ${error.message}`));
                 break;
         }
     }
@@ -65014,7 +62450,7 @@ function handleMsalError(scopes, error, getTokenOptions) {
         return error;
     }
     if (error.name === "NativeAuthError") {
-        logger$f.info(formatError(scopes, `Error from the native broker: ${error.message} with status code: ${error.statusCode}`));
+        logger$g.info(formatError(scopes, `Error from the native broker: ${error.message} with status code: ${error.statusCode}`));
         return error;
     }
     return new AuthenticationRequiredError({ scopes, getTokenOptions, message: error.message });
@@ -65065,6 +62501,1087 @@ function deserializeAuthenticationRecord(serializedRecord) {
         throw Error("Unsupported AuthenticationRecord version");
     }
     return parsed;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Default key used to access the XML attributes.
+ */
+const XML_ATTRKEY = "$";
+/**
+ * Default key used to access the XML value content.
+ */
+const XML_CHARKEY = "_";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * A type guard for a primitive response body.
+ * @param value - Value to test
+ *
+ * @internal
+ */
+function isPrimitiveBody(value, mapperTypeName) {
+    return (mapperTypeName !== "Composite" &&
+        mapperTypeName !== "Dictionary" &&
+        (typeof value === "string" ||
+            typeof value === "number" ||
+            typeof value === "boolean" ||
+            (mapperTypeName === null || mapperTypeName === void 0 ? void 0 : mapperTypeName.match(/^(Date|DateTime|DateTimeRfc1123|UnixTime|ByteArray|Base64Url)$/i)) !==
+                null ||
+            value === undefined ||
+            value === null));
+}
+/**
+ * Maps the response as follows:
+ * - wraps the response body if needed (typically if its type is primitive).
+ * - returns null if the combination of the headers and the body is empty.
+ * - otherwise, returns the combination of the headers and the body.
+ *
+ * @param responseObject - a representation of the parsed response
+ * @returns the response that will be returned to the user which can be null and/or wrapped
+ *
+ * @internal
+ */
+function handleNullableResponseAndWrappableBody(responseObject) {
+    const combinedHeadersAndBody = Object.assign(Object.assign({}, responseObject.headers), responseObject.body);
+    if (responseObject.hasNullableType &&
+        Object.getOwnPropertyNames(combinedHeadersAndBody).length === 0) {
+        return responseObject.shouldWrapBody ? { body: null } : null;
+    }
+    else {
+        return responseObject.shouldWrapBody
+            ? Object.assign(Object.assign({}, responseObject.headers), { body: responseObject.body }) : combinedHeadersAndBody;
+    }
+}
+/**
+ * Take a `FullOperationResponse` and turn it into a flat
+ * response object to hand back to the consumer.
+ * @param fullResponse - The processed response from the operation request
+ * @param responseSpec - The response map from the OperationSpec
+ *
+ * @internal
+ */
+function flattenResponse(fullResponse, responseSpec) {
+    var _a, _b;
+    const parsedHeaders = fullResponse.parsedHeaders;
+    // head methods never have a body, but we return a boolean set to body property
+    // to indicate presence/absence of the resource
+    if (fullResponse.request.method === "HEAD") {
+        return Object.assign(Object.assign({}, parsedHeaders), { body: fullResponse.parsedBody });
+    }
+    const bodyMapper = responseSpec && responseSpec.bodyMapper;
+    const isNullable = Boolean(bodyMapper === null || bodyMapper === void 0 ? void 0 : bodyMapper.nullable);
+    const expectedBodyTypeName = bodyMapper === null || bodyMapper === void 0 ? void 0 : bodyMapper.type.name;
+    /** If the body is asked for, we look at the expected body type to handle it */
+    if (expectedBodyTypeName === "Stream") {
+        return Object.assign(Object.assign({}, parsedHeaders), { blobBody: fullResponse.blobBody, readableStreamBody: fullResponse.readableStreamBody });
+    }
+    const modelProperties = (expectedBodyTypeName === "Composite" &&
+        bodyMapper.type.modelProperties) ||
+        {};
+    const isPageableResponse = Object.keys(modelProperties).some((k) => modelProperties[k].serializedName === "");
+    if (expectedBodyTypeName === "Sequence" || isPageableResponse) {
+        const arrayResponse = (_a = fullResponse.parsedBody) !== null && _a !== void 0 ? _a : [];
+        for (const key of Object.keys(modelProperties)) {
+            if (modelProperties[key].serializedName) {
+                arrayResponse[key] = (_b = fullResponse.parsedBody) === null || _b === void 0 ? void 0 : _b[key];
+            }
+        }
+        if (parsedHeaders) {
+            for (const key of Object.keys(parsedHeaders)) {
+                arrayResponse[key] = parsedHeaders[key];
+            }
+        }
+        return isNullable &&
+            !fullResponse.parsedBody &&
+            !parsedHeaders &&
+            Object.getOwnPropertyNames(modelProperties).length === 0
+            ? null
+            : arrayResponse;
+    }
+    return handleNullableResponseAndWrappableBody({
+        body: fullResponse.parsedBody,
+        headers: parsedHeaders,
+        hasNullableType: isNullable,
+        shouldWrapBody: isPrimitiveBody(fullResponse.parsedBody, expectedBodyTypeName),
+    });
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Known types of Mappers
+ */
+const MapperTypeNames = {
+    Base64Url: "Base64Url",
+    Boolean: "Boolean",
+    ByteArray: "ByteArray",
+    Composite: "Composite",
+    Date: "Date",
+    DateTime: "DateTime",
+    DateTimeRfc1123: "DateTimeRfc1123",
+    Dictionary: "Dictionary",
+    Enum: "Enum",
+    Number: "Number",
+    Object: "Object",
+    Sequence: "Sequence",
+    String: "String",
+    Stream: "Stream",
+    TimeSpan: "TimeSpan",
+    UnixTime: "UnixTime",
+};
+
+var state$1 = {};
+
+var hasRequiredState;
+
+function requireState () {
+	if (hasRequiredState) return state$1;
+	hasRequiredState = 1;
+	// Copyright (c) Microsoft Corporation.
+	// Licensed under the MIT License.
+	Object.defineProperty(state$1, "__esModule", { value: true });
+	state$1.state = void 0;
+	/**
+	 * Holds the singleton operationRequestMap, to be shared across CJS and ESM imports.
+	 */
+	state$1.state = {
+	    operationRequestMap: new WeakMap(),
+	};
+	
+	return state$1;
+}
+
+var stateExports = requireState();
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+// @ts-expect-error The recommended approach to sharing module state between ESM and CJS.
+// See https://github.com/isaacs/tshy/blob/main/README.md#module-local-state for additional information.
+/**
+ * Defines the shared state between CJS and ESM by re-exporting the CJS state.
+ */
+const state = stateExports.state;
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * @internal
+ * Retrieves the value to use for a given operation argument
+ * @param operationArguments - The arguments passed from the generated client
+ * @param parameter - The parameter description
+ * @param fallbackObject - If something isn't found in the arguments bag, look here.
+ *  Generally used to look at the service client properties.
+ */
+function getOperationArgumentValueFromParameter(operationArguments, parameter, fallbackObject) {
+    let parameterPath = parameter.parameterPath;
+    const parameterMapper = parameter.mapper;
+    let value;
+    if (typeof parameterPath === "string") {
+        parameterPath = [parameterPath];
+    }
+    if (Array.isArray(parameterPath)) {
+        if (parameterPath.length > 0) {
+            if (parameterMapper.isConstant) {
+                value = parameterMapper.defaultValue;
+            }
+            else {
+                let propertySearchResult = getPropertyFromParameterPath(operationArguments, parameterPath);
+                if (!propertySearchResult.propertyFound && fallbackObject) {
+                    propertySearchResult = getPropertyFromParameterPath(fallbackObject, parameterPath);
+                }
+                let useDefaultValue = false;
+                if (!propertySearchResult.propertyFound) {
+                    useDefaultValue =
+                        parameterMapper.required ||
+                            (parameterPath[0] === "options" && parameterPath.length === 2);
+                }
+                value = useDefaultValue ? parameterMapper.defaultValue : propertySearchResult.propertyValue;
+            }
+        }
+    }
+    else {
+        if (parameterMapper.required) {
+            value = {};
+        }
+        for (const propertyName in parameterPath) {
+            const propertyMapper = parameterMapper.type.modelProperties[propertyName];
+            const propertyPath = parameterPath[propertyName];
+            const propertyValue = getOperationArgumentValueFromParameter(operationArguments, {
+                parameterPath: propertyPath,
+                mapper: propertyMapper,
+            }, fallbackObject);
+            if (propertyValue !== undefined) {
+                if (!value) {
+                    value = {};
+                }
+                value[propertyName] = propertyValue;
+            }
+        }
+    }
+    return value;
+}
+function getPropertyFromParameterPath(parent, parameterPath) {
+    const result = { propertyFound: false };
+    let i = 0;
+    for (; i < parameterPath.length; ++i) {
+        const parameterPathPart = parameterPath[i];
+        // Make sure to check inherited properties too, so don't use hasOwnProperty().
+        if (parent && parameterPathPart in parent) {
+            parent = parent[parameterPathPart];
+        }
+        else {
+            break;
+        }
+    }
+    if (i === parameterPath.length) {
+        result.propertyValue = parent;
+        result.propertyFound = true;
+    }
+    return result;
+}
+const originalRequestSymbol = Symbol.for("@azure/core-client original request");
+function hasOriginalRequest(request) {
+    return originalRequestSymbol in request;
+}
+function getOperationRequestInfo(request) {
+    if (hasOriginalRequest(request)) {
+        return getOperationRequestInfo(request[originalRequestSymbol]);
+    }
+    let info = state.operationRequestMap.get(request);
+    if (!info) {
+        info = {};
+        state.operationRequestMap.set(request, info);
+    }
+    return info;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const defaultJsonContentTypes = ["application/json", "text/json"];
+const defaultXmlContentTypes = ["application/xml", "application/atom+xml"];
+/**
+ * The programmatic identifier of the deserializationPolicy.
+ */
+const deserializationPolicyName = "deserializationPolicy";
+/**
+ * This policy handles parsing out responses according to OperationSpecs on the request.
+ */
+function deserializationPolicy(options = {}) {
+    var _a, _b, _c, _d, _e, _f, _g;
+    const jsonContentTypes = (_b = (_a = options.expectedContentTypes) === null || _a === void 0 ? void 0 : _a.json) !== null && _b !== void 0 ? _b : defaultJsonContentTypes;
+    const xmlContentTypes = (_d = (_c = options.expectedContentTypes) === null || _c === void 0 ? void 0 : _c.xml) !== null && _d !== void 0 ? _d : defaultXmlContentTypes;
+    const parseXML = options.parseXML;
+    const serializerOptions = options.serializerOptions;
+    const updatedOptions = {
+        xml: {
+            rootName: (_e = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.rootName) !== null && _e !== void 0 ? _e : "",
+            includeRoot: (_f = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.includeRoot) !== null && _f !== void 0 ? _f : false,
+            xmlCharKey: (_g = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.xmlCharKey) !== null && _g !== void 0 ? _g : XML_CHARKEY,
+        },
+    };
+    return {
+        name: deserializationPolicyName,
+        async sendRequest(request, next) {
+            const response = await next(request);
+            return deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, updatedOptions, parseXML);
+        },
+    };
+}
+function getOperationResponseMap(parsedResponse) {
+    let result;
+    const request = parsedResponse.request;
+    const operationInfo = getOperationRequestInfo(request);
+    const operationSpec = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationSpec;
+    if (operationSpec) {
+        if (!(operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationResponseGetter)) {
+            result = operationSpec.responses[parsedResponse.status];
+        }
+        else {
+            result = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationResponseGetter(operationSpec, parsedResponse);
+        }
+    }
+    return result;
+}
+function shouldDeserializeResponse(parsedResponse) {
+    const request = parsedResponse.request;
+    const operationInfo = getOperationRequestInfo(request);
+    const shouldDeserialize = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.shouldDeserialize;
+    let result;
+    if (shouldDeserialize === undefined) {
+        result = true;
+    }
+    else if (typeof shouldDeserialize === "boolean") {
+        result = shouldDeserialize;
+    }
+    else {
+        result = shouldDeserialize(parsedResponse);
+    }
+    return result;
+}
+async function deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, options, parseXML) {
+    const parsedResponse = await parse(jsonContentTypes, xmlContentTypes, response, options, parseXML);
+    if (!shouldDeserializeResponse(parsedResponse)) {
+        return parsedResponse;
+    }
+    const operationInfo = getOperationRequestInfo(parsedResponse.request);
+    const operationSpec = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationSpec;
+    if (!operationSpec || !operationSpec.responses) {
+        return parsedResponse;
+    }
+    const responseSpec = getOperationResponseMap(parsedResponse);
+    const { error, shouldReturnResponse } = handleErrorResponse(parsedResponse, operationSpec, responseSpec, options);
+    if (error) {
+        throw error;
+    }
+    else if (shouldReturnResponse) {
+        return parsedResponse;
+    }
+    // An operation response spec does exist for current status code, so
+    // use it to deserialize the response.
+    if (responseSpec) {
+        if (responseSpec.bodyMapper) {
+            let valueToDeserialize = parsedResponse.parsedBody;
+            if (operationSpec.isXML && responseSpec.bodyMapper.type.name === MapperTypeNames.Sequence) {
+                valueToDeserialize =
+                    typeof valueToDeserialize === "object"
+                        ? valueToDeserialize[responseSpec.bodyMapper.xmlElementName]
+                        : [];
+            }
+            try {
+                parsedResponse.parsedBody = operationSpec.serializer.deserialize(responseSpec.bodyMapper, valueToDeserialize, "operationRes.parsedBody", options);
+            }
+            catch (deserializeError) {
+                const restError = new RestError(`Error ${deserializeError} occurred in deserializing the responseBody - ${parsedResponse.bodyAsText}`, {
+                    statusCode: parsedResponse.status,
+                    request: parsedResponse.request,
+                    response: parsedResponse,
+                });
+                throw restError;
+            }
+        }
+        else if (operationSpec.httpMethod === "HEAD") {
+            // head methods never have a body, but we return a boolean to indicate presence/absence of the resource
+            parsedResponse.parsedBody = response.status >= 200 && response.status < 300;
+        }
+        if (responseSpec.headersMapper) {
+            parsedResponse.parsedHeaders = operationSpec.serializer.deserialize(responseSpec.headersMapper, parsedResponse.headers.toJSON(), "operationRes.parsedHeaders", { xml: {}, ignoreUnknownProperties: true });
+        }
+    }
+    return parsedResponse;
+}
+function isOperationSpecEmpty(operationSpec) {
+    const expectedStatusCodes = Object.keys(operationSpec.responses);
+    return (expectedStatusCodes.length === 0 ||
+        (expectedStatusCodes.length === 1 && expectedStatusCodes[0] === "default"));
+}
+function handleErrorResponse(parsedResponse, operationSpec, responseSpec, options) {
+    var _a, _b, _c, _d, _e;
+    const isSuccessByStatus = 200 <= parsedResponse.status && parsedResponse.status < 300;
+    const isExpectedStatusCode = isOperationSpecEmpty(operationSpec)
+        ? isSuccessByStatus
+        : !!responseSpec;
+    if (isExpectedStatusCode) {
+        if (responseSpec) {
+            if (!responseSpec.isError) {
+                return { error: null, shouldReturnResponse: false };
+            }
+        }
+        else {
+            return { error: null, shouldReturnResponse: false };
+        }
+    }
+    const errorResponseSpec = responseSpec !== null && responseSpec !== void 0 ? responseSpec : operationSpec.responses.default;
+    const initialErrorMessage = ((_a = parsedResponse.request.streamResponseStatusCodes) === null || _a === void 0 ? void 0 : _a.has(parsedResponse.status))
+        ? `Unexpected status code: ${parsedResponse.status}`
+        : parsedResponse.bodyAsText;
+    const error = new RestError(initialErrorMessage, {
+        statusCode: parsedResponse.status,
+        request: parsedResponse.request,
+        response: parsedResponse,
+    });
+    // If the item failed but there's no error spec or default spec to deserialize the error,
+    // and the parsed body doesn't look like an error object,
+    // we should fail so we just throw the parsed response
+    if (!errorResponseSpec &&
+        !(((_c = (_b = parsedResponse.parsedBody) === null || _b === void 0 ? void 0 : _b.error) === null || _c === void 0 ? void 0 : _c.code) && ((_e = (_d = parsedResponse.parsedBody) === null || _d === void 0 ? void 0 : _d.error) === null || _e === void 0 ? void 0 : _e.message))) {
+        throw error;
+    }
+    const defaultBodyMapper = errorResponseSpec === null || errorResponseSpec === void 0 ? void 0 : errorResponseSpec.bodyMapper;
+    const defaultHeadersMapper = errorResponseSpec === null || errorResponseSpec === void 0 ? void 0 : errorResponseSpec.headersMapper;
+    try {
+        // If error response has a body, try to deserialize it using default body mapper.
+        // Then try to extract error code & message from it
+        if (parsedResponse.parsedBody) {
+            const parsedBody = parsedResponse.parsedBody;
+            let deserializedError;
+            if (defaultBodyMapper) {
+                let valueToDeserialize = parsedBody;
+                if (operationSpec.isXML && defaultBodyMapper.type.name === MapperTypeNames.Sequence) {
+                    valueToDeserialize = [];
+                    const elementName = defaultBodyMapper.xmlElementName;
+                    if (typeof parsedBody === "object" && elementName) {
+                        valueToDeserialize = parsedBody[elementName];
+                    }
+                }
+                deserializedError = operationSpec.serializer.deserialize(defaultBodyMapper, valueToDeserialize, "error.response.parsedBody", options);
+            }
+            const internalError = parsedBody.error || deserializedError || parsedBody;
+            error.code = internalError.code;
+            if (internalError.message) {
+                error.message = internalError.message;
+            }
+            if (defaultBodyMapper) {
+                error.response.parsedBody = deserializedError;
+            }
+        }
+        // If error response has headers, try to deserialize it using default header mapper
+        if (parsedResponse.headers && defaultHeadersMapper) {
+            error.response.parsedHeaders =
+                operationSpec.serializer.deserialize(defaultHeadersMapper, parsedResponse.headers.toJSON(), "operationRes.parsedHeaders");
+        }
+    }
+    catch (defaultError) {
+        error.message = `Error "${defaultError.message}" occurred in deserializing the responseBody - "${parsedResponse.bodyAsText}" for the default response.`;
+    }
+    return { error, shouldReturnResponse: false };
+}
+async function parse(jsonContentTypes, xmlContentTypes, operationResponse, opts, parseXML) {
+    var _a;
+    if (!((_a = operationResponse.request.streamResponseStatusCodes) === null || _a === void 0 ? void 0 : _a.has(operationResponse.status)) &&
+        operationResponse.bodyAsText) {
+        const text = operationResponse.bodyAsText;
+        const contentType = operationResponse.headers.get("Content-Type") || "";
+        const contentComponents = !contentType
+            ? []
+            : contentType.split(";").map((component) => component.toLowerCase());
+        try {
+            if (contentComponents.length === 0 ||
+                contentComponents.some((component) => jsonContentTypes.indexOf(component) !== -1)) {
+                operationResponse.parsedBody = JSON.parse(text);
+                return operationResponse;
+            }
+            else if (contentComponents.some((component) => xmlContentTypes.indexOf(component) !== -1)) {
+                if (!parseXML) {
+                    throw new Error("Parsing XML not supported.");
+                }
+                const body = await parseXML(text, opts.xml);
+                operationResponse.parsedBody = body;
+                return operationResponse;
+            }
+        }
+        catch (err) {
+            const msg = `Error "${err}" occurred while parsing the response body - ${operationResponse.bodyAsText}.`;
+            const errCode = err.code || RestError.PARSE_ERROR;
+            const e = new RestError(msg, {
+                code: errCode,
+                statusCode: operationResponse.status,
+                request: operationResponse.request,
+                response: operationResponse,
+            });
+            throw e;
+        }
+    }
+    return operationResponse;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Gets the list of status codes for streaming responses.
+ * @internal
+ */
+function getStreamingResponseStatusCodes(operationSpec) {
+    const result = new Set();
+    for (const statusCode in operationSpec.responses) {
+        const operationResponse = operationSpec.responses[statusCode];
+        if (operationResponse.bodyMapper &&
+            operationResponse.bodyMapper.type.name === MapperTypeNames.Stream) {
+            result.add(Number(statusCode));
+        }
+    }
+    return result;
+}
+/**
+ * Get the path to this parameter's value as a dotted string (a.b.c).
+ * @param parameter - The parameter to get the path string for.
+ * @returns The path to this parameter's value as a dotted string.
+ * @internal
+ */
+function getPathStringFromParameter(parameter) {
+    const { parameterPath, mapper } = parameter;
+    let result;
+    if (typeof parameterPath === "string") {
+        result = parameterPath;
+    }
+    else if (Array.isArray(parameterPath)) {
+        result = parameterPath.join(".");
+    }
+    else {
+        result = mapper.serializedName;
+    }
+    return result;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * The programmatic identifier of the serializationPolicy.
+ */
+const serializationPolicyName = "serializationPolicy";
+/**
+ * This policy handles assembling the request body and headers using
+ * an OperationSpec and OperationArguments on the request.
+ */
+function serializationPolicy(options = {}) {
+    const stringifyXML = options.stringifyXML;
+    return {
+        name: serializationPolicyName,
+        async sendRequest(request, next) {
+            const operationInfo = getOperationRequestInfo(request);
+            const operationSpec = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationSpec;
+            const operationArguments = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationArguments;
+            if (operationSpec && operationArguments) {
+                serializeHeaders(request, operationArguments, operationSpec);
+                serializeRequestBody(request, operationArguments, operationSpec, stringifyXML);
+            }
+            return next(request);
+        },
+    };
+}
+/**
+ * @internal
+ */
+function serializeHeaders(request, operationArguments, operationSpec) {
+    var _a, _b;
+    if (operationSpec.headerParameters) {
+        for (const headerParameter of operationSpec.headerParameters) {
+            let headerValue = getOperationArgumentValueFromParameter(operationArguments, headerParameter);
+            if ((headerValue !== null && headerValue !== undefined) || headerParameter.mapper.required) {
+                headerValue = operationSpec.serializer.serialize(headerParameter.mapper, headerValue, getPathStringFromParameter(headerParameter));
+                const headerCollectionPrefix = headerParameter.mapper
+                    .headerCollectionPrefix;
+                if (headerCollectionPrefix) {
+                    for (const key of Object.keys(headerValue)) {
+                        request.headers.set(headerCollectionPrefix + key, headerValue[key]);
+                    }
+                }
+                else {
+                    request.headers.set(headerParameter.mapper.serializedName || getPathStringFromParameter(headerParameter), headerValue);
+                }
+            }
+        }
+    }
+    const customHeaders = (_b = (_a = operationArguments.options) === null || _a === void 0 ? void 0 : _a.requestOptions) === null || _b === void 0 ? void 0 : _b.customHeaders;
+    if (customHeaders) {
+        for (const customHeaderName of Object.keys(customHeaders)) {
+            request.headers.set(customHeaderName, customHeaders[customHeaderName]);
+        }
+    }
+}
+/**
+ * @internal
+ */
+function serializeRequestBody(request, operationArguments, operationSpec, stringifyXML = function () {
+    throw new Error("XML serialization unsupported!");
+}) {
+    var _a, _b, _c, _d, _e;
+    const serializerOptions = (_a = operationArguments.options) === null || _a === void 0 ? void 0 : _a.serializerOptions;
+    const updatedOptions = {
+        xml: {
+            rootName: (_b = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.rootName) !== null && _b !== void 0 ? _b : "",
+            includeRoot: (_c = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.includeRoot) !== null && _c !== void 0 ? _c : false,
+            xmlCharKey: (_d = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.xmlCharKey) !== null && _d !== void 0 ? _d : XML_CHARKEY,
+        },
+    };
+    const xmlCharKey = updatedOptions.xml.xmlCharKey;
+    if (operationSpec.requestBody && operationSpec.requestBody.mapper) {
+        request.body = getOperationArgumentValueFromParameter(operationArguments, operationSpec.requestBody);
+        const bodyMapper = operationSpec.requestBody.mapper;
+        const { required, serializedName, xmlName, xmlElementName, xmlNamespace, xmlNamespacePrefix, nullable, } = bodyMapper;
+        const typeName = bodyMapper.type.name;
+        try {
+            if ((request.body !== undefined && request.body !== null) ||
+                (nullable && request.body === null) ||
+                required) {
+                const requestBodyParameterPathString = getPathStringFromParameter(operationSpec.requestBody);
+                request.body = operationSpec.serializer.serialize(bodyMapper, request.body, requestBodyParameterPathString, updatedOptions);
+                const isStream = typeName === MapperTypeNames.Stream;
+                if (operationSpec.isXML) {
+                    const xmlnsKey = xmlNamespacePrefix ? `xmlns:${xmlNamespacePrefix}` : "xmlns";
+                    const value = getXmlValueWithNamespace(xmlNamespace, xmlnsKey, typeName, request.body, updatedOptions);
+                    if (typeName === MapperTypeNames.Sequence) {
+                        request.body = stringifyXML(prepareXMLRootList(value, xmlElementName || xmlName || serializedName, xmlnsKey, xmlNamespace), { rootName: xmlName || serializedName, xmlCharKey });
+                    }
+                    else if (!isStream) {
+                        request.body = stringifyXML(value, {
+                            rootName: xmlName || serializedName,
+                            xmlCharKey,
+                        });
+                    }
+                }
+                else if (typeName === MapperTypeNames.String &&
+                    (((_e = operationSpec.contentType) === null || _e === void 0 ? void 0 : _e.match("text/plain")) || operationSpec.mediaType === "text")) {
+                    // the String serializer has validated that request body is a string
+                    // so just send the string.
+                    return;
+                }
+                else if (!isStream) {
+                    request.body = JSON.stringify(request.body);
+                }
+            }
+        }
+        catch (error) {
+            throw new Error(`Error "${error.message}" occurred in serializing the payload - ${JSON.stringify(serializedName, undefined, "  ")}.`);
+        }
+    }
+    else if (operationSpec.formDataParameters && operationSpec.formDataParameters.length > 0) {
+        request.formData = {};
+        for (const formDataParameter of operationSpec.formDataParameters) {
+            const formDataParameterValue = getOperationArgumentValueFromParameter(operationArguments, formDataParameter);
+            if (formDataParameterValue !== undefined && formDataParameterValue !== null) {
+                const formDataParameterPropertyName = formDataParameter.mapper.serializedName || getPathStringFromParameter(formDataParameter);
+                request.formData[formDataParameterPropertyName] = operationSpec.serializer.serialize(formDataParameter.mapper, formDataParameterValue, getPathStringFromParameter(formDataParameter), updatedOptions);
+            }
+        }
+    }
+}
+/**
+ * Adds an xml namespace to the xml serialized object if needed, otherwise it just returns the value itself
+ */
+function getXmlValueWithNamespace(xmlNamespace, xmlnsKey, typeName, serializedValue, options) {
+    // Composite and Sequence schemas already got their root namespace set during serialization
+    // We just need to add xmlns to the other schema types
+    if (xmlNamespace && !["Composite", "Sequence", "Dictionary"].includes(typeName)) {
+        const result = {};
+        result[options.xml.xmlCharKey] = serializedValue;
+        result[XML_ATTRKEY] = { [xmlnsKey]: xmlNamespace };
+        return result;
+    }
+    return serializedValue;
+}
+function prepareXMLRootList(obj, elementName, xmlNamespaceKey, xmlNamespace) {
+    if (!Array.isArray(obj)) {
+        obj = [obj];
+    }
+    if (!xmlNamespaceKey || !xmlNamespace) {
+        return { [elementName]: obj };
+    }
+    const result = { [elementName]: obj };
+    result[XML_ATTRKEY] = { [xmlNamespaceKey]: xmlNamespace };
+    return result;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Creates a new Pipeline for use with a Service Client.
+ * Adds in deserializationPolicy by default.
+ * Also adds in bearerTokenAuthenticationPolicy if passed a TokenCredential.
+ * @param options - Options to customize the created pipeline.
+ */
+function createClientPipeline(options = {}) {
+    const pipeline = createPipelineFromOptions(options !== null && options !== void 0 ? options : {});
+    if (options.credentialOptions) {
+        pipeline.addPolicy(bearerTokenAuthenticationPolicy({
+            credential: options.credentialOptions.credential,
+            scopes: options.credentialOptions.credentialScopes,
+        }));
+    }
+    pipeline.addPolicy(serializationPolicy(options.serializationOptions), { phase: "Serialize" });
+    pipeline.addPolicy(deserializationPolicy(options.deserializationOptions), {
+        phase: "Deserialize",
+    });
+    return pipeline;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+let cachedHttpClient;
+function getCachedDefaultHttpClient() {
+    if (!cachedHttpClient) {
+        cachedHttpClient = createDefaultHttpClient();
+    }
+    return cachedHttpClient;
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const CollectionFormatToDelimiterMap = {
+    CSV: ",",
+    SSV: " ",
+    Multi: "Multi",
+    TSV: "\t",
+    Pipes: "|",
+};
+function getRequestUrl(baseUri, operationSpec, operationArguments, fallbackObject) {
+    const urlReplacements = calculateUrlReplacements(operationSpec, operationArguments, fallbackObject);
+    let isAbsolutePath = false;
+    let requestUrl = replaceAll(baseUri, urlReplacements);
+    if (operationSpec.path) {
+        let path = replaceAll(operationSpec.path, urlReplacements);
+        // QUIRK: sometimes we get a path component like /{nextLink}
+        // which may be a fully formed URL with a leading /. In that case, we should
+        // remove the leading /
+        if (operationSpec.path === "/{nextLink}" && path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        // QUIRK: sometimes we get a path component like {nextLink}
+        // which may be a fully formed URL. In that case, we should
+        // ignore the baseUri.
+        if (isAbsoluteUrl(path)) {
+            requestUrl = path;
+            isAbsolutePath = true;
+        }
+        else {
+            requestUrl = appendPath(requestUrl, path);
+        }
+    }
+    const { queryParams, sequenceParams } = calculateQueryParameters(operationSpec, operationArguments, fallbackObject);
+    /**
+     * Notice that this call sets the `noOverwrite` parameter to true if the `requestUrl`
+     * is an absolute path. This ensures that existing query parameter values in `requestUrl`
+     * do not get overwritten. On the other hand when `requestUrl` is not absolute path, it
+     * is still being built so there is nothing to overwrite.
+     */
+    requestUrl = appendQueryParams(requestUrl, queryParams, sequenceParams, isAbsolutePath);
+    return requestUrl;
+}
+function replaceAll(input, replacements) {
+    let result = input;
+    for (const [searchValue, replaceValue] of replacements) {
+        result = result.split(searchValue).join(replaceValue);
+    }
+    return result;
+}
+function calculateUrlReplacements(operationSpec, operationArguments, fallbackObject) {
+    var _a;
+    const result = new Map();
+    if ((_a = operationSpec.urlParameters) === null || _a === void 0 ? void 0 : _a.length) {
+        for (const urlParameter of operationSpec.urlParameters) {
+            let urlParameterValue = getOperationArgumentValueFromParameter(operationArguments, urlParameter, fallbackObject);
+            const parameterPathString = getPathStringFromParameter(urlParameter);
+            urlParameterValue = operationSpec.serializer.serialize(urlParameter.mapper, urlParameterValue, parameterPathString);
+            if (!urlParameter.skipEncoding) {
+                urlParameterValue = encodeURIComponent(urlParameterValue);
+            }
+            result.set(`{${urlParameter.mapper.serializedName || parameterPathString}}`, urlParameterValue);
+        }
+    }
+    return result;
+}
+function isAbsoluteUrl(url) {
+    return url.includes("://");
+}
+function appendPath(url, pathToAppend) {
+    if (!pathToAppend) {
+        return url;
+    }
+    const parsedUrl = new URL(url);
+    let newPath = parsedUrl.pathname;
+    if (!newPath.endsWith("/")) {
+        newPath = `${newPath}/`;
+    }
+    if (pathToAppend.startsWith("/")) {
+        pathToAppend = pathToAppend.substring(1);
+    }
+    const searchStart = pathToAppend.indexOf("?");
+    if (searchStart !== -1) {
+        const path = pathToAppend.substring(0, searchStart);
+        const search = pathToAppend.substring(searchStart + 1);
+        newPath = newPath + path;
+        if (search) {
+            parsedUrl.search = parsedUrl.search ? `${parsedUrl.search}&${search}` : search;
+        }
+    }
+    else {
+        newPath = newPath + pathToAppend;
+    }
+    parsedUrl.pathname = newPath;
+    return parsedUrl.toString();
+}
+function calculateQueryParameters(operationSpec, operationArguments, fallbackObject) {
+    var _a;
+    const result = new Map();
+    const sequenceParams = new Set();
+    if ((_a = operationSpec.queryParameters) === null || _a === void 0 ? void 0 : _a.length) {
+        for (const queryParameter of operationSpec.queryParameters) {
+            if (queryParameter.mapper.type.name === "Sequence" && queryParameter.mapper.serializedName) {
+                sequenceParams.add(queryParameter.mapper.serializedName);
+            }
+            let queryParameterValue = getOperationArgumentValueFromParameter(operationArguments, queryParameter, fallbackObject);
+            if ((queryParameterValue !== undefined && queryParameterValue !== null) ||
+                queryParameter.mapper.required) {
+                queryParameterValue = operationSpec.serializer.serialize(queryParameter.mapper, queryParameterValue, getPathStringFromParameter(queryParameter));
+                const delimiter = queryParameter.collectionFormat
+                    ? CollectionFormatToDelimiterMap[queryParameter.collectionFormat]
+                    : "";
+                if (Array.isArray(queryParameterValue)) {
+                    // replace null and undefined
+                    queryParameterValue = queryParameterValue.map((item) => {
+                        if (item === null || item === undefined) {
+                            return "";
+                        }
+                        return item;
+                    });
+                }
+                if (queryParameter.collectionFormat === "Multi" && queryParameterValue.length === 0) {
+                    continue;
+                }
+                else if (Array.isArray(queryParameterValue) &&
+                    (queryParameter.collectionFormat === "SSV" || queryParameter.collectionFormat === "TSV")) {
+                    queryParameterValue = queryParameterValue.join(delimiter);
+                }
+                if (!queryParameter.skipEncoding) {
+                    if (Array.isArray(queryParameterValue)) {
+                        queryParameterValue = queryParameterValue.map((item) => {
+                            return encodeURIComponent(item);
+                        });
+                    }
+                    else {
+                        queryParameterValue = encodeURIComponent(queryParameterValue);
+                    }
+                }
+                // Join pipes and CSV *after* encoding, or the server will be upset.
+                if (Array.isArray(queryParameterValue) &&
+                    (queryParameter.collectionFormat === "CSV" || queryParameter.collectionFormat === "Pipes")) {
+                    queryParameterValue = queryParameterValue.join(delimiter);
+                }
+                result.set(queryParameter.mapper.serializedName || getPathStringFromParameter(queryParameter), queryParameterValue);
+            }
+        }
+    }
+    return {
+        queryParams: result,
+        sequenceParams,
+    };
+}
+function simpleParseQueryParams(queryString) {
+    const result = new Map();
+    if (!queryString || queryString[0] !== "?") {
+        return result;
+    }
+    // remove the leading ?
+    queryString = queryString.slice(1);
+    const pairs = queryString.split("&");
+    for (const pair of pairs) {
+        const [name, value] = pair.split("=", 2);
+        const existingValue = result.get(name);
+        if (existingValue) {
+            if (Array.isArray(existingValue)) {
+                existingValue.push(value);
+            }
+            else {
+                result.set(name, [existingValue, value]);
+            }
+        }
+        else {
+            result.set(name, value);
+        }
+    }
+    return result;
+}
+/** @internal */
+function appendQueryParams(url, queryParams, sequenceParams, noOverwrite = false) {
+    if (queryParams.size === 0) {
+        return url;
+    }
+    const parsedUrl = new URL(url);
+    // QUIRK: parsedUrl.searchParams will have their name/value pairs decoded, which
+    // can change their meaning to the server, such as in the case of a SAS signature.
+    // To avoid accidentally un-encoding a query param, we parse the key/values ourselves
+    const combinedParams = simpleParseQueryParams(parsedUrl.search);
+    for (const [name, value] of queryParams) {
+        const existingValue = combinedParams.get(name);
+        if (Array.isArray(existingValue)) {
+            if (Array.isArray(value)) {
+                existingValue.push(...value);
+                const valueSet = new Set(existingValue);
+                combinedParams.set(name, Array.from(valueSet));
+            }
+            else {
+                existingValue.push(value);
+            }
+        }
+        else if (existingValue) {
+            if (Array.isArray(value)) {
+                value.unshift(existingValue);
+            }
+            else if (sequenceParams.has(name)) {
+                combinedParams.set(name, [existingValue, value]);
+            }
+            if (!noOverwrite) {
+                combinedParams.set(name, value);
+            }
+        }
+        else {
+            combinedParams.set(name, value);
+        }
+    }
+    const searchPieces = [];
+    for (const [name, value] of combinedParams) {
+        if (typeof value === "string") {
+            searchPieces.push(`${name}=${value}`);
+        }
+        else if (Array.isArray(value)) {
+            // QUIRK: If we get an array of values, include multiple key/value pairs
+            for (const subValue of value) {
+                searchPieces.push(`${name}=${subValue}`);
+            }
+        }
+        else {
+            searchPieces.push(`${name}=${value}`);
+        }
+    }
+    // QUIRK: we have to set search manually as searchParams will encode comma when it shouldn't.
+    parsedUrl.search = searchPieces.length ? `?${searchPieces.join("&")}` : "";
+    return parsedUrl.toString();
+}
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+const logger$f = createClientLogger("core-client");
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+/**
+ * Initializes a new instance of the ServiceClient.
+ */
+class ServiceClient {
+    /**
+     * The ServiceClient constructor
+     * @param options - The service client options that govern the behavior of the client.
+     */
+    constructor(options = {}) {
+        var _a, _b;
+        this._requestContentType = options.requestContentType;
+        this._endpoint = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri;
+        if (options.baseUri) {
+            logger$f.warning("The baseUri option for SDK Clients has been deprecated, please use endpoint instead.");
+        }
+        this._allowInsecureConnection = options.allowInsecureConnection;
+        this._httpClient = options.httpClient || getCachedDefaultHttpClient();
+        this.pipeline = options.pipeline || createDefaultPipeline(options);
+        if ((_b = options.additionalPolicies) === null || _b === void 0 ? void 0 : _b.length) {
+            for (const { policy, position } of options.additionalPolicies) {
+                // Sign happens after Retry and is commonly needed to occur
+                // before policies that intercept post-retry.
+                const afterPhase = position === "perRetry" ? "Sign" : undefined;
+                this.pipeline.addPolicy(policy, {
+                    afterPhase,
+                });
+            }
+        }
+    }
+    /**
+     * Send the provided httpRequest.
+     */
+    async sendRequest(request) {
+        return this.pipeline.sendRequest(this._httpClient, request);
+    }
+    /**
+     * Send an HTTP request that is populated using the provided OperationSpec.
+     * @typeParam T - The typed result of the request, based on the OperationSpec.
+     * @param operationArguments - The arguments that the HTTP request's templated values will be populated from.
+     * @param operationSpec - The OperationSpec to use to populate the httpRequest.
+     */
+    async sendOperationRequest(operationArguments, operationSpec) {
+        const endpoint = operationSpec.baseUrl || this._endpoint;
+        if (!endpoint) {
+            throw new Error("If operationSpec.baseUrl is not specified, then the ServiceClient must have a endpoint string property that contains the base URL to use.");
+        }
+        // Templatized URLs sometimes reference properties on the ServiceClient child class,
+        // so we have to pass `this` below in order to search these properties if they're
+        // not part of OperationArguments
+        const url = getRequestUrl(endpoint, operationSpec, operationArguments, this);
+        const request = createPipelineRequest({
+            url,
+        });
+        request.method = operationSpec.httpMethod;
+        const operationInfo = getOperationRequestInfo(request);
+        operationInfo.operationSpec = operationSpec;
+        operationInfo.operationArguments = operationArguments;
+        const contentType = operationSpec.contentType || this._requestContentType;
+        if (contentType && operationSpec.requestBody) {
+            request.headers.set("Content-Type", contentType);
+        }
+        const options = operationArguments.options;
+        if (options) {
+            const requestOptions = options.requestOptions;
+            if (requestOptions) {
+                if (requestOptions.timeout) {
+                    request.timeout = requestOptions.timeout;
+                }
+                if (requestOptions.onUploadProgress) {
+                    request.onUploadProgress = requestOptions.onUploadProgress;
+                }
+                if (requestOptions.onDownloadProgress) {
+                    request.onDownloadProgress = requestOptions.onDownloadProgress;
+                }
+                if (requestOptions.shouldDeserialize !== undefined) {
+                    operationInfo.shouldDeserialize = requestOptions.shouldDeserialize;
+                }
+                if (requestOptions.allowInsecureConnection) {
+                    request.allowInsecureConnection = true;
+                }
+            }
+            if (options.abortSignal) {
+                request.abortSignal = options.abortSignal;
+            }
+            if (options.tracingOptions) {
+                request.tracingOptions = options.tracingOptions;
+            }
+        }
+        if (this._allowInsecureConnection) {
+            request.allowInsecureConnection = true;
+        }
+        if (request.streamResponseStatusCodes === undefined) {
+            request.streamResponseStatusCodes = getStreamingResponseStatusCodes(operationSpec);
+        }
+        try {
+            const rawResponse = await this.sendRequest(request);
+            const flatResponse = flattenResponse(rawResponse, operationSpec.responses[rawResponse.status]);
+            if (options === null || options === void 0 ? void 0 : options.onResponse) {
+                options.onResponse(rawResponse, flatResponse);
+            }
+            return flatResponse;
+        }
+        catch (error) {
+            if (typeof error === "object" && (error === null || error === void 0 ? void 0 : error.response)) {
+                const rawResponse = error.response;
+                const flatResponse = flattenResponse(rawResponse, operationSpec.responses[error.statusCode] || operationSpec.responses["default"]);
+                error.details = flatResponse;
+                if (options === null || options === void 0 ? void 0 : options.onResponse) {
+                    options.onResponse(rawResponse, flatResponse, error);
+                }
+            }
+            throw error;
+        }
+    }
+}
+function createDefaultPipeline(options) {
+    const credentialScopes = getCredentialScopes(options);
+    const credentialOptions = options.credential && credentialScopes
+        ? { credentialScopes, credential: options.credential }
+        : undefined;
+    return createClientPipeline(Object.assign(Object.assign({}, options), { credentialOptions }));
+}
+function getCredentialScopes(options) {
+    if (options.credentialScopes) {
+        return options.credentialScopes;
+    }
+    if (options.endpoint) {
+        return `${options.endpoint}/.default`;
+    }
+    if (options.baseUri) {
+        return `${options.baseUri}/.default`;
+    }
+    if (options.credential && !options.credentialScopes) {
+        throw new Error(`When using credentials, the ServiceClientOptions must contain either a endpoint or a credentialScopes. Unable to create a bearerTokenAuthenticationPolicy`);
+    }
+    return undefined;
 }
 
 // Copyright (c) Microsoft Corporation.
@@ -65169,7 +63686,7 @@ function getIdentityClientAuthorityHost(options) {
     // The authorityHost can come from options or from the AZURE_AUTHORITY_HOST environment variable.
     let authorityHost = options?.authorityHost;
     // The AZURE_AUTHORITY_HOST environment variable can only be provided in Node.js.
-    if (isNode) {
+    {
         authorityHost = authorityHost ?? process.env.AZURE_AUTHORITY_HOST;
     }
     // If the authorityHost is not provided, we use the default one from the public cloud: https://login.microsoftonline.com
@@ -65220,7 +63737,7 @@ class IdentityClient extends ServiceClient {
         }
     }
     async sendTokenRequest(request) {
-        logger$h.info(`IdentityClient: sending token request to [${request.url}]`);
+        logger$i.info(`IdentityClient: sending token request to [${request.url}]`);
         const response = await this.sendRequest(request);
         if (response.bodyAsText && (response.status === 200 || response.status === 201)) {
             const parsedBody = JSON.parse(response.bodyAsText);
@@ -65237,12 +63754,12 @@ class IdentityClient extends ServiceClient {
                 },
                 refreshToken: parsedBody.refresh_token,
             };
-            logger$h.info(`IdentityClient: [${request.url}] token acquired, expires on ${token.accessToken.expiresOnTimestamp}`);
+            logger$i.info(`IdentityClient: [${request.url}] token acquired, expires on ${token.accessToken.expiresOnTimestamp}`);
             return token;
         }
         else {
             const error = new AuthenticationError(response.status, response.bodyAsText);
-            logger$h.warning(`IdentityClient: authentication error. HTTP status: ${response.status}, ${error.errorResponse.errorDescription}`);
+            logger$i.warning(`IdentityClient: authentication error. HTTP status: ${response.status}, ${error.errorResponse.errorDescription}`);
             throw error;
         }
     }
@@ -65250,7 +63767,7 @@ class IdentityClient extends ServiceClient {
         if (refreshToken === undefined) {
             return null;
         }
-        logger$h.info(`IdentityClient: refreshing access token with client ID: ${clientId}, scopes: ${scopes} started`);
+        logger$i.info(`IdentityClient: refreshing access token with client ID: ${clientId}, scopes: ${scopes} started`);
         const refreshParams = {
             grant_type: "refresh_token",
             client_id: clientId,
@@ -65276,7 +63793,7 @@ class IdentityClient extends ServiceClient {
                     tracingOptions: updatedOptions.tracingOptions,
                 });
                 const response = await this.sendTokenRequest(request);
-                logger$h.info(`IdentityClient: refreshed token for client ID: ${clientId}`);
+                logger$i.info(`IdentityClient: refreshed token for client ID: ${clientId}`);
                 return response;
             }
             catch (err) {
@@ -65285,11 +63802,11 @@ class IdentityClient extends ServiceClient {
                     // It's likely that the refresh token has expired, so
                     // return null so that the credential implementation will
                     // initiate the authentication flow again.
-                    logger$h.info(`IdentityClient: interaction required for client ID: ${clientId}`);
+                    logger$i.info(`IdentityClient: interaction required for client ID: ${clientId}`);
                     return null;
                 }
                 else {
-                    logger$h.warning(`IdentityClient: failed refreshing token for client ID: ${clientId}: ${err}`);
+                    logger$i.warning(`IdentityClient: failed refreshing token for client ID: ${clientId}: ${err}`);
                     throw err;
                 }
             }
@@ -65402,10 +63919,10 @@ class IdentityClient extends ServiceClient {
             }
             const base64Metadata = accessToken.split(".")[1];
             const { appid, upn, tid, oid } = JSON.parse(Buffer.from(base64Metadata, "base64").toString("utf8"));
-            logger$h.info(`[Authenticated account] Client ID: ${appid}. Tenant ID: ${tid}. User Principal Name: ${upn || unavailableUpn}. Object ID (user): ${oid}`);
+            logger$i.info(`[Authenticated account] Client ID: ${appid}. Tenant ID: ${tid}. User Principal Name: ${upn || unavailableUpn}. Object ID (user): ${oid}`);
         }
         catch (e) {
-            logger$h.warning("allowLoggingAccountIdentifiers was set, but we couldn't log the account information. Error:", e.message);
+            logger$i.warning("allowLoggingAccountIdentifiers was set, but we couldn't log the account information. Error:", e.message);
         }
     }
 }
