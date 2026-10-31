@@ -37761,7 +37761,7 @@ function isCredential(param) {
 function createAppConfiguration(endpointParam, credential, options = {}) {
     const endpointUrl = options.endpoint ?? String(endpointParam);
     const prefixFromOptions = options?.userAgentOptions?.userAgentPrefix;
-    const userAgentInfo = `azsdk-js-app-configuration/1.13.0`;
+    const userAgentInfo = `azsdk-js-app-configuration/1.13.1`;
     const userAgentPrefix = prefixFromOptions
         ? `${prefixFromOptions} azsdk-js-api ${userAgentInfo}`
         : `azsdk-js-api ${userAgentInfo}`;
@@ -40155,7 +40155,7 @@ function appConfigKeyCredentialPolicy(credential, secret) {
 /**
  * @internal
  */
-const packageVersion = "1.13.0";
+const packageVersion = "1.13.1";
 /**
  * @internal
  */
@@ -40388,8 +40388,9 @@ class AppConfigurationClient {
                 label: id.label,
                 ...updatedOptions,
                 ...checkAndFormatIfAndIfNoneMatch(id, options),
-                onResponse: (response) => {
-                    status = response.status;
+                onResponse: (...args) => {
+                    status = args[0].status;
+                    updatedOptions.onResponse?.(...args);
                 },
                 requestOptions: {
                     ...updatedOptions.requestOptions,
@@ -40423,6 +40424,7 @@ class AppConfigurationClient {
         return tracingClient$2.withSpan("AppConfigurationClient.getConfigurationSetting", options, async (updatedOptions) => {
             let status;
             let rawResponse;
+            let callbackThrew = false;
             logger$n.info("[getConfigurationSetting] Getting key value pair");
             try {
                 const originalResponse = await this.client.getKeyValue(encodePathParameter(id.key), {
@@ -40431,9 +40433,16 @@ class AppConfigurationClient {
                     select: formatFieldsForSelect(options.fields),
                     ...formatAcceptDateTime(options),
                     ...checkAndFormatIfAndIfNoneMatch(id, options),
-                    onResponse: (response) => {
-                        status = response.status;
-                        rawResponse = response;
+                    onResponse: (...args) => {
+                        status = args[0].status;
+                        rawResponse = args[0];
+                        try {
+                            updatedOptions.onResponse?.(...args);
+                        }
+                        catch (error) {
+                            callbackThrew = true;
+                            throw error;
+                        }
                     },
                     requestOptions: {
                         ...updatedOptions.requestOptions,
@@ -40445,6 +40454,9 @@ class AppConfigurationClient {
                 return response;
             }
             catch (error) {
+                if (callbackThrew) {
+                    throw error;
+                }
                 const err = error;
                 // 304 only comes back if the user has passed a conditional option in their
                 // request _and_ the remote object has the same etag as what the user passed.
