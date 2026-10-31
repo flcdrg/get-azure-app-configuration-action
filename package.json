@@ -56,5 +56,10 @@
     "rollup": "^4.65.1",
     "ts-jest": "^29.4.11",
     "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
+    "fsevents@2.3.3": true,
+    "unrs-resolver@1.12.2": true
   }
 }
