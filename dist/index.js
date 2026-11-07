@@ -43759,7 +43759,7 @@ class SecretClient {
 /**
  * Current version of the `@azure/identity` package.
  */
-const SDK_VERSION = `4.14.0`;
+const SDK_VERSION = `4.14.1`;
 /**
  * The default client ID for authentication
  * @internal
@@ -44238,7 +44238,7 @@ class ChainedTokenCredential {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -44381,7 +44381,7 @@ class Serializer {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -44438,8 +44438,14 @@ const USERNAME = "username";
 const USER_ID = "user_id";
 const FMI_PATH = "fmi_path";
 const ATTRIBUTE_TOKENS = "attribute_tokens";
+/**
+ * Popup-origin-check-done. Signals to the STS that the client verified the
+ * popup cannot be reached by an untrusted window, so the
+ * Cross-Origin-Opener-Policy response header may be omitted.
+ */
+const POPUP_ORIGIN_CHECK_DONE = "pocd";
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -44481,7 +44487,6 @@ const KNOWN_PUBLIC_CLOUDS = [
 ];
 const INVALID_INSTANCE = "invalid_instance";
 const HTTP_SUCCESS = 200;
-const HTTP_REDIRECT = 302;
 const HTTP_CLIENT_ERROR_RANGE_START = 400;
 const HTTP_BAD_REQUEST = 400;
 const HTTP_UNAUTHORIZED = 401;
@@ -44560,6 +44565,7 @@ const OAuthResponseType = {
  */
 const ResponseMode = {
     QUERY: "query",
+    FRAGMENT: "fragment",
     FORM_POST: "form_post",
 };
 /**
@@ -44692,7 +44698,7 @@ const EncodingTypes = {
     UTF8: "utf-8",
 };
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -44721,7 +44727,7 @@ function createAuthError(code, correlationId, additionalMessage) {
     return new AuthError(code, correlationId, additionalMessage || getDefaultErrorMessage(code));
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -44744,7 +44750,7 @@ function createClientAuthError(errorCode, correlationId, additionalMessage) {
     return new ClientAuthError(errorCode, correlationId, additionalMessage);
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -44779,7 +44785,7 @@ const methodNotImplemented = "method_not_implemented";
 const resourceParameterRequired = "resource_parameter_required";
 const misplacedResourceParam = "misplaced_resource_parameter";
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -44817,7 +44823,7 @@ function buildClientInfoFromHomeAccountId(homeAccountId) {
     };
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -44883,7 +44889,7 @@ function getJWSPayload(authToken, correlationId) {
     return matches[2];
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -44971,7 +44977,7 @@ function updateAccountTenantProfileData(baseAccountInfo, tenantProfile, idTokenC
     return updatedAccountInfo;
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -44985,7 +44991,7 @@ const AuthorityType = {
     Ciam: 3,
 };
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45007,7 +45013,7 @@ function getTenantIdFromIdTokenClaims(idTokenClaims) {
     return null;
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45026,7 +45032,7 @@ const ProtocolMode = {
      */
     OIDC: "OIDC"};
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /**
  * Returns the AccountInfo interface for this account.
  * @internal
@@ -45175,10 +45181,10 @@ function isAccountEntity(entity) {
         entity.hasOwnProperty("authorityType"));
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 const postRequestFailed = "post_request_failed";
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -45198,7 +45204,47 @@ function createClientConfigurationError(errorCode, correlationId) {
     return new ClientConfigurationError(errorCode, correlationId);
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
+// Track only our normalized copies, never caller-owned mutable inputs.
+const normalizedHeaderRecords = new WeakSet();
+/**
+ * Creates a lowercase-keyed snapshot without changing header values or the input.
+ * Reuses snapshots produced by this function to avoid repeated normalization.
+ * @internal
+ */
+function normalizeResponseHeaders(headers) {
+    if (normalizedHeaderRecords.has(headers)) {
+        return headers;
+    }
+    const normalized = Object.fromEntries(Object.entries(headers).map(([name, value]) => [
+        name.toLowerCase(),
+        value,
+    ]));
+    normalizedHeaderRecords.add(normalized);
+    return normalized;
+}
+/**
+ * Reads a response header case-insensitively.
+ * Normalized snapshots are never scanned, even when a header is missing.
+ * @internal
+ */
+function getResponseHeader(headers, name) {
+    const key = name.toLowerCase();
+    if (Object.prototype.hasOwnProperty.call(headers, key)) {
+        return headers[key];
+    }
+    if (normalizedHeaderRecords.has(headers)) {
+        return undefined;
+    }
+    const headerName = Object.keys(headers).find((header) => header.toLowerCase() === key);
+    return headerName === undefined ? undefined : headers[headerName];
+}
+
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45223,7 +45269,7 @@ const invalidDpopHtu = "invalid_dpop_htu";
 const invalidDpopNonce = "invalid_dpop_nonce";
 const dpopMissingResourceContext = "dpop_missing_resource_context";
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45235,7 +45281,7 @@ function isOpenIdConfigResponse(response) {
         response.hasOwnProperty("jwks_uri"));
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45315,7 +45361,7 @@ class StringUtils {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -45473,7 +45519,7 @@ class UrlString {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -45627,7 +45673,7 @@ function getCloudDiscoveryMetadataFromNetworkResponse(response, authorityHost) {
     return null;
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45636,7 +45682,7 @@ const AzureCloudInstance = {
     // AzureCloudInstance is not specified.
     None: "none"};
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45646,7 +45692,7 @@ function isCloudInstanceDiscoveryResponse(response) {
         response.hasOwnProperty("metadata"));
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45656,7 +45702,7 @@ function isCloudInstanceDiscoveryErrorResponse(response) {
         response.hasOwnProperty("error_description"));
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45718,7 +45764,7 @@ const RegionDiscoveryGetCurrentVersion = "regionDiscoveryGetCurrentVersion";
  */
 const CacheManagerGetRefreshToken = "cacheManagerGetRefreshToken";
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45811,7 +45857,7 @@ const invokeAsync = (callback, eventName, logger, telemetryClient, correlationId
     };
 };
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -45922,7 +45968,7 @@ RegionDiscovery.IMDS_OPTIONS = {
     },
 };
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -45977,7 +46023,7 @@ function delay(t, value) {
     return new Promise((resolve) => setTimeout(() => resolve(value), t));
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -46264,7 +46310,7 @@ function serializeAttributeTokens(attributeTokens) {
     return [...attributeTokens].sort().join(" ");
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -47232,7 +47278,7 @@ function buildStaticAuthorityOptions(authOptions) {
     };
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -47266,7 +47312,7 @@ async function createDiscoveredInstance(authorityUri, networkClient, cacheManage
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -47462,7 +47508,7 @@ class ScopeSet {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -47759,6 +47805,20 @@ function addInstanceAware(parameters) {
     }
 }
 /**
+ * Adds `pocd=1`, telling the STS that the client verified the popup driving
+ * this request cannot be reached by an untrusted window, so the
+ * Cross-Origin-Opener-Policy response header may be omitted.
+ *
+ * Only ever added when the check passed — a negative result is signalled by
+ * omitting the parameter, which keeps the STS default (apply COOP) and stays
+ * compatible with library versions that never send it.
+ */
+function addPopupOriginCheckDone(parameters) {
+    if (!parameters.has(POPUP_ORIGIN_CHECK_DONE)) {
+        parameters.set(POPUP_ORIGIN_CHECK_DONE, "1");
+    }
+}
+/**
  * Add extraParameters
  * @param extraParams - String dictionary containing extra parameters to be added.
  */
@@ -47966,7 +48026,7 @@ function addAttributeTokens(parameters, attributeTokens) {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -47987,7 +48047,8 @@ function stripLeadingHashOrQuery(responseString) {
     return responseString;
 }
 /**
- * Returns URL hash as server auth code response object.
+ * Returns flat fragment or query parameters as an authorization response.
+ * Application routes and unrecognized responses return null.
  */
 function getDeserializedResponse(responseString) {
     // Check if given hash is empty
@@ -47997,7 +48058,15 @@ function getDeserializedResponse(responseString) {
     try {
         // Strip the # or ? symbol if present
         const normalizedResponse = stripLeadingHashOrQuery(responseString);
-        // If # symbol was not present, above will return empty string, so give original hash value
+        /*
+         * Require a flat parameter name, not an application route.
+         * Reject routes like #/dashboard?tab=orders&code=... and
+         * #/dashboard/orders&state=..., where ?, /, or # appears before
+         * the first = or &. These characters are allowed in parameter values.
+         */
+        if (!/^[^=&?#/]+(?:=|&|$)/.test(normalizedResponse)) {
+            return null;
+        }
         const deserializedHash = Object.fromEntries(new URLSearchParams(normalizedResponse));
         // Check for known response properties
         if (deserializedHash.code ||
@@ -48024,7 +48093,7 @@ function mapToQueryString(parameters) {
     return queryParameterArray.join("&");
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -48072,7 +48141,7 @@ const DEFAULT_CRYPTO_IMPLEMENTATION = {
     },
 };
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -48095,7 +48164,7 @@ const DEFAULT_TOKEN_BINDING_KEY_MANAGER = {
     },
 };
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -48370,12 +48439,12 @@ class Logger {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /* eslint-disable header/header */
 const name$1 = "@azure/msal-common";
-const version$1 = "16.14.1";
+const version$1 = "16.15.0";
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -48383,7 +48452,7 @@ const version$1 = "16.14.1";
 const cacheQuotaExceeded = "cache_quota_exceeded";
 const cacheErrorUnknown = "cache_error_unknown";
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -48421,7 +48490,7 @@ function createCacheError(e) {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -49608,7 +49677,7 @@ class DefaultStorageClass extends CacheManager {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -49622,7 +49691,7 @@ class DefaultStorageClass extends CacheManager {
 const PerformanceEventStatus = {
     InProgress: 1};
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -49680,7 +49749,7 @@ class StubPerformanceClient {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -49778,7 +49847,7 @@ function isOidcProtocolMode(config) {
     return (config.authOptions.authority.options.protocolMode === ProtocolMode.OIDC);
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -49805,7 +49874,7 @@ function isOidcProtocolMode(config) {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -49826,7 +49895,7 @@ function createJoseHeaderError(code, correlationId) {
     return new JoseHeaderError(code, correlationId);
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -49851,7 +49920,7 @@ function isPlainObject(value) {
     return Object.getPrototypeOf(value) === proto;
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -49861,7 +49930,7 @@ const missingAlgError = "missing_alg_error";
 const missingJwkError = "missing_jwk_error";
 const invalidJwkError = "invalid_jwk_error";
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -49927,7 +49996,7 @@ class JoseHeader {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -50028,7 +50097,7 @@ class PopTokenGenerator {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -50173,7 +50242,7 @@ class DpopProofGenerator {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -50219,7 +50288,7 @@ const badToken = "bad_token";
  */
 const interruptedUser = "interrupted_user";
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -50286,7 +50355,7 @@ function createInteractionRequiredAuthError(errorCode, correlationId, errorMessa
     return new InteractionRequiredAuthError(errorCode, correlationId, errorMessage);
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -50305,7 +50374,7 @@ class ServerError extends AuthError {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /**
  * Parses the state into the RequestStateObject, which contains the LibraryState info and the state passed by the user.
  * @param base64Decode
@@ -50338,7 +50407,7 @@ function parseRequestState(base64Decode, state, correlationId) {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -50766,7 +50835,7 @@ function buildAccountToCache(cacheStorage, authority, homeAccountId, base64Decod
     return baseAccount;
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -50776,7 +50845,7 @@ const CcsCredentialType = {
     UPN: "UPN",
 };
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -50795,7 +50864,7 @@ async function getClientAssertion(clientAssertion, clientId, tokenEndpoint, fmiP
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -50819,7 +50888,7 @@ function getRequestThumbprint(clientId, request, homeAccountId) {
     };
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -50854,13 +50923,14 @@ class ThrottlingUtils {
      * Performs necessary throttling checks after a network request.
      * @param cacheManager
      * @param thumbprint
-     * @param response
+     * @param response - Token response with case-insensitive header names.
      */
     static postProcess(cacheManager, thumbprint, response, correlationId) {
+        const retryAfter = getRetryAfterHeader(response);
         if (ThrottlingUtils.checkResponseStatus(response) ||
-            ThrottlingUtils.checkResponseForRetryAfter(response)) {
+            retryAfter !== undefined) {
             const thumbprintValue = {
-                throttleTime: ThrottlingUtils.calculateThrottleTime(parseInt(response.headers[HeaderNames.RETRY_AFTER])),
+                throttleTime: ThrottlingUtils.calculateThrottleTime(parseInt(retryAfter || "")),
                 error: response.body.error,
                 errorCodes: response.body.error_codes,
                 errorMessage: response.body.error_description,
@@ -50879,14 +50949,10 @@ class ThrottlingUtils {
     }
     /**
      * Checks a NetworkResponse object's RetryAfter header
-     * @param response
+     * @param response - Token response with case-insensitive header names.
      */
     static checkResponseForRetryAfter(response) {
-        if (response.headers) {
-            return (response.headers.hasOwnProperty(HeaderNames.RETRY_AFTER) &&
-                (response.status < 200 || response.status >= 300));
-        }
-        return false;
+        return getRetryAfterHeader(response) !== undefined;
     }
     /**
      * Calculates the Unix-time value for a throttle to expire given throttleTime in seconds.
@@ -50904,8 +50970,15 @@ class ThrottlingUtils {
         cacheManager.removeItem(key, request.correlationId);
     }
 }
+/** Reads Retry-After only for non-success responses. */
+function getRetryAfterHeader(response) {
+    if ((response.status < 200 || response.status >= 300) && response.headers) {
+        return getResponseHeader(response.headers, HeaderNames.RETRY_AFTER);
+    }
+    return undefined;
+}
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -50936,7 +51009,7 @@ function createNetworkError(error, httpStatus, responseHeaders, additionalError)
     return new NetworkError(error, httpStatus, responseHeaders);
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -51034,7 +51107,8 @@ async function sendPostRequest(thumbprint, tokenEndpoint, options, correlationId
     let response;
     try {
         response = await invokeAsync((networkClient.sendPostRequestAsync.bind(networkClient)), NetworkClientSendPostRequestAsync, logger, performanceClient, correlationId)(tokenEndpoint, { ...options, correlationId, performanceClient });
-        const responseHeaders = response.headers || {};
+        const responseHeaders = normalizeResponseHeaders(response.headers || {});
+        response = { ...response, headers: responseHeaders };
         performanceClient?.addFields({
             refreshTokenSize: response.body.refresh_token?.length || 0,
             httpVerToken: responseHeaders[HeaderNames.X_MS_HTTP_VERSION] || "",
@@ -51043,16 +51117,16 @@ async function sendPostRequest(thumbprint, tokenEndpoint, options, correlationId
     }
     catch (e) {
         if (e instanceof NetworkError) {
-            const responseHeaders = e.responseHeaders;
+            const responseHeaders = e.responseHeaders
+                ? normalizeResponseHeaders(e.responseHeaders)
+                : undefined;
             if (responseHeaders) {
                 performanceClient?.addFields({
                     httpVerToken: responseHeaders[HeaderNames.X_MS_HTTP_VERSION] ||
                         "",
                     requestId: responseHeaders[HeaderNames.X_MS_REQUEST_ID] || "",
-                    contentTypeHeader: responseHeaders[HeaderNames.CONTENT_TYPE] ||
-                        undefined,
-                    contentLengthHeader: responseHeaders[HeaderNames.CONTENT_LENGTH] ||
-                        undefined,
+                    contentTypeHeader: getResponseHeader(responseHeaders, HeaderNames.CONTENT_TYPE) || undefined,
+                    contentLengthHeader: getResponseHeader(responseHeaders, HeaderNames.CONTENT_LENGTH) || undefined,
                     httpStatus: e.httpStatus,
                 }, correlationId);
             }
@@ -51069,7 +51143,7 @@ async function sendPostRequest(thumbprint, tokenEndpoint, options, correlationId
     return response;
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -51313,6 +51387,9 @@ class AuthorizationCodeClient {
         if (request.logoutHint) {
             addLogoutHint(parameters, request.logoutHint);
         }
+        if (request.popupOriginCheckDone) {
+            addPopupOriginCheckDone(parameters);
+        }
         if (request.extraQueryParameters) {
             addExtraParameters(parameters, request.extraQueryParameters);
         }
@@ -51333,7 +51410,7 @@ class AuthorizationCodeClient {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -51460,6 +51537,9 @@ function getStandardAuthorizeRequestParameters(authOptions, request, logger, per
             !Object.keys(request.extraQueryParameters).includes(INSTANCE_AWARE))) {
         addInstanceAware(parameters);
     }
+    if (request.popupOriginCheckDone) {
+        addPopupOriginCheckDone(parameters);
+    }
     return parameters;
 }
 /**
@@ -51484,7 +51564,7 @@ function extractLoginHint(account) {
     return account.loginHint || account.idTokenClaims?.login_hint || null;
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -51643,6 +51723,7 @@ class RefreshTokenClient {
             addRedirectUri(parameters, request.redirectUri);
         }
         addScopes(parameters, request.scopes, request.correlationId, true, this.config.authOptions.authority.options.OIDCOptions?.defaultScopes);
+        addResource(parameters, request.resource);
         addGrantType(parameters, GrantType.REFRESH_TOKEN_GRANT);
         addClientInfo(parameters);
         addLibraryInfo(parameters, this.config.libraryInfo);
@@ -51718,7 +51799,7 @@ class RefreshTokenClient {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -51984,7 +52065,7 @@ class ServerTelemetryManager {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52111,7 +52192,7 @@ class SilentFlowClient {
     }
 }
 
-/*! @azure/msal-common v16.14.1 2026-09-15 */
+/*! @azure/msal-common v16.15.0 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52144,7 +52225,7 @@ function containsResourceParam(params) {
     return Object.prototype.hasOwnProperty.call(params, "resource");
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52319,7 +52400,7 @@ class Deserializer {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52468,7 +52549,7 @@ const LOOPBACK_SERVER_CONSTANTS = {
 };
 const AZURE_ARC_SECRET_FILE_MAX_SIZE_BYTES = 4096; // 4 KB
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52635,7 +52716,7 @@ function getFetchHeaders(options) {
     return headers;
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52663,7 +52744,7 @@ const MsiEnvironmentVariableUrlMalformedErrorCodes = {
     [ManagedIdentityEnvironmentVariableNames.MSI_ENDPOINT]: "msi_endpoint_url_malformed",
 };
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52708,7 +52789,7 @@ function createManagedIdentityError(errorCode, correlationId) {
     return new ManagedIdentityError(errorCode, correlationId);
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52759,7 +52840,7 @@ class ManagedIdentityId {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52793,6 +52874,10 @@ const NodeAuthErrorMessage = {
         code: "loopback_server_timeout",
         desc: "Timed out waiting for auth code listener to be registered.",
     },
+    loopbackServerQueryResponseNotSupported: {
+        code: "loopback_server_query_response_not_supported",
+        desc: "The loopback server received an OAuth response in the URL. Interactive authentication requires form_post.",
+    },
     stateNotFoundError: {
         code: "state_not_found",
         desc: "State not found. Please verify that the request originated from msal.",
@@ -52804,6 +52889,10 @@ const NodeAuthErrorMessage = {
     redirectUriNotSupported: {
         code: "redirect_uri_not_supported",
         desc: "RedirectUri is not supported in this scenario. Please remove redirectUri from the request.",
+    },
+    unsupportedCcaInstanceAware: {
+        code: "unsupported_cca_instance_aware",
+        desc: "Instance-aware configuration is not supported by ConfidentialClientApplication.",
     },
 };
 class NodeAuthError extends AuthError {
@@ -52848,6 +52937,12 @@ class NodeAuthError extends AuthError {
         return new NodeAuthError(NodeAuthErrorMessage.loopbackServerTimeout.code, correlationId, `${NodeAuthErrorMessage.loopbackServerTimeout.desc}`);
     }
     /**
+     * Creates an error thrown if the loopback server receives an OAuth response in a query string.
+     */
+    static createLoopbackServerQueryResponseNotSupportedError() {
+        return new NodeAuthError(NodeAuthErrorMessage.loopbackServerQueryResponseNotSupported.code, "", NodeAuthErrorMessage.loopbackServerQueryResponseNotSupported.desc);
+    }
+    /**
      * Creates an error thrown when the state is not present.
      */
     static createStateNotFoundError(correlationId = "") {
@@ -52865,9 +52960,15 @@ class NodeAuthError extends AuthError {
     static createRedirectUriNotSupportedError(correlationId = "") {
         return new NodeAuthError(NodeAuthErrorMessage.redirectUriNotSupported.code, correlationId, NodeAuthErrorMessage.redirectUriNotSupported.desc);
     }
+    /**
+     * Creates an error thrown when instance-aware behavior is requested for a confidential client.
+     */
+    static createUnsupportedCcaInstanceAwareError(correlationId = "") {
+        return new NodeAuthError(NodeAuthErrorMessage.unsupportedCcaInstanceAware.code, correlationId, NodeAuthErrorMessage.unsupportedCcaInstanceAware.desc);
+    }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52968,7 +53069,7 @@ function buildManagedIdentityConfiguration({ clientCapabilities, managedIdentity
     };
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -52992,7 +53093,7 @@ class GuidGenerator {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -53039,7 +53140,7 @@ class EncodingUtils {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -53055,7 +53156,7 @@ class HashUtils {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -53109,7 +53210,7 @@ class PkceGenerator {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -53203,7 +53304,7 @@ class CryptoProvider {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -53279,7 +53380,7 @@ function generateAccountKey(account) {
     return accountKey.join(CACHE.KEY_SEPARATOR).toLowerCase();
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -53706,7 +53807,7 @@ class NodeStorage extends CacheManager {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -55127,6 +55228,35 @@ function requireConstants () {
 	// the shortest version with a build 0.0.0+BUILD.
 	const MAX_SAFE_BUILD_LENGTH = MAX_LENGTH - 6;
 
+	// ECMAScript whitespace and line terminators matched by \s.
+	const WHITESPACE_CHARACTERS = [
+	  '\t',
+	  '\n',
+	  '\v',
+	  '\f',
+	  '\r',
+	  ' ',
+	  '\u00a0',
+	  '\u1680',
+	  '\u2000',
+	  '\u2001',
+	  '\u2002',
+	  '\u2003',
+	  '\u2004',
+	  '\u2005',
+	  '\u2006',
+	  '\u2007',
+	  '\u2008',
+	  '\u2009',
+	  '\u200a',
+	  '\u2028',
+	  '\u2029',
+	  '\u202f',
+	  '\u205f',
+	  '\u3000',
+	  '\ufeff',
+	];
+
 	const RELEASE_TYPES = [
 	  'major',
 	  'premajor',
@@ -55142,6 +55272,7 @@ function requireConstants () {
 	  MAX_SAFE_COMPONENT_LENGTH,
 	  MAX_SAFE_BUILD_LENGTH,
 	  MAX_SAFE_INTEGER,
+	  WHITESPACE_CHARACTERS,
 	  RELEASE_TYPES,
 	  SEMVER_SPEC_VERSION,
 	  FLAG_INCLUDE_PRERELEASE: 0b001,
@@ -56431,6 +56562,451 @@ function requireLrucache () {
 	return lrucache;
 }
 
+var trimComparatorWhitespace_1;
+var hasRequiredTrimComparatorWhitespace;
+
+function requireTrimComparatorWhitespace () {
+	if (hasRequiredTrimComparatorWhitespace) return trimComparatorWhitespace_1;
+	hasRequiredTrimComparatorWhitespace = 1;
+
+	// Reproduce safeRe[COMPARATORTRIM] replacement boundaries, not version
+	// validation. Each end-index finder returns an exclusive end, or its start
+	// on no match.
+	// Positions count from zero. An end of 3 means characters 0, 1, and 2 were read;
+	// range.slice(start, end) gives the matched text, not a converted number.
+	const {
+	  MAX_LENGTH,
+	  MAX_SAFE_BUILD_LENGTH,
+	  WHITESPACE_CHARACTERS,
+	} = requireConstants();
+
+	/**
+	 * Remembers the last two rows of digits so their characters need not be reread.
+	 * Positions start at -1 until a row has been found.
+	 *
+	 * @typedef {object} DigitRunCache
+	 * @property {number} start The first character of the most recently found row.
+	 * @property {number} end The position after that row's last character.
+	 * @property {number} previousStart The first character of the previous row.
+	 * @property {number} previousEnd The position after the previous row.
+	 */
+
+	// One entry per UTF-16 code unit keeps membership checks constant-time.
+	const whitespace = new Uint8Array(0x10000);
+	for (const char of WHITESPACE_CHARACTERS) {
+	  whitespace[char.charCodeAt(0)] = 1;
+	}
+
+	/**
+	 * Checks whether a character is whitespace, like a space, tab, or newline.
+	 * Looking past the end of the string returns false.
+	 *
+	 * @param {string|undefined} char One character, or undefined past the string's end.
+	 * @returns {boolean} Whether the character is whitespace.
+	 * @example isWhitespace(' ') // true
+	 * @example isWhitespace('1') // false
+	 */
+	const isWhitespace = char =>
+	  char !== undefined && whitespace[char.charCodeAt(0)] === 1;
+
+	/**
+	 * Checks for v, =, or whitespace before the version number.
+	 * These are historical version prefixes, not range operators:
+	 * < and > are handled separately, as are tilde and caret ranges.
+	 *
+	 * @param {string|undefined} char One character to check.
+	 * @returns {boolean} Whether the character can belong to a version prefix.
+	 * @example isVersionPrefix('=') // true
+	 * @example isVersionPrefix('>') // false
+	 */
+	const isVersionPrefix = char =>
+	  char === 'v' ||
+	  char === '=' ||
+	  isWhitespace(char);
+
+	/**
+	 * Checks whether a character is one of the digits 0 through 9.
+	 *
+	 * @param {string|undefined} char One character to check.
+	 * @returns {boolean} Whether the character is an ASCII digit.
+	 * @example isDigit('7') // true
+	 * @example isDigit('.') // false
+	 */
+	const isDigit = char => char !== undefined && char >= '0' && char <= '9';
+
+	/**
+	 * Checks whether a character is an English letter, uppercase or lowercase.
+	 *
+	 * @param {string|undefined} char One character to check.
+	 * @returns {boolean} Whether the character is an ASCII letter.
+	 * @example isLetter('b') // true
+	 * @example isLetter('7') // false
+	 */
+	const isLetter = char =>
+	  char !== undefined && (
+	    (char >= 'a' && char <= 'z') ||
+	    (char >= 'A' && char <= 'Z')
+	  );
+
+	/**
+	 * Checks for a letter, digit, or hyphen: the characters allowed inside
+	 * prerelease and build names such as beta-1.
+	 *
+	 * @param {string|undefined} char One character to check.
+	 * @returns {boolean} Whether the character can be part of an identifier.
+	 * @example isIdentifierCharacter('-') // true
+	 * @example isIdentifierCharacter('.') // false; dots separate identifiers
+	 */
+	const isIdentifierCharacter = char => isDigit(char) || isLetter(char) || char === '-';
+
+	/**
+	 * Checks whether a version component can begin here: with a digit or
+	 * a wildcard such as x, X, or *.
+	 *
+	 * @param {string|undefined} char One character to check.
+	 * @returns {boolean} Whether a number or wildcard can start with this character.
+	 * @example isVersionStart('x') // true
+	 * @example isVersionStart('v') // false; v belongs to the prefix
+	 */
+	const isVersionStart = char =>
+	  isDigit(char) ||
+	  char === 'x' ||
+	  char === 'X' ||
+	  char === '*';
+
+	/**
+	 * Finds the end of a row of digits, but returns no more than limit digits.
+	 * Remembers the last two rows so looking at them again does not reread them.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position of the first character to check.
+	 * @param {number} limit The most digit characters the returned match can include.
+	 * @param {DigitRunCache} digitRuns Shared cache of digit-run positions, updated in place.
+	 * @returns {number} The position after the matched digits, or start if none match.
+	 * @example findDigitsEndIndex('123abc', 0, 10, digitRuns) // 3, pointing at a
+	 * @example findDigitsEndIndex('123abc', 0, 2, digitRuns) // 2, pointing at the unread 3
+	 */
+	const findDigitsEndIndex = (range, start, limit, digitRuns) => {
+	  if (!isDigit(range[start])) {
+	    return start
+	  }
+	  if (start >= digitRuns.start && start < digitRuns.end) {
+	    return Math.min(start + limit, digitRuns.end)
+	  }
+	  if (start >= digitRuns.previousStart && start < digitRuns.previousEnd) {
+	    return Math.min(start + limit, digitRuns.previousEnd)
+	  }
+	  let end = start + 1;
+	  while (isDigit(range[end])) {
+	    end++;
+	  }
+	  // A failed full version can rewind from its second run to its first.
+	  digitRuns.previousStart = digitRuns.start;
+	  digitRuns.previousEnd = digitRuns.end;
+	  digitRuns.start = start;
+	  digitRuns.end = end;
+	  return Math.min(start + limit, end)
+	};
+
+	/**
+	 * Reads a number using the old regex's length and leading-zero rules.
+	 * Strict mode reads just the first zero in 012; loose mode can read all three.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position where the number should begin.
+	 * @param {boolean} loose Whether to allow leading zeros.
+	 * @param {DigitRunCache} digitRuns Shared digit-run cache, updated as needed.
+	 * @returns {number} The position after the matched digits, not their numeric value.
+	 * @example findVersionNumberEndIndex('012', 0, false, digitRuns) // 1
+	 * @example findVersionNumberEndIndex('012', 0, true, digitRuns) // 3
+	 */
+	const findVersionNumberEndIndex = (range, start, loose, digitRuns) => {
+	  if (!loose && range[start] === '0') {
+	    return start + 1
+	  }
+	  // Strict syntax allows an initial nonzero digit plus MAX_LENGTH digits.
+	  return findDigitsEndIndex(range, start, loose ? MAX_LENGTH : MAX_LENGTH + 1, digitRuns)
+	};
+
+	/**
+	 * Reads one piece of a prerelease name, such as beta or 1 in beta.1.
+	 * Tries the letter-or-hyphen form first, then the number-only form.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position where the identifier should begin.
+	 * @param {boolean} loose Whether numeric identifiers may have leading zeros.
+	 * @param {DigitRunCache} digitRuns Shared digit-run cache, updated as needed.
+	 * @returns {number} The position after the identifier, or start if none matches.
+	 * @example findPrereleaseIdentifierEndIndex('beta.1', 0, false, digitRuns) // 4, at the dot
+	 * @example findPrereleaseIdentifierEndIndex('001beta', 0, false, digitRuns) // 7
+	 */
+	const findPrereleaseIdentifierEndIndex = (range, start, loose, digitRuns) => {
+	  const digitsEnd = findDigitsEndIndex(range, start, MAX_LENGTH, digitRuns);
+	  // The legacy regex tries a nonnumeric identifier before a numeric one.
+	  if (isLetter(range[digitsEnd]) || range[digitsEnd] === '-') {
+	    let end = digitsEnd + 1;
+	    const limit = end + MAX_SAFE_BUILD_LENGTH;
+	    while (end < limit && isIdentifierCharacter(range[end])) {
+	      end++;
+	    }
+	    return end
+	  }
+	  return findVersionNumberEndIndex(range, start, loose, digitRuns)
+	};
+
+	/**
+	 * Reads a prerelease suffix such as -beta.1, one dot-separated piece at a time.
+	 * Loose mode also allows the name without its opening hyphen.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position where the suffix should begin, including -.
+	 * @param {boolean} loose Whether the opening hyphen is optional and zeros allowed.
+	 * @param {DigitRunCache} digitRuns Shared digit-run cache, updated as needed.
+	 * @returns {number} The position after the matched suffix, or start if absent.
+	 * @example findPrereleaseEndIndex('-beta.1+sha', 0, false, digitRuns) // 7, at the plus
+	 * @example findPrereleaseEndIndex('beta', 0, false, digitRuns) // 0; no opening hyphen
+	 */
+	const findPrereleaseEndIndex = (range, start, loose, digitRuns) => {
+	  const hyphen = range[start] === '-';
+	  if (!loose && !hyphen) {
+	    return start
+	  }
+	  const identifierStart = start + (hyphen ? 1 : 0);
+	  let end = findPrereleaseIdentifierEndIndex(range, identifierStart, loose, digitRuns);
+	  if (end === identifierStart) {
+	    if (!loose || !hyphen) {
+	      return start
+	    }
+	    // In loose syntax, a lone hyphen can itself be the identifier.
+	    end = findPrereleaseIdentifierEndIndex(range, start, loose, digitRuns);
+	  }
+	  while (range[end] === '.') {
+	    const next = findPrereleaseIdentifierEndIndex(range, end + 1, loose, digitRuns);
+	    if (next === end + 1) {
+	      break
+	    }
+	    end = next;
+	  }
+	  return end
+	};
+
+	/**
+	 * Reads one build-name piece, such as sha or 123 in +sha.123.
+	 * Stops at a disallowed character or the old regex's length limit.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position where the identifier should begin.
+	 * @returns {number} The position after the identifier, or start if none matches.
+	 * @example findBuildIdentifierEndIndex('sha.123', 0) // 3, at the dot
+	 * @example findBuildIdentifierEndIndex('001', 0) // 3; leading zeros are allowed
+	 */
+	const findBuildIdentifierEndIndex = (range, start) => {
+	  let end = start;
+	  while (end - start < MAX_SAFE_BUILD_LENGTH && isIdentifierCharacter(range[end])) {
+	    end++;
+	  }
+	  return end
+	};
+
+	/**
+	 * Reads optional build metadata such as +sha.123.
+	 * Leaves the position unchanged if there is no plus sign followed by a name.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position where the opening + should be.
+	 * @returns {number} The position after the matched metadata, or start if absent.
+	 * @example findBuildEndIndex('+sha.123 <2', 0) // 8, at the space
+	 * @example findBuildEndIndex('+', 0) // 0; a plus sign alone is not a match
+	 */
+	const findBuildEndIndex = (range, start) => {
+	  if (range[start] !== '+') {
+	    return start
+	  }
+	  let end = findBuildIdentifierEndIndex(range, start + 1);
+	  if (end === start + 1) {
+	    return start
+	  }
+	  while (range[end] === '.') {
+	    const next = findBuildIdentifierEndIndex(range, end + 1);
+	    if (next === end + 1) {
+	      break
+	    }
+	    end = next;
+	  }
+	  return end
+	};
+
+	/**
+	 * Reads three numbers separated by dots, then any prerelease and build suffixes.
+	 * Uses loose rules, so forms such as 01.02.03beta can match here.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position of the first number, after any prefix.
+	 * @param {DigitRunCache} digitRuns Shared digit-run cache, updated as needed.
+	 * @returns {number} The position after the version match, or start if none matches.
+	 * @example findLooseFullVersionEndIndex('1.2.3-beta+sha <2', 0, digitRuns) // 14
+	 * @example findLooseFullVersionEndIndex('1.2', 0, digitRuns) // 0; needs three numbers
+	 */
+	const findLooseFullVersionEndIndex = (range, start, digitRuns) => {
+	  let end = start;
+	  for (let component = 0; component < 3; component++) {
+	    const next = findVersionNumberEndIndex(range, end, true, digitRuns);
+	    if (next === end) {
+	      return start
+	    }
+	    end = next;
+	    if (component < 2) {
+	      if (range[end] !== '.') {
+	        return start
+	      }
+	      end++;
+	    }
+	  }
+	  const prereleaseEnd = findPrereleaseEndIndex(range, end, true, digitRuns);
+	  return findBuildEndIndex(range, prereleaseEnd)
+	};
+
+	/**
+	 * Reads one component of a partial or wildcard version, such as 2 or x in 2.x.
+	 * Numbers use strict leading-zero rules; wildcards take up one character.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position where the component should begin.
+	 * @param {DigitRunCache} digitRuns Shared digit-run cache, updated as needed.
+	 * @returns {number} The position after the component, or start if none matches.
+	 * @example findPartialVersionComponentEndIndex('2.x', 0, digitRuns) // 1, at the dot
+	 * @example findPartialVersionComponentEndIndex('2.x', 2, digitRuns) // 3, after x
+	 */
+	const findPartialVersionComponentEndIndex = (range, start, digitRuns) => {
+	  if (isDigit(range[start])) {
+	    return findVersionNumberEndIndex(range, start, false, digitRuns)
+	  }
+	  return isVersionStart(range[start]) ? start + 1 : start
+	};
+
+	/**
+	 * Reads up to three components, allowing forms such as 1, 1.2, or 1.x.
+	 * After the third component, also reads any strict prerelease and build suffixes.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position of a number or wildcard, after any prefix.
+	 * @param {DigitRunCache} digitRuns Shared digit-run cache, updated as needed.
+	 * @returns {number} The position after the matched version text.
+	 * @example findPartialVersionEndIndex('1.x <2', 0, digitRuns) // 3, at the space
+	 * @example findPartialVersionEndIndex('1.', 0, digitRuns) // 1; the trailing dot is unread
+	 */
+	const findPartialVersionEndIndex = (range, start, digitRuns) => {
+	  let end = findPartialVersionComponentEndIndex(range, start, digitRuns);
+	  for (let component = 0; component < 2; component++) {
+	    if (range[end] !== '.') {
+	      return end
+	    }
+	    const next = findPartialVersionComponentEndIndex(range, end + 1, digitRuns);
+	    if (next === end + 1) {
+	      return end
+	    }
+	    end = next;
+	  }
+	  const prereleaseEnd = findPrereleaseEndIndex(range, end, false, digitRuns);
+	  return findBuildEndIndex(range, prereleaseEnd)
+	};
+
+	/**
+	 * Finds where a version match ends, without deciding whether the range is valid.
+	 * Tries a loose full version first, then a partial or wildcard version, just
+	 * like the old regex's LOOSEPLAIN and XRANGEPLAIN alternatives.
+	 *
+	 * @param {string} range The text to read; it is not changed.
+	 * @param {number} start The position of a number or wildcard, after any prefix.
+	 * @param {DigitRunCache} digitRuns Shared digit-run cache, updated as needed.
+	 * @returns {number} The position where scanning the next candidate can resume.
+	 * @example findVersionEndIndex('1.2.3 <2', 0, digitRuns) // 5, at the space
+	 * @example findVersionEndIndex('1.x <2', 0, digitRuns) // 3, at the space
+	 */
+	const findVersionEndIndex = (range, start, digitRuns) => {
+	  const fullVersionEnd = findLooseFullVersionEndIndex(range, start, digitRuns);
+	  return fullVersionEnd !== start
+	    ? fullVersionEnd
+	    : findPartialVersionEndIndex(range, start, digitRuns)
+	};
+
+	/**
+	 * Finds the one whitespace character the old replacement would remove.
+	 * Keeps leading whitespace, skips an optional operator, and checks immediately
+	 * after it. Returns -1 if there is nothing to remove.
+	 *
+	 * @param {string} range The text containing a candidate already found by the caller.
+	 * @param {number} matchStart The candidate's position, including leading whitespace.
+	 * @returns {number} The position of the removable whitespace, or -1 if absent.
+	 * @example findRemovableWhitespaceIndex(' > 1', 0) // 2; keep the space at position 0
+	 * @example findRemovableWhitespaceIndex('>1', 0) // -1
+	 */
+	const findRemovableWhitespaceIndex = (range, matchStart) => {
+	  let position = matchStart;
+	  if (isWhitespace(range[position])) {
+	    position++;
+	  }
+	  if (range[position] === '<' || range[position] === '>') {
+	    position++;
+	  }
+	  if (range[position] === '=') {
+	    position++;
+	  }
+	  return isWhitespace(range[position]) ? position : -1
+	};
+
+	/**
+	 * Joins an operator to its version, turning > 1.2.3 into >1.2.3.
+	 * Copies everything else according to the old regex's matching rules.
+	 * Moves forward through prefixes and whole versions to avoid repeatedly
+	 * searching the same characters on long inputs.
+	 *
+	 * @param {string} range The range text to process; the original string is unchanged.
+	 * @returns {string} The range with matched operator whitespace removed.
+	 * @example trimComparatorWhitespace('> 1.2.3 < 2') // '>1.2.3 <2'
+	 * @example trimComparatorWhitespace('> invalid') // '> invalid'
+	 */
+	const trimComparatorWhitespace = range => {
+	  let result = '';
+	  let copyFrom = 0;
+	  let cursor = 0;
+	  const digitRuns = { start: -1, end: -1, previousStart: -1, previousEnd: -1 };
+
+	  while (cursor < range.length) {
+	    const matchStart = cursor;
+	    if (range[cursor] === '<' || range[cursor] === '>') {
+	      cursor++;
+	    } else if (!isVersionPrefix(range[cursor]) && !isVersionStart(range[cursor])) {
+	      cursor++;
+	      continue
+	    }
+
+	    // Consume a v/=/whitespace run once, even when no version follows it.
+	    while (cursor < range.length && isVersionPrefix(range[cursor])) {
+	      cursor++;
+	    }
+	    if (!isVersionStart(range[cursor])) {
+	      continue
+	    }
+
+	    const whitespacePosition = findRemovableWhitespaceIndex(range, matchStart);
+	    if (whitespacePosition !== -1) {
+	      result += range.slice(copyFrom, whitespacePosition);
+	      copyFrom = whitespacePosition + 1;
+	    }
+
+	    // Skip the entire match, so a prerelease's trailing v cannot be
+	    // reconsidered as the prefix of another version.
+	    cursor = findVersionEndIndex(range, cursor, digitRuns);
+	  }
+
+	  return result + range.slice(copyFrom)
+	};
+
+	trimComparatorWhitespace_1 = trimComparatorWhitespace;
+	return trimComparatorWhitespace_1;
+}
+
 var range;
 var hasRequiredRange;
 
@@ -56557,7 +57133,7 @@ function requireRange () {
 	    debug('hyphen replace', range);
 
 	    // `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
-	    range = range.replace(re[t.COMPARATORTRIM], comparatorTrimReplace);
+	    range = trimComparatorWhitespace(range);
 	    debug('comparator trim', range);
 
 	    // `~ 1.2.3` => `~1.2.3`
@@ -56662,11 +57238,11 @@ function requireRange () {
 	const Comparator = requireComparator();
 	const debug = requireDebug();
 	const SemVer = requireSemver$1();
+	const trimComparatorWhitespace = requireTrimComparatorWhitespace();
 	const {
 	  safeRe: re,
 	  src,
 	  t,
-	  comparatorTrimReplace,
 	  tildeTrimReplace,
 	  caretTrimReplace,
 	} = requireRe();
@@ -60331,7 +60907,7 @@ function requireJsonwebtoken () {
 var jsonwebtokenExports = requireJsonwebtoken();
 var jwt = /*@__PURE__*/getDefaultExportFromCjs(jsonwebtokenExports);
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -60347,7 +60923,7 @@ const deviceCodePollingCancelled = "device_code_polling_cancelled";
 const deviceCodeExpired = "device_code_expired";
 const deviceCodeUnknownError = "device_code_unknown_error";
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -60493,12 +61069,12 @@ class ClientAssertion {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 /* eslint-disable header/header */
 const name = "@azure/msal-node";
-const version = "6.0.1";
+const version = "7.1.2";
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -60561,7 +61137,7 @@ class BaseClient {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -60661,7 +61237,7 @@ class UsernamePasswordClient extends BaseClient {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -60698,7 +61274,128 @@ function getAuthCodeRequestUrl(config, authority, request, logger) {
     return getAuthorizeUrl(authority, parameters);
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
+
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
+const activeSilentTokenRequests = new WeakMap();
+/**
+ * Shares an in-flight silent acquisition while preserving each caller's correlation ID.
+ */
+function acquireTokenSilentDeduped(owner, logger, silentRequestKey, correlationId, acquireToken) {
+    const existingRequests = activeSilentTokenRequests.get(owner);
+    const activeRequests = existingRequests || new Map();
+    if (!existingRequests) {
+        activeSilentTokenRequests.set(owner, activeRequests);
+    }
+    const inProgressRequest = activeRequests.get(silentRequestKey);
+    if (inProgressRequest) {
+        logger.verbose("acquireTokenSilent has been called previously, returning the result from the first call", correlationId);
+        return applyCallerCorrelationIdToResult(inProgressRequest, correlationId);
+    }
+    logger.verbose("acquireTokenSilent called for the first time, storing active request", correlationId);
+    const activeRequest = Promise.resolve()
+        .then(acquireToken)
+        .finally(() => {
+        activeRequests.delete(silentRequestKey);
+        if (activeRequests.size === 0) {
+            activeSilentTokenRequests.delete(owner);
+        }
+    });
+    activeRequests.set(silentRequestKey, activeRequest);
+    return applyCallerCorrelationIdToResult(activeRequest, correlationId);
+}
+/**
+ * Builds the key used to identify equivalent in-progress silent requests.
+ */
+function getSilentRequestKey(input) {
+    const { request } = input;
+    const authority = input.requestType === "native" ? request.authority : input.authority;
+    const commonKeyFields = {
+        requestType: input.requestType,
+        clientId: input.requestType === "native"
+            ? input.request.clientId
+            : input.clientId,
+        authority,
+        scopes: canonicalizeRequestValues(request.scopes),
+        claims: request.claims,
+        authenticationScheme: request.authenticationScheme,
+        resourceRequestMethod: request.resourceRequestMethod,
+        resourceRequestUri: request.resourceRequestUri,
+        forceRefresh: request.forceRefresh,
+        redirectUri: request.redirectUri || "",
+        resource: request.resource,
+        extraParameters: canonicalizeRequestValues(request.extraParameters),
+    };
+    if (input.requestType === "native") {
+        return JSON.stringify({
+            ...commonKeyFields,
+            accountId: input.request.accountId,
+            shrNonce: input.request.shrNonce,
+            extraScopesToConsent: canonicalizeRequestValues(input.request.extraScopesToConsent),
+            loginHint: input.request.loginHint,
+            prompt: input.request.prompt,
+        });
+    }
+    const nonNativeRequest = input.request;
+    const thumbprint = getRequestThumbprint(input.clientId, { ...nonNativeRequest, authority }, nonNativeRequest.account.homeAccountId);
+    return JSON.stringify({
+        ...thumbprint,
+        ...commonKeyFields,
+        accountTenantId: nonNativeRequest.account.tenantId,
+        accountEnvironment: nonNativeRequest.account.environment,
+        refreshTokenExpirationOffsetSeconds: nonNativeRequest.refreshTokenExpirationOffsetSeconds,
+        extraQueryParameters: canonicalizeRequestValues(nonNativeRequest.extraQueryParameters),
+        skipBrokerClaims: thumbprint.embeddedClientId ||
+            nonNativeRequest.extraParameters?.[BROKER_CLIENT_ID]
+            ? nonNativeRequest.skipBrokerClaims
+            : undefined,
+    });
+}
+/**
+ * Copies mutable native request values so execution cannot diverge from the stored key.
+ */
+function snapshotNativeRequest(request) {
+    return {
+        ...request,
+        scopes: [...request.scopes],
+        extraParameters: request.extraParameters
+            ? { ...request.extraParameters }
+            : undefined,
+        extraScopesToConsent: request.extraScopesToConsent
+            ? [...request.extraScopesToConsent]
+            : undefined,
+    };
+}
+/**
+ * Canonicalizes scope sets and request dictionaries without changing the outgoing request.
+ */
+function canonicalizeRequestValues(values) {
+    if (Array.isArray(values)) {
+        return Array.from(new Set(values
+            .map((scope) => scope.trim())
+            .filter((scope) => scope.length > 0))).sort();
+    }
+    return values
+        ? Object.keys(values)
+            .sort()
+            .map((key) => [key, values[key]])
+        : undefined;
+}
+/**
+ * Applies the caller's correlation ID to successful results.
+ * Shared failures retain the original error and underlying operation correlation ID.
+ */
+function applyCallerCorrelationIdToResult(activeRequest, correlationId) {
+    return activeRequest.then((result) => ({
+        ...result,
+        correlationId,
+    }));
+}
+
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -60824,6 +61521,7 @@ class ClientApplication {
      *
      * This API expects the user to provide an account object and looks into the cache to retrieve the token if present.
      * There is also an optional "forceRefresh" boolean the user can send to bypass the cache for access_token and id_token.
+     * Concurrent requests with the same request thumbprint return the same in-progress result.
      * In case the refresh_token is expired or not found, an error is thrown
      * and the guidance is for the user to call any interactive token acquisition API (eg: `acquireTokenByCode()`).
      */
@@ -60833,9 +61531,22 @@ class ClientApplication {
             ...(await this.initializeBaseRequest(request)),
             forceRefresh: request.forceRefresh || false,
         };
+        if (!validRequest.account) {
+            return this.acquireTokenSilentAsync(validRequest, request.azureCloudOptions);
+        }
+        const authorityForThumbprint = Authority.generateAuthority(validRequest.authority, request.azureCloudOptions || this.config.auth.azureCloudOptions);
+        const silentRequestKey = getSilentRequestKey({
+            requestType: "non-native",
+            request: validRequest,
+            authority: authorityForThumbprint,
+            clientId: this.config.auth.clientId,
+        });
+        return acquireTokenSilentDeduped(this, this.logger, silentRequestKey, validRequest.correlationId, () => this.acquireTokenSilentAsync(validRequest, request.azureCloudOptions));
+    }
+    async acquireTokenSilentAsync(validRequest, azureCloudOptions) {
         const serverTelemetryManager = this.initializeServerTelemetryManager(ApiId.acquireTokenSilent, validRequest.correlationId, validRequest.forceRefresh);
         try {
-            const discoveredAuthority = await this.createAuthority(validRequest.authority, validRequest.correlationId, undefined, request.azureCloudOptions);
+            const discoveredAuthority = await this.createAuthority(validRequest.authority, validRequest.correlationId, undefined, azureCloudOptions);
             const clientConfiguration = await this.buildOauthClientConfiguration(discoveredAuthority, validRequest.correlationId, validRequest.redirectUri || "", serverTelemetryManager);
             const silentFlowClient = new SilentFlowClient(clientConfiguration, new StubPerformanceClient());
             this.logger.verbose("Silent flow client created", validRequest.correlationId);
@@ -61071,7 +61782,7 @@ class ClientApplication {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -61119,28 +61830,23 @@ class LoopbackClient {
                         "Auth code was successfully acquired. You can close this window now.");
                     return;
                 }
-                // GET with query params (existing query response_mode flow)
+                /*
+                 * GET requests may load the success page or browser resources, but OAuth
+                 * responses must be delivered via form_post.
+                 */
                 if (method === "GET") {
                     const redirectUri = this.getRedirectUri();
                     const parsedUrl = new URL(url, redirectUri);
                     const authCodeResponse = getDeserializedResponse(parsedUrl.search) || {};
                     if (!authCodeResponse.code && !authCodeResponse.error) {
-                        // Ignore requests without OAuth params (e.g., /favicon.ico)
+                        // Ignore requests without OAuth params (e.g., /favicon.ico).
                         res.writeHead(200);
                         res.end();
                         return;
                     }
-                    if (authCodeResponse.code) {
-                        res.writeHead(HTTP_REDIRECT, {
-                            location: redirectUri,
-                        }); // Prevent auth code from being saved in the browser history
-                        res.end();
-                    }
-                    if (authCodeResponse.error) {
-                        res.end(errorTemplate ||
-                            `Error occurred: ${authCodeResponse.error}`);
-                    }
-                    resolve(authCodeResponse);
+                    res.writeHead(400);
+                    res.end("OAuth responses must use form_post and cannot be returned in the URL.");
+                    reject(NodeAuthError.createLoopbackServerQueryResponseNotSupportedError());
                 }
                 else {
                     // Non-root POST (no OAuth response expected here) — ignore
@@ -61242,7 +61948,7 @@ class LoopbackClient {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -61457,7 +62163,7 @@ class DeviceCodeClient extends BaseClient {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -61566,10 +62272,8 @@ class PublicClientApplication extends ClientApplication {
         }
         const { verifier, challenge } = await this.cryptoProvider.generatePkceCodes();
         const loopbackClient = new LoopbackClient(preferredPort);
-        // Validate and resolve responseMode
-        const responseMode = remainingProperties.responseMode ??
-            ResponseMode.FORM_POST;
-        if (responseMode !== ResponseMode.QUERY &&
+        const responseMode = remainingProperties.responseMode;
+        if (responseMode !== undefined &&
             responseMode !== ResponseMode.FORM_POST) {
             throw createClientConfigurationError(invalidResponseMode, correlationId);
         }
@@ -61592,7 +62296,7 @@ class PublicClientApplication extends ClientApplication {
                 correlationId: correlationId,
                 scopes: request.scopes || OIDC_DEFAULT_SCOPES,
                 redirectUri: redirectUri,
-                responseMode: responseMode,
+                responseMode: ResponseMode.FORM_POST,
                 codeChallenge: challenge,
                 codeChallengeMethod: CodeChallengeMethodValues.S256,
             };
@@ -61631,7 +62335,8 @@ class PublicClientApplication extends ClientApplication {
         this.logger.trace("acquireTokenSilent called", correlationId);
         enforceResourceParameter(this.config.auth.isMcp, request);
         if (this.nativeBrokerPlugin) {
-            const brokerRequest = {
+            const nativeBrokerPlugin = this.nativeBrokerPlugin;
+            const brokerRequest = snapshotNativeRequest({
                 ...request,
                 clientId: this.config.auth.clientId,
                 scopes: request.scopes || OIDC_DEFAULT_SCOPES,
@@ -61645,8 +62350,12 @@ class PublicClientApplication extends ClientApplication {
                 },
                 accountId: request.account.nativeAccountId,
                 forceRefresh: request.forceRefresh || false,
-            };
-            return this.nativeBrokerPlugin.acquireTokenSilent(brokerRequest);
+            });
+            const silentRequestKey = getSilentRequestKey({
+                requestType: "native",
+                request: brokerRequest,
+            });
+            return acquireTokenSilentDeduped(this, this.logger, silentRequestKey, correlationId, () => nativeBrokerPlugin.acquireTokenSilent(brokerRequest));
         }
         if (request.redirectUri) {
             // If it's not a broker fallback scenario, we throw an error
@@ -61741,7 +62450,7 @@ class PublicClientApplication extends ClientApplication {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -61981,7 +62690,7 @@ class ClientCredentialClient extends BaseClient {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -62214,7 +62923,7 @@ class OnBehalfOfClient extends BaseClient {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -62321,7 +63030,7 @@ class UserFederatedIdentityCredentialClient extends BaseClient {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -62354,6 +63063,10 @@ class ConfidentialClientApplication extends ClientApplication {
      * @param Configuration - configuration object for the MSAL ConfidentialClientApplication instance
      */
     constructor(configuration) {
+        if ("instanceAware" in configuration.auth &&
+            configuration.auth.instanceAware === true) {
+            throw NodeAuthError.createUnsupportedCcaInstanceAwareError();
+        }
         super(configuration);
         const clientSecretNotEmpty = !!this.config.auth.clientSecret;
         const clientAssertionNotEmpty = !!this.config.auth.clientAssertion;
@@ -62394,6 +63107,29 @@ class ConfidentialClientApplication extends ClientApplication {
                 this.config.auth.clientCertificate.thumbprint, this.config.auth.clientCertificate.privateKey, this.config.auth.clientCertificate.x5c);
         }
         this.appTokenProvider = undefined;
+    }
+    /**
+     * Creates the URL of the authorization request.
+     */
+    async getAuthCodeUrl(request) {
+        if (request.extraQueryParameters &&
+            Object.prototype.hasOwnProperty.call(request.extraQueryParameters, "instance_aware")) {
+            throw NodeAuthError.createUnsupportedCcaInstanceAwareError(request.correlationId);
+        }
+        return super.getAuthCodeUrl(request);
+    }
+    /**
+     * Acquires a token by exchanging an authorization code.
+     */
+    async acquireTokenByCode(request, authCodePayload) {
+        const sanitizedAuthCodePayload = authCodePayload
+            ? {
+                code: request.code,
+                state: authCodePayload.state,
+                nonce: request.nonce,
+            }
+            : undefined;
+        return super.acquireTokenByCode(request, sanitizedAuthCodePayload);
     }
     /**
      * This extensibility point only works for the client_credential flow, i.e. acquireTokenByClientCredential and
@@ -62558,7 +63294,7 @@ class ConfidentialClientApplication extends ClientApplication {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -62578,7 +63314,7 @@ function isIso8601(dateString) {
     return !isNaN(date.getTime()) && date.toISOString() === dateString;
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -62619,7 +63355,7 @@ class HttpClientWithRetries {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -62864,7 +63600,7 @@ BaseManagedIdentitySource.getValidatedEnvVariableUrlString = (envVariableStringN
     }
 };
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -62897,7 +63633,7 @@ class LinearRetryStrategy {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -62941,7 +63677,7 @@ class DefaultManagedIdentityRetryPolicy {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -62974,7 +63710,7 @@ class ManagedIdentityRequestParameters {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -63077,7 +63813,7 @@ class AppService extends BaseManagedIdentitySource {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -63391,7 +64127,7 @@ class AzureArc extends BaseManagedIdentitySource {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -63486,7 +64222,7 @@ class CloudShell extends BaseManagedIdentitySource {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -63523,7 +64259,7 @@ class ExponentialRetryStrategy {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -63608,7 +64344,7 @@ class ImdsRetryPolicy {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -63714,7 +64450,7 @@ class Imds extends BaseManagedIdentitySource {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -63830,7 +64566,7 @@ class ServiceFabric extends BaseManagedIdentitySource {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -63952,7 +64688,7 @@ class MachineLearning extends BaseManagedIdentitySource {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -64019,7 +64755,7 @@ class ManagedIdentityClient {
     }
 }
 
-/*! @azure/msal-node v6.0.1 2026-09-15 */
+/*! @azure/msal-node v7.1.2 2026-10-27 */
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -69480,7 +70216,10 @@ class DefaultAzureCredential extends ChainedTokenCredential {
                     // Setting `sendProbeRequest` to false to ensure ManagedIdentityCredential behavior
                     // is consistent when used standalone in DAC chain or used directly.
                     credentialFunctions = [
-                        () => createDefaultManagedIdentityCredential({ sendProbeRequest: false }),
+                        () => createDefaultManagedIdentityCredential({
+                            ...options,
+                            sendProbeRequest: false,
+                        }),
                     ];
                     break;
                 case "visualstudiocodecredential":
