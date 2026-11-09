@@ -54,7 +54,7 @@
     "nerdbank-gitversioning": "^3.10.94",
     "prettier": "3.9.10",
     "rollup": "^4.65.1",
-    "ts-jest": "^29.4.11",
+    "ts-jest": "^29.4.15",
     "typescript": "^6.0.3"
   },
   "allowScripts": {
