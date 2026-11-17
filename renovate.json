@@ -11,6 +11,9 @@
     "fileFilters": [
       "dist/**"
     ],
-    "executionMode": "branch"
+    "executionMode": "branch",
+    "installTools": {
+      "pnpm": {}
+    }
   }
 }
