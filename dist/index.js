@@ -41131,7 +41131,7 @@ const logger$k = createClientLogger("keyvault-secrets");
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-const SDK_VERSION$1 = "4.11.2";
+const SDK_VERSION$1 = "4.12.0";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -41153,7 +41153,7 @@ function createKeyVault(endpointParam, credential, options = {}) {
     };
     const clientContext = getClient(endpointUrl, credential, updatedOptions);
     clientContext.pipeline.removePolicy({ name: "ApiVersionPolicy" });
-    const apiVersion = options.apiVersion ?? "2025-07-01";
+    const apiVersion = options.apiVersion ?? "2026-04-01";
     clientContext.pipeline.addPolicy({
         name: "ClientApiVersionPolicy",
         sendRequest: (req, next) => {
@@ -41353,6 +41353,8 @@ var KnownVersions;
     KnownVersions["V76"] = "7.6";
     /** The 2025-07-01 API version. */
     KnownVersions["V20250701"] = "2025-07-01";
+    /** The 2026-04-01 API version. */
+    KnownVersions["V20260401"] = "2026-04-01";
 })(KnownVersions || (KnownVersions = {}));
 
 // Copyright (c) Microsoft Corporation.
@@ -42484,7 +42486,7 @@ function parseKeyVaultIdentifier(collection, identifier) {
 /**
  * The latest supported KeyVault service API version
  */
-const LATEST_API_VERSION = "2025-07-01";
+const LATEST_API_VERSION = "2026-04-01";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
