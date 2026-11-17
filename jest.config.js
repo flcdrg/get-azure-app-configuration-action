@@ -13,7 +13,11 @@ export default {
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { useESM: false, tsconfig: { module: 'CommonJS', allowJs: true } }]
   },
-  transformIgnorePatterns: ['/node_modules/(?!(@actions/io|@actions/exec)/)'],
+  // Allow the ESM action-toolkit packages through ts-jest under pnpm's .pnpm layout.
+  transformIgnorePatterns: [
+    '/node_modules/.pnpm/(?!(?:@actions\\+io|@actions\\+exec)@)',
+    '/node_modules/(?!\\.pnpm|@actions/io|@actions/exec)'
+  ],
   verbose: true,
   testTimeout: 20000
 }

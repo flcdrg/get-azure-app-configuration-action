@@ -20,14 +20,11 @@ jobs:
         with:
           fetch-depth: 0 # full history for GitVersioning
 
-      - name: Set Node.js 24.x
-        uses: actions/setup-node@v7.0.0
-        with:
-          node-version: 24.x
+      - uses: pnpm/setup@v3
 
       - run: |
-          npm ci
-          npx nbgv cloud --all-vars
+          pnpm install --frozen-lockfile
+          pnpm exec nbgv cloud --all-vars
 
       - name: gitversion
         id: gitversion
@@ -42,7 +39,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - run: |
-          npm run all
+          pnpm run all
 
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
