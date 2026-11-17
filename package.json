@@ -2,6 +2,7 @@
   "name": "actions-get-azure-app-configuration",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "pnpm@12.21.0+sha512.66fd8278ee28935ce951792d34367ff3af5c432a2756445823029533835b8da529bbe0be5130afd56ed0713fb8789e47bad82d93bd5ae2fe54b15562d6276ef0",
   "description": "Get Azure App Configuration",
   "main": "lib/main.js",
   "scripts": {
@@ -9,10 +10,10 @@
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
-    "package": "npx rimraf ./dist && npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
+    "package": "pnpm exec rimraf ./dist && pnpm exec rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "test": "jest",
     "integration-test": "jest --config jest.integration.config.js",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "all": "pnpm run build && pnpm run format && pnpm run lint && pnpm run package && pnpm test"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "@azure/keyvault-secrets": "^4.12.0"
   },
   "devDependencies": {
+    "@azure/core-paging": "^1.6.2",
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^10.0.1",
     "@jest/globals": "^30.4.1",
@@ -53,13 +55,9 @@
     "js-yaml": "^5.5.0",
     "nerdbank-gitversioning": "^3.10.94",
     "prettier": "3.9.10",
+    "rimraf": "^6.0.1",
     "rollup": "^4.65.1",
     "ts-jest": "^29.4.15",
     "typescript": "^6.0.3"
-  },
-  "allowScripts": {
-    "@parcel/watcher@2.6.0": true,
-    "fsevents@2.3.3": true,
-    "unrs-resolver@1.12.2": true
   }
 }

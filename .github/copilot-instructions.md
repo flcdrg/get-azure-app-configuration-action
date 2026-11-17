@@ -5,24 +5,24 @@
 Use Node 20 and install dependencies with:
 
 ```bash
-npm ci
+pnpm install --frozen-lockfile
 ```
 
 Primary project scripts:
 
 ```bash
-npm run build      # TypeScript: src -> lib
-npm run lint       # ESLint over src/**/*.ts
-npm test           # Jest (current tests are Azure-backed integration-style tests)
-npm run package    # Bundle to dist/index.js with @vercel/ncc
-npm run all        # build + format + lint + package + test
+pnpm run build      # TypeScript: src -> lib
+pnpm run lint       # ESLint over src/**/*.ts
+pnpm test           # Jest (current tests are Azure-backed integration-style tests)
+pnpm run package    # Bundle to dist/index.js with Rollup
+pnpm run all        # build + format + lint + package + test
 ```
 
 Run a single test file / test case:
 
 ```bash
-npm test -- src/__tests__/appConfiguration.test.ts
-npm test -- src/__tests__/appConfiguration.test.ts -t "single key1"
+pnpm test src/__tests__/appConfiguration.test.ts
+pnpm test src/__tests__/appConfiguration.test.ts -t "single key1"
 ```
 
 Test prerequisites (from test workflow + test file behavior):
@@ -50,8 +50,8 @@ This repository builds a JavaScript GitHub Action that runs from `dist/index.js`
    - Uses `DefaultAzureCredential` + `SecretClient`.
    - Fetches the secret value and masks it with `core.setSecret`.
 4. Build/package flow:
-   - `npm run build` compiles TS to `lib/`.
-   - `npm run package` (ncc) bundles to `dist/index.js` (the runtime entry referenced by `action.yml`).
+   - `pnpm run build` compiles TS to `lib/`.
+   - `pnpm run package` bundles to `dist/index.js` (the runtime entry referenced by `action.yml`).
 
 ## Key conventions in this codebase
 
